@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mollip - 회원가입</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <main>
+        <div class="authInner">
+            <!-- 기본 상단문구 -->
+            <section id="auth-top">
+                <div id="LOGO-auth">
+                    <img src="./images/LOGO.png">
+                </div>
+                <h2>안녕하세요, 몰입입니다.</h2>
+                <p>서비스 이용을 위해 로그인 해주세요.</p>
+            </section>
+
+            <!-- 가입 폼 -->
+            <form id="signupForm">
+                <div class="inputBox">
+                    <input type="text" name="userid" id="userid" maxlength="20" placeholder="아이디">
+                    <input type="button" name="duplBtn" id="inputBtn" value="중복확인" onclick="duplCheck()">
+                </div>
+                <div class="inputBox">
+                    <input type="password" name="userpw" id="userpw" maxlength="20" placeholder="비밀번호">
+                </div>
+                <div class="inputBox">
+                    <input type="password" name="userpw_re" id="userpw_re" maxlength="20" placeholder="비밀번호 확인">
+                </div>
+                <div class="inputBox">
+                    <input type="text" name="nickname" id="nickname" maxlength="20" placeholder="닉네임">
+                </div>
+                <div class="inputBox">
+                    <input type="text" name="username" id="username" maxlength="20" placeholder="이름">
+                </div>
+                <div class="inputBox">
+                    <input type="email" name="email" id="email" maxlength="50" placeholder="이메일">
+                </div> 
+                <button type="submit" class="submitBtn">회원가입</button>
+            </form>
+
+            <!-- 로그인창 가기 -->
+            <div class="linkBox">
+                <span>이미 계정이 있으신가요?</span>
+                <a href="/login.html">로그인</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/signup.js"></script> 
+</body>
+</html>

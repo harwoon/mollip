@@ -1,0 +1,206 @@
+/* =========================
+    Auth Layout
+========================= */
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.authInner {
+    width: 100%;
+    max-width: 900px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 70px 50px;
+    border-radius: 40px;
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================
+    Top
+========================= */
+
+#auth-top {
+    width: 100%;
+    max-width: 420px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 40px;
+}
+
+#LOGO-auth img {
+    width: 180px;
+    margin-bottom: 25px;
+}
+
+#auth-top h2 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+#auth-top p {
+    color: var(--text-sub-color);
+    font-size: 0.95rem;
+}
+
+/* =========================
+    Form
+========================= */
+
+form {
+    width: 100%;
+    max-width: 420px;
+}
+
+.inputBox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+.inputBox input {
+    width: 100%;
+    height: 50px;
+
+    padding: 0 16px;
+
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    transition: var(--transition);
+}
+
+.inputBox input:focus {
+    border-color: var(--main-color);
+}
+
+/* =========================
+    ID 중복확인 버튼
+========================= */
+
+#inputBtn {
+    width: 110px;
+    min-width: 110px;
+
+    cursor: pointer;
+
+    background: var(--main-color);
+    color: white;
+
+    border: none;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#inputBtn:hover {
+    background: var(--main-hover);
+}
+
+/* =========================
+    Submit
+========================= */
+
+.submitBtn {
+    width: 100%;
+    height: 52px;
+
+    margin-top: 10px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: var(--main-color);
+    color: white;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.submitBtn:hover {
+    background: var(--main-hover);
+}
+
+/* =========================
+    Bottom Link
+========================= */
+
+.linkBox {
+    margin-top: 25px;
+
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+
+    font-size: 14px;
+}
+
+.linkBox span {
+    color: var(--text-sub-color);
+}
+
+.linkBox a {
+    color: var(--main-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.linkBox a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+    Validation
+========================= */
+
+.check-success {
+    border-color: var(--success-color) !important;
+}
+
+.check-fail {
+    border-color: var(--error-color) !important;
+}
+
+/* =========================
+    Responsive
+========================= */
+
+@media (max-width: 480px) {
+
+    #LOGO-auth img {
+        width: 150px;
+    }
+
+    #auth-top h2 {
+        font-size: 1.5rem;
+    }
+
+    .inputBox {
+        flex-direction: column;
+    }
+
+    #inputBtn {
+        width: 100%;
+    }
+}

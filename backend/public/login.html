@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mollip - 로그인</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <main>
+        <div class="authInner">
+            <!-- 기본 상단문구 -->
+            <section id="auth-top">
+                <div id="LOGO-auth">
+                    <img src="./images/LOGO.png">
+                </div>
+                <h2>안녕하세요, 몰입입니다.</h2>
+                <p>서비스 이용을 위해 로그인 해주세요.</p>
+            </section>
+
+            <!-- 입력 폼 -->
+            <form id="loginForm">
+                <div class="inputBox">
+                    <input type="text" name="userid" id="userid" placeholder="아이디를 입력하세요" maxlength="20">
+                </div>
+                <div class="inputBox">
+                    <input type="password" name="userpw" id="userpw" placeholder="비밀번호를 입력하세요" maxlength="20">
+                </div>
+                <button class="submitBtn" type="submit">로그인</button>
+            </form>
+
+            <!-- 로그인창 가기 -->
+            <div class="linkBox">
+                <span>아직 계정이 없으신가요?</span>
+                <!--회원가입페이지 작성 완료 후 연결-->
+                <a href="/signup.html">회원가입</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/login.js"></script>
+</body>
+</html>
