@@ -1,5 +1,6 @@
 import express from "express"
 import * as studyRepository from "../repository/study.js"
+import { getWeekRange } from "../util/date.js"
 
 // 공부 기록 추가
 export async function addStudy(req, res) {
@@ -34,19 +35,51 @@ export async function addStudy(req, res) {
     }
 }
 
-// 일간 기록 가져오기
-export async function getDailyRecords(req, res) {
+// 일간,주간,월간 기록 가져오기
+export async function getRecords(req, res) {
 
-    const { date } = req.query
-    const  userId  = req.user._id
+    const { type, date } = req.query
+    const userId = req.user._id
 
     try {
-        const studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
+        let studies
+
+        if (type === "daily") {
+            studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
+        }
+        else if (type === "weekly") {
+            const { startDate, endDate } = getWeekRange(date)
+            studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate)
+        }
+        else if (type === "monthly") {
+            const month = date.slice(0, -3)
+            studies = await studyRepository.getMonthlyByUserIdAndDate(userId, month)
+        }
+        else {
+            return res.status(400).json({ message: "올바른 type을 입력해주세요." })
+        }
+
+        return res.status(200).json(studies)
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "서버 오류로 공부 기록을 불러오지 못했습니다." })
+    }
+}
+
+export async function getWeeklyRecords(req, res) {
+
+    const { date } = req.query
+    const userId = req.user._id
+
+    try {
+        const studies = await studyRepository.getWeeklyByUserIdAndDate(userId, date)
         console.log(studies)
         return res.status(200).json(studies)
 
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ message: "서버 오류로 일간 기록을 불러오지 못했습니다." })
+        return res.status(500).json({ message: "서버 오류로 주간 기록을 불러오지 못했습니다." })
     }
+
 }

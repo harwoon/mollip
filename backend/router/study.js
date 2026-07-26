@@ -9,12 +9,8 @@ const router = express.Router()
 router.post("/addStudy",isAuth, studyController.addStudy)
 
 // 일간 기록 조회
-//http://127.0.0.1:3000/study/records?date=2026-07-26
-router.get("/records", isAuth, studyController.getDailyRecords)
-
-// 주간 기록 조회
-
-// 월간 기록 조회
+//http://127.0.0.1:3000/study/records?type=daily&date=2026-07-26
+router.get("/records", isAuth, studyController.getRecords)
 
 // 일간 과목 기록 조회
 
