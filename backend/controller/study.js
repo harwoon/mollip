@@ -67,19 +67,33 @@ export async function getRecords(req, res) {
     }
 }
 
-export async function getWeeklyRecords(req, res) {
+export async function getRecordsbySubject(req, res) {
 
-    const { date } = req.query
+    const { type,subject, date } = req.query
     const userId = req.user._id
 
     try {
-        const studies = await studyRepository.getWeeklyByUserIdAndDate(userId, date)
-        console.log(studies)
+        let studies
+
+        if (type === "daily") {
+            studies = await studyRepository.getDailyByUserIdAndSubjectAndDate(userId,subject, date)
+        }
+        else if (type === "weekly") {
+            const { startDate, endDate } = getWeekRange(date)
+            studies = await studyRepository.getWeeklyByUserIdAndSubjectAndDate(userId,subject, startDate, endDate)
+        }
+        else if (type === "monthly") {
+            const month = date.slice(0, -3)
+            studies = await studyRepository.getMonthlyByUserIdAndSubjectAndDate(userId,subject, month)
+        }
+        else {
+            return res.status(400).json({ message: "올바른 type을 입력해주세요." })
+        }
+
         return res.status(200).json(studies)
 
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ message: "서버 오류로 주간 기록을 불러오지 못했습니다." })
+        return res.status(500).json({ message: "서버 오류로 과목 공부 기록을 불러오지 못했습니다." })
     }
-
 }

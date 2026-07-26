@@ -6,6 +6,7 @@ export async function createStudy(studyData) {
     return savedStudy.toObject()
 }
 
+// 일간 기록 가져오기
 export async function getDailyByUserIdAndDate(user, date) {
     return Study.find({ 
         user, 
@@ -16,6 +17,7 @@ export async function getDailyByUserIdAndDate(user, date) {
     // return Study.find({user,studyDate:date}).select("studyTitle studyDate sumStudyTime -_id")
 }
 
+// 주간 기록 가져오기
 export async function getWeeklyByUserIdAndDate(user, startDate, endDate) {
     return Study.find({
         user,
@@ -26,9 +28,40 @@ export async function getWeeklyByUserIdAndDate(user, startDate, endDate) {
     })
 }
 
+// 월간 기록 가져오기
 export async function getMonthlyByUserIdAndDate(user, month) {
     return Study.find({ 
         user, 
+        studyDate: { $regex: `^${month}` } 
+    })
+}
+
+// 일간 과목 기록 가져오기
+export async function getDailyByUserIdAndSubjectAndDate(user, subject,date) {
+    return Study.find({ 
+        user,
+        studyTitle:subject, 
+        studyDate: date 
+    })
+}
+
+// 주간 과목 기록 가져오기
+export async function getWeeklyByUserIdAndSubjectAndDate(user, subject, startDate, endDate) {
+    return Study.find({
+        user,
+        studyTitle: subject,
+        studyDate: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    })
+}
+
+// 월간 과목 기록 가져오기
+export async function getMonthlyByUserIdAndSubjectAndDate(user,subject, month) {
+    return Study.find({ 
+        user, 
+        startTitle:subject,
         studyDate: { $regex: `^${month}` } 
     })
 }
