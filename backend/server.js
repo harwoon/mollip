@@ -6,6 +6,7 @@ import { config } from "./config.mjs"
 import { connectDB } from "./db/database.js"
 import authRouter from "./router/auth.js"
 import studyRouter from "./router/study.js"
+import statRouter from "./router/statistics.js"
 
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/auth", authRouter)
 app.use("/study",studyRouter)
+app.use("/statistics",statRouter)
 
 app.use((req, res) => {
     res.sendStatus(404)

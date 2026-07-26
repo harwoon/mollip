@@ -94,12 +94,10 @@ export async function getRecords(req, res) {
 }
 
 export async function getRecordsbySubject(req, res) {
-    console.log("컨트롤러")
 
     const { type, subject, date } = req.query
     const userId = req.user._id
 
-    console.log(subject)
 
     try {
         let studies
