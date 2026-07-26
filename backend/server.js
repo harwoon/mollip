@@ -1,10 +1,11 @@
 import express from "express"
+import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
 import { config } from "./config.mjs"
 import { connectDB } from "./db/database.js"
 import authRouter from "./router/auth.js"
-import cors from "cors"
+import studyRouter from "./router/study.js"
 
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/auth", authRouter)
+app.use("/study",studyRouter)
 
 app.use((req, res) => {
     res.sendStatus(404)

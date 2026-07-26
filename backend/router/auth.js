@@ -2,8 +2,6 @@ import express from "express"
 import * as authController from "../controller/auth.js"
 import { isAuth } from "../middleware/auth.js"
 import { uploadProfile } from "../middleware/profile_upload.js"
-import mongoose from "mongoose"
-import Product from "../models/User.js"
 
 const router = express.Router()
 
