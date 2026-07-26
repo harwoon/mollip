@@ -35,4 +35,8 @@ router.patch(
     authController.updateProfileImage
 )
 
+// 과목 생성
+// http://127.0.0.1:3000/auth/subject
+router.post("/subject", isAuth, authController.addSubject)
+
 export default router
