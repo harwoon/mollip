@@ -3,9 +3,10 @@ import mongoose from "mongoose"
 
 const studySchema = new mongoose.Schema(
     {
-        userId: {
-            type: String,
-            required: true
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "User", // User 모델을 참조
         },
         studyTitle: {
             type: String,

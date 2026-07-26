@@ -27,7 +27,7 @@ export const isAuth = async (req, res, next) => {
             console.log("해당 ID 없음")
             return res.status(401).json(AUTH_ERROR)
         }
-        console.log("user")
+        console.log("isAuth")
         req.user = user
         req.token = token
         next()

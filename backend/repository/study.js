@@ -5,3 +5,7 @@ export async function createStudy(studyData) {
     const savedStudy = await study.save()
     return savedStudy.toObject()
 }
+
+export async function getDailyByUserIdAndDate(user, date) {
+    return Study.find({ user, studyDate: date })
+}
