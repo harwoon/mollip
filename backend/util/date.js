@@ -29,3 +29,14 @@ export function getWeekRange(date) {
         endDate: formatDate(endDateObj)
     }
 }
+
+// 어제 날짜 구하기
+export function getYesterday(dateString) {
+    const dateObj = new Date(dateString)
+    dateObj.setDate(dateObj.getDate() - 1)
+    
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const date = String(dateObj.getDate()).padStart(2, '0')
+    return `${year}-${month}-${date}`
+}

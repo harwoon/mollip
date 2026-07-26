@@ -34,3 +34,16 @@ export async function updateProfileImage(id, profileImage) {
         { new: true }
     )
 }
+
+// 연속 학습 일수 갱신
+export async function updateStreak(userId, currentStreak, maxStreak, lastStudyDate) {
+    return User.findByIdAndUpdate(
+        userId, 
+        { 
+            currentStreak, 
+            maxStreak, 
+            lastStudyDate 
+        },
+        { new: true }
+    )
+}

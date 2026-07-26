@@ -34,6 +34,20 @@ const userSchema = new mongoose.Schema(
         groupId: {
             type: String,
             default: 'Unranked',
+        },
+        lastStudyDate: {
+            type: String,
+            default: ""
+        },
+
+        currentStreak: {
+            type: Number,
+            default: 0
+        },
+
+        maxStreak: {
+            type: Number,
+            default: 0
         }
     },
     {
