@@ -178,7 +178,7 @@ export async function updateProfileImage(req, res) {
 }
 
 // 유저 과목 추가
-export async function addSubject(req.res) {
+export async function addSubject(req,res) {
     const { subjectName, subjectColor } = req.body
     const userId = req.user._id
 
