@@ -9,7 +9,7 @@ const router = express.Router()
 router.get("/total",isAuth,statController.getTotal)
 
 // 일간/주간/월간 과목 비율 조회
-//http://127.0.0.1:3000/statistics/ratio?type=daily&subject=국어&date=2026-07-26
+//http://127.0.0.1:3000/statistics/ratio?type=daily&date=2026-07-26
 router.get("/ratio",isAuth,statController.getRatio)
 
 export default router
