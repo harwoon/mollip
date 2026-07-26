@@ -4,6 +4,35 @@ import * as bcrypt from "bcrypt"
 import * as authRepository from "../repository/auth.js"
 import jwt from "jsonwebtoken"
 
+// 파일 읽기를 위한 내장 모듈 임포트
+import fs from "fs"
+import path from "path"
+import { fileURLToPath } from "url"
+
+// ES Module 환경에서 __dirname 사용을 위한 설정
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// 비속어 필터링을 위한 금칙어 목록 로드
+let badWords = []
+try{
+    const filePath = path.join(__dirname, "../public/badwords/badwords.txt")
+    const fileData = fs.readFileSync(filePath, "utf-8")
+
+    badWords = fileData.split("\n").map(word => word.trim()).filter(word => word.length > 0)
+    console.log("금칙어 목록 로드 완료:", badWords)
+}catch(error){
+    console.error("금칙어 목록 로드 실패: ", error)
+}
+
+// 비속어 필터링 회피 방지 (예시: ㅅ@ㅂ)
+function isBannedWord(text) {
+    if (!text) return false
+    const cleanText = text.replace(/[^가-힣a-zA-Z0-9]/g, '')
+
+    return badWords.some(word => cleanText.includes(word))
+}
+
 
 // 회원 중복 체크
 export async function checkId(req, res) {
@@ -15,6 +44,12 @@ export async function checkId(req, res) {
 // 회원가입
 export async function signup(req, res) {
     const{userId, userPw, nickname, email} = req.body
+
+    // 닉네임 비속어 검사
+    if (isBannedWord(nickname)) {
+        console.log(`필터링 차단: ${nickname}`)
+        return res.status(400).json({message: "부적절한 닉네임입니다. 다른 닉네임을 사용해주세요"})
+    }
     
     // ID 중복체크
     const found = await authRepository.findByUserid(userId)
@@ -88,6 +123,12 @@ export async function logout(req, res) {
 // 회원 정보 수정 [nickname, email]
 export async function meUpdate(req, res) {
     const {nickname, email} = req.body
+
+    // 닉네임 비속어 검사
+    if (isBannedWord(nickname)) {
+        console.log(`정보 수정 닉네임 필터링 차단: ${nickname}`)
+        return res.status(400).json({message: "부적절한 닉네임입니다. 다른 닉네임을 사용해주세요"})
+    }
 
     // 로그인 한 사용자 조회
     const user = await authRepository.findById(req.user._id)
