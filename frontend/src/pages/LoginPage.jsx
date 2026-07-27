@@ -1,3 +1,9 @@
+import LoginForm from "../features/auth/components/LoginForm"
+
 export default function LoginPage() {
-  return <div>로그인 화면입니다</div>
+    return (
+        <>
+            <LoginForm />
+        </>
+    )
 }
