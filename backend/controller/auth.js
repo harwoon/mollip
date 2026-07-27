@@ -295,3 +295,16 @@ export async function deleteSubject(req, res) {
     console.log("과목 삭제(Soft Delete) 완료!")
     return res.status(200).json({ message: "과목이 삭제되었습니다." })
 }
+
+// 유저 과목 목록 조회
+export async function getSubjects(req,res) {
+    const userId = req.user._id
+
+    const subjects = await subjectRepository.findActiveSubjectsByUser(userId)
+
+    console.log("과목 목록 조회 성공!")
+    return res.status(200).json({
+        message: "과목 목록을 성공적으로 불러왔습니다.",
+        subjects: subjects
+    })
+}
