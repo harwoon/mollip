@@ -11,17 +11,11 @@ const groupSchema = new mongoose.Schema(
             required: true,
         },
         groupTime: {
-            min: {
+            
                 type: Number,
                 required: true,
                 min: 0,
-            },
-            max: {
-                type: Number,
-                default: null,
-                min: 0,
-            },
-        }
+            }
 
     },
     {
