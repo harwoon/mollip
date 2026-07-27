@@ -1,9 +1,22 @@
 import Subject from "../models/Subject.js";
 
+// 유저의 모든 과목 가져오기
+export async function findSubjectByUser(userId){
+    return await Subject.find({user:userId})
+}
+
+// 유저의 현재 과목 가져오기
 export async function findActiveSubjectsByUser(userId) {
     return await Subject.find({ user: userId, useYn: 'Y' })
 }
 
+// 유저의 아이디, 과목명으로 과목 색 가져오기
+export async function findColorByUserAndTitle(userId,subjectTitle){
+    return await Subject.find({user:userId,subjectTitle}).select("subjectColor")
+
+}
+
+// 과목 생성하기
 export async function createSubject(subjectData) {
     const newSubject = new Subject(subjectData)
     return await newSubject.save()
