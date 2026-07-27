@@ -39,4 +39,10 @@ router.patch(
 // http://127.0.0.1:3000/auth/subject
 router.post("/subject", isAuth, authController.addSubject)
 
+// 과목 수정
+router.put("/subject", isAuth, authController.updateSubject)
+
+// 과목 삭제
+router.delete("/subject", isAuth, authController.deleteSubject)
+
 export default router
