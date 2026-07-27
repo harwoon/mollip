@@ -39,7 +39,7 @@ export default function LoginForm() {
                 placeholder="아이디"
             />
             <input
-                type="userPw"
+                type="password"
                 value={userPw}
                 onChange={(e) => setUserPw(e.target.value)}
                 placeholder="비밀번호"
