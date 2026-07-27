@@ -1,8 +1,13 @@
 import Subject from "../models/Subject.js";
 
 // 유저의 모든 과목 가져오기
-export async function findSubjectByUser(userId){
-    return await Subject.find({user:userId})
+export async function findSubjectByUser(userId) {
+    return await Subject.find({ user: userId })
+}
+
+// 유저의 과목 가져오기
+export async function findBySubjectId(subjectId) {
+    return await Subject.findById(subjectId);
 }
 
 // 유저의 현재 과목 가져오기
@@ -11,8 +16,8 @@ export async function findActiveSubjectsByUser(userId) {
 }
 
 // 유저의 아이디, 과목명으로 과목 색 가져오기
-export async function findColorByUserAndTitle(userId,subjectTitle){
-    return await Subject.find({user:userId,subjectTitle}).select("subjectColor")
+export async function findColorByUserAndTitle(userId, subjectTitle) {
+    return await Subject.find({ user: userId, subjectTitle }).select("subjectColor")
 
 }
 
@@ -20,4 +25,12 @@ export async function findColorByUserAndTitle(userId,subjectTitle){
 export async function createSubject(subjectData) {
     const newSubject = new Subject(subjectData)
     return await newSubject.save()
+}
+
+export async function deleteSubject(id){
+    return await Subject.findByIdAndUpdate(
+        id,
+        {useYn : 'N'},
+        { new: true }
+    )
 }

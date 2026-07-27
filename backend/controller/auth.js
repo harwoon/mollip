@@ -298,7 +298,7 @@ export async function deleteSubject(req, res) {
     const userId = req.user._id
 
     // 1. 과목 존재 여부 및 권한 확인
-    const subject = await subjectRepository.findById(subjectId)
+    const subject = await subjectRepository.findBySubjectId(subjectId)
     if (!subject || subject.useYn === 'N') {
         return res.status(404).json({ message: "이미 삭제되었거나 없는 과목입니다." })
     }
