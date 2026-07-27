@@ -189,16 +189,25 @@ export async function addSubject(req,res) {
 
     const currentSubjects = await subjectRepository.findActiveSubjectsByUser(userId)
 
+    // 과목 개수 5개 제한
     if (currentSubjects.length >= 5) {
         return res.status(400).json({ message: "과목은 최대 5개까지 설정 가능합니다." })
     }
 
+    // 과목명 중복 검사
+    const isNameUsed = currentSubjects.some(sub => sub.subjectName === subjectName.trim())
+    if (isNameUsed) {
+        return res.status(400).json({ message: "이미 존재하는 과목명입니다."})
+    }
+
+    // 과목 컬러 중복 검사
     const isColorUsed = currentSubjects.some(subject => subject.subjectColor === subjectColor)
     if (isColorUsed) {
         console.log(`컬러 중복 차단: ${subjectColor}`)
         return res.status(400).json({ message: "해당 컬러는 이미 사용중입니다." })
     }
 
+    // DB에 저장
     const newSubject = await subjectRepository.createSubject({
         user: userId,
         subjectName: subjectName.trim(),
@@ -209,5 +218,93 @@ export async function addSubject(req,res) {
     return res.status(201).json({
         message: "과목이 정상적으로 추가되었습니다.",
         subject: newSubject
+    })
+}
+
+// 유저 과목 수정
+export async function updateSubject(req,res) {
+    const subjectId = req.parmas.id
+    const { subjectName,subjectColor } = req.body
+    const userId = req.user._id
+
+    // 과목 존재 여부 및 내 과목 권한 확인
+    const subject = await subjectRepository.findById(subjectId)
+    if(!subject || subject.useYn === 'N'){
+        return res.status(404).json({ message: "존재하지 않거나 이미 삭제된 과목입니다."})
+    }
+    if(subject.user.toString() !== userId.toString()){
+        return res.status(403).json({message: "수정 권한이 없습니다."})
+    }
+
+    // 과목명 빈 값 검사
+    if (!subjectName || subjectName.trim() === ""){
+        return res.status(400).json({ message: "과목명을 입력해주세요."})
+    }
+
+
+    const currentSubjects = await subjectRepository.findActiveSubjectsByUser(userId)
+
+    // 과목명 중복 검사 (기존 과목명 제외)
+    const isNameUsed = currentSubjects.some(
+        (sub) => sub.subjectName === subjectName.trim() && sub._id.toString() !== subjectId
+    )
+    if (isNameUsed) {
+        return res.status(400).json({ message: "이미 존재하는 과목명입니다." })
+    }
+
+    // 컬러 중복 검사 (기존 컬러 사용 가능)
+    const currentSubject = await subjectRepository.findActiveSubjectsByUser(userId)
+    const isColorUsed = currentSubject.some(
+        (sub) => sub.subjectColor === subjectColor && sub._id.toString() !== subjectId
+    )
+    if (isColorUsed) {
+        return res.status(400).json({message:"해당 컬러는 이미 사용중입니다."})
+    }
+
+    // DB에 수정 반영
+    const updateSubject = await subjectRepository.updateSubject(
+        subjectId,
+        subjectName.trim(),
+        subjectColor
+    )
+
+    console.log("과목 수정 완료!")
+    return res.status(200).json({
+        message:"과목이 정상적으로 수정되었습니다.",
+        subject: updateSubject
+    })
+}
+
+// 유저 과목 삭제 (Soft Delete)
+export async function deleteSubject(req, res) {
+    const subjectId = req.params.id
+    const userId = req.user._id
+
+    // 1. 과목 존재 여부 및 권한 확인
+    const subject = await subjectRepository.findById(subjectId)
+    if (!subject || subject.useYn === 'N') {
+        return res.status(404).json({ message: "이미 삭제되었거나 없는 과목입니다." })
+    }
+    if (subject.user.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "삭제 권한이 없습니다." })
+    }
+
+    // 2. 상태를 'N'으로 변경하여 삭제 처리
+    await subjectRepository.deleteSubject(subjectId)
+
+    console.log("과목 삭제(Soft Delete) 완료!")
+    return res.status(200).json({ message: "과목이 삭제되었습니다." })
+}
+
+// 유저 과목 목록 조회
+export async function getSubjects(req,res) {
+    const userId = req.user._id
+
+    const subjects = await subjectRepository.findActiveSubjectsByUser(userId)
+
+    console.log("과목 목록 조회 성공!")
+    return res.status(200).json({
+        message: "과목 목록을 성공적으로 불러왔습니다.",
+        subjects: subjects
     })
 }
