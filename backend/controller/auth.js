@@ -240,12 +240,12 @@ export async function addSubject(req, res) {
 
 // 유저 과목 수정
 export async function updateSubject(req, res) {
-    const subjectId = req.parmas.id
+    const subjectId = req.params.id
     const { subjectName, subjectColor } = req.body
     const userId = req.user._id
 
     // 과목 존재 여부 및 내 과목 권한 확인
-    const subject = await subjectRepository.findById(subjectId)
+    const subject = await subjectRepository.findBySubjectId(subjectId)
     if (!subject || subject.useYn === 'N') {
         return res.status(404).json({ message: "존재하지 않거나 이미 삭제된 과목입니다." })
     }

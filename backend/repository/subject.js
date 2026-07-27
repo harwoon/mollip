@@ -1,7 +1,7 @@
 import Subject from "../models/Subject.js";
 
 // 유저의 모든 과목 가져오기
-export async function findSubjectByUser(userId) {
+export async function findSubjectsByUser(userId) {
     return await Subject.find({ user: userId })
 }
 
@@ -27,10 +27,20 @@ export async function createSubject(subjectData) {
     return await newSubject.save()
 }
 
-export async function deleteSubject(id){
+// 과목 수정하기
+export async function updateSubject(id, subjectName, subjectColor) {
     return await Subject.findByIdAndUpdate(
         id,
-        {useYn : 'N'},
+        { subjectName, subjectColor },
+        { new: true }
+    )
+}
+
+// 과목 삭제하기
+export async function deleteSubject(id) {
+    return await Subject.findByIdAndUpdate(
+        id,
+        { useYn: 'N' },
         { new: true }
     )
 }
