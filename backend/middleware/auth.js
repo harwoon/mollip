@@ -11,7 +11,7 @@ export const isAuth = async (req, res, next) => {
     console.log(authHeader)
 
     if(!authHeader || !authHeader.startsWith("Bearer ")) {
-        console.log("헤더오류")
+        console.log("헤더오류 by isAuth")
         return res.status(401).json(AUTH_ERROR)
     }
 
@@ -40,7 +40,7 @@ export const isAdmin = (req, res, next) => {
 
     // isAuth 없이 단독으로 쓰였을 경우 방지
     if(!req.user) {
-        console.log("헤더 오류 by isAdmin")
+        console.log("헤더오류 by isAdmin")
         return res.status(401).json(AUTH_ERROR)
     }
 
@@ -49,4 +49,6 @@ export const isAdmin = (req, res, next) => {
         console.log("관리자 권한 필요")
         return res.status(403).json(FORBIDDEN_ERROR)
     }
+
+    next()
 }
