@@ -65,3 +65,8 @@ export async function getMonthlyByUserIdAndSubjectAndDate(user,subject, month) {
         studyDate: { $regex: `^${month}` } 
     })
 }
+
+// 유저 전체 누적 학습 기록 가져오기 (합산용) - 관리자
+export async function getAllByUserId(user) {
+    return Study.find({ user })
+}

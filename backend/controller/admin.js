@@ -1,0 +1,76 @@
+import * as adminRepository from "../repository/admin.js"
+import * as studyRepository from "../repository/study.js"
+import Group from "../models/Group.js"
+
+// 관리자
+// 회원 목록 조회
+export async function getUsers(req, res) {
+    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
+
+    const skip = (Number(page) - 1) * Number(limit)
+    const filters = { search, groupId }
+
+    const [users, total] = await Promise.all([
+        adminRepository.findUsers({
+            ...filters,
+            sortBy,
+            sortOrder: sortOrder === "asc" ? 1 : -1,
+            skip,
+            limit: Number(limit)
+        }),
+        adminRepository.countUsers(filters)
+    ])
+
+    const groupIds = [...new Set(users.map(u => u.groupId).filter(id => id !== "Unranked"))]
+    const groups = await Group.find({ _id: { $in: groupIds } })
+    const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
+
+    const usersWithGroup = users.map(u => ({
+        ...u.toObject(),
+        group: groupMap.get(u.groupId) || null
+    }))
+
+    console.log("[관리자] 회원 목록 조회 성공")
+    
+    return res.status(200).json({
+        message: "회원 목록을 성공적으로 불러왔습니다",
+        users: usersWithGroup,
+        pagination: {
+            total,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / Number(limit))
+        }
+    })
+}
+
+// 회원 상세 목록 조회
+export async function getUserDetail(req, res) {
+    const { id } = req.params
+
+    let user
+    try {
+        user = await adminRepository.findUserDetail(id)
+    } catch (err) {
+        return res.status(400).json({ message: "잘못된 회원 ID 형식입니다." })
+    }
+
+    if (!user) {
+        return res.status(404).json({ message: "존재하지 않는 회원입니다." })
+    }
+
+    const group = user.groupId !== "Unranked"
+        ? await Group.findById(user.groupId)
+        : null
+    
+    const studyRecords = await studyRepository.getAllByUserId(id)
+    const totalStudyTime = studyRecords.reduce((sum, r) => sum + (r.sumStudyTime || 0), 0)
+
+    console.log("[관리자] 회원 상세 조회 성공!")
+    return res.status(200).json({
+        message: "회원 상세 정보를 성공적으로 불러왔습니다.",
+        user,
+        group,
+        totalStudyTime
+    })
+}
