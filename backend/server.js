@@ -5,9 +5,11 @@ import { fileURLToPath } from "url"
 import { config } from "./config.mjs"
 import { connectDB } from "./db/database.js"
 import authRouter from "./router/auth.js"
+import adminRouter from "./router/admin.js"
 import studyRouter from "./router/study.js"
 import statRouter from "./router/statistics.js"
 import todoRouter from "./router/todo.js"
+
 
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
@@ -29,6 +31,7 @@ app.use("/auth", authRouter)
 app.use("/study",studyRouter)
 app.use("/statistics",statRouter)
 app.use("/todo", todoRouter)
+app.use("/api/admin", adminRouter)
 
 app.use((req, res) => {
     res.sendStatus(404)

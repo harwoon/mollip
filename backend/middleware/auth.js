@@ -3,6 +3,7 @@ import { config } from "../config.mjs"
 import * as authRepository from "../repository/auth.js"
 
 const AUTH_ERROR = { message: "인증오류" }
+const FORBIDDEN_ERROR = { message: "관리자 권한이 필요합니다" }
 
 // 로그인 유지 체크
 export const isAuth = async (req, res, next) => {
@@ -32,4 +33,20 @@ export const isAuth = async (req, res, next) => {
         req.token = token
         next()
     })
+}
+
+// 관리자 권한 체크 (isAuth 다음에 적용)
+export const isAdmin = (req, res, next) => {
+
+    // isAuth 없이 단독으로 쓰였을 경우 방지
+    if(!req.user) {
+        console.log("헤더 오류 by isAdmin")
+        return res.status(401).json(AUTH_ERROR)
+    }
+
+    // role이 admin이 아닌 경우 방지
+    if(req.user.role !== "admin") {
+        console.log("관리자 권한 필요")
+        return res.status(403).json(FORBIDDEN_ERROR)
+    }
 }
