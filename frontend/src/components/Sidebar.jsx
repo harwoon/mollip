@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom"
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
 
+import "./Sidebar.css"
+
 export default function Sidebar() {
   const activeStyle = ({ isActive }) => {
     return {

@@ -8,9 +8,6 @@ export default function SidebarStudyStreak() {
         maxStreak: 0
     })
 
-    // 서버에서 사용자 정보 불러오는중인지 확인
-    const [loading, setLoading] = useState(true)
-
     // 컴포넌트가 처음 화면에 나타날 때: 사용자 정보 조회
     useEffect(() => {
         async function loadStudyStreak() {
@@ -26,8 +23,6 @@ export default function SidebarStudyStreak() {
 
             }catch(error){
                 console.error("연속 학습일 조회 오류: ", error)
-            }finally{
-                setLoading(false)
             }
         }
         loadStudyStreak()
