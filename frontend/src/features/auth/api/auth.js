@@ -10,7 +10,5 @@ export async function loginUser(userId, userPw) {
     })
 
     const data = await response.json()
-    if (!response.ok) throw new Error(data.message);
-
-    return data
+    if (!response.ok) throw new Error(data.message)
 }
