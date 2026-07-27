@@ -31,7 +31,7 @@ app.use("/auth", authRouter)
 app.use("/study",studyRouter)
 app.use("/statistics",statRouter)
 app.use("/todo", todoRouter)
-app.use("/api/admin", adminRouter)
+app.use("/admin", adminRouter)
 
 app.use((req, res) => {
     res.sendStatus(404)
