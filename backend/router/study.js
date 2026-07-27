@@ -18,6 +18,4 @@ router.get("/records", isAuth, studyController.getRecords)
 //http://127.0.0.1:3000/study/records/subject?type=daily&subject=국어&date=2026-07-26
 router.get("/records/subject",isAuth,studyController.getRecordsbySubject)
 
-
-
 export default router

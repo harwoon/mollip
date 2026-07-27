@@ -40,3 +40,5 @@ export function getYesterday(dateString) {
     const date = String(dateObj.getDate()).padStart(2, '0')
     return `${year}-${month}-${date}`
 }
+
+
