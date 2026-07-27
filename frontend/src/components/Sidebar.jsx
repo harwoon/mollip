@@ -1,4 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom"
+
+import SidebarUserInfo from "./SidebarUserInfo"
+import SidebarStudyStreak from "./SidebarStudyStreak"
 
 export default function Sidebar() {
   const activeStyle = ({ isActive }) => {
@@ -26,8 +29,10 @@ export default function Sidebar() {
         Mollip
       </div>
 
+      <SidebarUserInfo />
+
       <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-       
+
         <NavLink to="/home" style={activeStyle}>
           홈
         </NavLink>
@@ -41,6 +46,8 @@ export default function Sidebar() {
         </NavLink>
         
       </nav>
+
+      <SidebarStudyStreak />
     </aside>
   )
 }

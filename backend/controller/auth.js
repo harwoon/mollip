@@ -112,7 +112,10 @@ export async function login(req, res) {
 
 // 로그인 유지 체크
 export async function me(req, res) {
-    const { userPw, ...safeUser } = req.user
+    // req.user는 Mongoose 문서이므로 일반 객체로 변환 후에 아래 비밀번호 제외하여 분리과정 진행해야함
+    const userObj = req.user.toObject()
+    
+    const { userPw, ...safeUser } = userObj
     res.status(200).json({ token: req.token, user: safeUser })
 }
 
