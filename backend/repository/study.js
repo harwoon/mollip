@@ -61,7 +61,7 @@ export async function getWeeklyByUserIdAndSubjectAndDate(user, subject, startDat
 export async function getMonthlyByUserIdAndSubjectAndDate(user,subject, month) {
     return Study.find({ 
         user, 
-        startTitle:subject,
+        subjectTitle:subject,
         studyDate: { $regex: `^${month}` } 
     })
 }
@@ -78,7 +78,7 @@ export async function getWeeklyStudyTimeByUSers(
     return Study.aggregate([
         {
             $match: {
-                studyData: {
+                studyDate: {
                     $gte: startOfWeek,
                     $lte: endOfWeek,
                 },
