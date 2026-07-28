@@ -1,0 +1,308 @@
+// [역할: 내 정보 조회 및 수정]
+import { useEffect, useState, useRef } from "react"
+import { getMyInfo } from "../../auth/api/auth"
+import { PiPencilSimpleDuotone } from "react-icons/pi"
+
+import { updateMyInfo, updateProfileImage } from "../api/mypage"
+
+import styles from "./USerInfo.module.css"
+
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
+export default function USerInfo(){
+    // 프로필 표시할 사용자 정보
+    const [user, setUser] = useState({
+        nickname: "",
+        email: "",
+        profileImg: ""
+    })
+
+    // 수정취소, 실패 시 원래 값 되돌리기위한 정보
+    const [originalUser, setOriginalUser] = useState({
+        nickname: "",
+        email: "",
+        profileImg: ""
+    })
+
+    // 현재 수정모드인지 확인: 기본값 false
+    const [isEditing, setIsEditing] = useState(false)
+
+    // 숨겨진 파일 input에 접근
+    const fileInputRef = useRef(null)
+
+    // 서버로 전송할 실제 이미지 파일
+    const [selectedImageFile, setSelectedImageFile] = useState(null)
+
+    // 사용자가 선택한 이미지의 미리보기 주소
+    const [previewImageUrl, setPreviewImageUrl] = useState("")
+
+    useEffect(() => {
+        async function loadMyInfo() {
+            try{
+                const data = await getMyInfo()
+
+                const userInfo ={
+                    nickname: data.user.nickname ?? "",
+                    email: data.user.email ?? "",
+                    profileImg: data.user.profileImg ?? ""
+                }
+
+                setUser(userInfo)
+                setOriginalUser(userInfo)
+            }catch(error){
+                console.error("마이페이지 사용자 정보 조회 오류: ", error)
+            }
+        }
+        loadMyInfo()
+    }, [])
+
+    // DB에는 /uploads/profile/... 상대경로 저장됨
+    // 백엔드 서버 주소를 앞에 붙여 실제 이미지 주소 생성
+    const savedProfileImageUrl = user.profileImg
+        ? `${API_URL}${user.profileImg}`
+        : "/images/noprofile.png"
+
+    // 새 이미지 선택 시 미리보기 우선 표시
+    const profileImageUrl =
+        previewImageUrl || savedProfileImageUrl
+
+    // 닉네임, 이메일 input값 변경
+    function handleChange(event){
+        const {name, value} = event.target
+
+        setUser((previousUser) => ({
+            ...previousUser,
+            [name]: value
+        }))
+    }
+
+    // 이미지 연필버튼 클릭 시 숨겨진 파일 선택창 열기
+    function handleImageEditClick(){
+        if(!isEditing) return
+        fileInputRef.current?.click()
+    }
+
+    // 이미지 파일 선택 시 실행
+    function handleImageChange(event){
+        const file = event.target.files?.[0]
+
+        if(!file) return
+
+        // 이미지 파일만 선택 가능
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 선택할 수 있습니다.")
+            event.target.value = ""
+            return
+        }
+
+        // 기존 미리보기 URL 메모리 해제
+        if(previewImageUrl){
+            URL.revokeObjectURL(previewImageUrl)
+        }
+
+        setSelectedImageFile(file)
+        setPreviewImageUrl(URL.createObjectURL(file))
+    }
+
+    // 수정하기, 수정완료 버튼
+    async function handleEdit() {
+        // 수정모드 아닐경우 = 수정모드로 전환
+        if(!isEditing){
+            setIsEditing(true)
+            return
+        }
+
+        // 수정완료 누르면 입력값 검사
+        if(!user.nickname.trim()){
+            alert("닉네임을 입력해주세요.")
+            return
+        }
+        if(!user.email.trim()){
+            alert("이메일을 입력해주세요.")
+            return
+        }
+
+        try{
+            // 닉네임, 이메일 수정
+            const infoData  = await updateMyInfo(
+                user.nickname.trim(),
+                user.email.trim()
+            )
+
+            let updatedProfileImg = user.profileImg
+
+            // 새 이미지 선택했을때만 이미지 수정
+            if(selectedImageFile){
+                const imageData = await updateProfileImage(
+                    selectedImageFile
+                )
+                updatedProfileImg = imageData.user.profileImg ?? updatedProfileImg
+            }
+
+            const updatedUser = {
+                nickname: infoData.user.nickname ?? "",
+                email: infoData.user.email ?? "",
+                profileImg: updatedProfileImg ?? ""
+            }
+
+            // 최신 정보로 갱신
+            setUser(updatedUser)
+            setOriginalUser(updatedUser)
+
+            // 이미지 선택 상태 초기화
+            setSelectedImageFile(null)
+
+            if (previewImageUrl) {
+                URL.revokeObjectURL(previewImageUrl)
+            }
+
+            setPreviewImageUrl("")
+
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ""
+            }
+
+
+            // 수정모드 종료
+            setIsEditing(false)
+            alert(infoData.message || "회원정보가 수정되었습니다!")
+
+            // 여기서 수정된거 한번 더 go
+
+        }catch (error){
+            console.error("회원정보 수정 오류: ", error)
+            alert(error.message)
+        }
+    }
+
+    // 수정 취소: 수정 전 사용자 정보로 돌림
+    function handleCancel(){
+        setUser(originalUser)
+        setSelectedImageFile(null)
+
+        if (previewImageUrl) {
+            URL.revokeObjectURL(previewImageUrl)
+        }
+
+        setPreviewImageUrl("")
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""
+        }
+
+        setIsEditing(false)
+    }
+
+    return(
+        <section className={styles.USerInfo}>
+            <div className={styles.USerInfoHeader}>
+                <div>
+                    <h2>내 정보 수정</h2>
+                    <p>내 정보를 관리하고 수정할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <div className={styles.profileImageSection}>
+                <div className={styles.profileImageBox}>
+                    <img
+                        src={profileImageUrl}
+                        alt={`${user.nickname || "사용자"} 프로필`}
+                        className={styles.profileImage}
+                        onError={(event) => {
+                            event.currentTarget.src =
+                                "/images/noprofile.png"
+                        }}
+                    />
+
+                    {isEditing && (
+                        <button
+                            type="button"
+                            className={
+                                styles.profileImageEditButton
+                            }
+                            onClick={handleImageEditClick}
+                            aria-label="프로필 이미지 변경"
+                        >
+                            <PiPencilSimpleDuotone />
+                        </button>
+                    )}
+                </div>
+
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleImageChange}
+                />
+            </div>
+
+            <div className={styles.profileForm}>
+                <label htmlFor="nickname">
+                    닉네임
+                </label>
+
+                <input
+                    id="nickname"
+                    name="nickname"
+                    type="text"
+                    value={user.nickname ?? ""}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    className={
+                        isEditing
+                            ? styles.editingInput
+                            : styles.readOnlyInput
+                    }
+                />
+
+                <label htmlFor="email">
+                    이메일
+                </label>
+
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={user.email ?? ""}
+                    onChange={handleChange}
+                    readOnly={!isEditing}
+                    className={
+                        isEditing
+                            ? styles.editingInput
+                            : styles.readOnlyInput
+                    }
+                />
+            </div>
+
+            <div className={styles.profileButtonArea}>
+                <button
+                    type="button"
+                    className={styles.withdrawButton}
+                >
+                    회원 탈퇴하기
+                </button>
+
+                <div className={styles.profileEditButtons}>
+                    {isEditing && (
+                        <button
+                            type="button"
+                            className={styles.cancelButton}
+                            onClick={handleCancel}
+                        >
+                            취소
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        className={styles.editButton}
+                        onClick={handleEdit}
+                    >
+                        {isEditing ? "수정 완료" : "수정하기"}
+                    </button>
+                </div>
+            </div>
+        </section>
+    )
+}

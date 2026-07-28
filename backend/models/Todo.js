@@ -23,6 +23,10 @@ const todoListSchema = new mongoose.Schema(
             required: true,
             ref: "User"
         },
+        todoDate: {
+            type: String,
+            required: true,
+        },
         // Todo 목록
         todo: {
             type: [todoSchema],

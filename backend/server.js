@@ -20,8 +20,8 @@ const __dirname = path.dirname(__filename)
 app.use(
     cors({
         origin: "http://localhost:5173",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type"]
+        methods: ["GET", "POST", "PUT", "PATCH" ,"DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"]
     })
 )
 

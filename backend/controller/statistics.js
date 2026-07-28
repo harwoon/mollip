@@ -60,7 +60,7 @@ export async function getRatio(req, res) {
             return res.status(400).json({ message: "올바른 type을 입력해주세요." })
         }
 
-        const { totalStudyTime, subjects } = calculateStudyStatistics(studies)
+        const { totalStudyTime, subjects } = await calculateStudyStatistics(studies)
 
         return res.status(200).json({
             type,

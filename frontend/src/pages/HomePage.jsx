@@ -1,3 +1,13 @@
+import TodoList from "../features/home/components/TodoList"
+import HomeCalendar from "../features/home/components/HomeCalendar"
+
 export default function HomePage() {
-  return <div>홈 화면입니다</div>
+  return (
+    <>
+    <div> 
+      <TodoList />
+    </div>
+    <HomeCalendar/>
+    </>
+  )
 }

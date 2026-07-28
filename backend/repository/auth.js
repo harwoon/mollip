@@ -30,7 +30,7 @@ export async function update(id, nickname,email) {
 export async function updateProfileImage(id, profileImage) {
     return User.findByIdAndUpdate(
         id,
-        { profileImage },
+        { profileImg:profileImage },
         { new: true }
     )
 }

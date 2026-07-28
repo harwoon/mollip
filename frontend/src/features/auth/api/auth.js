@@ -1,7 +1,31 @@
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
+// 로그인한 사용자 정보 조회
+export async function getMyInfo() {
+    // JWT 토큰 가져옴
+    const token = localStorage.getItem("token")
+
+    // 로그인한 사용자 정보 조회 요청
+    const response = await fetch(`${API_URL}/auth/me`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if(!response.ok){
+        throw new Error(
+            data.message || "회원 정보를 불러오지 못했습니다."
+        )
+    }
+    
+    return data
+}
+
+// 로그인
 export async function loginUser(userId, userPw) {
-
-    const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
     const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -11,4 +35,31 @@ export async function loginUser(userId, userPw) {
 
     const data = await response.json()
     if (!response.ok) throw new Error(data.message)
+
+    // 백엔드에서 발급받은 JWT 토큰을 브라우저에 저장
+    localStorage.setItem("token", data.token)
+
+    // 로그인한 사용자 정보가 필요할 수 있으므로 전체 응답 반환
+    return data
+}
+
+// 회원가입
+export async function signupUser(userId, userPw, nickname, email) {
+
+    const response = await fetch(`${API_URL}/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, userPw, nickname, email }),
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message)
+}
+
+// 아이디 중복 확인
+export async function checkIdUser(userId){
+    const response = await fetch(`${API_URL}/auth/checkId`,{
+        method: "GET",
+        body : JSON.stringify({userId})
+    })
 }

@@ -1,6 +1,5 @@
 import mongoose from "mongoose"
 import TodoList from "../models/Todo.js"
-// import TodoList from "../models/Todo.js"
 
 // 로그인한 사용자 TodoList 조회
 export async function getTodoListByUserId(userId) {
@@ -10,7 +9,7 @@ export async function getTodoListByUserId(userId) {
 }
 
 // Todo 추가
-export async function addTodo(userId, todoContent) {
+export async function addTodo(userId, todoContent, todoDate) {
     // Todo 하나 구분하기 위한 고유 ID
     const newTodo = {
         // id: new mongoose.Types.ObjectId(),
@@ -21,11 +20,14 @@ export async function addTodo(userId, todoContent) {
     // TodoList 있으면 todo를 배열에 추가, 없으면 TodoList 생성하여 추가
     return TodoList.findOneAndUpdate(
         {
-            user: userId
+            user: userId,
+            todoDate
         },
         {
             // 새로운 todo 추가
-            $push: {todo: newTodo}
+            $push: {
+                todo: newTodo
+            }
         },
         {
             // 수정된 문서 반환
@@ -82,4 +84,75 @@ export async function deleteTodo(userId, todoId) {
             new: true
         }
     )
+}
+
+// 일간 TodoList 조회
+export async function getDailyByUserIdAndDate(userId, date) {
+    return TodoList.findOne({ 
+        user: userId, 
+        todoDate: date 
+    })
+}
+
+// 주간 todoList 조회
+export async function getWeeklyByUserIdAndDate(userId, startDate, endDate) {
+    return TodoList.find({
+        user: userId,
+        todoDate: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    }).sort({
+        todoDate: 1
+    })
+    
+}
+
+// 월간 TodoList 조회
+export async function getMonthlyByUserIdAndDate(userId, month) {
+    return TodoList.find({
+        user: userId,
+        todoDate: {
+            $regex: `^${month}`
+        }
+    }).sort({
+        todoDate: 1
+    })
+}
+
+// 일간 목표 달성률
+export async function getDailyAchievement(userId, date) {
+    const todoList = await TodoList.findOne({
+        user: userId,
+        todoDate: date
+    })
+
+    // 해당 날짜 TodoList 없는 경우
+    if(!todoList){
+        return{
+            totalCount: 0,      // 전체
+            completedCount: 0,  // 완료
+            achievementRate: 0  // 목표달성률
+        }
+    }
+
+    // 해당 날짜 전체 todo 개수
+    const totalCount = todoList.todo.length
+
+    // todo의 state: ture
+    const completedCount = todoList.todo.filter(
+        (todoItem) => todoItem.state === true
+    ).length
+
+    // 목표달성률 계산
+    // 전체 Todo 0일경우 0으로 나누면 오류발생 : 0 반환
+    // Todo 존재하면 완료개수 / 전체개수 * 100
+    // Math.round(): 소수점 첫째자리에서 반올림해 정수 반환
+    const achievementRate = 
+    totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100)
+
+    return{
+        totalCount, completedCount, achievementRate
+    }
+
 }

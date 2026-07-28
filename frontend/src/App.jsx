@@ -1,12 +1,18 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Login from "./pages/LoginPage"
 import Home from "./pages/HomePage"
+import Signup from "./pages/SignupPage"
 import Main from "./components/MainLayout"
+import MyPage from "./pages/MyPage"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />
+  },
+  {
+    path:"/signup",
+    element: <Signup/>
   },
   {
     // 2. 사이드바를 공유하는 페이지들 묶음
@@ -23,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/weekly",
         element: <div>주간 현황 페이지</div>
+      },
+      {
+        path: "/mypage",
+        element: <MyPage />
       }
     ]
   }

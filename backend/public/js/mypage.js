@@ -133,12 +133,11 @@ profileForm.addEventListener("submit", async (e) => {
 
     // 수정할 회원정보
     const token = localStorage.getItem("token")
-    const updateUser = {
+    const updatedUser = {
         nickname: nickname.value.trim(),
         username: username.value.trim(),
         email: email.value.trim()
     }
-    // console.log("수정할 회원정보:", updateUser)
 
 
     try {
@@ -148,7 +147,7 @@ profileForm.addEventListener("submit", async (e) => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(updateUser)
+            body: JSON.stringify(updatedUser)
         })
 
         const data = await response.json()

@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dayjs": "^1.11.21",
     "react": "^19.2.7",
+    "react-calendar": "^6.0.1",
     "react-dom": "^19.2.7",
+    "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
