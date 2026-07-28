@@ -12,7 +12,7 @@ export async function addStudy(req, res) {
     const start = new Date(startTime)
     const end = new Date(endTime)
 
-    const sumStudyTime = Math.floor((end - start) / 1000)
+    const sumStudyTime = Math.floor((end - start) / 1000 / 60)
 
     try {
         // 공부 기록 추가
@@ -74,6 +74,8 @@ export async function getRecords(req, res) {
             studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
         }
         else if (type === "weekly") {
+            
+            
             const { startDate, endDate } = getWeekRange(date)
             studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate)
         }

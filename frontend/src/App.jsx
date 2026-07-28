@@ -7,6 +7,7 @@ import MyPage from "./pages/MyPage"
 import RecordPage from "./pages/RecordPage"
 import AdminMainLayout from "./admin/AdminMainLayout"
 import AdminHomePage from "./admin/AdminHomePage"
+import WeekStatusPage from "./pages/WeekStatusPage"
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/weekly",
-        element: <div>주간 현황 페이지</div>
+        element: <WeekStatusPage/>
       },
       {
         path: "/mypage",
