@@ -22,7 +22,7 @@ try {
     const fileData = fs.readFileSync(filePath, "utf-8")
 
     badWords = fileData.split("\n").map(word => word.trim()).filter(word => word.length > 0)
-    console.log("금칙어 목록 로드 완료:", badWords)
+    console.log("금칙어 목록 로드 완료")
 } catch (error) {
     console.error("금칙어 목록 로드 실패: ", error)
 }
