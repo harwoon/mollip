@@ -4,6 +4,7 @@ import Home from "./pages/HomePage"
 import Signup from "./pages/SignupPage"
 import Main from "./components/MainLayout"
 import MyPage from "./pages/MyPage"
+import RecordPage from "./pages/RecordPage"
 
 const router = createBrowserRouter([
   {
@@ -24,7 +25,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/records",
-        element: <div>기록 페이지</div>
+        element: <RecordPage/>
       },
       {
         path: "/weekly",
