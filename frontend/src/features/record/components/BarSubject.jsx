@@ -24,10 +24,9 @@ export default function SubjectBarChart({ selectedDate, type }) {
                 const subjects = data.subjects || []
                 const formattedChartData = subjects.map((subject) => ({
                     name: subject.studyTitle,
-                    // 🌟 1. 분(Minute) 단위이므로 60으로 나누어 '시간' 높이로 맞춥니다.
+                    // '시간' 높이
                     hours: Number((subject.sumStudyTime / 60).toFixed(1)),
                     color: subject.subjectColor,
-                    // 🌟 2. 헷갈리지 않게 변수명을 rawMinutes로 변경합니다.
                     rawMinutes: subject.sumStudyTime,
                 }))
 
@@ -35,7 +34,7 @@ export default function SubjectBarChart({ selectedDate, type }) {
             } catch (error) {
                 console.error("과목 공부 시간을 가져오는데 실패했습니다:", error)
             }
-        };
+        }
 
         fetchData()
     }, [selectedDate, type])
@@ -45,7 +44,6 @@ export default function SubjectBarChart({ selectedDate, type }) {
         if (active && payload && payload.length) {
             const { name, rawMinutes } = payload[0].payload
             
-            // 🌟 3. 분을 60으로 나누어 시간(h)과 나머지 분(m)을 정확히 구합니다.
             const h = Math.floor(rawMinutes / 60)
             const m = rawMinutes % 60
 
@@ -60,10 +58,10 @@ export default function SubjectBarChart({ selectedDate, type }) {
                     <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: '#8a6bc7' }}>{name}</p>
                     <p style={{ margin: 0, color: '#333' }}>{h}시간 {m}분</p>
                 </div>
-            );
+            )
         }
         return null
-    };
+    }
 
     return (
         <div style={{ width: '100%', padding: '20px', backgroundColor: '#fcfbf9', borderRadius: '20px' }}>

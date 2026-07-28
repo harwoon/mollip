@@ -43,3 +43,28 @@ export async function getSubjectRecord(type,date){
     
     return data
 }
+
+//집중 시간 가져오기
+export async function getLongestRecord(type, date) {
+    const token = localStorage.getItem("token")
+
+    const response = await fetch(`${API_URL}/study/records?type=${type}&date=${date}&sort=time&limit=1`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "집중 시간을 불러오지 못했습니다.")
+    }
+    
+    if (!data || data.length === 0) {
+        return 0; 
+    }
+
+    const study = data[0]
+    return study.sumStudyTime
+}

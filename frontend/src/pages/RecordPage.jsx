@@ -4,6 +4,7 @@ import TabSelector from '../features/record/components/TabSelector.jsx'
 import DateSelector from '../features/record/components/DateSelector.jsx'
 import TotalSubject from "../features/record/components/TotalSubject.jsx"
 import BarSubject from "../features/record/components/BarSubject.jsx"
+import LongestStudy from '../features/record/components/LongestStudy.jsx'
 
 export default function RecordPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -37,6 +38,11 @@ export default function RecordPage() {
       />
 
       <BarSubject
+        selectedDate={selectedDate}
+        type={recordType}
+      />
+
+      <LongestStudy
         selectedDate={selectedDate}
         type={recordType}
       />
