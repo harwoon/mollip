@@ -46,3 +46,10 @@
   background-color: #8B71CC;
   color: #FFFFFF;
 }
+
+.milliseconds {
+  font-size: 16px;
+  /* color: #c7bde0; */
+  margin-left: 8px;
+  font-weight: 400;
+}

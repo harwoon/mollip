@@ -12,20 +12,28 @@ export default function Timer({ userName, selectedSubject = null }) {
     if (isRunning) {
       interval = setInterval(() => {
         setTime((prevTime) => prevTime + 1)
-      }, 1000)
+      }, 10)
     } else {
       clearInterval(interval)
     }
     return () => clearInterval(interval)
   }, [isRunning])
 
-  // 시간, 분, 초 계산
-  const formatTime = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600)
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
-    const seconds = totalSeconds % 60
-    
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  // 시간, 분, 초, 밀리초 계산
+  const formatTime = (currentTime) => {
+    const hours = Math.floor(currentTime / 360000)
+    const minutes = Math.floor((currentTime % 360000) / 6000)
+    const seconds = Math.floor((currentTime % 6000) / 100)
+    const milliseconds = currentTime % 100
+
+    return (
+      <>
+        {hours}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        <span className={styles.milliseconds}>
+          .{String(milliseconds).padStart(2, '0')}
+        </span>
+      </>
+    )
   }
 
   // 타이머 start
