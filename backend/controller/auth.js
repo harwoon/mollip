@@ -146,8 +146,10 @@ export async function meUpdate(req, res) {
         req.user._id, nickname, email
     )
 
+    const userObj = updatedUser.toObject() // 몽구스 객체 일반 객체로 수정
+
     // 비밀번호 제외 응답 (보안)
-    const { userPw, ...safeUser } = updatedUser
+    const { userPw, ...safeUser } = userObj
 
     return res.status(200).json({
         message: "회원정보가 수정되었습니다.",
