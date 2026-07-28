@@ -28,6 +28,7 @@ router.post("/logout", authController.logout)
 router.patch("/me", isAuth, authController.meUpdate)
 
 // 프로필 이미지 수정
+// http://127.0.0.1:3000/auth/profile-image
 router.patch(
     "/profile-image", 
     isAuth, 
