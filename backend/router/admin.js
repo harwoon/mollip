@@ -16,16 +16,19 @@ router.get("/users", adminController.getUsers)
 // http://127.0.0.1:3000/admin/users/:id
 router.get("/users/:id", adminController.getUserDetail)
 
+// 그룹 ID 자동 부여
+// http://127.0.0.1:3000/admin/assign-weekly
+router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 
 // 그룹 관리
 // =================================================
 // http://127.0.0.1:3000/admin/groups
 router.get("/groups", groupController.getGroups)
 
-// 테스트 후 주소 첨부
+// http://127.0.0.1:3000/admin/groups
 router.post("/groups", groupController.addGroup)
 
-// 테스트 후 주소 첨부
+// http://127.0.0.1:3000/admin/groups/:id
 router.patch("/groups/:id", groupController.updateGroup)
 
 export default router
