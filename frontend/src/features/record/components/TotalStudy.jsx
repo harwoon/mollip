@@ -29,6 +29,7 @@ export default function TotalStudy({ selectedDate, type }) {
 
   return (
     <div>
+      <h3>총 공부시간</h3>
       <h2>{hour}시간 {min}분</h2>
     </div>
   )
