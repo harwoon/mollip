@@ -1,6 +1,6 @@
 import express from "express"
 import * as groupRepository from "../repository/group.js"
-
+import { assignWeeklyGroups } from "../service/weeklyGroupService.js"
 
 export async function addGroup(req, res) {
 
@@ -83,4 +83,20 @@ export async function addGroup(req, res) {
         })
     }
 
+}
+
+
+export async function runWeeklyGroupAssignment(req, res, next) 
+{
+    try {
+        const result =
+            await assignWeeklyGroups()
+
+        return res.status(200).json({
+            message: "주간 그룹 배정이 완료되었습니다.",
+            result,
+        })
+    } catch (error) {
+        next(error)
+    }
 }

@@ -26,3 +26,9 @@ export async function findGroupByStudyTime(weeklyStudyTime) {
         groupTime: -1,
     })
 }
+
+export async function getGroupsByTimeDesc() {
+    return Group.find().sort({
+        groupTime: -1,
+    })
+}

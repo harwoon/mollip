@@ -173,7 +173,9 @@ export async function updateProfileImage(req, res) {
         req.user._id, profileImage
     )
 
-    const { userPw, ...safeUser } = updatedUser
+    const userObj = updatedUser.toObject() // 몽구스 객체 일반 객체로 수정
+
+    const { userPw, ...safeUser } = userObj
 
     return res.status(200).json({
         message: "프로필 이미지가 저장되었습니다.",
