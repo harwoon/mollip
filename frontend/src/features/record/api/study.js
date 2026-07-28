@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_LOCAL_API_URL
 export async function getStudyRecord(type,date) {
     const token = localStorage.getItem("token")
 
-    const response = await fetch(`${API_URL}/study/records?type=${type}&date=${date}`, {
+    const response = await fetch(`${API_URL}/statistics/total?type=${type}&date=${date}`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${token}`

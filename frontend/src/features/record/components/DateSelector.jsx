@@ -1,5 +1,5 @@
-import React from 'react';
-import dayjs from 'dayjs';
+import React from 'react'
+import dayjs from 'dayjs'
 
 export default function DateSelector({ selectedDate, onChangeDate }) {
   // 이전 날짜로 이동
