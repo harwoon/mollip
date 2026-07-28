@@ -4,8 +4,12 @@ import {
   updateTodoState,
   deleteTodo,
   addTodo,
-} from "../api/home"
+} from "../api/todo"
+
 import TodoModal from "./TodoModal"
+import styles from "./TodoList.module.css"
+
+import { PiPlusCircle, PiTrash } from "react-icons/pi"
 
 export default function TodoList() {
   const [todos, setTodos] = useState([])
@@ -17,8 +21,8 @@ export default function TodoList() {
     const fetchTodoList = async () => {
       try {
         const data = await getTodoList()
+
         setTodos(data.todo)
-        
       } catch (error) {
         console.error(error)
         setError(error.message)
@@ -61,10 +65,7 @@ export default function TodoList() {
     try {
       const result = await addTodo(todoText)
 
-      // 서버에서 최신 TodoList 전체를 반환
       setTodos(result.todoList.todo)
-
-      // 등록 성공 후 팝업 닫기
       setIsOpen(false)
     } catch (error) {
       console.error("Todo 추가 실패:", error)
@@ -95,42 +96,61 @@ export default function TodoList() {
   }
 
   return (
-    <section>
-      <h2>TodoList</h2>
+    <section className={styles.container}>
+      <div className={styles.header}>
+        <h2>TodoList</h2>
 
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-      >
-        추가
-      </button>
+        <button
+          type="button"
+          className={styles.addButton}
+          onClick={() => setIsOpen(true)}
+          aria-label="Todo 추가"
+        >
+          <PiPlusCircle />
+        </button>
+      </div>
 
       {todos.length === 0 ? (
-        <p>등록된 할 일이 없습니다.</p>
+        <p className={styles.emptyMessage}>
+          등록된 할 일이 없습니다.
+        </p>
       ) : (
-        <ul>
+        <ul className={styles.todoList}>
           {todos.map((todo) => (
-            <li key={todo._id}>
+            <li
+              key={todo._id}
+              className={`${styles.todoItem} ${
+                todo.state
+                  ? styles.completedItem
+                  : ""
+              }`}
+            >
               <input
                 type="checkbox"
                 id={todo._id}
+                className={styles.checkbox}
                 checked={Boolean(todo.state)}
                 onChange={() =>
                   handleChange(todo)
                 }
               />
 
-              <label htmlFor={todo._id}>
+              <label
+                htmlFor={todo._id}
+                className={styles.todoText}
+              >
                 {todo.todo}
               </label>
 
               <button
                 type="button"
+                className={styles.deleteButton}
                 onClick={() =>
                   handleDelete(todo._id)
                 }
+                aria-label="Todo 삭제"
               >
-                삭제
+                <PiTrash />
               </button>
             </li>
           ))}

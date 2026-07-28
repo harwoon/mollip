@@ -1,0 +1,177 @@
+.container {
+  width: 100%;
+  max-width: 540px;
+  height: 255px;
+  padding: 20px 22px 26px;
+  box-sizing: border-box;
+
+  background-color: #f8f3ff;
+  border-radius: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  color: #111111;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  color: #7d58bd;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.addButton svg {
+  width: 21px;
+  height: 21px;
+}
+
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  max-height: 180px;
+  margin: 0;
+  padding: 0 10px 0 0;
+
+  list-style: none;
+  overflow-y: auto;
+}
+
+/* 스크롤바 */
+.todoList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.todoList::-webkit-scrollbar-track {
+  background-color: #e8e3ee;
+  border-radius: 10px;
+}
+
+.todoList::-webkit-scrollbar-thumb {
+  background-color: #7650b6;
+  border-radius: 10px;
+}
+
+.todoItem {
+  display: grid;
+  grid-template-columns: 26px 1fr 29px;
+  align-items: center;
+  gap: 9px;
+
+  min-height: 30px;
+}
+
+/* 체크박스 기본 모양 제거 */
+.checkbox {
+  width: 23px;
+  height: 23px;
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background-color: transparent;
+  border: 1.5px solid #7c56c2;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* 체크된 상태 */
+.checkbox:checked {
+  position: relative;
+  background-color: #7955bc;
+  border-color: #7955bc;
+}
+
+.checkbox:checked::after {
+  content: "";
+  position: absolute;
+
+  left: 7px;
+  top: 3px;
+
+  width: 5px;
+  height: 10px;
+
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+
+  transform: rotate(45deg);
+}
+
+.todoText {
+  display: flex;
+  align-items: center;
+
+  min-height: 30px;
+  padding: 4px 11px;
+  box-sizing: border-box;
+
+  color: #ffffff;
+  font-size: 14px;
+
+  background-color: #7754b8;
+  border-radius: 3px;
+  cursor: pointer;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 완료된 Todo */
+.completedItem .todoText {
+  background-color: #a68dcc;
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 29px;
+  height: 29px;
+  padding: 0;
+
+  color: #ffffff;
+  background-color: #a58ccc;
+  border: none;
+  border-radius: 3px;
+
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #8d70bd;
+}
+
+.deleteButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.emptyMessage {
+  margin-top: 60px;
+  color: #888888;
+  font-size: 14px;
+  text-align: center;
+}
