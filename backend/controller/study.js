@@ -12,6 +12,12 @@ export async function addStudy(req, res) {
     const start = new Date(startTime)
     const end = new Date(endTime)
 
+    if (end <= start) {
+        return res.status(400).json({
+            message: "종료 시간은 시작 시간보다 늦어야 합니다."
+        })
+    }
+
     const sumStudyTime = Math.floor((end - start) / 1000 / 60)
 
     try {
@@ -74,8 +80,8 @@ export async function getRecords(req, res) {
             studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
         }
         else if (type === "weekly") {
-            
-            
+
+
             const { startDate, endDate } = getWeekRange(date)
             studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate)
         }
