@@ -36,16 +36,16 @@ export async function assignWeeklyGroups() {
         const totalStudyTime = studyTimeMap.get(String(user._id)) ?? 0
 
 
-        const mastchedGroup = groups.find(
+        const matchedGroup = groups.find(
             (group) => totalStudyTime >= group.groupTime
         )
-        if (!mastchedGroup) {
+        if (!matchedGroup) {
             continue
         }
 
         updates.push({
             userId: user._id,
-            groupId: mastchedGroup._id,
+            groupId: matchedGroup._id,
         })
     }
 

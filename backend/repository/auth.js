@@ -18,7 +18,7 @@ export async function findById(id) {
 }
 
 // 회원정보 수정
-export async function update(id, nickname,email) {
+export async function update(id, nickname, email) {
     return User.findByIdAndUpdate(
         id,
         { nickname, email },
@@ -30,7 +30,7 @@ export async function update(id, nickname,email) {
 export async function updateProfileImage(id, profileImage) {
     return User.findByIdAndUpdate(
         id,
-        { profileImg:profileImage },
+        { profileImg: profileImage },
         { new: true }
     )
 }
@@ -38,17 +38,17 @@ export async function updateProfileImage(id, profileImage) {
 // 연속 학습 일수 갱신
 export async function updateStreak(userId, currentStreak, maxStreak, lastStudyDate) {
     return User.findByIdAndUpdate(
-        userId, 
-        { 
-            currentStreak, 
-            maxStreak, 
-            lastStudyDate 
+        userId,
+        {
+            currentStreak,
+            maxStreak,
+            lastStudyDate
         },
         { new: true }
     )
 }
 export async function getAllUsers() {
-    return User.find().select("_id groupId")
+    return User.find().select("_id groupId currentStreak lastStudyDate")
 }
 
 
@@ -71,4 +71,29 @@ export async function updateUserGroups(updates) {
     }))
 
     return User.bulkWrite(operations)
+}
+
+export async function resetExpiredStreaks(yesterdayString) {
+    return User.updateMany(
+        {
+            currentStreak: {
+                $gt: 0,
+            },
+            $or: [
+                {
+                    lastStudyDate: {
+                        $lt: yesterdayString,
+                    },
+                },
+                {
+                    lastStudyDate: "",
+                },
+            ],
+        },
+        {
+            $set: {
+                currentStreak: 0,
+            },
+        }
+    )
 }
