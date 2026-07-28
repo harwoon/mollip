@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import TotalStudy from '../features/record/components/TotalStudy.jsx'
 import TabSelector from '../features/record/components/TabSelector.jsx'
 import DateSelector from '../features/record/components/DateSelector.jsx'
+import TotalSubject from "../features/record/components/TotalSubject.jsx"
 
 export default function RecordPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -25,6 +26,11 @@ export default function RecordPage() {
       </div>
 
       <TotalStudy
+        selectedDate={selectedDate}
+        type={recordType}
+      />
+
+      <TotalSubject
         selectedDate={selectedDate}
         type={recordType}
       />
