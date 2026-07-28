@@ -8,7 +8,6 @@ const FORBIDDEN_ERROR = { message: "관리자 권한이 필요합니다" }
 // 로그인 유지 체크
 export const isAuth = async (req, res, next) => {
     const authHeader = req.get("Authorization")
-    console.log(authHeader)
 
     if(!authHeader || !authHeader.startsWith("Bearer ")) {
         console.log("헤더오류 by isAuth")
@@ -28,7 +27,6 @@ export const isAuth = async (req, res, next) => {
             console.log("해당 ID 없음")
             return res.status(401).json(AUTH_ERROR)
         }
-        console.log("isAuth")
         req.user = user
         req.token = token
         next()
