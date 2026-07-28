@@ -1,6 +1,19 @@
+.heat-legend-item {
+    position: relative;
+    text-align: center;
+    width: 20%;
+    display: flex;
+    align-items: center;
+}
+.heat-legend-color {
+    display: block;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #ddd
+}
 /* 공부 기록 없음 */
 .heat-level-0 {
-    background-color: #f5f1fb !important;
+    background-color: #fff !important;
     color: #61616b;
 }
 
