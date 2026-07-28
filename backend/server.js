@@ -9,7 +9,6 @@ import adminRouter from "./router/admin.js"
 import studyRouter from "./router/study.js"
 import statRouter from "./router/statistics.js"
 import todoRouter from "./router/todo.js"
-import groupRouter from "./router/group.js"
 import { startWeeklyGroupJob } from "./jobs/weeklyGroupJob.js"
 
 
@@ -34,7 +33,6 @@ app.use("/study",studyRouter)
 app.use("/statistics",statRouter)
 app.use("/todo", todoRouter)
 app.use("/admin", adminRouter)
-app.use("/group", groupRouter)
 
 startWeeklyGroupJob()
 
