@@ -5,6 +5,7 @@ import DateSelector from '../features/record/components/DateSelector.jsx'
 import TotalSubject from "../features/record/components/TotalSubject.jsx"
 import BarSubject from "../features/record/components/BarSubject.jsx"
 import LongestStudy from '../features/record/components/LongestStudy.jsx'
+import HitCalendar from '../features/record/components/HitCalendar.jsx'
 
 export default function RecordPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -45,6 +46,11 @@ export default function RecordPage() {
       <LongestStudy
         selectedDate={selectedDate}
         type={recordType}
+      />
+
+      <HitCalendar
+        selectedDate={selectedDate}
+        onChangeDate={setSelectedDate}
       />
 
     </div>

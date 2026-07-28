@@ -68,3 +68,28 @@ export async function getLongestRecord(type, date) {
     const study = data[0]
     return study.sumStudyTime
 }
+
+// 월간 공부 기록 가져오기
+export async function getMonthlyStudyRecords(date) {
+    const token = localStorage.getItem("token")
+
+    const response = await fetch(
+        `${API_URL}/study/records?type=monthly&date=${date}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "월간 공부 기록을 불러오지 못했습니다."
+        )
+    }
+
+    return data
+}
