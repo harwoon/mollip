@@ -1,3 +1,9 @@
+import TodoList from "../features/home/components/TodoList"
+
 export default function HomePage() {
-  return <div>홈 화면입니다</div>
+  return (
+    <div> 
+      <TodoList />
+    </div>
+  )
 }
