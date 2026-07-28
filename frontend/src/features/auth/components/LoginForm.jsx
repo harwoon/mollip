@@ -13,8 +13,14 @@ export default function LoginForm() {
         try {
             const result = await loginUser(userId, userPw)
             console.log("로그인 성공!", result)
-            navigate('/home')
-
+            
+            // role에 따라 분기
+            if (result.user.role === "admin") {
+                navigate('/admin/home')
+            } else {
+                navigate('/home')
+            }
+            
         } catch (error) {
             alert("로그인 실패: " + error.message)
         }

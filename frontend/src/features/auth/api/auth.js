@@ -38,6 +38,7 @@ export async function loginUser(userId, userPw) {
 
     // 백엔드에서 발급받은 JWT 토큰을 브라우저에 저장
     localStorage.setItem("token", data.token)
+    localStorage.setItem("role", data.user.role)
 
     // 로그인한 사용자 정보가 필요할 수 있으므로 전체 응답 반환
     return data
