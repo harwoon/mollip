@@ -1,0 +1,55 @@
+.timerContainer {
+  background-color: #FFFDF9;
+  border-radius: 20px;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.timerTitle {
+  font-size: 1.2rem;
+  color: #333333;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.timerDisplay {
+  font-size: 5rem;
+  font-weight: 700;
+  color: #8B71CC;
+  margin-bottom: 25px;
+  letter-spacing: 2px;
+}
+
+.timerButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.timerBtn {
+  background-color: #FFFFFF;
+  color: #8B71CC;
+  border: 1px solid #E0D8F0;
+  border-radius: 30px;
+  padding: 10px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.timerBtn:hover {
+  background-color: #8B71CC;
+  color: #FFFFFF;
+}
+
+.milliseconds {
+  font-size: 16px;
+  /* color: #c7bde0; */
+  margin-left: 8px;
+  font-weight: 400;
+}

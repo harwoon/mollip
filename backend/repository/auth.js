@@ -47,3 +47,28 @@ export async function updateStreak(userId, currentStreak, maxStreak, lastStudyDa
         { new: true }
     )
 }
+export async function getAllUsers() {
+    return User.find().select("_id groupId")
+}
+
+
+export async function updateUserGroups(updates) {
+    if (updates.length === 0) {
+        return null
+    }
+
+    const operations = updates.map((update) => ({
+        updateOne: {
+            filter: {
+                _id: update.userId,
+            },
+            update: {
+                $set: {
+                    groupId: update.groupId,
+                },
+            },
+        },
+    }))
+
+    return User.bulkWrite(operations)
+}
