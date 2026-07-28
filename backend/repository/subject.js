@@ -16,13 +16,18 @@ export async function findActiveSubjectsByUser(userId) {
 }
 
 // 유저의 아이디, 과목명으로 과목 색 가져오기
-export async function findColorByUserAndTitle(userId, subjectTitle) {
-    const subject = await Subject.findOne({
-        user: userId,
-        subjectName: subjectTitle
-    }).select("subjectColor")
+export async function findColorByUserAndTitle(
+  userId,
+  studyTitle,
+) {
+  const subject = await Subject.findOne({
+    user: userId,
+    subjectName: studyTitle,
+  })
+    .select("subjectColor")
+    .lean()
 
-    return subject ? subject.subjectColor : null
+  return subject?.subjectColor || null
 }
 
 // 과목 생성하기
