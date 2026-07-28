@@ -3,6 +3,7 @@ import TotalStudy from '../features/record/components/TotalStudy.jsx'
 import TabSelector from '../features/record/components/TabSelector.jsx'
 import DateSelector from '../features/record/components/DateSelector.jsx'
 import TotalSubject from "../features/record/components/TotalSubject.jsx"
+import BarSubject from "../features/record/components/BarSubject.jsx"
 
 export default function RecordPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -31,6 +32,11 @@ export default function RecordPage() {
       />
 
       <TotalSubject
+        selectedDate={selectedDate}
+        type={recordType}
+      />
+
+      <BarSubject
         selectedDate={selectedDate}
         type={recordType}
       />
