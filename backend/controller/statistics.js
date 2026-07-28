@@ -68,7 +68,6 @@ export async function getRatio(req, res) {
             totalStudyTime,
             subjects,
         })
-        return res.status(200).json(studies)
 
     } catch (error) {
         console.error(error)

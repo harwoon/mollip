@@ -74,6 +74,8 @@ export async function getRecords(req, res) {
             studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
         }
         else if (type === "weekly") {
+            
+            
             const { startDate, endDate } = getWeekRange(date)
             studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate)
         }

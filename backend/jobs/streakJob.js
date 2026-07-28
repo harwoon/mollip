@@ -3,7 +3,7 @@ import * as streakService from "../service/streakService.js"
 
 export function startStreakJob() {
     cron.schedule(
-        "*/10 * * * * *",//test 후 0 0 * * *로 수정
+        "0 0 * * *",//test 후 0 0 * * *로 수정
         async () => {
             try {
                 const result =
