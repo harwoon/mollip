@@ -93,7 +93,7 @@ export async function updateSubject(subjectId, subjectName, subjectColor){
 export async function deleteSubject(subjectId) {
     const token = getToken()
 
-    const response = await fetch(`${API_URL}/auth/subject`, {
+    const response = await fetch(`${API_URL}/auth/subject/${subjectId}`, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${token}`

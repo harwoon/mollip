@@ -16,15 +16,25 @@ const SubjectColorFix = [
     "#A38EC9"
 ]
 
-
 export default function SubjectInfo(){
     // 과목 목록
     const [subjects, setSubjects] = useState([])
 
+    // 과목 추가 영역 표시
+    const [isAdding, setIsAdding] = useState(false)
+
+    // 추가할 과목정보
+    const [newSubject, setNewSubject] = useState({
+        subjectName: "",
+        subjectColor: ""
+    })
+
+    // 컴포넌트가 처음 화면나타날 때 목록 조회
     useEffect(() => {
         loadSubjects()
     }, [])
 
+    // 로그인한 사용자 목록 조회
     async function loadSubjects() {
         try{
             const data = await getSubjects()
@@ -106,6 +116,110 @@ export default function SubjectInfo(){
         
     }
 
+    // 과목 추가
+    function handleOpenAdd() {
+        if(subjects.length >= 5){
+            alert("과목은 최대 5개까지 설정 가능합니다.")
+            return
+        }
+        setIsAdding(true)
+    }
+
+    // 새 과목명 input 값 변경
+    function handleNewSubjectNameChange(event){
+        setNewSubject((previousSubject) => ({
+            ...previousSubject,
+            subjectName: event.target.value
+        }))
+    }
+    // 새 과목 색상 선택
+    function handleNewSubjectColorChange(color){
+        setNewSubject((previousSubject) => ({
+            ...previousSubject,
+            subjectColor: color
+        }))
+    }
+
+    // 새 과목 생성
+    async function  handleCreateSubject() {
+        const subjectName = newSubject.subjectName.trim()
+        const subjectColor = newSubject.subjectColor
+
+        if(!subjectName){
+            alert("과목명을 입력해주세요.")
+            return
+        }
+        if (!subjectColor) {
+            alert("과목 색상을 선택해주세요.")
+            return
+        }
+
+        try{
+            const data = await createSubject(
+                subjectName,
+                subjectColor
+            )
+
+            // 생성된 과목을 기존 목록 뒤에 추가
+            setSubjects((previousSubjects) => [
+                ...previousSubjects,
+                data.subject
+            ])
+
+            // 새 과목 입력값 초기화
+            setNewSubject({
+                subjectName: "",
+                subjectColor: ""
+            })
+
+            setIsAdding(false)
+
+            alert(data.message || "과목이 추가되었습니다.")
+
+        }catch(error) {
+            console.error("과목 생성 오류:", error)
+            alert(error.message)
+        }
+    }
+
+    // 과목 추가 취소
+    function handleCancelCreate(){
+        setNewSubject({
+            subjectName: "",
+            subjectColor: ""
+        })
+        
+        setIsAdding(false)
+    }
+
+    // 기존 과목 삭제
+    async function handleDeleteSubject(subject) {
+        const confirmed = window.confirm(
+            `"${subject.subjectName}" 과목을 삭제하시겠습니까?`
+        )
+
+        if(!confirmed){
+            return
+        }
+
+        try{
+            const data = await deleteSubject(subject._id)
+
+            // 삭제한 과목 화면목록에서 제거
+            setSubjects((previousSubject) =>
+                previousSubject.filter(
+                    (item) => item._id !== subject._id
+                )
+            )
+        
+            alert(data.message || "과목이 삭제되었습니다.")
+
+        }catch(error){
+            console.error("과목 삭제 오류: ", error)
+            alert(error.message)
+        }
+    }
+
     return (
         <section className={styles.subjectInfo}>
             {/* 과목 설정 제목과 현재 등록된 과목 수 */}
@@ -141,7 +255,7 @@ export default function SubjectInfo(){
                             ⋮⋮
                         </span>
 
-                        {/* 현재 과목에 설정된 대표 색상 */}
+                        {/* 현재 과목 대표 색상 */}
                         <span
                             className={styles.subjectCurrentColor}
                             style={{
@@ -150,7 +264,7 @@ export default function SubjectInfo(){
                             }}
                         />
 
-                        {/* 과목명은 항상 바로 수정 가능 */}
+                        {/* 과목명은 항상 수정 가능 */}
                         <input
                             type="text"
                             value={subject.subjectName ?? ""}
@@ -160,7 +274,6 @@ export default function SubjectInfo(){
                                     event.target.value
                                 )
                             }
-                            // input 포커스가 빠질 때 서버에 수정 요청
                             onBlur={() =>
                                 handleSubjectNameBlur(subject)
                             }
@@ -174,7 +287,6 @@ export default function SubjectInfo(){
                         {/* 선택 가능한 과목 색상 목록 */}
                         <div className={styles.subjectColorList}>
                             {SubjectColorFix.map((color) => {
-                                // 현재 과목에 선택된 색상인지 확인
                                 const isSelected =
                                     subject.subjectColor === color
 
@@ -190,7 +302,6 @@ export default function SubjectInfo(){
                                         style={{
                                             backgroundColor: color
                                         }}
-                                        // 색상 클릭 시 즉시 서버 수정
                                         onClick={() =>
                                             handleSubjectColorChange(
                                                 subject,
@@ -199,26 +310,124 @@ export default function SubjectInfo(){
                                         }
                                         aria-label={`${color} 색상 선택`}
                                     >
-                                        {/* 현재 선택된 색상에는 체크 표시 */}
                                         {isSelected && "✓"}
                                     </button>
                                 )
                             })}
                         </div>
 
-                        {/* 과목 삭제 버튼 */}
+                        {/* 과목 삭제 */}
                         <button
                             type="button"
                             className={styles.deleteButton}
-                            onClick={() => {
-                                // 다음 단계에서 삭제 API 연결
-                            }}
+                            onClick={() =>
+                                handleDeleteSubject(subject)
+                            }
                         >
                             삭제
                         </button>
                     </div>
                 ))}
+
+                {/* 새 과목 입력 영역 */}
+                {isAdding && (
+                    <div className={styles.subjectItem}>
+                        <span className={styles.dragHandle}>
+                            ⋮⋮
+                        </span>
+
+                        {/* 선택 전에는 회색, 선택 후에는 해당 색상 */}
+                        <span
+                            className={styles.subjectCurrentColor}
+                            style={{
+                                backgroundColor:
+                                    newSubject.subjectColor ||
+                                    "#eeeeee"
+                            }}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="과목명을 입력해주세요."
+                            value={newSubject.subjectName}
+                            onChange={handleNewSubjectNameChange}
+                            className={styles.subjectNameInput}
+                            autoFocus
+                        />
+
+                        <span className={styles.colorLabel}>
+                            컬러 선택
+                        </span>
+
+                        <div className={styles.subjectColorList}>
+                            {SubjectColorFix.map((color) => {
+                                const isSelected =
+                                    newSubject.subjectColor === color
+
+                                return (
+                                    <button
+                                        key={color}
+                                        type="button"
+                                        className={
+                                            isSelected
+                                                ? `${styles.colorButton} ${styles.selectedColor}`
+                                                : styles.colorButton
+                                        }
+                                        style={{
+                                            backgroundColor: color
+                                        }}
+                                        onClick={() =>
+                                            handleNewSubjectColorChange(
+                                                color
+                                            )
+                                        }
+                                        aria-label={`${color} 색상 선택`}
+                                    >
+                                        {isSelected && "✓"}
+                                    </button>
+                                )
+                            })}
+                        </div>
+
+                        <div className={styles.createButtons}>
+                            <button
+                                type="button"
+                                className={
+                                    styles.cancelCreateButton
+                                }
+                                onClick={handleCancelCreate}
+                            >
+                                취소
+                            </button>
+
+                            <button
+                                type="button"
+                                className={
+                                    styles.completeCreateButton
+                                }
+                                onClick={handleCreateSubject}
+                            >
+                                추가 완료
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* 과목이 5개 미만이고 추가 중이 아닐 때만 표시 */}
+            {!isAdding && subjects.length < 5 && (
+                <button
+                    type="button"
+                    className={styles.addSubjectButton}
+                    onClick={handleOpenAdd}
+                >
+                    <span className={styles.addIcon}>
+                        +
+                    </span>
+
+                    <span>과목 추가하기</span>
+                </button>
+            )}
         </section>
     )
 }
