@@ -35,7 +35,7 @@ export async function createSubject(subjectData) {
 export async function updateSubject(id, subjectName, subjectColor) {
     return await Subject.findByIdAndUpdate(
         id,
-        { subjectName, subjectColor },
+        { subjectName, subjectColor, useYn : 'Y' },
         { new: true }
     )
 }

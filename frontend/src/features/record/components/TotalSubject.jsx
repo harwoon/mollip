@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { getStudyRecord } from '../api/study.js'
+import { getSubjectRecord } from '../api/study.js'
 import dayjs from 'dayjs'
 
-export default function TotalStudy({ selectedDate, type }) {
+
+export default function TotalSubject({ selectedDate, type }) {
   const [hour, setHour] = useState(0)
   const [min, setMin] = useState(0)
 
@@ -12,15 +13,15 @@ export default function TotalStudy({ selectedDate, type }) {
         const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD')
 
         // API 요청
-        const data = await getStudyRecord(type, formattedDate)
+        const data = await getSubjectRecord(type, formattedDate)
         
-        const totalMinutes = data || 0
+        const totalMinutes = data.totalStudyTime || 0
 
         setHour(Math.floor(totalMinutes / 60))
         setMin(totalMinutes % 60)
 
       } catch (error) {
-        console.error("공부 시간을 가져오는데 실패했습니다:", error)
+        console.error("과목공부 시간을 가져오는데 실패했습니다:", error)
       }
     }
 
@@ -29,7 +30,7 @@ export default function TotalStudy({ selectedDate, type }) {
 
   return (
     <div>
-      <h3>총 공부시간</h3>
+      <h3>과목 공부시간</h3>
       <h2>{hour}시간 {min}분</h2>
     </div>
   )
