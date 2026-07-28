@@ -5,11 +5,11 @@ import { PiPencilSimpleDuotone } from "react-icons/pi"
 
 import { updateMyInfo, updateProfileImage } from "../api/mypage"
 
-import styles from "./USerInfo.module.css"
+import styles from "./UserInfo.module.css"
 
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
-export default function USerInfo(){
+export default function UserInfo(){
     // 프로필 표시할 사용자 정보
     const [user, setUser] = useState({
         nickname: "",
