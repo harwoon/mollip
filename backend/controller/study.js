@@ -12,7 +12,7 @@ export async function addStudy(req, res) {
     const start = new Date(startTime)
     const end = new Date(endTime)
 
-    const sumStudyTime = Math.floor((end - start) / 1000)
+    const sumStudyTime = Math.floor((end - start) / 1000 / 60)
 
     try {
         // 공부 기록 추가
