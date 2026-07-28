@@ -65,3 +65,27 @@ export async function getMonthlyByUserIdAndSubjectAndDate(user,subject, month) {
         studyDate: { $regex: `^${month}` } 
     })
 }
+
+export async function getWeeklyStudyTimeByUSers(
+    startOfWeek,
+    endOfWeek
+) {
+    return Study.aggregate([
+        {
+            $match: {
+                studyData: {
+                    $gte: startOfWeek,
+                    $lte: endOfWeek,
+                },
+            },
+        },
+        {
+            $group: {
+                _id:"$user",
+                totalStudyTime: {
+                    $sum:"$sumStudyTime",
+                },
+            },
+        },
+    ])
+}
