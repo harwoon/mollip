@@ -3,6 +3,7 @@ import Login from "./pages/LoginPage"
 import Home from "./pages/HomePage"
 import Signup from "./pages/SignupPage"
 import Main from "./components/MainLayout"
+import MyPage from "./pages/MyPage"
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/weekly",
         element: <div>주간 현황 페이지</div>
+      },
+      {
+        path: "/mypage",
+        element: <MyPage />
       }
     ]
   }

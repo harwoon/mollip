@@ -1,0 +1,71 @@
+.readOnlyInput {
+    pointer-events: none;
+}
+
+.editingInput {
+    pointer-events: auto;
+}
+
+.profileImageSection {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0 30px;
+}
+
+.profileImageBox {
+    position: relative;
+
+    width: 126px;
+    height: 126px;
+}
+
+.profileImage {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    border: 1px solid #eee7fa;
+    border-radius: 50%;
+    background: #f3edff;
+
+    object-fit: cover;
+}
+
+.profileImageEditButton {
+    position: absolute;
+    right: -2px;
+    bottom: 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+
+    background: #7651bd;
+    color: #ffffff;
+
+    font-size: 22px;
+    cursor: pointer;
+
+    box-shadow: 0 5px 14px rgba(76, 45, 138, 0.28);
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.profileImageEditButton:hover {
+    background: #6643aa;
+    transform: translateY(-1px);
+}
+
+.profileImageEditButton:active {
+    transform: translateY(0);
+}

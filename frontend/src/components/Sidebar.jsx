@@ -26,14 +26,12 @@ export default function Sidebar() {
       padding: "20px",
       borderRight: "1px solid #ddd"
     }}>
-
-      <div style={{ marginBottom: "40px", fontSize: "24px", fontWeight: "bold" }}>
-        Mollip
+      <div className="sidebarLogo">
+        <img src="/images/logo.png" alt="Mollip"/>
       </div>
-
       <SidebarUserInfo />
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <nav className="sidebarNavigation">
 
         <NavLink to="/home" style={activeStyle}>
           홈
@@ -45,6 +43,10 @@ export default function Sidebar() {
         
         <NavLink to="/weekly" style={activeStyle}>
           주간 현황
+        </NavLink>
+        
+        <NavLink to="/mypage" style={activeStyle}>
+          마이페이지
         </NavLink>
         
       </nav>
