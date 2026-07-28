@@ -5,6 +5,8 @@ import Signup from "./pages/SignupPage"
 import Main from "./components/MainLayout"
 import MyPage from "./pages/MyPage"
 import RecordPage from "./pages/RecordPage"
+import AdminMainLayout from "./admin/AdminMainLayout"
+import AdminHomePage from "./admin/AdminHomePage"
 import WeekStatusPage from "./pages/WeekStatusPage"
 
 const router = createBrowserRouter([
@@ -35,6 +37,24 @@ const router = createBrowserRouter([
       {
         path: "/mypage",
         element: <MyPage />
+      }
+    ]
+  },
+  {
+    // 관리자 페이지
+    element: <AdminMainLayout/>,
+    children: [
+      {
+        path: "/admin/home",
+        element: <AdminHomePage/>
+      },
+      {
+        path: "/admin/users",
+        element: <div>회원 조회</div>
+      },
+      {
+        path: "/admin/groups",
+        element: <div>그룹 관리</div>
       }
     ]
   }
