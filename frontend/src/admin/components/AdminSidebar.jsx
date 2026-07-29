@@ -30,6 +30,7 @@ export default function AdminSidebar() {
             <SidebarUserInfo /> {/* 확인하기 */}
 
             <nav className="sidebarNavigation">
+                <p>DASHBOARD</p>
                 <NavLink to="/admin/home" style={activeStyle}>
                     홈
                 </NavLink>

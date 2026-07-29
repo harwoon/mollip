@@ -1,4 +1,5 @@
 import Group from "../models/Group.js"
+import User from "../models/User.js"
 
 // 그룹 전체 목록 조회
 export async function findAllGroups() {
@@ -97,4 +98,21 @@ export async function findByGroupTimeExcludingId(groupTime, excludeId) {
         groupTime,
         _id: { $ne: excludeId }
     })
+}
+
+// 그룹 평균 연속 공부 일수 
+export async function getTotalStreak(groupId) {
+    const users = await User.find({ groupId })
+    const num = users.length
+
+    if (num === 0) {
+        return 0
+    }
+
+    let sum = 0
+    users.forEach(user => {
+        sum += (user.currentStreak || 0)
+    })
+    
+    return sum / num;
 }

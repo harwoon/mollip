@@ -20,4 +20,8 @@ router.get("/higher",isAuth,groupController.getHigher)
 // http://127.0.0.1:3000/group/lower
 router.get("/lower",isAuth,groupController.getLower)
 
+// 그룹의 연속 공부 달성일 평균
+// http://127.0.0.1:3000/group/streak
+router.get("/streak",isAuth,groupController.getStreak)
+
 export default router
