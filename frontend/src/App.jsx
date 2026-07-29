@@ -8,6 +8,7 @@ import RecordPage from "./pages/RecordPage"
 import AdminMainLayout from "./admin/AdminMainLayout"
 import AdminHomePage from "./admin/AdminHomePage"
 import WeekStatusPage from "./pages/WeekStatusPage"
+import GroupPage from "./pages/GroupPage"
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "/weekly",
         element: <WeekStatusPage/>
+      },
+      {
+        path: "/group",
+        element: <GroupPage/>
       },
       {
         path: "/mypage",
