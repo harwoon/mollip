@@ -1,17 +1,19 @@
 import express from "express"
 import * as groupRepository from "../repository/group.js"
 import { assignWeeklyGroups } from "../service/weeklyGroupService.js"
+import { getWeekRange } from "../util/date.js"
+import dayjs from "dayjs"
 
 // 그룹 목록 조회 (확인용)
 export async function getGroups(req, res) {
-    try{
+    try {
         const groups = await groupRepository.findAllGroups()
 
         return res.status(200).json({
             message: "그룹 목록을 성공적으로 불러왔습니다.",
             groups
         })
-    } catch(error) {
+    } catch (error) {
         console.error("그룹 목록 조회 오류: ", error)
         return res.status(500).json({
             message: "그룹 목록 조회 중 오류가 발생했습니다."
@@ -20,14 +22,14 @@ export async function getGroups(req, res) {
 }
 
 // 자신 그룹 조회
-export async function getGroup(req,res){
+export async function getGroup(req, res) {
     const groupId = req.user.groupId
 
     try {
 
         const group = await groupRepository.findById(groupId)
         return res.status(200).json(group)
-        
+
     } catch (error) {
         console.error(error)
         return res.status(500).json({ message: "서버 오류로 그룹 정보를 불러오지 못했습니다." })
@@ -44,7 +46,7 @@ export async function getHigher(req, res) {
         if (!myGroup) {
             return res.status(404).json({ message: "내 그룹 정보를 찾을 수 없습니다." })
         }
-        
+
         const currentGroupTime = myGroup.groupTime
 
         const higherGroup = await groupRepository.getNextGroup(currentGroupTime)
@@ -70,7 +72,7 @@ export async function getLower(req, res) {
         if (!myGroup) {
             return res.status(404).json({ message: "내 그룹 정보를 찾을 수 없습니다." })
         }
-        
+
         const currentGroupTime = myGroup.groupTime
 
         // 2. 내 그룹 시간을 기준으로 하위 그룹을 조회합니다.
@@ -90,19 +92,68 @@ export async function getLower(req, res) {
 }
 
 // 그룹 연속 공부 달성일
-export async function getStreak(req,res){
+export async function getStreak(req, res) {
     const groupId = req.user.groupId
     const userStreak = req.user.currentStreak
 
-    try{
+    try {
 
         const groupStreak = await groupRepository.getTotalStreak(groupId)
 
-        return res.status(200).json({userStreak, groupStreak })
+        return res.status(200).json({ userStreak, groupStreak })
 
-    } catch(error){
+    } catch (error) {
         console.error("그룹 연속 공부 달성일 조회 실패:", error)
         return res.status(500).json({ message: "서버 오류로 그룹 연속 공부 달성일을 불러오지 못했습니다." })
+    }
+}
+
+// 그룹 주간 일별 공부 시간 
+export async function getWeeklyCompareStats(req, res) {
+    const userId = req.user._id
+    const groupId = req.user.groupId
+    const { date } = req.query
+
+    try {
+        // 해당 날짜가 포함된 주의 월요일(startDate)과 일요일(endDate) 구하기 (기존 함수 활용)
+        const { startDate, endDate } = getWeekRange(date)
+
+        // 비동기로 개인 통계와 그룹 통계를 동시에 가져와 속도 향상
+        const [personalStats, groupStats] = await Promise.all([
+            groupRepository.getWeeklyStatsByUser(userId, startDate, endDate),
+            groupRepository.getWeeklyStatsByGroup(groupId, startDate, endDate)
+        ])
+
+        // 차트에 넣을 7일치 배열 만들기
+        const result = [];
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+
+        let current = dayjs(startDate);
+
+        // 월요일부터 7일간 반복하면서 데이터 끼워 넣기
+        for (let i = 0; i < 7; i++) {
+            const dateStr = current.format('YYYY-MM-DD')
+            const dayStr = dayNames[current.day()]
+
+            // DB에서 꺼내온 데이터 중 해당 날짜의 데이터 찾기
+            const pRecord = personalStats.find(s => s._id === dateStr)
+            const gRecord = groupStats.find(s => s.date === dateStr)
+
+            result.push({
+                day: dayStr,
+                personalTime: pRecord ? Number((pRecord.totalTime / 60).toFixed(1)) : 0,
+                groupTime: gRecord ? Number((gRecord.averageTime / 60).toFixed(1)) : 0
+            })
+
+            // 다음 날짜로 넘어감
+            current = current.add(1, 'day')
+        }
+
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.error("주간 비교 통계 에러:", error);
+        return res.status(500).json({ message: "비교 통계를 불러오지 못했습니다." })
     }
 }
 
@@ -149,7 +200,7 @@ export async function addGroup(req, res) {
         }
 
         const existingGroupColor = await groupRepository.findByColor(groupColor)
-        if(existingGroupColor) {
+        if (existingGroupColor) {
             return res.status(409).json({
                 message: "이미 사용 중인 컬러입니다."
             })
@@ -199,7 +250,7 @@ export async function updateGroup(req, res) {
 
         // 그룹 존재 확인
         const existingGroup = await groupRepository.findById(id)
-        if(!existingGroup) {
+        if (!existingGroup) {
             return res.status(404).json({
                 message: "존재하지 않는 그룹입니다."
             })
@@ -208,15 +259,15 @@ export async function updateGroup(req, res) {
         const updateData = {}
 
         // 그룹명
-        if(groupName !== undefined) {
-            if(!groupName.trim()) {
+        if (groupName !== undefined) {
+            if (!groupName.trim()) {
                 return res.status(400).json({
                     message: "그룹명을 입력해주세요."
                 })
             }
 
             const duplicateName = await groupRepository.findByGroupNameExcludingId(groupName.trim(), id)
-            if(duplicateName) {
+            if (duplicateName) {
                 return res.status(409).json({
                     message: "이미 사용 중인 그룹명입니다."
                 })
@@ -226,8 +277,8 @@ export async function updateGroup(req, res) {
         }
 
         // 그룹 컬러
-        if(groupColor !== undefined) {
-            if(!groupColor.trim()) {
+        if (groupColor !== undefined) {
+            if (!groupColor.trim()) {
                 return res.status(400).json({
                     message: "그룹 컬러를 입력해주세요."
                 })
@@ -237,7 +288,7 @@ export async function updateGroup(req, res) {
                 groupColor.trim(),
                 id
             )
-            if(duplicateColor) {
+            if (duplicateColor) {
                 return res.status(409).json({
                     message: "이미 사용 중인 그룹 컬러입니다."
                 })
@@ -247,22 +298,22 @@ export async function updateGroup(req, res) {
         }
 
         // 그룹 조건 시간
-        if(groupTime !== undefined) {
+        if (groupTime !== undefined) {
             const time = Number(groupTime)
 
-            if(Number.isNaN(time)) {
+            if (Number.isNaN(time)) {
                 return res.status(400).json({
                     message: "최소 공부시간은 숫자여야합니다."
                 })
             }
-            if(time < 0) {
+            if (time < 0) {
                 return res.status(400).json({
                     message: "최소 공부시간은 0 이상이어야 합니다."
                 })
             }
 
             const duplicateTime = await groupRepository.findByGroupTimeExcludingId(time, id)
-            if(duplicateTime) {
+            if (duplicateTime) {
                 return res.status(409).json({
                     message: "이미 사용 중인 그룹 조건 시간입니다."
                 })
@@ -272,7 +323,7 @@ export async function updateGroup(req, res) {
         }
 
         // 
-        if(Object.keys(updateData).length === 0) {
+        if (Object.keys(updateData).length === 0) {
             return res.status(400).json({
                 message: "수정할 내용이 없습니다."
             })
@@ -284,11 +335,11 @@ export async function updateGroup(req, res) {
             message: "그룹이 수정되었습니다.",
             group: updatedGroup
         })
-    } catch(error) {
+    } catch (error) {
         console.error("그룹 수정 오류: ", error)
 
         // unique 인덱스 중복 오류
-        if(error.code === 11000) {
+        if (error.code === 11000) {
             return res.status(409).json({
                 message: "그룹명, 그룹 컬러 또는 그룹 조건 시간이 중복되었습니다."
             })
@@ -300,8 +351,7 @@ export async function updateGroup(req, res) {
     }
 }
 
-export async function runWeeklyGroupAssignment(req, res, next) 
-{
+export async function runWeeklyGroupAssignment(req, res, next) {
     try {
         const result =
             await assignWeeklyGroups()
