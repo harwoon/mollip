@@ -77,15 +77,15 @@ export async function getAllByUserId(user) {
 }
 
 export async function getWeeklyStudyTimeByUSers(
-    startOfWeek,
-    endOfWeek
+    startDate,
+    endDate
 ) {
     return Study.aggregate([
         {
             $match: {
                 studyDate: {
-                    $gte: startOfWeek,
-                    $lte: endOfWeek,
+                    $gte: startDate,
+                    $lte: endDate,
                 },
             },
         },

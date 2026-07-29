@@ -34,6 +34,79 @@ export async function getGroup(req,res){
     }
 }
 
+// 상위 그룹 조회
+export async function getHigher(req, res) {
+    const groupId = req.user.groupId
+
+    try {
+
+        const myGroup = await groupRepository.findById(groupId)
+        if (!myGroup) {
+            return res.status(404).json({ message: "내 그룹 정보를 찾을 수 없습니다." })
+        }
+        
+        const currentGroupTime = myGroup.groupTime
+
+        const higherGroup = await groupRepository.getNextGroup(currentGroupTime)
+
+        if (!higherGroup) {
+            return res.status(200).json({ message: "현재 최고 등급 그룹입니다.", data: null })
+        }
+
+        return res.status(200).json(higherGroup);
+
+    } catch (error) {
+        console.error("상위 그룹 조회 실패:", error);
+        return res.status(500).json({ message: "서버 오류로 상위 그룹 정보를 불러오지 못했습니다." })
+    }
+}
+
+// 하위 그룹 조회
+export async function getLower(req, res) {
+    const groupId = req.user.groupId
+
+    try {
+        const myGroup = await groupRepository.findById(groupId)
+        if (!myGroup) {
+            return res.status(404).json({ message: "내 그룹 정보를 찾을 수 없습니다." })
+        }
+        
+        const currentGroupTime = myGroup.groupTime
+
+        // 2. 내 그룹 시간을 기준으로 하위 그룹을 조회합니다.
+        const lowerGroup = await groupRepository.getPrevGroup(currentGroupTime)
+
+        // 하위 그룹이 없을 경우(최하위 등급)의 처리
+        if (!lowerGroup) {
+            return res.status(200).json({ message: "현재 최하위 등급 그룹입니다.", data: null })
+        }
+
+        return res.status(200).json(lowerGroup)
+
+    } catch (error) {
+        console.error("하위 그룹 조회 실패:", error)
+        return res.status(500).json({ message: "서버 오류로 하위 그룹 정보를 불러오지 못했습니다." })
+    }
+}
+
+// 그룹 연속 공부 달성일
+export async function getStreak(req,res){
+    const groupId = req.user.groupId
+    const userStreak = req.user.currentStreak
+
+    try{
+
+        const groupStreak = await groupRepository.getTotalStreak(groupId)
+
+        return res.status(200).json({userStreak, groupStreak })
+
+    } catch(error){
+        console.error("그룹 연속 공부 달성일 조회 실패:", error)
+        return res.status(500).json({ message: "서버 오류로 그룹 연속 공부 달성일을 불러오지 못했습니다." })
+    }
+}
+
+
 // 그룹 추가
 export async function addGroup(req, res) {
 
