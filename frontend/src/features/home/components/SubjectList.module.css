@@ -1,0 +1,52 @@
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 과목 박스 사이의 간격 */
+  width: 100%;
+}
+
+.subjectItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid #E5E5E5;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 🚨 마우스를 올리거나 클릭했을 때(활성화)의 디자인 */
+.subjectItem:hover {
+  border-color: #A084E8;
+}
+
+.subjectItemActive {
+  background-color: #A084E8;
+  border-color: #A084E8;
+  color: #FFFFFF;
+}
+
+.subjectInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.colorDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.subjectName {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.timeDisplay {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
