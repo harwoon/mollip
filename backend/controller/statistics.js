@@ -3,6 +3,7 @@ import * as studyRepository from "../repository/study.js"
 import * as authRepository from "../repository/auth.js"
 import { getWeekRange, getYesterday } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
+import * as statisticsService from "../service/statisticsService.js"
 
 export async function getTotal(req, res) {
     const { type, date } = req.query
@@ -74,6 +75,7 @@ export async function getRatio(req, res) {
       })
     }
 
+
     console.log("조회된 공부 기록:", studies)
 
     const {
@@ -98,4 +100,23 @@ export async function getRatio(req, res) {
         "서버 오류로 공부 기록을 불러오지 못했습니다.",
     })
   }
+
+}
+
+export async function getWeeklyRanking(req, res) {
+    try {
+        const ranking =
+            await statisticsService.getWeeklyGroupRanking(req.user._id)
+
+        res.status(200).json({
+            ranking,
+        })
+    } catch (error) {
+        console.error("주간 랭킹 조회 실패:", error)
+
+        res.status(500).json({
+            message: error.message,
+        })
+    }
+
 }

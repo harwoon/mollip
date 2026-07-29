@@ -12,4 +12,8 @@ router.get("/total",isAuth,statController.getTotal)
 //http://127.0.0.1:3000/statistics/ratio?type=daily&date=2026-07-26
 router.get("/ratio",isAuth,statController.getRatio)
 
+// 주간 랭킹 조회
+//http://127.0.0.1:3000/statistics/weekly-ranking
+router.get("/weekly-ranking",isAuth , statController.getWeeklyRanking)
+
 export default router

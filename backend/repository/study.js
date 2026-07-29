@@ -99,3 +99,62 @@ export async function getWeeklyStudyTimeByUSers(
         },
     ])
 }
+
+export async function getWeeklyGroupTop3(
+    groupId,
+    weekStart,
+    weekEnd
+) {
+    return Study.aggregate([
+        {
+            $match: {
+                createdAt: {
+                    $gte: weekStart,
+                    $lt: weekEnd,
+                },
+            },
+        },
+        {
+            $group: {
+                _id: "$user",
+                totalStudyTime: {
+                    $sum: "$studyTime",
+                },
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "userInfo",
+            },
+        },
+        {
+            $unwind: "$userInfo",
+        },
+        {
+            $match: {
+                "userInfo.groupId": groupId,
+            },
+        },
+        {
+            $sort: {
+                totalStudyTime: -1,
+                _id: 1,
+            },
+        },
+        {
+            $limit: 3,
+        },
+        {
+            $project: {
+                _id: 0,
+                userId: "$_id",
+                name: "$userInfo.nickname",
+                image: "$userInfo.profileImg",
+                totalStudyTime: 1,
+            },
+        },
+    ])
+}
