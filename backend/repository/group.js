@@ -61,6 +61,20 @@ export async function findById(id) {
     return Group.findById(id)
 }
 
+// 상위 그룹 찾기
+export async function getNextGroup(currentGroupTime) {
+    return Group.findOne({ 
+        groupTime: { $gt: currentGroupTime } 
+    }).sort({ groupTime: 1 })
+}
+
+// 하위 그룹 찾기
+export async function getPrevGroup(currentGroupTime) {
+    return Group.findOne({ 
+        groupTime: { $lt: currentGroupTime } 
+    }).sort({ groupTime: -1 })
+}
+
 // 그룹명 중복 체크 (수정용, 자기 자신 제외)
 export async function findByGroupNameExcludingId(groupName, excludeId) {
     return Group.findOne({
