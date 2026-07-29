@@ -1,125 +1,240 @@
+import React, { useEffect, useState } from "react";
+import { getWeeklyStudyRecords } from "../api/weekly";
+import dayjs from "dayjs";
+
 import {
-  CartesianGrid,
-  Line,
   LineChart,
-  ResponsiveContainer,
-  Tooltip,
+  Line,
   XAxis,
   YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-import styles from "./WeeklyStudyTimeChart.module.css";
+const WEEK_DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
+export default function WeeklyStudyTimeChart({ selectedDate }) {
+  const [chartData, setChartData] = useState([]);
 
-function formatStudyTime(hours) {
-  const totalMinutes =
-    Math.round(hours * 60);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
 
-  const hour =
-    Math.floor(totalMinutes / 60);
+        const data = await getWeeklyStudyRecords(formattedDate);
 
-  const minute =
-    totalMinutes % 60;
+        // 응답이 배열인지 확인
+        const records = Array.isArray(data) ? data : data.records || [];
 
-  if (hour === 0) {
-    return `${minute}분`;
-  }
+        /*
+                    같은 날짜의 sumStudyTime을 더함
 
-  if (minute === 0) {
-    return `${hour}시간`;
-  }
+                    {
+                        "2026-07-27": 420,
+                        "2026-07-28": 449,
+                        "2026-07-29": 529
+                    }
+                */
+        const studyTimeByDate = records.reduce((result, record) => {
+          const studyDate = record.studyDate;
+          const studyTime = Number(record.sumStudyTime) || 0;
 
-  return `${hour}시간 ${minute}분`;
-}
+          result[studyDate] = (result[studyDate] || 0) + studyTime;
 
+          return result;
+        }, {});
 
-export default function WeeklyStudyTimeChart({
-  data = [],
-}) {
+        /*
+                    선택한 날짜가 포함된 주의 월요일
+
+                    서버가 주간 범위의 데이터를 골라주는 역할을 하고,
+                    여기서는 데이터가 없는 요일도 0으로 표시하기 위해
+                    월~일 날짜를 만드는 용도로만 사용
+                */
+        const selectedDay = dayjs(formattedDate);
+        const dayNumber = selectedDay.day();
+
+        const monday = selectedDay.subtract(
+          dayNumber === 0 ? 6 : dayNumber - 1,
+          "day",
+        );
+
+        // 월요일부터 일요일까지 차트 데이터 생성
+        const formattedChartData = WEEK_DAYS.map((day, index) => {
+          const date = monday.add(index, "day").format("YYYY-MM-DD");
+
+          const rawMinutes = studyTimeByDate[date] || 0;
+
+          return {
+            name: day,
+            date,
+            hours: Number((rawMinutes / 60).toFixed(1)),
+            rawMinutes,
+          };
+        });
+
+        setChartData(formattedChartData);
+      } catch (error) {
+        console.error("주간 공부 시간을 가져오는데 실패했습니다:", error);
+
+        setChartData([]);
+      }
+    };
+
+    fetchData();
+  }, [selectedDate]);
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const { name, date, rawMinutes } = payload[0].payload;
+
+      const hours = Math.floor(rawMinutes / 60);
+      const minutes = rawMinutes % 60;
+
+      return (
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "12px",
+            border: "none",
+            borderRadius: "12px",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 5px 0",
+              fontWeight: "bold",
+              color: "#8a6bc7",
+            }}
+          >
+            {name}요일
+          </p>
+
+          <p
+            style={{
+              margin: "0 0 5px 0",
+              color: "#888",
+              fontSize: "12px",
+            }}
+          >
+            {dayjs(date).format("YYYY.MM.DD")}
+          </p>
+
+          <p
+            style={{
+              margin: 0,
+              color: "#333",
+            }}
+          >
+            {hours}시간 {minutes}분
+          </p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <article className={styles.card}>
-      <h3 className={styles.title}>
+    <div
+      style={{
+        width: "100%",
+        padding: "20px",
+        boxSizing: "border-box",
+        backgroundColor: "#fcfbf9",
+        borderRadius: "20px",
+      }}
+    >
+      <h3
+        style={{
+          color: "#333",
+          fontSize: "1.2rem",
+          marginBottom: "20px",
+        }}
+      >
         주간 총 공부 시간
       </h3>
 
-      {data.length === 0 ? (
-        <p className={styles.emptyMessage}>
-          주간 공부 기록이 없습니다.
-        </p>
-      ) : (
-        <div className={styles.chartWrapper}>
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
+      {chartData.length > 0 ? (
+        <div
+          style={{
+            width: "100%",
+            height: "250px",
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={data}
+              data={chartData}
               margin={{
-                top: 10,
-                right: 15,
+                top: 20,
+                right: 20,
+                left: -20,
                 bottom: 0,
-                left: -15,
               }}
             >
               <CartesianGrid
-                vertical={false}
                 strokeDasharray="3 3"
-                stroke="#d8d2e1"
+                vertical={false}
+                stroke="#ddd"
               />
 
               <XAxis
-                dataKey="day"
+                dataKey="name"
                 axisLine={false}
                 tickLine={false}
+                tick={{
+                  fill: "#555",
+                  fontSize: 12,
+                  fontWeight: "bold",
+                }}
+                dy={10}
               />
 
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                domain={[0, "auto"]}
-                tickFormatter={(value) =>
-                  `${value}H`
-                }
+                tick={{
+                  fill: "#888",
+                  fontSize: 12,
+                }}
+                tickFormatter={(value) => `${value}H`}
               />
 
               <Tooltip
-                formatter={(value) => [
-                  formatStudyTime(value),
-                  "공부 시간",
-                ]}
-                labelFormatter={(
-                  label,
-                  payload,
-                ) => {
-                  const date =
-                    payload?.[0]?.payload
-                      ?.date;
-
-                  return date
-                    ? `${date} (${label})`
-                    : `${label}요일`;
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: "#d9d1ec",
+                  strokeDasharray: "3 3",
                 }}
               />
 
               <Line
-                type="monotone"
-                dataKey="studyTime"
-                stroke="#8058c7"
+                type="linear"
+                dataKey="hours"
+                stroke="#8a6bc7"
                 strokeWidth={2}
-                connectNulls
-                dot={{
-                  r: 3,
-                  fill: "#8058c7",
-                  strokeWidth: 0,
-                }}
+                dot={false}
                 activeDot={{
                   r: 5,
+                  fill: "#8a6bc7",
                 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
+      ) : (
+        <p
+          style={{
+            textAlign: "center",
+            color: "#aaa",
+            marginTop: "40px",
+          }}
+        >
+          공부 기록이 없습니다.
+        </p>
       )}
-    </article>
+    </div>
   );
 }
