@@ -12,6 +12,7 @@ router.post("/addStudy",isAuth, studyController.addStudy)
 //http://127.0.0.1:3000/study/records?type=daily&date=2026-07-26
 //http://127.0.0.1:3000/study/records?type=weekly&date=2026-07-26
 //http://127.0.0.1:3000/study/records?type=monthly&date=2026-07-26
+//http://127.0.0.1:3000/study/records?type=daily&date=2026-07-26&sort=time&limit=1
 router.get("/records", isAuth, studyController.getRecords)
 
 // 일간/주간/월간 과목 기록 조회

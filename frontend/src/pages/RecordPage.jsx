@@ -3,6 +3,9 @@ import TotalStudy from '../features/record/components/TotalStudy.jsx'
 import TabSelector from '../features/record/components/TabSelector.jsx'
 import DateSelector from '../features/record/components/DateSelector.jsx'
 import TotalSubject from "../features/record/components/TotalSubject.jsx"
+import BarSubject from "../features/record/components/BarSubject.jsx"
+import LongestStudy from '../features/record/components/LongestStudy.jsx'
+import HitCalendar from '../features/record/components/HitCalendar.jsx'
 
 export default function RecordPage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -33,6 +36,21 @@ export default function RecordPage() {
       <TotalSubject
         selectedDate={selectedDate}
         type={recordType}
+      />
+
+      <BarSubject
+        selectedDate={selectedDate}
+        type={recordType}
+      />
+
+      <LongestStudy
+        selectedDate={selectedDate}
+        type={recordType}
+      />
+
+      <HitCalendar
+        selectedDate={selectedDate}
+        onChangeDate={setSelectedDate}
       />
 
     </div>
