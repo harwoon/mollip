@@ -1,5 +1,10 @@
 import User from "../models/User.js"
 
+// 전체 사용자 수 조회 (role: 'user'인 사용자)
+export async function countAllUsers() {
+    return User.countDocuments({ role: 'user' })
+}
+
 // 회원 목록 조회 (검색/필터/정렬/페이지네이션)
 export async function findUsers({ search, groupId, sortBy, sortOrder, skip, limit }) {
     // DB에 던질 검색 조건 객체를 일반 유저 대상으로 고정

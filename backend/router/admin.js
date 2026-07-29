@@ -10,6 +10,9 @@ router.use(isAuth, isAdmin)
 
 // 회원 관리
 // =================================================
+// http://127.0.0.1:3000/admin/users/count
+router.get("/users/count", adminController.getUserCount)
+
 // http://127.0.0.1:3000/admin/users
 router.get("/users", adminController.getUsers)
 

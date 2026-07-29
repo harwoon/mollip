@@ -2,37 +2,43 @@ import { useState, useEffect } from "react"
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
+import { getUserCount } from "../features/home/api/user.js"
 
 // 관리자 홈 페이지
 export default function AdminHomePage() {
     // 임시 데이터❗
     const [summary, setSummary] = useState({
         groupCount: 0,
-        groupCountDiff: "",
-        userCount: 142,
-        userCountDiff: "+10명 (전주 대비)",
-        studyingCount: 87,
-        studyingCountNote: "전체의 62%",
-        weeklyTotalTime: "1,248",
-        weeklyTotalTimeDiff: "+158시간 (전주 대비)",
-        avgGoalRate: 78,
-        avgGoalRateDiff: "+6% UP (전주 대비)",
+        groupCountDiff: "수정 필요",
+        userCount: 0,
+        userCountDiff: "수정 필요",
+        studyingCount: 0,
+        studyingCountNote: "수정 필요",
+        weeklyTotalTime: "수정 필요",
+        weeklyTotalTimeDiff: "수정 필요",
+        avgGoalRate: 0,
+        avgGoalRateDiff: "수정 필요",
     })
 
     useEffect(() => {
-        async function fetchGroupCount() {
+        async function fetchSummary() {
             try {
-                const data = await getGroupCount()
+                const [groupData, userData] = await Promise.all([
+                    getGroupCount(),
+                    getUserCount(),
+                ])
+
                 setSummary(prev => ({
                     ...prev,
-                    groupCount: data.count,
+                    groupCount: groupData.count,
+                    userCount: userData.count
                 }))
             } catch (error) {
-                console.error("그룹 수 조회 실패:", error.message)
+                console.error("데이터 조회 실패", error.message)
             }
         }
 
-        fetchGroupCount()
+        fetchSummary()
     }, [])
 
 

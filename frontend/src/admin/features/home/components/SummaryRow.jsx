@@ -1,5 +1,5 @@
 import SummaryCard from "./SummaryCard.jsx"
-import { RiGroupLine } from "react-icons/ri"
+import { RiGroupLine, RiUserSmileLine } from "react-icons/ri"
 
 import "./SummaryRow.css"
 
@@ -12,6 +12,13 @@ export default function SummaryRow({ summary }) {
                 value={summary.groupCount}
                 unit="개"
                 diff={summary.groupCountDiff}
+            />
+            <SummaryCard
+                icon={<RiUserSmileLine/>}
+                label="전체 사용자 수"
+                value={summary.userCount}
+                unit="명"
+                diff={summary.userCountDiff}
             />
         </div>
     )

@@ -3,6 +3,22 @@ import * as studyRepository from "../repository/study.js"
 import Group from "../models/Group.js"
 
 // 관리자
+// 전체 사용자 수 조회 (role: 'user'인 사용자)
+export async function getUserCount(req, res) {
+    try {
+        const count = await adminRepository.countAllUsers()
+        return res.status(200).json({
+            message: "전체 사용자 수를 성공적으로 불러왔습니다.",
+            count
+        })
+    } catch(error) {
+        console.log("전체 사용자 수 조회 오류: ", error)
+        return res.status(500).json({
+            message: "전체 사용자 수 조회 중 오류가 발생했습니다."
+        })
+    }
+}
+
 // 회원 목록 조회
 export async function getUsers(req, res) {
     const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
