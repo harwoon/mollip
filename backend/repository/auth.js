@@ -104,5 +104,5 @@ export async function resetExpiredStreaks(yesterdayString) {
 }
 
 export async function getUsersByGroupId(groupId) {
-    return User.find({groupId,}).select("_id nickname profileImg groupId")
+    return User.find({groupId,}).select("_id nickname profileImg groupId currentStreak")
 }
