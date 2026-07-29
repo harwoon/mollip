@@ -1,4 +1,7 @@
 import express from "express"
+import http from 'http'
+import { Server } from 'socket.io'
+import Redis from 'ioredis'
 import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
@@ -17,6 +20,19 @@ import { startStreakJob } from "./jobs/streakJob.js"
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+const server = http.createServer(app)
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    }
+})
+
+const redisClient = new Redis()
+redisClient.on('connect', () => console.log('Redis 연결 성공'));
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
 app.use(
     cors({
@@ -37,6 +53,46 @@ app.use("/todo", todoRouter)
 app.use("/admin", adminRouter)
 app.use("/group",groupRouter)
 
+io.on('connection', (socket) => {
+    console.log('소켓 연결됨:', socket.id);
+
+    // 그룹 페이지 들어감
+    socket.on('joinGroup', async ({ groupId }) => {
+        socket.join(groupId)
+        try {
+            const activeUsers = await redisClient.hgetall(`study:${groupId}`)
+            socket.emit('currentActiveUsers', activeUsers)
+        } catch (error) {
+            console.error("Redis 데이터 가져오기 실패:", error)
+        }
+    });
+
+    // 공부 시작
+    socket.on('startStudy', async ({ groupId, userId, userName }) => {
+        const startTime = Date.now()
+        try {
+            await redisClient.hset(`study:${groupId}`, userId, JSON.stringify({ userName, startTime }))
+            socket.to(groupId).emit('userStartedStudy', { userId, userName, startTime })
+        } catch (error) {
+            console.error("Redis 저장 실패:", error)
+        }
+    })
+
+    // 공부 종료
+    socket.on('stopStudy', async ({ groupId, userId }) => {
+        try {
+            await redisClient.hdel(`study:${groupId}`, userId)
+            io.to(groupId).emit('userStoppedStudy', { userId })
+        } catch (error) {
+            console.error("Redis 삭제 실패:", error)
+        }
+    })
+
+    socket.on('disconnect', () => {
+        console.log('소켓 연결 끊김:', socket.id)
+    })
+})
+
 app.use((req, res) => {
     res.sendStatus(404)
 })
@@ -45,8 +101,8 @@ connectDB().then(() => {
     startWeeklyGroupJob()
     startStreakJob()
 
-    app.listen(config.host.port, () => {
-        console.log("웹 서버 실행 중 ...")
+    server.listen(config.host.port, () => {
+        console.log(`웹 서버 및 소켓 서버 실행 중 (포트: ${config.host.port}) ...`)
     })
 }).catch((err) => {
     console.log("서버 연결 실패")
