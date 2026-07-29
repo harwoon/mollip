@@ -19,6 +19,22 @@ export async function getGroups(req, res) {
     }
 }
 
+// 자신 그룹 조회
+export async function getGroup(req,res){
+    const groupId = req.user.groupId
+
+    try {
+
+        const group = await groupRepository.findById(groupId)
+        return res.status(200).json(group)
+        
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "서버 오류로 그룹 정보를 불러오지 못했습니다." })
+    }
+}
+
+// 그룹 추가
 export async function addGroup(req, res) {
 
     try {
