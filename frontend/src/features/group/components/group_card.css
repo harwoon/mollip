@@ -1,0 +1,91 @@
+/* 카드 공통 */
+.groupCard {
+    width: 100%;
+    padding: 28px;
+    border-radius: 28px;
+    background: #faf4fa;
+    box-sizing: border-box;
+}
+
+/* 헤더 */
+.groupCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.groupCardInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.groupCardLabel {
+    margin: 0;
+    color: #777;
+    font-size: 18px;
+}
+
+.groupCardName {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.groupCardTime {
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.groupProgressTitle {
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.groupRemainTime {
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.groupProgressMessage {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* 진행률 */
+.groupProgressArea {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.groupProgressBar {
+    flex: 1;
+    height: 6px;
+    background: #e8e8e8;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.groupProgressValue {
+    height: 100%;
+    border-radius: inherit;
+}
+
+.groupProgressPercent {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.groupCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.groupConditionTime {
+    font-size: 28px;
+    font-weight: 700;
+    color: #7652c8;
+}

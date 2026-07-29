@@ -12,13 +12,7 @@ export async function addStudy(req, res) {
     const start = new Date(startTime)
     const end = new Date(endTime)
 
-    if (end <= start) {
-        return res.status(400).json({
-            message: "종료 시간은 시작 시간보다 늦어야 합니다."
-        })
-    }
-
-    const sumStudyTime = Math.floor((end - start) / 1000 / 60)
+    const sumStudyTime = Math.floor((end - start) / 60000)
 
     try {
         // 공부 기록 추가

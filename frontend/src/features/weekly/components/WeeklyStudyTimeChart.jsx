@@ -27,15 +27,6 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
         // 응답이 배열인지 확인
         const records = Array.isArray(data) ? data : data.records || [];
 
-        /*
-                    같은 날짜의 sumStudyTime을 더함
-
-                    {
-                        "2026-07-27": 420,
-                        "2026-07-28": 449,
-                        "2026-07-29": 529
-                    }
-                */
         const studyTimeByDate = records.reduce((result, record) => {
           const studyDate = record.studyDate;
           const studyTime = Number(record.sumStudyTime) || 0;
@@ -45,13 +36,6 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
           return result;
         }, {});
 
-        /*
-                    선택한 날짜가 포함된 주의 월요일
-
-                    서버가 주간 범위의 데이터를 골라주는 역할을 하고,
-                    여기서는 데이터가 없는 요일도 0으로 표시하기 위해
-                    월~일 날짜를 만드는 용도로만 사용
-                */
         const selectedDay = dayjs(formattedDate);
         const dayNumber = selectedDay.day();
 
