@@ -7,6 +7,8 @@ import MyPage from "./pages/MyPage"
 import RecordPage from "./pages/RecordPage"
 import AdminMainLayout from "./admin/components/AdminMainLayout"
 import AdminHomePage from "./admin/pages/AdminHomePage"
+import AdminUsersPage from "./admin/pages/AdminUsersPage"
+import AdminGroupsPage from "./admin/pages/AdminGroupsPage"
 import WeekStatusPage from "./pages/WeekStatusPage"
 import GroupPage from "./pages/GroupPage"
 
@@ -55,11 +57,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin/users",
-        element: <div>회원 조회</div>
+        element: <AdminUsersPage/>
       },
       {
         path: "/admin/groups",
-        element: <div>그룹 관리</div>
+        element: <AdminGroupsPage/>
       }
     ]
   }
