@@ -4,6 +4,13 @@ import Home from "./pages/HomePage"
 import Signup from "./pages/SignupPage"
 import Main from "./components/MainLayout"
 import MyPage from "./pages/MyPage"
+import RecordPage from "./pages/RecordPage"
+import AdminMainLayout from "./admin/components/AdminMainLayout"
+import AdminHomePage from "./admin/pages/AdminHomePage"
+import AdminUsersPage from "./admin/pages/AdminUsersPage"
+import AdminGroupsPage from "./admin/pages/AdminGroupsPage"
+import WeekStatusPage from "./pages/WeekStatusPage"
+import GroupPage from "./pages/GroupPage"
 
 const router = createBrowserRouter([
   {
@@ -24,15 +31,37 @@ const router = createBrowserRouter([
       },
       {
         path: "/records",
-        element: <div>기록 페이지</div>
+        element: <RecordPage/>
       },
       {
         path: "/weekly",
-        element: <div>주간 현황 페이지</div>
+        element: <WeekStatusPage/>
+      },
+      {
+        path: "/group",
+        element: <GroupPage/>
       },
       {
         path: "/mypage",
         element: <MyPage />
+      }
+    ]
+  },
+  {
+    // 관리자 페이지
+    element: <AdminMainLayout/>,
+    children: [
+      {
+        path: "/admin/home",
+        element: <AdminHomePage/>
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsersPage/>
+      },
+      {
+        path: "/admin/groups",
+        element: <AdminGroupsPage/>
       }
     ]
   }

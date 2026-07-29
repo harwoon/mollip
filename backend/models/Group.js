@@ -5,18 +5,19 @@ const groupSchema = new mongoose.Schema(
         groupName: {
             type: String,
             required: true,
+            unique: true
         },
         groupColor: {
             type: String,
             required: true,
+            unique: true
         },
         groupTime: {
-            
-                type: Number,
-                required: true,
-                min: 0,
-            }
-
+            type: Number,
+            required: true,
+            min: 0,
+            unique: true
+        }
     },
     {
         timestamps: true

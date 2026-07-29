@@ -18,7 +18,7 @@ export async function findById(id) {
 }
 
 // 회원정보 수정
-export async function update(id, nickname,email) {
+export async function update(id, nickname, email) {
     return User.findByIdAndUpdate(
         id,
         { nickname, email },
@@ -30,7 +30,7 @@ export async function update(id, nickname,email) {
 export async function updateProfileImage(id, profileImage) {
     return User.findByIdAndUpdate(
         id,
-        { profileImg:profileImage },
+        { profileImg: profileImage },
         { new: true }
     )
 }
@@ -38,19 +38,29 @@ export async function updateProfileImage(id, profileImage) {
 // 연속 학습 일수 갱신
 export async function updateStreak(userId, currentStreak, maxStreak, lastStudyDate) {
     return User.findByIdAndUpdate(
-        userId, 
-        { 
-            currentStreak, 
-            maxStreak, 
-            lastStudyDate 
+        userId,
+        {
+            currentStreak,
+            maxStreak,
+            lastStudyDate
         },
         { new: true }
     )
 }
+
+// 주간 총 공부시간 바탕으로 그룹 나누기위한 유저 가져오는 함수
 export async function getAllUsers() {
     return User.find().select("_id groupId")
 }
-
+// 주간 유저 랭킹을 위한 함수 
+export async function getUserGroup(userId) {
+    return User.findOne({
+        _id: userId,
+        role: { $ne: "admin" },
+    })
+        .select("_id groupId")
+        .lean()
+}
 
 export async function updateUserGroups(updates) {
     if (updates.length === 0) {
@@ -71,4 +81,33 @@ export async function updateUserGroups(updates) {
     }))
 
     return User.bulkWrite(operations)
+}
+
+export async function resetExpiredStreaks(yesterdayString) {
+    return User.updateMany(
+        {
+            currentStreak: {
+                $gt: 0,
+            },
+            $or: [
+                {
+                    lastStudyDate: {
+                        $lt: yesterdayString,
+                    },
+                },
+                {
+                    lastStudyDate: "",
+                },
+            ],
+        },
+        {
+            $set: {
+                currentStreak: 0,
+            },
+        }
+    )
+}
+
+export async function getUsersByGroupId(groupId) {
+    return User.find({groupId,}).select("_id nickname profileImg groupId currentStreak")
 }

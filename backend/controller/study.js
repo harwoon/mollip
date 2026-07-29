@@ -64,22 +64,30 @@ export async function addStudy(req, res) {
 // 일간,주간,월간 기록 가져오기
 export async function getRecords(req, res) {
 
-    const { type, date } = req.query
+    const { type, date, sort, limit } = req.query
     const userId = req.user._id
 
     try {
         let studies
 
+        let sortOption = {}
+
+        if (sort === "time") {
+            sortOption = { sumStudyTime: -1 } 
+        }
+
+        const limitOption = limit ? parseInt(limit) : 0 
+
         if (type === "daily") {
-            studies = await studyRepository.getDailyByUserIdAndDate(userId, date)
+            studies = await studyRepository.getDailyByUserIdAndDate(userId, date, sortOption, limitOption)
         }
         else if (type === "weekly") {
             const { startDate, endDate } = getWeekRange(date)
-            studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate)
+            studies = await studyRepository.getWeeklyByUserIdAndDate(userId, startDate, endDate, sortOption, limitOption)
         }
         else if (type === "monthly") {
             const month = date.slice(0, -3)
-            studies = await studyRepository.getMonthlyByUserIdAndDate(userId, month)
+            studies = await studyRepository.getMonthlyByUserIdAndDate(userId, month, sortOption, limitOption)
         }
         else {
             return res.status(400).json({ message: "올바른 type을 입력해주세요." })
@@ -92,7 +100,6 @@ export async function getRecords(req, res) {
         return res.status(500).json({ message: "서버 오류로 공부 기록을 불러오지 못했습니다." })
     }
 }
-
 export async function getRecordsbySubject(req, res) {
 
     const { type, subject, date } = req.query

@@ -22,7 +22,7 @@ try {
     const fileData = fs.readFileSync(filePath, "utf-8")
 
     badWords = fileData.split("\n").map(word => word.trim()).filter(word => word.length > 0)
-    console.log("금칙어 목록 로드 완료:", badWords)
+    console.log("금칙어 목록 로드 완료")
 } catch (error) {
     console.error("금칙어 목록 로드 실패: ", error)
 }
@@ -224,7 +224,7 @@ export async function addSubject(req, res) {
 
         console.log("기존 과목 복구 및 수정 성공!")
         return res.status(200).json({
-            message: "기존에 있던 과목이 복구되었습니다.",
+            message: "과목이 정상적으로 추가되었습니다.", // 사용자에겐 추가되었다고 표시
             subject: updatedSubject
         })
     } else {

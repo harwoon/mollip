@@ -32,6 +32,8 @@ export async function getTodoList(req, res) {
 export async function addTodo(req, res) {
     const userId = req.user._id
 
+    
+    
     // 프론트에 전달받은 Todo 내용
     const {todo, todoDate} = req.body
 
@@ -141,7 +143,7 @@ export async function deleteTodo(req, res) {
         }
         return res.status(200).json({
             message: "Todo가 삭제되었습니다.",
-            todoList
+            todoList : updatedTodoList
         })
     }catch (error){
         console.error("Todo 삭제 오류:", error)

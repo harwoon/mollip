@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom"
 
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
+import SidebarLogout from "./SidebarLogout"
 
 import "./Sidebar.css"
 
@@ -45,6 +46,10 @@ export default function Sidebar() {
           주간 현황
         </NavLink>
         
+        <NavLink to="/group" style={activeStyle}>
+          그룹
+        </NavLink>
+
         <NavLink to="/mypage" style={activeStyle}>
           마이페이지
         </NavLink>
@@ -52,6 +57,9 @@ export default function Sidebar() {
       </nav>
 
       <SidebarStudyStreak />
+
+      <SidebarLogout />
+      
     </aside>
   )
 }
