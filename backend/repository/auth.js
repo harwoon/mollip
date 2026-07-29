@@ -54,7 +54,12 @@ export async function getAllUsers() {
 }
 // 주간 유저 랭킹을 위한 함수 
 export async function getUserGroup(userId) {
-    return User.findById(userId).select("_id groupId").lean()
+    return User.findOne({
+        _id: userId,
+        role: { $ne: "admin" },
+    })
+        .select("_id groupId")
+        .lean()
 }
 
 export async function updateUserGroups(updates) {
