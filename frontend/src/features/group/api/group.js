@@ -5,7 +5,7 @@ export async function getMyGroup() {
 
     const token = localStorage.getItem("token")
 
-    const response = await fetch(`${API_URL}/auth/me`, {
+    const response = await fetch(`${API_URL}/group`, {
         method: "GET",
         headers: {
             Authorization: `Bearer ${token}`
@@ -16,13 +16,12 @@ export async function getMyGroup() {
 
     if(!response.ok){
         throw new Error(
-            data.message || "유저 정보를 불러오지 못했습니다."
+            data.message || "그룹 정보를 불러오지 못했습니다."
         )
     }
 
-    const groupId = data.user.groupId
-
+    const groupName = data.groupName
+    const groupTime = data.groupTime
     
-    
-    return data
+    return {groupName, groupTime}
 }
