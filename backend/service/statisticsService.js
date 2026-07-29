@@ -62,12 +62,19 @@ export async function getWeeklyGroupRanking(userId) {
             userId: user._id,
             nickname: user.nickname,
             image: user.profileImg,
+            currentStreak: Number(user.currentStreak),
             totalStudyTime,
         })
     }
 
-    return ranking.sort(
-        (a, b) =>
-            b.totalStudyTime - a.totalStudyTime,
-    )
+    ranking.sort((a, b) => {
+        // 1순위: 이번 주 총 공부시간 내림차순
+        if (b.totalStudyTime !== a.totalStudyTime) {
+            return b.totalStudyTime - a.totalStudyTime
+        }
+
+        // 2순위: 연속 공부일 내림차순
+        return (b.currentStreak ?? 0) -
+            (a.currentStreak ?? 0)
+    })
 }

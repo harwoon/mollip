@@ -8,4 +8,16 @@ const router = express.Router()
 // http://127.0.0.1:3000/group
 router.get("/",isAuth,groupController.getGroup)
 
+// 그룹 정보 전체 조회
+// http://127.0.0.1:3000/group/groups
+router.get("/groups",isAuth,groupController.getGroups)
+
+// 상위 그룹 조회
+// http://127.0.0.1:3000/group/higher
+router.get("/higher",isAuth,groupController.getHigher)
+
+// 하위 그룹 조회
+// http://127.0.0.1:3000/group/lower
+router.get("/lower",isAuth,groupController.getLower)
+
 export default router
