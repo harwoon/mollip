@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo} from 'react'
 import { getSubjectRecord } from '../api/study.js'
 import dayjs from 'dayjs'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
@@ -25,11 +25,36 @@ export default function TotalSubject({ selectedDate, type }) {
 
       } catch (error) {
         console.error("과목공부 시간을 가져오는데 실패했습니다:", error)
+        // 조회 실패 시 초기화
+        setHour(0)
+        setMin(0)
+        setSubjects([])
       }
     }
 
     fetchStudyTime()
   }, [selectedDate, type])
+
+  // 실제 공부 기록이 있는지 확인
+  const hasSubjectData = subjects.length > 0
+
+
+  // Recharts에 전달할 차트 데이터
+  const chartData = useMemo(() => {
+    // 공부 기록이 있으면 백엔드 데이터를 그대로 사용
+    if (hasSubjectData) {
+      return subjects
+    }
+
+    // 기록 없으면 비율 100인 빈 데이터 만들어서 표시
+    return [
+      {
+        studyTitle: "공부 기록 없음",
+        ratio: 100,
+        subjectColor: "#ece8f7"
+      }
+    ]
+  }, [subjects, hasSubjectData])
 
   return (
     <div style={{ width: '100%', padding: '20px', backgroundColor: '#fcfbf9', borderRadius: '20px' }}>
@@ -41,39 +66,92 @@ export default function TotalSubject({ selectedDate, type }) {
         </h2>
       </div>
 
-      {/* 🌟 파이 차트 렌더링 영역 */}
-      {subjects.length > 0 ? (
-        <div style={{ width: '100%', height: '200px' }}>
-          {/* 반응형 컨테이너: 부모 너비에 맞게 차트 크기를 자동 조절합니다 */}
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={subjects}
-                dataKey="ratio"          // 파이 조각의 크기를 결정할 값 (비율)
-                nameKey="studyTitle"     // 마우스를 올렸을 때 툴팁에 뜰 이름
-                cx="50%"                 // 차트의 가로 중심 위치
-                cy="50%"                 // 차트의 세로 중심 위치
-                innerRadius={60}         // 안쪽 구멍 크기 (도넛 모양)
-                outerRadius={80}         // 바깥쪽 꽉 찬 원 크기
-                stroke="none"            // 조각 테두리 선 없애기
-              >
-                {/* 
-                  배열을 돌면서 백엔드에서 받은 subjectColor를 
-                  각 파이 조각의 배경색(fill)으로 칠해줍니다.
-                */}
-                {subjects.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.subjectColor} />
-                ))}
-              </Pie>
-              {/* 마우스 올렸을 때 정보 표시 (비율%와 과목명) */}
-              <Tooltip formatter={(value, name) => [`${value}%`, name]} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      ) : (
-        <p style={{ textAlign: 'center', color: '#aaa' }}>공부 기록이 없습니다.</p>
-      )}
 
+      {/* Recharts 파이 차트 렌더링 영역 */}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "200px"
+        }}
+      >
+        {/* 부모 크기에 맞춰 차트 크기 자동 조절 */}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="ratio"
+              nameKey="studyTitle"
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              stroke="none"
+              isAnimationActive={true}
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.subjectColor}
+                />
+              ))}
+            </Pie>
+
+            {/* 실제 공부 기록이 있을 때만 Tooltip 표시 */}
+            {hasSubjectData && (
+              <Tooltip
+                formatter={(value, name) => [
+                  `${value}%`,
+                  name
+                ]}
+              />
+            )}
+          </PieChart>
+        </ResponsiveContainer>
+
+
+        {/* 공부 기록이 없을 때 도넛 차트 가운데 문구 표시 */}
+        {!hasSubjectData && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+              pointerEvents: "none"
+            }}
+          >
+            <span
+              style={{
+                color: "#999",
+                fontSize: "0.75rem"
+              }}
+            >
+              공부 기록
+            </span>
+
+            <strong
+              style={{
+                marginTop: "2px",
+                color: "#666",
+                fontSize: "1rem"
+              }}
+            >
+              없음
+            </strong>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
