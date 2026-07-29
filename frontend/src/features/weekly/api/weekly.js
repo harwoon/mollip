@@ -70,3 +70,29 @@ export async function getWeeklyTodoRecords(date) {
 
   return data;
 }
+
+// 개인 및 그룹 연속 공부 달성일 가져오기
+export async function getGroupStreak() {
+    const token = localStorage.getItem("token")
+
+    const response = await fetch(
+        `${API_URL}/group/streak`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "연속 공부 달성일을 불러오지 못했습니다."
+        )
+    }
+
+    return data
+}
