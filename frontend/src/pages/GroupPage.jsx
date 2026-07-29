@@ -1,9 +1,10 @@
+import MyGroup from "../features/group/components/MyGroup";
 
 
 export default function GroupPage() {
     return (
         <>
-            <h5>그룹</h5>
+            <MyGroup/>
         </>
     )
 }
