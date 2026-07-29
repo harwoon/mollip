@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom"
 
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
+import SidebarLogout from "./SidebarLogout"
 
 import "./Sidebar.css"
 
@@ -56,6 +57,9 @@ export default function Sidebar() {
       </nav>
 
       <SidebarStudyStreak />
+
+      <SidebarLogout />
+      
     </aside>
   )
 }
