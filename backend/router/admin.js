@@ -22,6 +22,9 @@ router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 
 // 그룹 관리
 // =================================================
+// http://127.0.0.1:3000/admin/groups/count
+router.get("/groups/count", groupController.getGroupGount)
+
 // http://127.0.0.1:3000/admin/groups
 router.get("/groups", groupController.getGroups)
 

@@ -8,6 +8,11 @@ export async function findAllGroups() {
     return Group.find().sort({ createdAt: -1 })
 }
 
+// 그룹 전체 개수 조회
+export async function countGroups() {
+    return Group.countDocuments()
+}
+
 // 그룹 생성
 export async function createGroup(groupData) {
     return Group.create(groupData)

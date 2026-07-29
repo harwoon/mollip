@@ -21,6 +21,22 @@ export async function getGroups(req, res) {
     }
 }
 
+// 그룹 개수 조회
+export async function getGroupGount(req, res) {
+    try{
+        const count = await groupRepository.countGroups()
+        return res.status(200).json({
+            message: "그룹 수를 성공적으로 불러왔습니다.",
+            count
+        })
+    } catch(error) {
+        console.error("그룹 수 조회 오류: ", error)
+        return res.status(500).json({
+            message: "그룹 수 조회 중 오류가 발생했습니다."
+        })
+    }
+}
+
 // 자신 그룹 조회
 export async function getGroup(req, res) {
     const groupId = req.user.groupId
