@@ -1,0 +1,5 @@
+.summaryRow {
+    display: flex;
+    gap: 16px;
+    padding: 24px 32px;
+}
