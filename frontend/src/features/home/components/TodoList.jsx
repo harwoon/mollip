@@ -21,8 +21,9 @@ export default function TodoList() {
     const fetchTodoList = async () => {
       try {
         const data = await getTodoList()
+        
+        if(data !== null) setTodos(data.todo)
 
-        setTodos(data.todo)
       } catch (error) {
         console.error(error)
         setError(error.message)
