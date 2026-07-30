@@ -20,6 +20,29 @@ export async function getGroups(req, res) {
   }
 }
 
+// 그룹 이름, 색상 조회
+export async function getGroupsColor(req, res) {
+  const { id } = req.params;
+  try {
+    const groups = await groupRepository.findAllGroups();
+
+    const groupList = groups.map((group) => ({
+      groupName: group.groupName,
+      groupColor: group.groupColor,
+    }));
+
+    return res.status(200).json({
+      message: "그룹 목록을 성공적으로 불러왔습니다.",
+      groups: groupList,
+    });
+  } catch (error) {
+    console.error("그룹 목록 조회 오류: ", error);
+    return res.status(500).json({
+      message: "그룹 목록 조회 중 오류가 발생했습니다.",
+    });
+  }
+}
+
 // 그룹 개수 조회
 export async function getGroupGount(req, res) {
   try {

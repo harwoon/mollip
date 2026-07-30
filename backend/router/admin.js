@@ -31,6 +31,9 @@ router.get("/groups/count", groupController.getGroupGount)
 // http://127.0.0.1:3000/admin/groups
 router.get("/groups", groupController.getGroups)
 
+// http://127.0.0.1:3000/admin/groups/:id
+router.get("/groups/:id", groupController.getGroupsColor)
+
 // http://127.0.0.1:3000/admin/groups
 router.post("/groups", groupController.addGroup)
 
