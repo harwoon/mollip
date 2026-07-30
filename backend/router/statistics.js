@@ -16,4 +16,12 @@ router.get("/ratio",isAuth,statController.getRatio)
 //http://127.0.0.1:3000/statistics/weekly-ranking
 router.get("/weekly-ranking",isAuth , statController.getWeeklyRanking)
 
+// [주간현활-그룹통계] 그룹의 연속 공부 달성일 평균
+// http://127.0.0.1:3000/statistics/streak
+router.get("/streak",isAuth, statController.getStreak)
+
+// 그룹의 주간 일별 공부 시간 평균
+// http://127.0.0.1:3000/statistics/week?date=2026-07-29
+router.get("/week",isAuth, statController.getWeeklyCompareStats)
+
 export default router

@@ -61,7 +61,7 @@ export async function getWeeklyTodoRecords(date) {
 // 개인 및 그룹 연속 공부 달성일 가져오기
 export async function getGroupStreak() {
   return getRequest(
-    "/group/streak",
+    "/statistics/streak",
     "연속 공부 달성일을 불러오지 못했습니다.",
   )
 }
@@ -71,7 +71,7 @@ export async function getGroupWeeklyStudyTime(date) {
   const params = new URLSearchParams({ date })
 
   return getRequest(
-    `/group/week?${params.toString()}`,
+    `/statistics/week?${params.toString()}`,
     "그룹 주간 공부 시간을 불러오지 못했습니다.",
   )
 }
