@@ -41,6 +41,7 @@ export default function GroupPage() {
                 groupId={userInfo.groupId} 
                 userId={userInfo._id} 
                 userName={userInfo.nickname} 
+                profileImg={userInfo.profileImg}
             />
         </>
     );
