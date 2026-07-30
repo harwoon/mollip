@@ -2,7 +2,6 @@ import dayjs from "dayjs"
 
 import * as studyRepository from "../repository/study.js"
 import * as statisticsRepository from "../repository/statistics.js"
-
 import * as statisticsService from "../service/statisticsService.js"
 
 import { getWeekRange } from "../util/date.js"
@@ -42,87 +41,70 @@ export async function getTotal(req, res) {
 }
 
 export async function getRatio(req, res) {
-  const { type, date } = req.query
-  const userId = req.user._id
+    const { type, date } = req.query
+    const userId = req.user._id
 
-  try {
-    let studies = []
-
-    if (type === "daily") {
-      studies =
-        await studyRepository.getDailyByUserIdAndDate(
-          userId,
-          date,
-        )
-    } else if (type === "weekly") {
-      const { startDate, endDate } =
-        getWeekRange(date)
-
-      studies =
-        await studyRepository.getWeeklyByUserIdAndDate(
-          userId,
-          startDate,
-          endDate,
-        )
-    } else if (type === "monthly") {
-      const month = date.slice(0, -3)
-
-      studies =
-        await studyRepository.getMonthlyByUserIdAndDate(
-          userId,
-          month,
-        )
-    } else {
-      return res.status(400).json({
-        message: "올바른 type을 입력해주세요.",
-      })
-    }
-
-
-    console.log("조회된 공부 기록:", studies)
-
-    const {
-      totalStudyTime,
-      subjects,
-    } = await calculateStudyStatistics(
-      studies,
-      userId,
-    )
-
-    return res.status(200).json({
-      type,
-      date,
-      totalStudyTime,
-      subjects,
-    })
-  } catch (error) {
-    console.error("getRatio 오류:", error)
-
-    return res.status(500).json({
-      message:
-        "서버 오류로 공부 기록을 불러오지 못했습니다.",
-    })
-  }
-
-}
-
-export async function getWeeklyRanking(req, res) {
     try {
-        const ranking =
-            await statisticsService.getWeeklyGroupRanking(req.user._id)
+        let studies = []
 
-        res.status(200).json({
-            ranking,
+        if (type === "daily") {
+            studies =
+                await studyRepository.getDailyByUserIdAndDate(
+                    userId,
+                    date,
+                )
+        } else if (type === "weekly") {
+            const { startDate, endDate } =
+                getWeekRange(date)
+
+            studies =
+                await studyRepository.getWeeklyByUserIdAndDate(
+                    userId,
+                    startDate,
+                    endDate,
+                )
+        } else if (type === "monthly") {
+            const month = date.slice(0, -3)
+
+            studies =
+                await studyRepository.getMonthlyByUserIdAndDate(
+                    userId,
+                    month,
+                )
+        } else {
+            return res.status(400).json({
+                message: "올바른 type을 입력해주세요.",
+            })
+        }
+
+
+        console.log("조회된 공부 기록:", studies)
+
+        const {
+            totalStudyTime,
+            subjects,
+        } = await calculateStudyStatistics(
+            studies,
+            userId,
+        )
+
+        return res.status(200).json({
+            type,
+            date,
+            totalStudyTime,
+            subjects,
         })
     } catch (error) {
-        console.error("주간 랭킹 조회 실패:", error)
+        console.error("getRatio 오류:", error)
 
-        res.status(500).json({
-            message: error.message,
+        return res.status(500).json({
+            message:
+                "서버 오류로 공부 기록을 불러오지 못했습니다.",
         })
     }
 
 }
+
 
 // 그룹 연속 공부 달성일
 export async function getStreak(req, res) {
@@ -187,5 +169,56 @@ export async function getWeeklyCompareStats(req, res) {
     } catch (error) {
         console.error("주간 비교 통계 에러:", error);
         return res.status(500).json({ message: "비교 통계를 불러오지 못했습니다." })
+    }
+}
+
+
+// 주간 개인 및 그룹 Todo 달성률 비교
+export async function getWeeklyTodoCompare(req, res) {
+    const userId = req.user._id
+    const { date } = req.query
+
+    if (!date) {
+        return res.status(400).json({
+            message: "date를 입력해주세요."
+        })
+    }
+
+    // YYYY-MM-DD 형식 확인
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+    if (!datePattern.test(date)) {
+        return res.status(400).json({
+            message: "date는 YYYY-MM-DD 형식으로 입력해주세요."
+        })
+    }
+
+    try {
+        const result = await statisticsService.getWeeklyTodoCompareStats(
+            userId,
+            date
+        )
+
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.error("주간 Todo 달성률 조회 오류:", error)
+
+        if (error.message === "아직 그룹이 배정되지 않았습니다."
+        ) {
+            return res.status(400).json({
+                message: error.message
+            })
+        }
+
+        if (error.message === "사용자 정보를 찾을 수 없습니다."
+        ) {
+            return res.status(404).json({
+                message: error.message
+            })
+        }
+
+        return res.status(500).json({
+            message: "주간 Todo 달성률을 불러오지 못했습니다."
+        })
     }
 }

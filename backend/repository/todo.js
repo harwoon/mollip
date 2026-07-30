@@ -154,5 +154,15 @@ export async function getDailyAchievement(userId, date) {
     return{
         totalCount, completedCount, achievementRate
     }
+}
 
+// 여러 사용자의 주간 Todo 목록 조회
+export async function getWeeklyTodoListsByUsers(userIds, startDate, endDate) {
+    return TodoList.find({
+        user: {$in: userIds},
+        todoDate: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    }).sort({todoDate: 1}).lean()
 }

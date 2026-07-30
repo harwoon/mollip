@@ -1,6 +1,7 @@
 import User from "../models/User.js"
 import Study from "../models/Study.js"
 import mongoose from "mongoose"
+import TodoList from "../models/Todo.js"
 
 // 그룹 평균 연속 공부 일수 
 export async function getTotalStreak(groupId) {
@@ -64,4 +65,16 @@ export async function getWeeklyStatsByGroup(groupId, startDate, endDate) {
             }
         }
     ])
+}
+
+
+// 그룹 사용자 주간 Todo목록 조회 (그룹원 전체 + 주간 범위 조건으로 한 번만 조회함)
+export async function getWeeklyTodoListsByUsers(userIds, startDate, endDate) {
+    return await TodoList.find({
+        user: {$in: userIds},
+        todoDate: {
+            $gte: startDate,
+            $lte: endDate
+        }
+    }).lean()
 }

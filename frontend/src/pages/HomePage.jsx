@@ -105,9 +105,6 @@ export default function HomePage() {
       <div style={{ flex: 6.5, display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
           <Timer 
-            groupId={userInfo?.groupId}
-            userId={userInfo?._id}
-            userName={userInfo?.nickname}
             selectedSubject={selectedSubject} 
             onSaveTime={handleSaveRecord}
             userInfo={userInfo}

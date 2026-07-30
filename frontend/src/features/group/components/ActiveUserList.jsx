@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
 const socket = io("http://127.0.0.1:3000", {
     autoConnect: false
 })
@@ -28,7 +30,7 @@ const StudyTimer = ({ startTime }) => {
     return <span style={{ fontWeight: 'bold', color: '#8a6bc7' }}>{timeText}</span>
 }
 
-export default function ActiveUsersList({ groupId, userId, userName }) {
+export default function ActiveUsersList({ groupId, userId, userName, profileImg }) {
     const [activeUsers, setActiveUsers] = useState([])
 
     useEffect(() => {
@@ -70,15 +72,6 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
         }
     }, [groupId, userId])
 
-    // 내 공부 시작 버튼 핸들러
-    const handleStart = () => {
-        socket.emit('startStudy', { groupId, userId, userName })
-    }
-
-    // 내 공부 종료 버튼 핸들러
-    const handleStop = () => {
-        socket.emit('stopStudy', { groupId, userId })
-    }
 
     return (
         <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }}>
@@ -90,6 +83,15 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {activeUsers.map((user) => (
                         <li key={user.userId} style={{ marginBottom: '10px' }}>
+                            <img
+                                src={user.profileImg
+                                    ? `${API_URL}${user.profileImg}`
+                                    : "/images/default-profile.png"}
+                                onError={(event) => {
+                                    // 이미지 파일을 불러오지 못하면 기본 이미지 표시
+                                    event.currentTarget.src = "/images/noprofile.png"
+                                }}
+                            />
                             <span > {user.userName}</span>
                             <StudyTimer startTime={user.startTime} />
                         </li>
@@ -98,8 +100,6 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
             )}
 
             <hr />
-            {/* <button onClick={handleStart} style={{ marginRight: '10px' }}>내 공부 시작</button>
-            <button onClick={handleStop}>내 공부 종료</button> */}
         </div>
     )
 }
