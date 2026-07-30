@@ -7,12 +7,12 @@ import SubjectList from "../features/home/components/SubjectList"
 import { getMyInfo } from "../features/auth/api/auth"
 
 export default function HomePage() {
-  const {selectedSubject, setSelectedSubject, time, setTime, isRunning, setIsRunning, actualStartTime, setActualStartTime} = useOutletContext()
+  const { selectedSubject, setSelectedSubject, time, setTime, isRunning, setIsRunning, actualStartTime, setActualStartTime } = useOutletContext()
   const [subjects, setSubjects] = useState([])
   const [dailyRecords, setDailyRecords] = useState([])
 
   const [userInfo, setUserInfo] = useState(null)
-  const userToken = localStorage.getItem("token") 
+  const userToken = localStorage.getItem("token")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +26,7 @@ export default function HomePage() {
         const subjectRes = await fetch('http://127.0.0.1:3000/auth/subject', {
           headers: { 'Authorization': `Bearer ${userToken}` }
         })
-        
+
         if (subjectRes.ok) {
           const subjectData = await subjectRes.json()
           let finalSubjects = []
@@ -42,7 +42,7 @@ export default function HomePage() {
         const recordRes = await fetch(`http://127.0.0.1:3000/study/records?type=daily&date=${todayKST}`, {
           headers: { 'Authorization': `Bearer ${userToken}` }
         })
-        
+
         if (recordRes.ok) {
           const recordData = await recordRes.json()
           let finalRecords = []
@@ -70,7 +70,7 @@ export default function HomePage() {
       // endTime: actualEndTime.toISOString()
       sumStudyTime: studySeconds
     }
-    
+
     setDailyRecords((prev) => [...prev, newRecord])
 
     try {
@@ -79,9 +79,9 @@ export default function HomePage() {
 
       const response = await fetch('http://127.0.0.1:3000/study/addStudy', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userToken}` 
+          'Authorization': `Bearer ${userToken}`
         },
         body: JSON.stringify({
           studyTitle: selectedSubject.subjectName,
@@ -91,7 +91,7 @@ export default function HomePage() {
           sumStudyTime: studySeconds
         })
       })
-      
+
       if (!response.ok) throw new Error('서버 저장 실패')
       return true
     } catch (error) {
@@ -101,12 +101,32 @@ export default function HomePage() {
     }
   }
 
+  // 타이머 상단 상태에 따라 문구 변경
+  const getStudyMessage = () => {
+    if (selectedSubject) {
+      const subjectName = selectedSubject.subjectName || selectedSubject
+      return `${subjectName}이 선택되었습니다. 공부를 시작하세요!`
+    }
+
+    if (!userInfo) {
+      return '유저 정보 불러오는 중...'
+    }
+
+    const streak = userInfo.currentStreak || 0
+    const userName = userInfo.nickname || '회원'
+
+    if (streak === 0) {
+      return `${userName}님, 공부를 시작하세요!`
+    }
+    return `${streak}일째 공부중, 이어나가세요!`
+  }
+
   return (
     <div style={{ display: 'flex', gap: '20px', padding: '30px', height: '100%', boxSizing: 'border-box' }}>
       <div style={{ flex: 6.5, display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <Timer 
-            selectedSubject={selectedSubject} 
+          <Timer
+            selectedSubject={selectedSubject}
             onSaveTime={handleSaveRecord}
             userInfo={userInfo}
             dailyRecords={dailyRecords}
@@ -125,11 +145,16 @@ export default function HomePage() {
 
       <div style={{ flex: 3.5, display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          <SubjectList 
-            subjects={subjects} 
-            dailyRecords={dailyRecords} 
+          <SubjectList
+            subjects={subjects}
+            dailyRecords={dailyRecords}
             selectedSubject={selectedSubject}
-            onSelectSubject={(subject) => setSelectedSubject(subject)} 
+            onSelectSubject={(subject) => {
+              if (isRunning) {
+                return
+              }
+              setSelectedSubject(subject)
+            }}
           />
         </div>
         <div>
