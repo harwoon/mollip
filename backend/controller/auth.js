@@ -5,6 +5,8 @@ import * as authRepository from "../repository/auth.js"
 import jwt from "jsonwebtoken"
 import Subject from "../models/Subject.js"
 import * as subjectRepository from "../repository/subject.js"
+import * as studyRepository from "../repository/study.js"
+import * as todoRepository from "../repository/todo.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -114,7 +116,7 @@ export async function login(req, res) {
 export async function me(req, res) {
     // req.user는 Mongoose 문서이므로 일반 객체로 변환 후에 아래 비밀번호 제외하여 분리과정 진행해야함
     const userObj = req.user.toObject()
-    
+
     const { userPw, ...safeUser } = userObj
     res.status(200).json({ token: req.token, user: safeUser })
 }
@@ -328,4 +330,22 @@ export async function getSubjects(req, res) {
         message: "과목 목록을 성공적으로 불러왔습니다.",
         subjects: subjects
     })
+}
+
+// 유저 탈퇴
+export async function deleteAll(req, res) {
+    try {
+        const userId = req.user._id
+
+        await studyRepository.deleteMany(userId)
+        await subjectRepository.deleteMany(userId)
+        await todoRepository.deleteMany(userId)
+        
+        await authRepository.deleteUserById(userId)
+
+        return res.status(200).json({ message: "모든 정보가 삭제되었습니다." })
+    } catch (error) {
+        console.error("회원탈퇴 에러:", error)
+        return res.status(500).json({ message: "회원탈퇴 처리 중 오류가 발생했습니다." })
+    }
 }

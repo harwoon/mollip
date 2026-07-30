@@ -52,4 +52,8 @@ router.delete("/subject/:id", isAuth, authController.deleteSubject)
 // http://127.0.0.1:3000/auth/subject
 router.get("/subject", isAuth, authController.getSubjects)
 
+// 유저 탈퇴
+// http://127.0.0.1:3000/auth/delete
+router.delete("/delete",isAuth,authController.deleteAll)
+
 export default router

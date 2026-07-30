@@ -111,3 +111,14 @@ export async function resetExpiredStreaks(yesterdayString) {
 export async function getUsersByGroupId(groupId) {
     return User.find({groupId,}).select("_id nickname profileImg groupId currentStreak")
 }
+
+//유저 삭제
+export const deleteUserById = async (userId) => {
+    const deletedUser = await User.findByIdAndDelete(userId)
+    
+    if (!deletedUser) {
+        throw new Error("존재하지 않는 유저입니다.")
+    }
+    
+    return deletedUser
+}
