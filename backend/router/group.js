@@ -20,4 +20,8 @@ router.get("/higher",isAuth,groupController.getHigher)
 // http://127.0.0.1:3000/group/lower
 router.get("/lower",isAuth,groupController.getLower)
 
+// 주간 랭킹 조회
+//http://127.0.0.1:3000/group/weekly-ranking
+router.get("/weekly-ranking",isAuth , groupController.getWeeklyRanking)
+
 export default router

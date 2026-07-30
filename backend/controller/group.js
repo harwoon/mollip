@@ -1,8 +1,7 @@
 import express from "express"
 import * as groupRepository from "../repository/group.js"
 import { assignWeeklyGroups } from "../service/weeklyGroupService.js"
-// import { getWeekRange } from "../util/date.js"
-// import dayjs from "dayjs"
+import * as statisticsService from "../service/statisticsService.js"
 
 // 그룹 목록 조회 (확인용)
 export async function getGroups(req, res) {
@@ -313,4 +312,23 @@ export async function runWeeklyGroupAssignment(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+// 그룹 랭킹
+export async function getWeeklyRanking(req, res) {
+    try {
+        const ranking =
+            await statisticsService.getWeeklyGroupRanking(req.user._id)
+
+        res.status(200).json({
+            ranking,
+        })
+    } catch (error) {
+        console.error("주간 랭킹 조회 실패:", error)
+
+        res.status(500).json({
+            message: error.message,
+        })
+    }
+
 }
