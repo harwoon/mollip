@@ -39,6 +39,7 @@ export default function SubjectList({
             key={subject._id}
             className={`${styles.subjectItem} ${isSelected ? styles.subjectItemActive : ''}`}
             onClick={() => onSelectSubject(subject)}
+            onDoubleClick={() => onSelectSubject(null)}
           >
             <div className={styles.subjectInfo}>
               <div 
