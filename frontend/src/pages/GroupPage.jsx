@@ -32,8 +32,6 @@ export default function GroupPage() {
         return <div>유저 정보를 찾을 수 없습니다.</div>;
     }
 
-    console.log("닉네임",userInfo.nickname)
-
     return (
         <>
             <MyGroup />
