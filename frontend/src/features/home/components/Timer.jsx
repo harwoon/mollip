@@ -1,41 +1,46 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './Timer.module.css'
-import { io } from 'socket.io-client'
 
-const socket = io("http://localhost:3000", {
-  autoConnect: true 
-})
-
-export default function Timer({ groupId, userId, userName, selectedSubject = null, onSaveTime }) {
+export default function Timer({ userName, selectedSubject = null, onSaveTime }) {
   const [time, setTime] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [lastSavedTime, setLastSavedTime] = useState(0)
-
-  // start를 눌렀을때 state 추가
   const [actualStartTime, setActualStartTime] = useState(null)
 
-  // 과목 변경 감지
+  // 💡 브라우저 탭 이동 방어를 위한 비밀 무기 (useRef)
+  const expectedTimeRef = useRef(0) // 멈췄을 때까지 누적된 시간
+  const startTimeRef = useRef(0)    // setInterval이 시작된 진짜 시간
+
   useEffect(() => {
     setTime(0)
     setLastSavedTime(0)
     setIsRunning(false)
     setActualStartTime(null)
+    expectedTimeRef.current = 0
   }, [selectedSubject])
 
-  // 타이머 함수
   useEffect(() => {
     let interval
     if (isRunning) {
+      // 타이머가 돌기 시작한 현재 시간을 찰칵 기록!
+      startTimeRef.current = Date.now()
+      // 지금까지 누적된 시간을 기록!
+      expectedTimeRef.current = time 
+
       interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1)
+        // 🚨 핵심: 무지성 +1이 아니라, 진짜 흘러간 리얼타임을 계산해서 더해줍니다.
+        // 브라우저가 다른 탭에 가서 농땡이를 피워도, 현재 시간(Date.now())은 속일 수 없기 때문에 
+        // 탭으로 돌아오는 순간 밀린 시간을 한방에 점프해서 정확하게 띄워줍니다!
+        const diffMs = Date.now() - startTimeRef.current
+        const ticks = Math.floor(diffMs / 10)
+        setTime(expectedTimeRef.current + ticks)
       }, 10)
     } else {
       clearInterval(interval)
     }
     return () => clearInterval(interval)
-  }, [isRunning])
+  }, [isRunning]) // 의존성 배열에 time을 빼서 리렌더링 폭주를 막습니다.
 
-  // 시간 변환
   const formatTime = (currentTime) => {
     const hours = Math.floor(currentTime / 360000)
     const minutes = Math.floor((currentTime % 360000) / 6000)
@@ -52,7 +57,6 @@ export default function Timer({ groupId, userId, userName, selectedSubject = nul
     )
   }
 
-  // 시작 버튼
   const handleStart = () => {
     if (!selectedSubject) {
       alert('공부를 시작할 과목을 먼저 선택해 주세요.')
@@ -60,13 +64,8 @@ export default function Timer({ groupId, userId, userName, selectedSubject = nul
     }
     setIsRunning(true)
     setActualStartTime(new Date())
-
-    if (groupId && userId) {
-      socket.emit('startStudy', { groupId, userId, userName })
-    }
   }
 
-  // 정지 및 저장 버튼
   const handleStop = async () => {
     if (!selectedSubject || !isRunning) return
     
@@ -75,10 +74,6 @@ export default function Timer({ groupId, userId, userName, selectedSubject = nul
 
     const currentSeconds = Math.floor(time / 100)
     const timeToSave = currentSeconds - lastSavedTime
-
-    if (groupId && userId) {
-      socket.emit('stopStudy', { groupId, userId })
-    }
 
     if (timeToSave > 0) {
       const isSuccess = await onSaveTime(timeToSave, actualStartTime, actualEndTime)
