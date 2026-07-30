@@ -28,7 +28,7 @@ const StudyTimer = ({ startTime }) => {
     return <span style={{ fontWeight: 'bold', color: '#8a6bc7' }}>{timeText}</span>
 }
 
-export default function ActiveUsersList({ groupId, userId, userName }) {
+export default function ActiveUsersList({ groupId, userId, userName,profileImg }) {
     const [activeUsers, setActiveUsers] = useState([])
 
     useEffect(() => {
@@ -90,6 +90,7 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {activeUsers.map((user) => (
                         <li key={user.userId} style={{ marginBottom: '10px' }}>
+                            <span>{user.profileImg}</span>
                             <span > {user.userName}</span>
                             <StudyTimer startTime={user.startTime} />
                         </li>
@@ -98,8 +99,6 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
             )}
 
             <hr />
-            {/* <button onClick={handleStart} style={{ marginRight: '10px' }}>내 공부 시작</button>
-            <button onClick={handleStop}>내 공부 종료</button> */}
         </div>
     )
 }

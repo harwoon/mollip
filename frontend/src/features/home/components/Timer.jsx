@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './Timer.module.css'
+import { io } from 'socket.io-client'
 
-export default function Timer({ 
-  userName, 
-  selectedSubject = null, 
+const socket = io("http://localhost:3000", {
+  autoConnect: true
+})
+
+
+export default function Timer({
+  groupId,
+  userId,
+  userName,
+  selectedSubject = null,
   onSaveTime,
   userInfo,
   dailyRecords
@@ -28,7 +36,7 @@ export default function Timer({
     let interval
     if (isRunning) {
       startTimeRef.current = Date.now()
-      expectedTimeRef.current = time 
+      expectedTimeRef.current = time
 
       interval = setInterval(() => {
         const diffMs = Date.now() - startTimeRef.current
@@ -46,7 +54,7 @@ export default function Timer({
     const minutes = Math.floor((currentTime % 360000) / 6000)
     const seconds = Math.floor((currentTime % 6000) / 100)
     const milliseconds = currentTime % 100
-    
+
     return (
       <>
         {hours}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
@@ -67,7 +75,7 @@ export default function Timer({
 
   // '총 공부한 시간' 계산 (DB에 저장된 기록들 + 현재 돌아가고 있는 타이머 시간)
   const getRealTimeTotalSeconds = () => {
-    
+
     const dbTotalSeconds = (dailyRecords || []).reduce((sum, record) => {
       if (record.startTime && record.endTime) {
         const start = new Date(record.startTime).getTime()
@@ -102,11 +110,15 @@ export default function Timer({
     }
     setIsRunning(true)
     setActualStartTime(new Date())
+
+    if (groupId && userId) {
+      socket.emit('startStudy', { groupId, userId, userName })
+    }
   }
 
   const handleStop = async () => {
     if (!selectedSubject || !isRunning) return
-    
+
     setIsRunning(false)
     const actualEndTime = new Date()
 
@@ -115,28 +127,32 @@ export default function Timer({
 
     if (timeToSave > 0) {
       const isSuccess = await onSaveTime(timeToSave, actualStartTime, actualEndTime)
-      
+
       if (isSuccess) {
         setLastSavedTime(currentSeconds)
       } else {
         alert('서버 문제로 기록이 저장되지 않았습니다. 다시 시도해 주세요.')
       }
     }
+
+    if (groupId && userId) {
+      socket.emit('stopStudy', { groupId, userId })
+    }
   }
 
-return (
+  return (
     <div className={styles.timerContainer}>
-      
+
       <h2 className={styles.timerTitle} style={{ textAlign: 'center', marginBottom: '15px' }}>
-        {selectedSubject 
-          ? `${getStudyDays()}일째 공부중, 이어나가세요!` 
+        {selectedSubject
+          ? `${getStudyDays()}일째 공부중, 이어나가세요!`
           : (userName ? `${userName}님, 공부를 시작하세요!` : '유저 정보 불러오는 중...')}
       </h2>
-      
+
       <div className={styles.timerDisplay}>
         {formatTime(time)}
       </div>
-      
+
       <div className={styles.timerButtons}>
         <button className={styles.timerBtn} onClick={handleStart}>Start</button>
         <button className={styles.timerBtn} onClick={handleStop}>Stop</button>
