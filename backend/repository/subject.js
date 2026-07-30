@@ -53,3 +53,8 @@ export async function deleteSubject(id) {
         { new: true }
     )
 }
+
+// 과목 하드 삭제하기
+export async function deleteMany(userId) {
+    return await Subject.deleteMany({ user: userId })
+}
