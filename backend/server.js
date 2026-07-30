@@ -51,10 +51,15 @@ app.use("/study", studyRouter)
 app.use("/statistics", statRouter)
 app.use("/todo", todoRouter)
 app.use("/admin", adminRouter)
-app.use("/group",groupRouter)
+app.use("/group", groupRouter)
 
 io.on('connection', (socket) => {
-    console.log('소켓 연결됨:', socket.id);
+    console.log('소켓 연결됨:', socket.id)
+
+    socket.on('joinAdminRoom', () => {
+        socket.join('admin_room')
+        console.log('관리자가 admin_room에 입장했습니다.')
+    })
 
     // 그룹 페이지 들어감
     socket.on('joinGroup', async ({ groupId }) => {
@@ -68,21 +73,25 @@ io.on('connection', (socket) => {
     });
 
     // 공부 시작
-    socket.on('startStudy', async ({ groupId, userId, userName, profileImg }) => {
+    socket.on('startStudy', async ({ groupId, userId, userName, profileImg, subjectName }) => {
         const startTime = Date.now()
         try {
             await redisClient.hset(`study:${groupId}`, userId, JSON.stringify({ userName, startTime, profileImg }))
             socket.to(groupId).emit('userStartedStudy', { userId, userName, startTime, profileImg })
+
+            socket.to('admin_room').emit('adminUserStarted', {
+                groupId, userId, userName, profileImg, subjectName, startTime
+            })
         } catch (error) {
             console.error("Redis 저장 실패:", error)
         }
     })
-
     // 공부 종료
     socket.on('stopStudy', async ({ groupId, userId }) => {
         try {
             await redisClient.hdel(`study:${groupId}`, userId)
-            io.to(groupId).emit('userStoppedStudy', { userId })
+            socket.to(groupId).emit('userStoppedStudy', { userId })
+            socket.to('admin_room').emit('adminUserStopped', { userId })
         } catch (error) {
             console.error("Redis 삭제 실패:", error)
         }
