@@ -166,3 +166,8 @@ export async function getWeeklyTodoListsByUsers(userIds, startDate, endDate) {
         }
     }).sort({todoDate: 1}).lean()
 }
+
+// 개인 투두리스트 삭제
+export const deleteMany = async (userId) => {
+    return await TodoList.deleteMany({ user: userId })
+}
