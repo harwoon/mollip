@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { signupUser } from "../api/auth"
 import { useNavigate } from "react-router-dom"
+import { checkIdUser } from "../api/auth"
 
 export default function LoginForm() {
     const [userId, setUserId] = useState("")
@@ -9,11 +10,25 @@ export default function LoginForm() {
     const [nickname, setNickname] = useState("")
     const [email, setEmail] = useState("")
 
+    const [idCheck, setIdCheck] = useState(false)
+
     const navigate = useNavigate()
 
     const handleIdCheck = async (e) => {
         try {
-            
+
+            const check = await checkIdUser(userId)
+
+            if (check.exists === true) {
+                alert("이미 존재하는 아이디입니다.")
+                setIdCheck(false)
+            }
+
+            else if(check.exists === false) {
+                alert("사용 가능한 아이디입니다.")
+                setIdCheck(true)
+            }
+
         } catch (error) {
             alert("아이디 중복 체크 실패 " + error.message)
         }
@@ -22,20 +37,21 @@ export default function LoginForm() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            // 아이디 중복 확인 체크 로직
-            const idCheck = await checkIdUser(userId)
-            if(!idCheck){
-                alert("이미 존재하는 아이디입니다.")
+
+            if (!idCheck) {
+                alert("중복 아이디 확인을 해주세요")
+                return
             }
 
             // 비밀번호, 재확인 일치 확인 로직
-            if(userPw !== userPwRe){
+            if (userPw !== userPwRe) {
                 alert("비밀번호가 일치하지 않습니다.")
+                return
             }
 
             const result = await signupUser(userId, userPw, nickname, email)
             console.log("회원가입 성공!", result)
-            navigate('/home')
+            navigate('/')
 
         } catch (error) {
             alert("회원가입 실패: " + error.message)
@@ -62,13 +78,13 @@ export default function LoginForm() {
             />
             <button type="button" onClick={handleIdCheck}>중복 확인</button>
             <input
-                type="userPw"
+                type="password"
                 value={userPw}
                 onChange={(e) => setUserPw(e.target.value)}
                 placeholder="비밀번호"
             />
             <input
-                type="userPw"
+                type="password"
                 value={userPwRe}
                 onChange={(e) => setUserPwRe(e.target.value)}
                 placeholder="비밀번호 재확인"
@@ -80,7 +96,7 @@ export default function LoginForm() {
                 placeholder="닉네임"
             />
             <input
-                type="text"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="이메일"
