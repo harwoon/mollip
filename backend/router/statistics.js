@@ -21,9 +21,7 @@ router.get("/streak",isAuth, statController.getStreak)
 // http://127.0.0.1:3000/statistics/week?date=2026-07-29
 router.get("/week",isAuth, statController.getWeeklyCompareStats)
 
-// 주간 랭킹 조회
-//http://127.0.0.1:3000/statistics/weekly-ranking
-router.get("/weekly-ranking",isAuth, statController.getWeeklyRanking)
+
 
 
 export default router

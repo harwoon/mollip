@@ -1,0 +1,102 @@
+.rankingCard {
+    width: 100%;
+}
+
+.topThreeSection {
+    margin-bottom: 32px;
+}
+
+.topThreeList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.topThreeItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 12px;
+}
+
+.topRank {
+    font-size: 20px;
+}
+
+.topProfileImage {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.allRankingSection {
+    width: 100%;
+}
+
+.rankingScrollContainer {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #dddddd;
+    border-radius: 12px;
+    scroll-behavior: smooth;
+}
+
+.rankingList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rankingItem {
+    display: grid;
+    grid-template-columns: 60px 48px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+    min-height: 72px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.rankingItem:last-child {
+    border-bottom: none;
+}
+
+.currentUser {
+    background-color: #fff7d6;
+    font-weight: 700;
+}
+
+.rank {
+    text-align: center;
+}
+
+.profileImage {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.nickname {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.studyTime {
+    text-align: right;
+}
+
+.meBadge {
+    padding: 2px 6px;
+    border-radius: 10px;
+    background-color: #333333;
+    color: white;
+    font-size: 11px;
+}

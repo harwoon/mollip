@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { getWeeklyGroupRanking } from "../api/groupRanking.js"
 
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 export default function GroupRanking() {
     const [ranking, setRanking] =
@@ -30,6 +30,7 @@ export default function GroupRanking() {
 
                 const rankingData =
                     await getWeeklyGroupRanking()
+
 
                 setRanking(rankingData)
             } catch (error) {
@@ -101,9 +102,8 @@ export default function GroupRanking() {
                 endIndex,
             )
 
-    console.log("로컬 userId:", currentUserId)
-    console.log("랭킹 데이터:", ranking)
-    console.log("현재 사용자 index:", currentUserIndex)
+   
+
 
     return (
         <section >
@@ -115,38 +115,41 @@ export default function GroupRanking() {
                 </p>
             ) : (
                 <ol >
-                    {visibleRanking.map((user, index) => (
-                        <li
-                            key={user.userId}
+                    {visibleRanking.map((user, index) => {
+                        const imageUrl = user.profileImg
+                            ? `${API_URL}${user.profileImg}`
+                            : "/images/noprofile.png"
 
-                        >
-                            <strong >
-                                {startIndex + index + 1}위
-                            </strong>
+                        return (
+                            <li key={user.userId}>
+                                <strong>
+                                    {startIndex + index + 1}위
+                                </strong>
 
-                            <img
+                                <img
+                                    src={imageUrl}
+                                    alt={`${user.nickname} 프로필`}
+                                    onError={(event) => {
+                                        console.error(
+                                            "이미지 로드 실패 주소:",
+                                            event.currentTarget.src,
+                                        )
+                                    }}
+                                />
 
-                                src={
-                                    user.profileImg
-                                        ? `${API_URL}${user.profileImg}`
-                                        : "/images/noprofile.png"
-                                }
-                                alt={`${user.nickname} 프로필`}
-                            />
+                                <span>{user.nickname}</span>
 
-                            <span >
-                                {user.nickname}
-                            </span>
-
-                            <span >
-                                {formatStudyTime(
-                                    user.totalStudyTime,
-                                )}
-                            </span>
-                        </li>
-                    ))}
+                                <span>
+                                    {formatStudyTime(
+                                        user.totalStudyTime,
+                                    )}
+                                </span>
+                            </li>
+                        )
+                    })}
                 </ol>
-            )}
-        </section>
+            )
+            }
+        </section >
     )
 }

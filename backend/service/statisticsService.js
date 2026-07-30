@@ -61,7 +61,7 @@ export async function getWeeklyGroupRanking(userId) {
         ranking.push({
             userId: user._id,
             nickname: user.nickname,
-            image: user.profileImg,
+            profileImg: user.profileImg,
             streak: user.currentStreak,
             totalStudyTime,
         })
