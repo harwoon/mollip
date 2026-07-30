@@ -4,6 +4,7 @@ import HigherGroup from "../features/group/components/HigherGroup"
 import LowerGroup from "../features/group/components/LowerGroup"
 import ActiveUserList from "../features/group/components/ActiveUserList"
 import { getMyInfo } from "../features/auth/api/auth"
+import GroupRanking from '../features/group/components/GroupRanking'
 
 export default function GroupPage() {
     const [userInfo, setUserInfo] = useState(null)
@@ -43,6 +44,7 @@ export default function GroupPage() {
                 userName={userInfo.nickname} 
                 profileImg={userInfo.profileImg}
             />
+            <GroupRanking/>
         </>
     );
 }

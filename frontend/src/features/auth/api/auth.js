@@ -40,6 +40,7 @@ export async function loginUser(userId, userPw) {
     localStorage.setItem("token", data.token)
     localStorage.setItem("role", data.user.role)
     localStorage.setItem("groupId", data.user.groupId?._id ?? data.user.groupId ?? "")
+    localStorage.setItem("userId", data.user._id)
 
     // 로그인한 사용자 정보가 필요할 수 있으므로 전체 응답 반환
     return data

@@ -12,6 +12,7 @@ router.get("/total",isAuth,statController.getTotal)
 //http://127.0.0.1:3000/statistics/ratio?type=daily&date=2026-07-26
 router.get("/ratio",isAuth,statController.getRatio)
 
+
 // [주간현활-그룹통계] 그룹의 연속 공부 달성일 평균
 // http://127.0.0.1:3000/statistics/streak
 router.get("/streak",isAuth, statController.getStreak)
@@ -19,6 +20,8 @@ router.get("/streak",isAuth, statController.getStreak)
 // 그룹의 주간 일별 공부 시간 평균
 // http://127.0.0.1:3000/statistics/week?date=2026-07-29
 router.get("/week",isAuth, statController.getWeeklyCompareStats)
+
+
 
 // 주간 개인 및 그룹 Todo 달성률 비교
 // http://127.0.0.1:3000/statistics/todo-week?date=2026-07-30

@@ -5,6 +5,7 @@ import SubjectStudyTimeChart from "../features/weekly/components/SubjectStudyTim
 import GoalAchievementChart from "../features/weekly/components/GoalAchievementChart.jsx";
 import GroupStreakChart from '../features/weekly/components/GroupStreakChart.jsx'
 import GroupWeeklyStudyChart from "../features/weekly/components/GroupWeeklyStudyChart.jsx"
+import GroupRanking from "../features/weekly/components/GroupRanking.jsx"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
@@ -42,6 +43,7 @@ export default function WeekStatusPage() {
       {/* 그룹 내 랭킹 */}
       <section className="groupRanking">
         <h2>그룹 내 랭킹 순위</h2>
+        <GroupRanking selectedDate={selectedDate}/>
       </section>
     </main>
   );
