@@ -1,30 +1,32 @@
+import dayjs from "dayjs"
+
 import * as authRepository from "../repository/auth.js"
 import * as studyRepository from "../repository/study.js"
-import * as studyController from "../controller/statistics.js"
+import * as todoRepository from "../repository/todo.js"
+
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 
-const now = new Date()
+// const now = new Date()
 
-const weekStart = new Date(now)
+// const weekStart = new Date(now)
 
-const day = weekStart.getDay()
+// const day = weekStart.getDay()
 
-const distanceFromMonday =
-    day === 0 ? 6 : day - 1
+// const distanceFromMonday =
+//     day === 0 ? 6 : day - 1
 
-weekStart.setDate(
-    weekStart.getDate() - distanceFromMonday
-)
+// weekStart.setDate(
+//     weekStart.getDate() - distanceFromMonday
+// )
 
-weekStart.setHours(0, 0, 0, 0)
+// weekStart.setHours(0, 0, 0, 0)
 
-const weekEnd = new Date(weekStart)
+// const weekEnd = new Date(weekStart)
 
-weekEnd.setDate(
-    weekEnd.getDate() + 7
-)
-
+// weekEnd.setDate(
+//     weekEnd.getDate() + 7
+// )
 
 
 export async function getWeeklyGroupRanking(userId) {
@@ -72,4 +74,119 @@ export async function getWeeklyGroupRanking(userId) {
             b.totalStudyTime - a.totalStudyTime ||
             b.streak - a.streak
     )
+}
+
+// 주간 개인 및  그룹 Todo 달성률 비교
+export async function getWeeklyTodoCompareStats(userId, date) {
+
+    // 로그인 사용자, 그룹 조회
+    const loginUser = await authRepository.getUserGroup(userId)
+    if(!loginUser){
+        throw new Error("사용자 정보를 찾을 수 없습니다.")
+    }
+
+    // 같은 그룹 사용자 조회
+    const groupUsers = await authRepository.getUsersByGroupId(
+        loginUser.groupId
+    )
+    if(groupUsers.length === 0){
+        return[]
+    }
+
+    const {startDate, endDate} = getWeekRange(date)
+    const groupUserIds = groupUsers.map(user => user._id)
+
+    // 그룹원 전체 일주일 Todo 조회
+    const todoLists = await todoRepository.getWeeklyTodoListsByUsers(
+        groupUserIds,
+        startDate,
+        endDate
+    )
+
+    // key: 사용자ID_2026-07-30
+    // value : {totalCount: 3, completedCount: 2}
+    const achievementMap = new Map()
+
+    todoLists.forEach(todoList => {
+        const key = `${todoList.user.toString()}_${todoList.todoDate}`
+
+        const todos = Array.isArray(todoList.todo) ? todoList.todo : []
+
+        const totalCount = todos.length
+
+        const completedCount = todos.filter(todo => todo.state === true).length
+
+        achievementMap.set(key, {
+            totalCount,
+            completedCount
+        })
+    })
+
+    // 달성률 계산 함수
+    function calculateAchievementRate(totalCount, completedCount) {
+        if(totalCount === 0){
+            return 0
+        }
+        return Number(
+            (completedCount / totalCount * 100).toFixed(1)
+        )
+    }
+
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"]
+
+    const result = []
+
+    let currentDate = dayjs(startDate)
+
+    // 월요일부터 일요일까지 7일
+    for (let i = 0; i < 7; i++) {
+        const dateStr = currentDate.format("YYYY-MM-DD")
+        const day = dayNames[currentDate.day()]
+
+        // 로그인 사용자 달성률
+        const personalKey = `${userId.toString()}_${dateStr}`
+
+        const personalData = achievementMap.get(personalKey) || {
+            totalCount: 0,
+            completedCount: 0
+        }
+
+        const personalRate = calculateAchievementRate(
+            personalData.totalCount,
+            personalData.completedCount
+        )
+
+        // 그룹원별 달성률
+        const groupRates = groupUsers.map(member => {
+            const memberKey = `${member._id.toString()}_${dateStr}`
+
+            const memberData = achievementMap.get(memberKey) || {
+                totalCount: 0,
+                completedCount: 0
+            }
+
+            return calculateAchievementRate(
+                memberData.totalCount,
+                memberData.completedCount
+            )
+        })
+
+        // 그룹원 개인 달성률의 평균
+        const groupRate = Number(
+            (groupRates.reduce(
+                (sum, rate) => sum + rate, 0) / groupRates.length
+            ).toFixed(1)
+        )
+
+        result.push({
+            date: dateStr,
+            day,
+            personalRate,
+            groupRate
+        })
+
+        currentDate = currentDate.add(1, "day")
+    }
+
+    return result
 }

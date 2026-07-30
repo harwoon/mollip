@@ -23,5 +23,8 @@ router.get("/week",isAuth, statController.getWeeklyCompareStats)
 
 
 
+// 주간 개인 및 그룹 Todo 달성률 비교
+// http://127.0.0.1:3000/statistics/todo-week?date=2026-07-30
+router.get("/todo-week", isAuth, statController.getWeeklyTodoCompare)
 
 export default router
