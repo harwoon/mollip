@@ -6,13 +6,7 @@ import { getWeekRange, getYesterday } from "../util/date.js"
 // 공부 기록 추가
 export async function addStudy(req, res) {
     const userId = req.user._id
-    const { studyTitle, studyDate, startTime, endTime } = req.body
-
-    //sumStudyTime
-    const start = new Date(startTime)
-    const end = new Date(endTime)
-
-    const sumStudyTime = Math.floor((end - start) / 60000)
+    const { studyTitle, studyDate, startTime, endTime, sumStudyTime } = req.body
 
     try {
         // 공부 기록 추가

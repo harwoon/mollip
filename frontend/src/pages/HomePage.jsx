@@ -66,8 +66,9 @@ export default function HomePage() {
     const newRecord = {
       _id: `temp_${Date.now()}`,
       studyTitle: selectedSubject.subjectName,
-      startTime: actualStartTime.toISOString(),
-      endTime: actualEndTime.toISOString()
+      // startTime: actualStartTime.toISOString(),
+      // endTime: actualEndTime.toISOString()
+      sumStudyTime: studySeconds
     }
     
     setDailyRecords((prev) => [...prev, newRecord])
@@ -87,7 +88,7 @@ export default function HomePage() {
           studyDate: todayString,
           startTime: actualStartTime.toISOString(),
           endTime: actualEndTime.toISOString(),
-          sumStudyTime: Math.floor(studySeconds / 60)
+          sumStudyTime: studySeconds
         })
       })
       

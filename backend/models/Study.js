@@ -16,14 +16,14 @@ const studySchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        startTime: {
-            type: Date,
-            required: true,
-        },
-        endTime: {
-            type: Date,
-            required: true,
-        },
+        // startTime: {
+        //     type: Date,
+        //     required: true,
+        // },
+        // endTime: {
+        //     type: Date,
+        //     required: true,
+        // },
         sumStudyTime: {
             type: Number,
             required: true,
