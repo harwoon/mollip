@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
+import { io } from 'socket.io-client'
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
 import { getUserCount } from "../features/home/api/user.js"
+import { getGroup } from "../features/groups/api/group.js"
 
-// 관리자 홈 페이지
+const socket = io("http://127.0.0.1:3000", { autoConnect: false })
+
 export default function AdminHomePage() {
-    // 임시 데이터❗
+    const [activeUsers, setActiveUsers] = useState([])
+
     const [summary, setSummary] = useState({
         groupCount: 0,
         groupCountDiff: "수정 필요",
@@ -21,6 +25,34 @@ export default function AdminHomePage() {
     })
 
     useEffect(() => {
+        socket.connect()
+        socket.emit('joinAdminRoom')
+
+        socket.on('adminUserStarted', async (newUser) => {
+            try {
+                const groupData = await getGroup(newUser.groupId);
+
+                newUser.groupName = groupData.group.groupName
+                newUser.groupColor = groupData.group.groupColor
+
+            } catch (error) {
+                console.error("그룹 정보 조회 실패:", error)
+                newUser.groupName = "알 수 없는 그룹"
+                newUser.groupColor = "#999999"
+            }
+
+            // API 호출이 끝난 뒤 최종적으로 상태 업데이트
+            setActiveUsers((prev) => {
+                const isAlreadyActive = prev.some(user => user.userId === newUser.userId)
+                if (isAlreadyActive) return prev
+                return [...prev, newUser]
+            })
+        })
+
+        socket.on('adminUserStopped', ({ userId: stoppedUserId }) => {
+            setActiveUsers((prev) => prev.filter(user => user.userId !== stoppedUserId))
+        })
+
         async function fetchSummary() {
             try {
                 const [groupData, userData] = await Promise.all([
@@ -39,16 +71,41 @@ export default function AdminHomePage() {
         }
 
         fetchSummary()
+
+        return () => {
+            socket.off('adminUserStarted')
+            socket.off('adminUserStopped')
+            socket.disconnect()
+        }
     }, [])
 
-
     return (
-        <div>
-            <Topbar
-                title="관리자 홈"
-                description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
-            />
-            <SummaryRow summary={summary}/>
-        </div>
+        <>
+            <div>
+                <Topbar
+                    title="관리자 홈"
+                    description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
+                />
+                <SummaryRow summary={summary} />
+            </div>
+
+            <div>
+                <h2>실시간 접속자</h2>
+                <ul>
+                    {activeUsers.map(user => (
+                        <li key={user.userId}>
+                            <img src={`http://127.0.0.1:3000${user.profileImg}`} alt="프로필" width="30" />
+                            <span>{user.userName}</span>
+                            <span style={{ backgroundColor: user.groupColor || '#ccc', color: '#fff', marginLeft: '10px', padding: '2px 5px', borderRadius: '5px', fontSize: '12px' }}>
+                                {user.groupName}
+                            </span>
+                            <span style={{ marginLeft: '10px' }}>
+                                {user.subjectName} 과목 공부 중입니다.
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </>
     )
 }

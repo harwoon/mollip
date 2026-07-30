@@ -24,16 +24,20 @@ export async function getGroups(req, res) {
 export async function getGroupsColor(req, res) {
   const { id } = req.params;
   try {
-    const groups = await groupRepository.findAllGroups();
+   const group = await groupRepository.findById(id);
 
-    const groupList = groups.map((group) => ({
-      groupName: group.groupName,
-      groupColor: group.groupColor,
-    }));
+    if (!group) {
+      return res.status(404).json({
+        message: "존재하지 않는 그룹입니다.",
+      });
+    }
 
     return res.status(200).json({
-      message: "그룹 목록을 성공적으로 불러왔습니다.",
-      groups: groupList,
+      message: "그룹 정보를 성공적으로 불러왔습니다.",
+      group: {
+        groupName: group.groupName,
+        groupColor: group.groupColor,
+      },
     });
   } catch (error) {
     console.error("그룹 목록 조회 오류: ", error);

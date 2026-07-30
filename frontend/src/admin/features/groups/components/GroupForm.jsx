@@ -1,82 +1,578 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { HexColorPicker } from "react-colorful"
-import { createGroup, updateGroup } from "../api/group"
+import {
+    createGroup,
+    updateGroup
+} from "../api/group"
 import "./GroupForm.css"
 
-export default function GroupForm({ mode, group, onSuccess, onCancel }) {
-    const [groupName, setGroupName] = useState("")
-    const [groupColor, setGroupColor] = useState("#FFFFFF")
-    const [groupTime, setGroupTime] = useState("")
-    const [showPicker, setShowPicker] = useState(false)
-    const [error, setError] = useState("")
+/*
+ * 그룹 goals 배열에서
+ * 원하는 목표의 targetValue 가져오기
+ */
+function getGoalTarget(
+    goals,
+    goalType,
+    fallbackValue
+) {
+    const goal = goals?.find(
+        (goal) => goal.goalType === goalType
+    )
 
-    // 그룹 수정 시 기본 값 가져오기
+    return goal?.targetValue ?? fallbackValue
+}
+
+export default function GroupForm({
+    mode,
+    group,
+    onSuccess,
+    onCancel
+}) {
+    const [groupName, setGroupName] =
+        useState("")
+
+    const [groupColor, setGroupColor] =
+        useState("#FFFFFF")
+
+    const [groupTime, setGroupTime] =
+        useState("")
+
+    /*
+     * 목표 4개
+     */
+    const [minStudyTime, setMinStudyTime] =
+        useState("")
+
+    const [
+        challengeStudyTime,
+        setChallengeStudyTime
+    ] = useState("")
+
+    const [
+        todoCompletionRate,
+        setTodoCompletionRate
+    ] = useState("50")
+
+    const [
+        attendanceDays,
+        setAttendanceDays
+    ] = useState("3")
+
+    const [showPicker, setShowPicker] =
+        useState(false)
+
+    const [error, setError] =
+        useState("")
+
+    /*
+     * 수정 모드에서는 기존 그룹과
+     * 기존 목표값을 입력창에 넣기
+     */
     useEffect(() => {
-        if(mode === "edit" && group) {
-            setGroupName(group.groupName)
-            setGroupColor(group.groupColor)
-            setGroupTime(group.groupTime)
+        if (mode === "edit" && group) {
+            const currentGroupTime =
+                Number(group.groupTime ?? 0)
+
+            setGroupName(
+                group.groupName || ""
+            )
+
+            setGroupColor(
+                group.groupColor || "#FFFFFF"
+            )
+
+            setGroupTime(
+                String(group.groupTime ?? "")
+            )
+
+            setMinStudyTime(
+                String(
+                    getGoalTarget(
+                        group.goals,
+                        "MIN_STUDY_TIME",
+                        currentGroupTime + 1
+                    )
+                )
+            )
+
+            setChallengeStudyTime(
+                String(
+                    getGoalTarget(
+                        group.goals,
+                        "CHALLENGE_STUDY_TIME",
+                        Math.min(
+                            currentGroupTime + 10,
+                            168
+                        )
+                    )
+                )
+            )
+
+            setTodoCompletionRate(
+                String(
+                    getGoalTarget(
+                        group.goals,
+                        "TODO_COMPLETION_RATE",
+                        50
+                    )
+                )
+            )
+
+            setAttendanceDays(
+                String(
+                    getGoalTarget(
+                        group.goals,
+                        "ATTENDANCE_DAYS",
+                        3
+                    )
+                )
+            )
         } else {
+            /*
+             * 생성 모드 기본값
+             */
             setGroupName("")
             setGroupColor("#FFFFFF")
             setGroupTime("")
+            setMinStudyTime("")
+            setChallengeStudyTime("")
+            setTodoCompletionRate("50")
+            setAttendanceDays("3")
         }
+
+        setShowPicker(false)
         setError("")
     }, [mode, group])
 
+    /*
+     * 그룹 조건 시간이 변경되면
+     * 기본 목표 시간을 자동 계산
+     *
+     * 30시간
+     * → 최소 목표 31시간
+     * → 도전 목표 40시간
+     */
+    const handleGroupTimeChange = (e) => {
+        const value = e.target.value
+
+        setGroupTime(value)
+
+        if (value === "") {
+            setMinStudyTime("")
+            setChallengeStudyTime("")
+            return
+        }
+
+        const time = Number(value)
+
+        if (Number.isNaN(time)) {
+            return
+        }
+
+        setMinStudyTime(
+            String(time + 1)
+        )
+
+        setChallengeStudyTime(
+            String(
+                Math.min(time + 10, 168)
+            )
+        )
+    }
+
+    /*
+     * 그룹 생성 또는 수정
+     */
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError("")
 
+        if (
+            !groupName.trim() ||
+            !groupColor.trim() ||
+            groupTime === "" ||
+            minStudyTime === "" ||
+            challengeStudyTime === "" ||
+            todoCompletionRate === "" ||
+            attendanceDays === ""
+        ) {
+            setError(
+                "그룹 정보와 목표를 모두 입력해주세요."
+            )
+            return
+        }
+
+        const time =
+            Number(groupTime)
+
+        const minStudy =
+            Number(minStudyTime)
+
+        const challengeStudy =
+            Number(challengeStudyTime)
+
+        const todoRate =
+            Number(todoCompletionRate)
+
+        const attendance =
+            Number(attendanceDays)
+
+        /*
+         * 숫자 검사
+         */
+        if (
+            Number.isNaN(time) ||
+            Number.isNaN(minStudy) ||
+            Number.isNaN(challengeStudy) ||
+            Number.isNaN(todoRate) ||
+            Number.isNaN(attendance)
+        ) {
+            setError(
+                "시간과 목표값은 숫자로 입력해주세요."
+            )
+            return
+        }
+
+        /*
+         * 그룹 조건 시간 검사
+         */
+        if (time < 0 || time >= 168) {
+            setError(
+                "그룹 조건 시간은 0 이상 168시간 미만이어야 합니다."
+            )
+            return
+        }
+
+        /*
+         * 최소 공부시간 목표 검사
+         */
+        if (
+            minStudy <= time ||
+            minStudy > 168
+        ) {
+            setError(
+                "최소 공부시간 목표는 그룹 조건 시간보다 높고 168시간 이하여야 합니다."
+            )
+            return
+        }
+
+        /*
+         * 도전 공부시간 목표 검사
+         */
+        if (
+            challengeStudy <= minStudy ||
+            challengeStudy > 168
+        ) {
+            setError(
+                "도전 공부시간 목표는 최소 공부시간 목표보다 높고 168시간 이하여야 합니다."
+            )
+            return
+        }
+
+        /*
+         * Todo 달성률 검사
+         */
+        if (
+            todoRate < 0 ||
+            todoRate > 100
+        ) {
+            setError(
+                "Todo 달성률 목표는 0% 이상 100% 이하여야 합니다."
+            )
+            return
+        }
+
+        /*
+         * 출석일 검사
+         */
+        if (
+            !Number.isInteger(attendance) ||
+            attendance < 1 ||
+            attendance > 7
+        ) {
+            setError(
+                "출석일 목표는 1일 이상 7일 이하의 정수여야 합니다."
+            )
+            return
+        }
+
+        /*
+         * 백엔드에 전달할 데이터
+         */
+        const groupData = {
+            groupName: groupName.trim(),
+            groupColor: groupColor.trim(),
+            groupTime: time,
+            minStudyTime: minStudy,
+            challengeStudyTime:
+                challengeStudy,
+            todoCompletionRate:
+                todoRate,
+            attendanceDays:
+                attendance
+        }
+
         try {
             if (mode === "edit") {
-                await updateGroup(group._id, { groupName, groupColor, groupTime: Number(groupTime)})
-                alert("그룹이 수정되었습니다.")
+                await updateGroup(
+                    group._id,
+                    groupData
+                )
+
+                alert(
+                    "그룹이 수정되었습니다."
+                )
             } else {
-                await createGroup({ groupName, groupColor, groupTime: Number(groupTime)})
-                alert("그룹이 생성되었습니다.")
+                await createGroup(groupData)
+
+                alert(
+                    "그룹이 생성되었습니다."
+                )
             }
+
             onSuccess()
-        } catch (err) {
-            setError(err.message)
-            alert(mode === "edit" ? "그룹 수정에 실패했습니다." : "그룹 생성에 실패했습니다.")
+        } catch (error) {
+            console.error(
+                "그룹 저장 오류:",
+                error
+            )
+
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                "그룹 저장에 실패했습니다."
+
+            setError(message)
+            alert(message)
         }
     }
 
     return (
-        <form className="groupForm" onSubmit={handleSubmit}>
-            <h2>{mode === "edit" ? "그룹 수정하기" : "그룹 생성하기"}</h2>
-            <div>
-                그룹명
-                <input type="text" value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder="그룹명을 입력하세요."/>
+        <form
+            className="groupForm"
+            onSubmit={handleSubmit}
+        >
+            <h2>
+                {mode === "edit"
+                    ? "그룹 수정하기"
+                    : "그룹 생성하기"}
+            </h2>
+
+            <div className="groupFormField">
+                <label htmlFor="groupName">
+                    그룹명
+                </label>
+
+                <input
+                    id="groupName"
+                    type="text"
+                    value={groupName}
+                    placeholder="그룹명을 입력하세요."
+                    onChange={(e) =>
+                        setGroupName(
+                            e.target.value
+                        )
+                    }
+                />
             </div>
-            <div className="colorField">
-                그룹 대표 컬러
+
+            <div className="groupFormField colorField">
+                <label>
+                    그룹 대표 컬러
+                </label>
+
                 <div className="colorFieldRow">
                     <button
                         type="button"
                         className="colorSwatch"
-                        style={{ backgroundColor: groupColor }}
-                        onClick={() => setShowPicker(prev => !prev)}
+                        style={{
+                            backgroundColor:
+                                groupColor
+                        }}
+                        onClick={() =>
+                            setShowPicker(
+                                (prev) => !prev
+                            )
+                        }
                     />
-                    <span>{groupColor}</span>
+
+                    <span>
+                        {groupColor}
+                    </span>
                 </div>
+
                 {showPicker && (
                     <div className="colorPickerPopover">
-                        <HexColorPicker color={groupColor} onChange={setGroupColor} />
+                        <HexColorPicker
+                            color={groupColor}
+                            onChange={
+                                setGroupColor
+                            }
+                        />
                     </div>
                 )}
             </div>
-            <div>
-                그룹 조건 시간(h)
-                <input type="number" min="0" value={groupTime} onChange={(e) => setGroupTime(e.target.value)} placeholder="그룹 조건 시간을 입력하세요."/>
+
+            <div className="groupFormField">
+                <label htmlFor="groupTime">
+                    그룹 조건 시간(h)
+                </label>
+
+                <input
+                    id="groupTime"
+                    type="number"
+                    min="0"
+                    max="167"
+                    value={groupTime}
+                    placeholder="그룹 조건 시간을 입력하세요."
+                    onChange={
+                        handleGroupTimeChange
+                    }
+                />
+
+                <p className="groupFormHelp">
+                    사용자의 총 공부시간을 기준으로
+                    그룹이 배정됩니다.
+                </p>
             </div>
-            <div>
-                <button type="button" onClick={onCancel}>
+
+            <section className="groupGoalSection">
+                <h3>
+                    그룹 목표 설정
+                </h3>
+
+                <div className="groupGoalGrid">
+                    <div className="groupFormField">
+                        <label htmlFor="minStudyTime">
+                            최소 공부시간 목표
+                        </label>
+
+                        <div className="numberInputRow">
+                            <input
+                                id="minStudyTime"
+                                type="number"
+                                min="0"
+                                max="168"
+                                value={
+                                    minStudyTime
+                                }
+                                onChange={(e) =>
+                                    setMinStudyTime(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            <span>시간</span>
+                        </div>
+
+                        <p className="groupFormHelp">
+                            그룹 조건 시간보다
+                            높아야 합니다.
+                        </p>
+                    </div>
+
+                    <div className="groupFormField">
+                        <label htmlFor="challengeStudyTime">
+                            도전 공부시간 목표
+                        </label>
+
+                        <div className="numberInputRow">
+                            <input
+                                id="challengeStudyTime"
+                                type="number"
+                                min="0"
+                                max="168"
+                                value={
+                                    challengeStudyTime
+                                }
+                                onChange={(e) =>
+                                    setChallengeStudyTime(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            <span>시간</span>
+                        </div>
+
+                        <p className="groupFormHelp">
+                            최소 공부시간 목표보다
+                            높아야 합니다.
+                        </p>
+                    </div>
+
+                    <div className="groupFormField">
+                        <label htmlFor="todoCompletionRate">
+                            Todo 학습률 목표
+                        </label>
+
+                        <div className="numberInputRow">
+                            <input
+                                id="todoCompletionRate"
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={
+                                    todoCompletionRate
+                                }
+                                onChange={(e) =>
+                                    setTodoCompletionRate(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div className="groupFormField">
+                        <label htmlFor="attendanceDays">
+                            출석일 목표
+                        </label>
+
+                        <div className="numberInputRow">
+                            <input
+                                id="attendanceDays"
+                                type="number"
+                                min="1"
+                                max="7"
+                                step="1"
+                                value={
+                                    attendanceDays
+                                }
+                                onChange={(e) =>
+                                    setAttendanceDays(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            <span>일</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {error && (
+                <p className="groupFormError">
+                    {error}
+                </p>
+            )}
+
+            <div className="groupFormActions">
+                <button
+                    type="button"
+                    onClick={onCancel}
+                >
                     취소
                 </button>
+
                 <button type="submit">
-                    {mode === "edit" ? "수정완료" : "그룹 생성"}
+                    {mode === "edit"
+                        ? "수정 완료"
+                        : "그룹 생성"}
                 </button>
             </div>
         </form>

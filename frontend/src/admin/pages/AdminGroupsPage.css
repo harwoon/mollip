@@ -1,0 +1,133 @@
+.adminGroupsPage {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.groupsPageSection {
+    padding: 28px 32px 40px;
+}
+
+.groupsToolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.groupsToolbar h2 {
+    margin: 0 0 8px;
+    color: #20202a;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.groupsToolbar p {
+    margin: 0;
+    color: #93939e;
+    font-size: 13px;
+}
+
+.groupsToolbarActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.groupsToolbarActions select {
+    min-width: 145px;
+    height: 44px;
+    padding: 0 38px 0 14px;
+    border: 1px solid #dedee6;
+    border-radius: 8px;
+    outline: none;
+    color: #797984;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+.groupsToolbarActions select:focus {
+    border-color: #8b68c6;
+}
+
+.createGroupButton {
+    height: 44px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #9275c7;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.createGroupButton:hover {
+    background-color: #7d5db8;
+}
+
+.groupsPageContent {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.groupsPageContent.formOpened {
+    grid-template-columns:
+        minmax(650px, 1fr)
+        minmax(330px, 400px);
+}
+
+.groupsTablePanel {
+    min-width: 0;
+}
+
+.groupFormPanel {
+    position: sticky;
+    top: 20px;
+    padding: 20px;
+    border: 1px solid #e5e2ec;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: 0 8px 24px rgb(50 37 78 / 8%);
+}
+
+.groupsPageError {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #c83c4d;
+    background-color: #fff0f2;
+}
+
+@media (max-width: 1250px) {
+    .groupsPageContent.formOpened {
+        grid-template-columns: 1fr;
+    }
+
+    .groupFormPanel {
+        position: static;
+    }
+}
+
+@media (max-width: 850px) {
+    .groupsPageSection {
+        padding: 20px 16px;
+    }
+
+    .groupsToolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .groupsToolbarActions {
+        flex-wrap: wrap;
+    }
+
+    .groupsToolbarActions select,
+    .createGroupButton {
+        flex: 1;
+    }
+}
