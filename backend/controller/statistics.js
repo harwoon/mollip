@@ -3,8 +3,6 @@ import dayjs from "dayjs"
 import * as studyRepository from "../repository/study.js"
 import * as statisticsRepository from "../repository/statistics.js"
 
-import * as statisticsService from "../service/statisticsService.js"
-
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 
@@ -106,23 +104,6 @@ export async function getRatio(req, res) {
 
 }
 
-export async function getWeeklyRanking(req, res) {
-    try {
-        const ranking =
-            await statisticsService.getWeeklyGroupRanking(req.user._id)
-
-        res.status(200).json({
-            ranking,
-        })
-    } catch (error) {
-        console.error("주간 랭킹 조회 실패:", error)
-
-        res.status(500).json({
-            message: error.message,
-        })
-    }
-
-}
 
 // 그룹 연속 공부 달성일
 export async function getStreak(req, res) {
