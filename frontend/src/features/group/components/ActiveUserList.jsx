@@ -72,15 +72,6 @@ export default function ActiveUsersList({ groupId, userId, userName, profileImg 
         }
     }, [groupId, userId])
 
-    // 내 공부 시작 버튼 핸들러
-    const handleStart = () => {
-        socket.emit('startStudy', { groupId, userId, userName, profileImg })
-    }
-
-    // 내 공부 종료 버튼 핸들러
-    const handleStop = () => {
-        socket.emit('stopStudy', { groupId, userId })
-    }
 
     return (
         <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }}>
