@@ -11,6 +11,7 @@ export default function Timer({
   groupId,
   userId,
   userName,
+  profileImg,
   selectedSubject = null,
   onSaveTime,
   userInfo,
@@ -112,7 +113,7 @@ export default function Timer({
     setActualStartTime(new Date())
 
     if (groupId && userId) {
-      socket.emit('startStudy', { groupId, userId, userName })
+      socket.emit('startStudy', { groupId, userId, userName, profileImg })
     }
   }
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
 const socket = io("http://127.0.0.1:3000", {
     autoConnect: false
 })
@@ -28,7 +30,7 @@ const StudyTimer = ({ startTime }) => {
     return <span style={{ fontWeight: 'bold', color: '#8a6bc7' }}>{timeText}</span>
 }
 
-export default function ActiveUsersList({ groupId, userId, userName,profileImg }) {
+export default function ActiveUsersList({ groupId, userId, userName, profileImg }) {
     const [activeUsers, setActiveUsers] = useState([])
 
     useEffect(() => {
@@ -72,7 +74,7 @@ export default function ActiveUsersList({ groupId, userId, userName,profileImg }
 
     // 내 공부 시작 버튼 핸들러
     const handleStart = () => {
-        socket.emit('startStudy', { groupId, userId, userName })
+        socket.emit('startStudy', { groupId, userId, userName, profileImg })
     }
 
     // 내 공부 종료 버튼 핸들러
@@ -90,7 +92,15 @@ export default function ActiveUsersList({ groupId, userId, userName,profileImg }
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                     {activeUsers.map((user) => (
                         <li key={user.userId} style={{ marginBottom: '10px' }}>
-                            <span>{user.profileImg}</span>
+                            <img
+                                src={user.profileImg
+                                    ? `${API_URL}${user.profileImg}`
+                                    : "/images/default-profile.png"}
+                                onError={(event) => {
+                                    // 이미지 파일을 불러오지 못하면 기본 이미지 표시
+                                    event.currentTarget.src = "/images/noprofile.png"
+                                }}
+                            />
                             <span > {user.userName}</span>
                             <StudyTimer startTime={user.startTime} />
                         </li>

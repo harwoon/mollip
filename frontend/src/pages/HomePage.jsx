@@ -107,6 +107,7 @@ export default function HomePage() {
             groupId={userInfo?.groupId}
             userId={userInfo?._id}
             userName={userInfo?.nickname}
+            profileImg={userInfo?.profileImg}
             selectedSubject={selectedSubject} 
             onSaveTime={handleSaveRecord}
             userInfo={userInfo}
