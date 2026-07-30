@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 
 const socket = io("http://127.0.0.1:3000", {
-    autoConnect: false 
-});
+    autoConnect: false
+})
 
 const StudyTimer = ({ startTime }) => {
     const [timeText, setTimeText] = useState("00:00:00")
@@ -12,7 +12,7 @@ const StudyTimer = ({ startTime }) => {
 
         const interval = setInterval(() => {
             const diff = Date.now() - startTime
-            
+
             const hours = Math.floor(diff / 3600000)
             const minutes = Math.floor((diff % 3600000) / 60000)
             const seconds = Math.floor((diff % 60000) / 1000)
@@ -43,12 +43,18 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
                 ...JSON.parse(data)
             }))
             setActiveUsers(usersArray)
-        });
-
+        })
 
         socket.on('userStartedStudy', (newUser) => {
-            setActiveUsers((prev) => [...prev, newUser])
-        });
+            setActiveUsers((prev) => {
+
+                const isAlreadyActive = prev.some(user => user.userId === newUser.userId);
+                if (isAlreadyActive) {
+                    return prev
+                }
+                return [...prev, newUser] // 없을 때만 추가
+            })
+        })
 
         socket.on('userStoppedStudy', ({ userId: stoppedUserId }) => {
 
@@ -67,7 +73,7 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
     // 내 공부 시작 버튼 핸들러
     const handleStart = () => {
         socket.emit('startStudy', { groupId, userId, userName })
-    };
+    }
 
     // 내 공부 종료 버튼 핸들러
     const handleStop = () => {
@@ -77,7 +83,7 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
     return (
         <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }}>
             <h3>실시간 접속자</h3>
-            
+
             {activeUsers.length === 0 ? (
                 <p>현재 공부 중인 멤버가 없습니다.</p>
             ) : (
@@ -90,10 +96,10 @@ export default function ActiveUsersList({ groupId, userId, userName }) {
                     ))}
                 </ul>
             )}
-            
+
             <hr />
-            <button onClick={handleStart} style={{ marginRight: '10px' }}>내 공부 시작</button>
-            <button onClick={handleStop}>내 공부 종료</button>
+            {/* <button onClick={handleStart} style={{ marginRight: '10px' }}>내 공부 시작</button>
+            <button onClick={handleStop}>내 공부 종료</button> */}
         </div>
     )
 }

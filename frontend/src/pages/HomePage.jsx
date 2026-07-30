@@ -3,17 +3,22 @@ import Timer from "../features/home/components/Timer"
 import TodoList from "../features/home/components/TodoList"
 import HomeCalendar from "../features/home/components/HomeCalendar"
 import SubjectList from "../features/home/components/SubjectList"
+import { getMyInfo } from "../features/auth/api/auth"
 
 export default function HomePage() {
   const [selectedSubject, setSelectedSubject] = useState(null)
   const [subjects, setSubjects] = useState([])
   const [dailyRecords, setDailyRecords] = useState([])
 
+  const [userInfo, setUserInfo] = useState(null)
   const userToken = localStorage.getItem("token") 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userData = await getMyInfo()
+        setUserInfo(userData.user)
+
         const kstOffset = new Date().getTimezoneOffset() * 60000
         const todayKST = new Date(Date.now() - kstOffset).toISOString().split('T')[0]
 
@@ -98,7 +103,13 @@ export default function HomePage() {
     <div style={{ display: 'flex', gap: '20px', padding: '30px', height: '100%', boxSizing: 'border-box' }}>
       <div style={{ flex: 6.5, display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <Timer userName="나 아님" selectedSubject={selectedSubject} onSaveTime={handleSaveRecord} />
+          <Timer 
+            groupId={userInfo?.groupId}
+            userId={userInfo?._id}
+            userName={userInfo?.nickname}
+            selectedSubject={selectedSubject} 
+            onSaveTime={handleSaveRecord} 
+          />
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <TodoList />

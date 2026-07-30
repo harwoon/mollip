@@ -13,7 +13,7 @@ export default function GroupPage() {
         const fetchUserInfo = async () => {
             try {
                 const data = await getMyInfo()
-                setUserInfo(data)
+                setUserInfo(data.user)
             } catch (error) {
                 console.error("유저 정보 불러오기 실패:", error);
             } finally {
@@ -31,6 +31,8 @@ export default function GroupPage() {
     if (!userInfo) {
         return <div>유저 정보를 찾을 수 없습니다.</div>;
     }
+
+    console.log("닉네임",userInfo.nickname)
 
     return (
         <>
