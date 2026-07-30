@@ -60,8 +60,12 @@ export async function signupUser(userId, userPw, nickname, email) {
 
 // 아이디 중복 확인
 export async function checkIdUser(userId) {
-    const response = await fetch(`${API_URL}/auth/checkId`, {
-        method: "GET",
-        body: JSON.stringify({ userId })
+    const response = await fetch(`${API_URL}/auth/checkId?userId=${userId}`, {
+        method: "GET"
     })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message)
+
+    return data
 }
