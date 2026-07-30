@@ -68,11 +68,11 @@ io.on('connection', (socket) => {
     });
 
     // 공부 시작
-    socket.on('startStudy', async ({ groupId, userId, userName }) => {
+    socket.on('startStudy', async ({ groupId, userId, userName, profileImg }) => {
         const startTime = Date.now()
         try {
-            await redisClient.hset(`study:${groupId}`, userId, JSON.stringify({ userName, startTime }))
-            socket.to(groupId).emit('userStartedStudy', { userId, userName, startTime })
+            await redisClient.hset(`study:${groupId}`, userId, JSON.stringify({ userName, startTime, profileImg }))
+            socket.to(groupId).emit('userStartedStudy', { userId, userName, startTime, profileImg })
         } catch (error) {
             console.error("Redis 저장 실패:", error)
         }

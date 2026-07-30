@@ -8,9 +8,6 @@ const socket = io("http://localhost:3000", {
 
 
 export default function Timer({
-  groupId,
-  userId,
-  userName,
   selectedSubject = null,
   onSaveTime,
   userInfo,
@@ -23,6 +20,11 @@ export default function Timer({
 
   const expectedTimeRef = useRef(0)
   const startTimeRef = useRef(0)
+
+  const groupId = userInfo?.groupId
+  const userId = userInfo?._id
+  const userName = userInfo?.nickname
+  const profileImg = userInfo?.profileImg
 
   useEffect(() => {
     setTime(0)
@@ -112,8 +114,10 @@ export default function Timer({
     setActualStartTime(new Date())
 
     if (groupId && userId) {
-      socket.emit('startStudy', { groupId, userId, userName })
+      socket.emit('startStudy', { groupId, userId, userName, profileImg })
     }
+
+    console.log("프로필",profileImg)
   }
 
   const handleStop = async () => {

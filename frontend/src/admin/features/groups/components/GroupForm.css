@@ -1,0 +1,34 @@
+/* 컬러피커 */
+.colorField {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.colorFieldRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.colorSwatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    padding: 0;
+}
+
+.colorPickerPopover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    margin-top: 8px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
