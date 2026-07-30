@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import dayjs from "dayjs"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { getWeeklyTodoRecords } from "../api/weekly.js"
+import { getWeeklyTodoCompare  } from "../api/weekly.js"
 
 const WEEK_DAYS = ["월", "화", "수", "목", "금", "토", "일"]
 

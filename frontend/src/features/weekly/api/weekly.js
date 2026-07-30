@@ -75,3 +75,13 @@ export async function getGroupWeeklyStudyTime(date) {
     "그룹 주간 공부 시간을 불러오지 못했습니다.",
   )
 }
+
+// 주간 Todo 달성률 비교
+export async function getWeeklyTodoCompare(date) {
+  const params = new URLSearchParams({ date })
+
+  return getRequest(
+    `/statistics/todo-week?${params.toString()}`,
+    "주간 Todo 달성률을 불러오지 못했습니다."
+  )
+}
