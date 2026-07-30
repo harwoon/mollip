@@ -8,7 +8,7 @@ import "./Sidebar.css"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
-export default function Sidebar() {
+export default function Sidebar({ selectedSubject, time, isRunning }) {
   const activeStyle = ({ isActive }) => {
     return {
       textDecoration: "none",
@@ -72,6 +72,25 @@ export default function Sidebar() {
           마이페이지
         </NavLink>
 
+        {/* 타이머 UI 박스 */}
+        {selectedSubject && (
+            <div style={{
+                margin: "15px 0",
+                padding: "12px",
+                backgroundColor: "#f3e8ff",
+                borderRadius: "12px",
+                border: "1px solid #d8b4fe",
+                textAlign: "center"
+            }}>
+                <div style={{ fontSize: "0.85rem", color: "#6b21a8", fontWeight: "bold", marginBottom: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    🔥 {selectedSubject.subjectName} 공부 중
+                </div>
+                <div style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#7e22ce", letterSpacing: "1px" }}>
+                    {formatMiniTime(time)}
+                </div>
+            </div>
+        )}
+
       </nav>
 
       <SidebarStudyStreak />
@@ -80,4 +99,11 @@ export default function Sidebar() {
 
     </aside >
   )
+}
+
+const formatMiniTime = (currentTime) => {
+    const hours = Math.floor(currentTime / 360000)
+    const minutes = Math.floor((currentTime % 360000) / 6000)
+    const seconds = Math.floor((currentTime % 6000) / 100)
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }

@@ -1,3 +1,4 @@
+import { useOutletContext } from "react-router-dom"
 import React, { useState, useEffect } from "react"
 import Timer from "../features/home/components/Timer"
 import TodoList from "../features/home/components/TodoList"
@@ -6,7 +7,7 @@ import SubjectList from "../features/home/components/SubjectList"
 import { getMyInfo } from "../features/auth/api/auth"
 
 export default function HomePage() {
-  const [selectedSubject, setSelectedSubject] = useState(null)
+  const {selectedSubject, setSelectedSubject, time, setTime, isRunning, setIsRunning, actualStartTime, setActualStartTime} = useOutletContext()
   const [subjects, setSubjects] = useState([])
   const [dailyRecords, setDailyRecords] = useState([])
 
@@ -111,6 +112,12 @@ export default function HomePage() {
             onSaveTime={handleSaveRecord}
             userInfo={userInfo}
             dailyRecords={dailyRecords}
+            time={time}
+            setTime={setTime}
+            isRunning={isRunning}
+            setIsRunning={setIsRunning}
+            actualStartTime={actualStartTime}
+            setActualStartTime={setActualStartTime}
           />
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

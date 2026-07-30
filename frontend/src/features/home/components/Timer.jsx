@@ -6,40 +6,20 @@ export default function Timer({
   selectedSubject = null, 
   onSaveTime,
   userInfo,
-  dailyRecords
+  dailyRecords,
+  time,
+  setTime,
+  isRunning,
+  setIsRunning,
+  actualStartTime,
+  setActualStartTime
 }) {
-  const [time, setTime] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
+
   const [lastSavedTime, setLastSavedTime] = useState(0)
-  const [actualStartTime, setActualStartTime] = useState(null)
-
-  const expectedTimeRef = useRef(0)
-  const startTimeRef = useRef(0)
 
   useEffect(() => {
-    setTime(0)
     setLastSavedTime(0)
-    setIsRunning(false)
-    setActualStartTime(null)
-    expectedTimeRef.current = 0
   }, [selectedSubject])
-
-  useEffect(() => {
-    let interval
-    if (isRunning) {
-      startTimeRef.current = Date.now()
-      expectedTimeRef.current = time 
-
-      interval = setInterval(() => {
-        const diffMs = Date.now() - startTimeRef.current
-        const ticks = Math.floor(diffMs / 10)
-        setTime(expectedTimeRef.current + ticks)
-      }, 10)
-    } else {
-      clearInterval(interval)
-    }
-    return () => clearInterval(interval)
-  }, [isRunning])
 
   const formatTime = (currentTime) => {
     const hours = Math.floor(currentTime / 360000)
