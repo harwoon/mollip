@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import styles from './Timer.module.css'
+import { io } from 'socket.io-client'
 
-export default function Timer({ userName, selectedSubject = null, onSaveTime }) {
+const socket = io("http://localhost:3000", {
+  autoConnect: true 
+})
+
+export default function Timer({ groupId, userId, userName, selectedSubject = null, onSaveTime }) {
   const [time, setTime] = useState(0)
   const [isRunning, setIsRunning] = useState(false)
   const [lastSavedTime, setLastSavedTime] = useState(0)
@@ -55,6 +60,10 @@ export default function Timer({ userName, selectedSubject = null, onSaveTime }) 
     }
     setIsRunning(true)
     setActualStartTime(new Date())
+
+    if (groupId && userId) {
+      socket.emit('startStudy', { groupId, userId, userName })
+    }
   }
 
   // 정지 및 저장 버튼
@@ -66,6 +75,10 @@ export default function Timer({ userName, selectedSubject = null, onSaveTime }) 
 
     const currentSeconds = Math.floor(time / 100)
     const timeToSave = currentSeconds - lastSavedTime
+
+    if (groupId && userId) {
+      socket.emit('stopStudy', { groupId, userId })
+    }
 
     if (timeToSave > 0) {
       const isSuccess = await onSaveTime(timeToSave, actualStartTime, actualEndTime)
