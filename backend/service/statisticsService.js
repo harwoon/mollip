@@ -343,11 +343,11 @@ export async function getWeeklyTodoAchievement() {
         (completedCount / totalCount * 100).toFixed(1)  // 소수점 첫째자리까지 표현
     )
 
-    return(
+    return {
         startDate,
         endDate,
         totalCount,
         completedCount,
         achievementRate
-    )
+    }
 }

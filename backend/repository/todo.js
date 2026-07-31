@@ -272,3 +272,64 @@ export async function findWeeklyTodoSummaryByUser(
     }
   );
 }
+
+
+// 전체 사용자의 주간 Todo 달성 현황 조회
+export async function getWeeklyAchievementByUsers(
+  startDate,
+  endDate,
+) {
+  return TodoList.aggregate([
+    // 이번 주 TodoList만 조회
+    {
+      $match: {
+        todoDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      },
+    },
+
+    // TodoList 문서별 전체 Todo 및 완료 Todo 개수 계산
+    {
+      $project: {
+        user: 1,
+
+        totalCount: {
+          $size: {
+            $ifNull: ["$todo", []],
+          },
+        },
+
+        completedCount: {
+          $size: {
+            $filter: {
+              input: {
+                $ifNull: ["$todo", []],
+              },
+              as: "todoItem",
+              cond: {
+                $eq: ["$$todoItem.state", true],
+              },
+            },
+          },
+        },
+      },
+    },
+
+    // 사용자별 주간 Todo 개수 합산
+    {
+      $group: {
+        _id: "$user",
+
+        totalCount: {
+          $sum: "$totalCount",
+        },
+
+        completedCount: {
+          $sum: "$completedCount",
+        },
+      },
+    },
+  ]);
+}
