@@ -82,8 +82,7 @@ export default function HitCalendar({
             const dateKey =
                 dayjs(studyDate).format("YYYY-MM-DD")
 
-            // 분 단위 값(1시간 30분 = 90)
-            const studyMinutes = Number(
+            const studySeconds = Number(
                 record.sumStudyTime
                 ?? record.totalStudyTime
                 ?? record.studyTime
@@ -91,19 +90,19 @@ export default function HitCalendar({
             )
 
             // 숫자가 아닌 값이면 제외
-            if(Number.isNaN(studyMinutes)){
+            if(Number.isNaN(studySeconds)){
                 return result
             }
 
-            // 같은 날짜에 여러 기록 있으면 합산
+            // 같은 날짜에 여러 기록 있으면 '초' 단위로 모두 합산
             result[dateKey] =
-                (result[dateKey] ?? 0) + studyMinutes
+                (result[dateKey] ?? 0) + studySeconds
 
             return result
         }, {})
     }, [studyRecords])
 
-    // 하루 총 공부시간 색상 단계
+    // 하루 총 공부시간 색상 단계 (minutes 기준)
     function getHeatClass(minutes) {
         if (minutes <= 0) {
             return "heat-level-0"
@@ -159,9 +158,11 @@ export default function HitCalendar({
         const dateKey =
             dayjs(date).format("YYYY-MM-DD")
 
-        // 해당 날짜의 총 공부시간
-        const studyMinutes =
+        // 해당 날짜의 총 공부시간(초)
+        const studySeconds =
             studyTimeByDate[dateKey] ?? 0
+
+        const studyMinutes = Math.floor(studySeconds / 60)
 
         return getHeatClass(studyMinutes)
     }
@@ -175,8 +176,11 @@ export default function HitCalendar({
         const dateKey =
             dayjs(date).format("YYYY-MM-DD")
 
-        const studyMinutes =
+        // 해당 날짜의 총 공부시간(초)
+        const studySeconds =
             studyTimeByDate[dateKey] ?? 0
+
+        const studyMinutes = Math.floor(studySeconds / 60)
 
         return (
             <span
