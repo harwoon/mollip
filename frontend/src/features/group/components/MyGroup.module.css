@@ -1,0 +1,174 @@
+.container {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-5);
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-surface);
+    overflow: hidden;
+}
+
+.header {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.headerLeft {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.iconBox {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-surface);
+    background: var(--color-primary-600);
+    border-radius: 50%;
+}
+
+.iconBox svg {
+    width: 20px;
+    height: 20px;
+}
+
+.groupInfo {
+    min-width: 0;
+}
+
+.label {
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.groupName {
+    margin-top: var(--space-1);
+
+    color: var(--color-text);
+    font-size: var(--font-lg);
+    font-weight: 700;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.groupTime {
+    flex: 0 0 auto;
+
+    color: var(--color-primary-600);
+    font-size: var(--font-xl);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.studyArea {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-3);
+}
+
+.weekStudyTime {
+    color: var(--color-text);
+    font-size: var(--font-2xl);
+    font-weight: 800;
+}
+
+.compareBadge {
+    min-height: 30px;
+    padding: 0 var(--space-3);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    font-weight: 700;
+
+    background: var(--color-primary-100);
+    border-radius: 999px;
+}
+
+.progressBox {
+    flex: 0 0 auto;
+    padding: var(--space-4);
+
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.progressTitle {
+    color: var(--color-text);
+    font-size: var(--font-sm);
+}
+
+.remainTime {
+    color: var(--color-primary-600);
+    font-size: var(--font-lg);
+    font-weight: 800;
+}
+
+.progressMessage {
+    margin-top: var(--space-1);
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+}
+
+.progressArea {
+    margin-top: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.progressTrack {
+    flex: 1 1 auto;
+    height: 6px;
+
+    overflow: hidden;
+
+    background: var(--color-primary-100);
+    border-radius: 999px;
+}
+
+.progressValue {
+    height: 100%;
+
+    background: var(--color-primary-600);
+    border-radius: inherit;
+
+    transition: width 0.3s ease;
+}
+
+.progressPercent {
+    flex: 0 0 auto;
+
+    color: var(--color-primary-600);
+    font-size: var(--font-xs);
+    font-weight: 700;
+}

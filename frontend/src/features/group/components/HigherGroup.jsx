@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import {getHigher, getWeekStudyTime} from "../api/group"
 
-import "./group_card.css"
+import { FiTrendingUp } from "react-icons/fi"
+import styles from "./HigherGroup.module.css"
 
 export default function HigherGroup() {
     const [groupName, setGroupName] = useState("")
@@ -65,83 +66,54 @@ export default function HigherGroup() {
     }
 
     return (
-        <div className="groupCard">
+        <section className={`commonSection ${styles.container}`}>
+            <header className={styles.header}>
+                <div className={styles.headerLeft}>
+                    <span className={styles.iconBox}>
+                        <FiTrendingUp aria-hidden="true" />
+                    </span>
 
-            <div className="groupCardHeader">
+                    <div className={styles.groupInfo}>
+                        <p className={styles.label}>상위 그룹</p>
 
-                <div className="groupCardLeft">
-
-                    <div className="groupCardIcon">
-                        <span>▲</span>
-                    </div>
-
-                    <div className="groupCardInfo">
-
-                        <p className="groupCardLabel">
-                            상위 그룹
-                        </p>
-
-                        <h4 className="groupCardName">
+                        <h2 className={styles.groupName}>
                             {groupName}
-                        </h4>
-
+                        </h2>
                     </div>
-
                 </div>
 
-                <strong
-                    className="groupCardTime"
-                    style={{ color: "#9ADAB8" }}
-                >
+                <strong className={styles.groupTime}>
                     {formatStudyTime(groupTime)}
                 </strong>
+            </header>
 
-            </div>
-
-            <div className="groupProgressBox">
-
-                <p className="groupProgressTitle">
-
-                    <span
-                        className="groupRemainTime"
-                        style={{ color: "#9ADAB8" }}
-                    >
+            <div className={styles.messageArea}>
+                <p className={styles.progressTitle}>
+                    <strong className={styles.remainTime}>
                         {formatStudyTime(remainTime)}
-                    </span>
-
+                    </strong>
                     {" "}더 공부하면
-
                 </p>
 
-                <p className="groupProgressMessage">
+                <p className={styles.progressMessage}>
                     상위 그룹으로 올라갈 수 있어요!
                 </p>
-{/* 
-                <div className="groupProgressArea">
 
-                    <div className="groupProgressBar">
-
+                <div className={styles.progressArea}>
+                    <div className={styles.progressTrack}>
                         <div
-                            className="groupProgressValue"
+                            className={styles.progressValue}
                             style={{
-                                width: `${progress}%`,
-                                backgroundColor: "#9ADAB8"
+                                width: `${progress}%`
                             }}
                         />
-
                     </div>
 
-                    <span
-                        className="groupProgressPercent"
-                        style={{ color: "#7652C8" }}
-                    >
+                    <span className={styles.progressPercent}>
                         {progress}%
                     </span>
-
-                </div> */}
-
+                </div>
             </div>
-
-        </div>
+        </section>
     )
 }

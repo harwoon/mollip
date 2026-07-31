@@ -1,3 +1,5 @@
+import styles from "./GroupGoalItem.module.css";
+
 const GOAL_LABELS = {
   MIN_STUDY_TIME: "주간 최소 공부시간",
   CHALLENGE_STUDY_TIME: "주간 도전 공부시간",
@@ -53,28 +55,32 @@ export default function GroupGoalItem({ goal }) {
   const { currentValue, targetValue, unit, achievementRate, completed } = goal;
 
   return (
-    <div className="groupGoalItem">
-      <div className="groupGoalItemTop">
-        <div className="groupGoalTitleArea">
+    <div className={styles.item}>
+      <div className={styles.itemTop}>
+        <div className={styles.titleArea}>
           <span
-            className={completed ? "goalCheckbox completed" : "goalCheckbox"}
+            className={
+              completed
+                ? `${styles.checkbox} ${styles.completed}`
+                : styles.checkbox
+            }
           >
             {completed ? "✓" : ""}
           </span>
 
-          <span className="groupGoalTitle">{getGoalTitle(goal)}</span>
+          <span className={styles.title}>{getGoalTitle(goal)}</span>
         </div>
 
-        <span className="groupGoalValue">
+        <span className={styles.value}>
           {formatGoalValue(currentValue, unit)}
           {" / "}
           {formatGoalValue(targetValue, unit)}
         </span>
       </div>
 
-      <div className="groupGoalProgressTrack">
+      <div className={styles.progressTrack}>
         <div
-          className="groupGoalProgressBar"
+          className={styles.progressBar}
           style={{
             width: `${achievementRate}%`,
           }}

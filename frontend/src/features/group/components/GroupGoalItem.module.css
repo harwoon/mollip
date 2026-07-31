@@ -1,0 +1,87 @@
+.item {
+    padding: var(--space-3) 0;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.item:last-child {
+    border-bottom: 0;
+}
+
+.itemTop {
+    margin-bottom: var(--space-2);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.titleArea {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.checkbox {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-surface);
+    font-size: var(--font-xs);
+    font-weight: 700;
+
+    background: var(--color-surface);
+    border: 1px solid var(--group-color);
+    border-radius: var(--space-1);
+}
+
+.completed {
+    background: var(--group-color);
+}
+
+.title {
+    min-width: 0;
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.value {
+    flex: 0 0 auto;
+
+    color: var(--group-color);
+    font-size: var(--font-xs);
+    font-weight: 600;
+}
+
+.progressTrack {
+    height: 5px;
+    margin-left: 32px;
+
+    overflow: hidden;
+
+    background: var(--color-primary-100);
+    border-radius: 999px;
+}
+
+.progressBar {
+    height: 100%;
+
+    background: var(--group-color);
+    border-radius: inherit;
+
+    transition: width 0.3s ease;
+}

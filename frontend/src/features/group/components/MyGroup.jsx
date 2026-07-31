@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { getMyGroup, getHigher, getWeekStudyTime } from "../api/group"
 
-import "./group_card.css"
+import { FiUser } from "react-icons/fi"
+import styles from "./MyGroup.module.css"
 
 export default function MyGroup() {
     const [groupName, setGroupName] = useState("")
@@ -73,82 +74,62 @@ export default function MyGroup() {
     }
 
     return (
-        <div className="groupCard">
+        <section className={`commonSection ${styles.container}`}>
+            <header className={styles.header}>
+                <div className={styles.headerLeft}>
+                    <span className={styles.iconBox}>
+                        <FiUser aria-hidden="true" />
+                    </span>
 
-            {/* 상단 */}
-            <div className="groupCardHeader">
-                <div className="groupCardLeft">
-                    <div className="groupCardIcon">
-                        <span>●</span>
+                    <div className={styles.groupInfo}>
+                        <p className={styles.label}>내 그룹</p>
+
+                        <h2 className={styles.groupName}>
+                            {groupName ||
+                                "그룹명 로딩 중..."}
+                        </h2>
                     </div>
-
-                    <div className="groupCardInfo">
-
-                        <p className="groupCardLabel">
-                            내 그룹
-                        </p>
-
-                        <h4 className="groupCardName">
-                            {groupName || "그룹명 로딩 중..."}
-                        </h4>
-
-                    </div>
-
                 </div>
-                <strong className="groupConditionTime">
+
+                <strong className={styles.groupTime}>
                     {formatStudyTime(groupTime)}
                 </strong>
+            </header>
 
-            </div>
+            <div className={styles.studyArea}>
+                <strong className={styles.weekStudyTime}>
+                    {formatStudyTime(weekStudyTime)}
+                </strong>
 
-            {/* 공부시간 */}
-            <div className="groupStudyArea">
-                <div className="groupCompareBadge">
-                    <span>지난주보다 3시간</span>
-                    <span className="groupCompareArrow">▲</span>
+                <div className={styles.compareBadge}>
+                    지난주보다 3시간
+                    <span aria-hidden="true">▲</span>
                 </div>
             </div>
 
-            {/* 진행률 */}
-            <div className="groupProgressBox">
-
-                <p className="groupProgressTitle">
-                    <span
-                        className="groupRemainTime"
-                        style={{ color: "#7652C8" }}
-                    >
+            <div className={styles.progressBox}>
+                <p className={styles.progressTitle}>
+                    <strong className={styles.remainTime}>
                         {formatStudyTime(remainTime)}
-                    </span>
+                    </strong>
                     {" "}더 공부하면
                 </p>
 
-                <p className="groupProgressMessage">
-                    상위 그룹으로 올라갈 수 있어요!
-                </p>
+                <p className={styles.progressMessage}>상위 그룹으로 올라갈 수 있어요!</p>
 
-                <div className="groupProgressArea">
-
-                    <div className="groupProgressBar">
+                <div className={styles.progressArea}>
+                    <div className={styles.progressTrack}>
                         <div
-                            className="groupProgressValue"
-                            style={{
-                                width: `${progress}%`,
-                                backgroundColor: "#7652C8"
-                            }}
+                            className={styles.progressValue}
+                            style={{width: `${progress}%`}}
                         />
                     </div>
 
-                    <span
-                        className="groupProgressPercent"
-                        style={{ color: "#7652C8" }}
-                    >
+                    <span className={styles.progressPercent}>
                         {progress}%
                     </span>
-
                 </div>
-
             </div>
-
-        </div>
+        </section>
     )
 }

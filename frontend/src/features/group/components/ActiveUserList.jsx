@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 
+import { FiClock, FiUsers } from "react-icons/fi"
+import styles from "./ActiveUserList.module.css"
+
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 const socket = io("http://127.0.0.1:3000", {
@@ -27,7 +30,12 @@ const StudyTimer = ({ startTime }) => {
         return () => clearInterval(interval)
     }, [startTime])
 
-    return <span style={{ fontWeight: 'bold', color: '#8a6bc7' }}>{timeText}</span>
+    return (
+        <span className={styles.studyTimer}>
+            <FiClock aria-hidden="true" />
+            {timeText}
+        </span>
+    )
 }
 
 export default function ActiveUsersList({ groupId, userId, userName, profileImg }) {
@@ -74,32 +82,52 @@ export default function ActiveUsersList({ groupId, userId, userName, profileImg 
 
 
     return (
-        <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '10px' }}>
-            <h3>실시간 접속자</h3>
+        <section className={`commonSection ${styles.container}`}>
+            <header className={styles.header}>
+                <div className={styles.titleArea}>
+                    <FiUsers aria-hidden="true" />
+                    <h2 className={styles.title}>접속자</h2>
+                </div>
+
+                <span className={styles.userCount}>
+                    {activeUsers.length}명 공부 중
+                </span>
+            </header>
 
             {activeUsers.length === 0 ? (
-                <p>현재 공부 중인 멤버가 없습니다.</p>
+                <div className={styles.emptyState}>현재 공부 중인 멤버가 없습니다.</div>
             ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <ul className={styles.userList}>
                     {activeUsers.map((user) => (
-                        <li key={user.userId} style={{ marginBottom: '10px' }}>
+                        <li
+                            key={user.userId}
+                            className={styles.userItem}
+                        >
                             <img
-                                src={user.profileImg
-                                    ? `${API_URL}${user.profileImg}`
-                                    : "/images/default-profile.png"}
+                                className={styles.profileImage}
+                                src={
+                                    user.profileImg
+                                        ? `${API_URL}${user.profileImg}`
+                                        : "/images/noprofile.png"
+                                }
+                                alt={`${user.userName} 프로필`}
                                 onError={(event) => {
-                                    // 이미지 파일을 불러오지 못하면 기본 이미지 표시
-                                    event.currentTarget.src = "/images/noprofile.png"
+                                    event.currentTarget.src =
+                                        "/images/noprofile.png"
                                 }}
                             />
-                            <span > {user.userName}</span>
-                            <StudyTimer startTime={user.startTime} />
+
+                            <span className={styles.userName}>
+                                {user.userName}
+                            </span>
+
+                            <StudyTimer
+                                startTime={user.startTime}
+                            />
                         </li>
                     ))}
                 </ul>
             )}
-
-            <hr />
-        </div>
+        </section>
     )
 }

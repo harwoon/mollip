@@ -61,6 +61,46 @@
     --color-tooltip: #2d2932;
     --record-summary-min-height: 150px;
     --record-detail-min-height: 430px;
+
+
+    /* 공통 차트 컬러 */
+    --chart-primary: #7653b8;
+    --chart-primary-soft: #baa3dd;
+    --chart-primary-light: #eee6fb;
+
+    --chart-secondary: #d9a7d2;
+    --chart-secondary-soft: #efd3eb;
+
+    --chart-success: #87cdb1;
+    --chart-warning: #f2c992;
+    --chart-danger: #ef9a9f;
+
+    --chart-grid: #dddddd;
+    --chart-axis: #888888;
+    --chart-axis-strong: #555555;
+    --chart-cursor: #f4f0fa;
+    --chart-reference-line: #bbbbbb;
+
+    /* 파이·막대그래프 기본 팔레트 */
+    --chart-color-1: #9f83ce;
+    --chart-color-2: #e7bedf;
+    --chart-color-3: #f5d2aa;
+    --chart-color-4: #afe7d3;
+    --chart-color-5: #c9ddfa;
+
+
+    /* 공통 차트 폰트 크기*/
+    --chart-font-xs: 10px;
+    --chart-font-sm: 11px;
+    --chart-font-md: 12px;
+    --chart-font-lg: 13px;
+
+
+    /* 공통 차트 크기 */
+    --chart-line-width: 2;
+    --chart-dot-radius: 5;
+    --chart-bar-size: 24;
+    --chart-bar-radius: 4;
 }
 
 @font-face {

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { getMyGroupGoals } from "../api/groupGoal";
 import GroupGoalItem from "./GroupGoalItem";
-import "./GroupGoalCard.css";
+
+import styles from "./GroupGoalCard.module.css";
 
 /*
  * 달성률 계산
@@ -166,7 +167,7 @@ export default function GroupGoalCard() {
 
   if (loading) {
     return (
-      <section className="groupGoalCard groupGoalState">
+      <section className={`commonSection ${styles.state}`}>
         그룹 목표를 불러오는 중입니다.
       </section>
     );
@@ -174,60 +175,64 @@ export default function GroupGoalCard() {
 
   if (error) {
     return (
-      <section className="groupGoalCard groupGoalState error">{error}</section>
+      <section className={`commonSection ${styles.state} ${styles.error}`}>
+        {error}
+      </section>
     );
   }
 
   if (!groupGoalData?.group) {
     return (
-      <section className="groupGoalCard groupGoalState">
+      <section className={`commonSection ${styles.state}`}>
         현재 배정된 그룹이 없습니다.
       </section>
     );
   }
 
-  const groupColor = groupGoalData.group.groupColor || "#8064C6";
+  const groupColor = groupGoalData.group.groupColor || "var(--color-primary-700)";
 
   return (
     <section
-      className="groupGoalCard"
+      className={`commonSection ${styles.container}`}
       style={{
         "--group-color": groupColor,
       }}
     >
-      <header className="groupGoalHeader">
-        <div className="groupGoalIcon">◎</div>
+      <header className={styles.header}>
+        <div className={styles.iconBox}>◎</div>
 
         <div>
-          <h2>그룹별 목표</h2>
+          <h2 className={styles.title}>그룹별 목표</h2>
 
-          <p>{groupGoalData.group.groupName}의 이번 주 목표</p>
+          <p className={styles.description}>
+            {groupGoalData.group.groupName}의 이번 주 목표
+          </p>
         </div>
       </header>
 
-      <div className="groupGoalContent">
-        <div className="groupGoalList">
+      <div className={styles.content}>
+        <div className={styles.goalList}>
           {calculatedGoals.map((goal) => (
             <GroupGoalItem key={goal.goalType} goal={goal} />
           ))}
         </div>
 
-        <div className="groupGoalSummary">
+        <div className={styles.summary}>
           <div
-            className="achievementCircle"
+            className={styles.achievementCircle}
             style={{
               "--achievement-rate": `${totalAchievementRate * 3.6}deg`,
             }}
           >
-            <div className="achievementCircleInner">
+            <div className={styles.circleInner}>
               <span>전체 달성률</span>
 
               <strong>{totalAchievementRate}%</strong>
             </div>
           </div>
 
-          <div className="remainingTimeBox">
-            <span className="remainingTimeIcon">◷</span>
+          <div className={styles.remainingTimeBox}>
+            <span className={styles.remainingTimeIcon}>◷</span>
 
             <div>
               <span>남은 시간</span>
