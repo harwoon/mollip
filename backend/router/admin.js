@@ -57,4 +57,9 @@ router.get("/group-todo-achievement", adminController.getGroupTodoAchievement)
 // http://127.0.0.1:3000/admin/log
 router.get("/log",adminController.getLog)
 
+// 유저 상세 조회
+// =================================================
+// http://127.0.0.1:3000/admin/user/totalStudy?type=daily&userId=6a670d0cc8a40c958ee09962&start=2026-07-20&end=2026-07-30
+router.get("/user/totalStudy",adminController.getTotalStudy)
+
 export default router

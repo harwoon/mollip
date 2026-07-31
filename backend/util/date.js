@@ -42,3 +42,56 @@ export function getYesterday(dateString) {
 }
 
 
+// 날짜 문자열 로컬시간기준 Date 객체 변환
+export function parseDate(dateString) {
+    const [year, month, day] = dateString
+        .split("-")
+        .map(Number)
+
+        return new Date(year, month - 1, day)
+}
+
+// 시작일 ~ 종료일 일수 계산 (시작일, 종료일 포함)
+export function getInclusiveDayCount(startDate, endDate){
+    const start = parseDate(startDate)
+    const end = parseDate(endDate)
+
+    // 하루를 밀리초(ms) 단위로 바꿈
+    const millisecondsPerDay = 1000 * 60 * 60 * 24
+
+    return(
+        Math.floor((end - start) / millisecondsPerDay)+1
+    )
+}
+
+// 날짜에 원하는 일수 더하기
+export function addDays(dateString, days){
+    const date = parseDate(dateString)
+
+    date.setDate(
+        date.getDate() + days
+    )
+
+    return formatDate(date)
+}
+
+// 현재 조회 기간과 동일한 길이의 이전 기간 계산
+export function getPreviousPeriod(startDate, endDate){
+    const periodDays = getInclusiveDayCount(
+        startDate, endDate
+    )
+
+    // 이전 기간 종료일, 현재 시작일 바로 전 날
+    const previousEndDate = addDays(startDate, -1)
+
+    // 기간이 11일이라면 종료일에서 10일 이전
+    const previousStartDate = addDays(
+        previousEndDate,
+        -(periodDays - 1)
+    )
+
+    return{
+        startDate: previousStartDate,
+        endDate: previousEndDate,
+    }
+}
