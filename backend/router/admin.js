@@ -40,4 +40,7 @@ router.post("/groups", groupController.addGroup)
 // http://127.0.0.1:3000/admin/groups/:id
 router.patch("/groups/:id", groupController.updateGroup)
 
+// http://127.0.0.1:3000/admin/group-todo-achievement?date=2026-07-30
+router.get("/group-todo-achievement", adminController.getGroupTodoAchievement)
+
 export default router

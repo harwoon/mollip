@@ -1,4 +1,5 @@
 import User from "../models/User.js"
+import Group from "../models/Group.js"
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 export async function countAllUsers() {
@@ -48,4 +49,21 @@ export async function countUsers({ search, role, groupId }) {
 // 회원 상세 목록 조회
 export async function findUserDetail(id) {
     return User.findById(id).select("-userPw")
+}
+
+
+// 관리자 그룹별 Todo 통계용 사용자 조회
+export async function getAllUsersWithGroup() {
+    return User.find({
+        role: "user"
+    })
+        .select("_id groupId")
+        .lean()
+}
+
+// 관리자 그룹별 Todo 통계용 전체 그룹 조회
+export async function findAllGroups() {
+    return Group.find()
+        .select("_id groupName groupColor")
+        .lean()
 }
