@@ -31,6 +31,17 @@ export default function Timer({
   const userId = userInfo?._id
   const userName = userInfo?.nickname
   const profileImg = userInfo?.profileImg
+  const prevUserIdRef = useRef(userId)
+
+  useEffect(() => {
+    if (prevUserIdRef.current !== userId) {
+      setTime(0)
+      setIsRunning(false)
+      setTimerStatus('IDLE')
+      setLastSavedTime(0)
+      prevUserIdRef.current = userId
+    }
+  }, [userId, setTime, setIsRunning])
 
   useEffect(() => {
     const currentName = selectedSubject?.subjectName || selectedSubject
