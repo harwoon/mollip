@@ -16,10 +16,15 @@ export async function findUsers({ search, groupId, sortBy, sortOrder, skip, limi
     // 아래에서 조건이 있을 때만 하나씩 채워 넣음
     if(search) {
         const regex = new RegExp(search, 'i')
+
+        // 검색어와 이름이 일치하는 그룹들의 ID 조회 (소속 그룹 검색용)
+        const matchedGroups = await Group.find({ groupName: regex }).select("_id")
+        const matchedGroupIds = matchedGroups.map(g => g._id.toString())
+
+        // 닉네임에 일치하거나, 소속 그룹명이 일치하는 유저
         query.$or = [
-            { userId: regex },
             { nickname: regex },
-            { email: regex}
+            { groupId: { $in: matchedGroupIds } }
         ]
     }
     if(groupId) query.groupId = groupId
@@ -32,15 +37,18 @@ export async function findUsers({ search, groupId, sortBy, sortOrder, skip, limi
 }
 
 // 회원 목록 개수
-export async function countUsers({ search, role, groupId }) {
+export async function countUsers({ search, groupId }) {
     const query = { role: 'user' }
     
     if(search) {
         const regex = new RegExp(search, "i")
+
+        const matchedGroups = await Group.find({ groupName: regex }).select("_id")
+        const matchedGroupIds = matchedGroups.map(g => g._id.toString())
+
         query.$or = [
-            { userId: regex },
             { nickname: regex },
-            { email: regex}
+            { groupId: { $in: matchedGroupIds } }
         ]
     }
     if (groupId) query.groupId = groupId
