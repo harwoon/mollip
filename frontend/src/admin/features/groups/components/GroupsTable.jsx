@@ -71,7 +71,7 @@ export default function GroupsTable({
                   </div>
                 </td>
 
-                <td>{group.groupTime}시간</td>
+                <td>{group.groupTime / 3600 }시간</td>
 
                 <td>{memberCount}명</td>
 
