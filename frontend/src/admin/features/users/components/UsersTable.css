@@ -5,3 +5,7 @@
     object-fit: cover;
     background-color: #e0e0e0;
 }
+
+.statusStudying { color: #22c55e; font-size: 13px; }
+
+.statusResting { color: #f87171; font-size: 13px; }

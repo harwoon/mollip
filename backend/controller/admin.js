@@ -166,3 +166,19 @@ export async function getWeeklyTodoAchievement(req, res) {
         return res.status(500).json({message: "이번주 전체 Todo 달성률을 불러오지 못했습니다."})
     }
 }
+
+// 현재 공부 중인 전체 유저 ID 목록 조회
+export async function getActiveUsers(req, res) {
+    try {
+        const activeUserIds = await adminRepository.getActiveUserIds()
+        return res.status(200).json({
+            message: "현재 공부 중인 유저 목록을 성공적으로 불러왔습니다.",
+            activeUserIds
+        })
+    } catch (error) {
+        console.error("활성 유저 조회 오류:", error)
+        return res.status(500).json({
+            message: "활성 유저 조회 중 오류가 발생했습니다."
+        })
+    }
+}

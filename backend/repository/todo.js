@@ -272,3 +272,36 @@ export async function findWeeklyTodoSummaryByUser(
     }
   );
 }
+
+// 관리자 - 전체 유저의 주간 Todo 달성 현황 합계
+export async function getWeeklyAchievementByUsers(startDate, endDate) {
+    return TodoList.aggregate([
+        {
+            $match: {
+                todoDate: { $gte: startDate, $lte: endDate }
+            }
+        },
+        {
+            $project: {
+                user: 1,
+                totalCount: { $size: "$todo" },
+                completedCount: {
+                    $size: {
+                        $filter: {
+                            input: "$todo",
+                            as: "t",
+                            cond: { $eq: ["$$t.state", true] }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: "$user",
+                totalCount: { $sum: "$totalCount" },
+                completedCount: { $sum: "$completedCount" }
+            }
+        }
+    ])
+}

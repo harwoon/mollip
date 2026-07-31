@@ -16,6 +16,9 @@ router.get("/users/count", adminController.getUserCount)
 // http://127.0.0.1:3000/admin/users
 router.get("/users", adminController.getUsers)
 
+// http://127.0.0.1:3000/users/active
+router.get("/users/active", adminController.getActiveUsers)
+
 // http://127.0.0.1:3000/admin/users/:id
 router.get("/users/:id", adminController.getUserDetail)
 

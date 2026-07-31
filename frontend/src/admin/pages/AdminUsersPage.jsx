@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react"
+import { io } from "socket.io-client"
 import Topbar from "../components/AdminTopbar.jsx"
 import UsersTable from "../features/users/components/UsersTable.jsx"
-import { getUsers } from "../features/users/api/user.js"
+import { getUsers, getActiveUsers } from "../features/users/api/user.js"
+
+const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState([])
@@ -10,6 +13,7 @@ export default function AdminUsersPage() {
     const [search, setSearch] = useState("")
     const [sortOrder, setSortOrder] = useState("desc")
     const [page, setPage] = useState(1)
+    const [activeUserIds, setActiveUserIds] = useState(new Set())
 
     async function fetchUsers() {
         try {
@@ -25,8 +29,43 @@ export default function AdminUsersPage() {
         fetchUsers()
     }, [search, sortOrder, page])
 
+    // 소켓 연결: 실시간 상태(공부중/휴식중) 반영
+    useEffect(() => {
+        async function initActiveUsers() {
+            try {
+                const data = await getActiveUsers()
+                setActiveUserIds(new Set(data.activeUserIds))
+            } catch (err) {
+                console.error("활성 유저 초기 조회 실패:", err.message)
+            }
+        }
+
+        initActiveUsers()
+
+        socket.connect()
+        socket.emit("joinAdminRoom")
+
+        socket.on("adminUserStarted", ({ userId }) => {
+            setActiveUserIds(prev => new Set(prev).add(userId))
+        })
+
+        socket.on("adminUserStopped", ({ userId }) => {
+            setActiveUserIds(prev => {
+                const next = new Set(prev)
+                next.delete(userId)
+                return next
+            })
+        })
+
+        return () => {
+            socket.off("adminUserStarted")
+            socket.off("adminUserStopped")
+            socket.disconnect()
+        }
+    }, [])
+
     function handleSearchChange(e) {
-        setPage(1)              // 검색어 바뀌면 1페이지로 초기화
+        setPage(1)
         setSearch(e.target.value)
     }
 
@@ -54,22 +93,12 @@ export default function AdminUsersPage() {
             </Topbar>
 
             <div className="usersLayout">
-                <UsersTable users={users} />
+                <UsersTable users={users} activeUserIds={activeUserIds} />
 
                 <div className="usersPagination">
-                    <button
-                        disabled={page <= 1}
-                        onClick={() => setPage(p => p - 1)}
-                    >
-                        이전
-                    </button>
+                    <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>이전</button>
                     <span>{pagination.page} / {pagination.totalPages || 1}</span>
-                    <button
-                        disabled={page >= pagination.totalPages}
-                        onClick={() => setPage(p => p + 1)}
-                    >
-                        다음
-                    </button>
+                    <button disabled={page >= pagination.totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
                 </div>
             </div>
         </div>
