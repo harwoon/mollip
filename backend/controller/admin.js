@@ -2,6 +2,7 @@ import * as adminRepository from "../repository/admin.js"
 import * as studyRepository from "../repository/study.js"
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
+import * as todoRepository from "../repository/todo.js"
 
 // 관리자
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
@@ -42,16 +43,35 @@ export async function getUsers(req, res) {
     const groups = await Group.find({ _id: { $in: groupIds } })
     const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
 
-    // 이번 주 범위 계산 후, 전체 유저의 주간 공부시간을 한 번에 조회
+    // 이번 주(월~일) 날짜 범위 계산
     const { startDate, endDate } = getWeekRange(new Date())
+
+    // 전체 유저의 이번 주 총 공부시간을 한 번에 집계 (분 단위)
     const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
+
+    // 유저ID → 주간 공부시간으로 빠르게 조회하기 위한 Map 생성
     const weeklyTimeMap = new Map(
         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
     )
 
+     // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
+    const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
+
+    // 유저ID → 목표 달성률(%)로 변환한 Map 생성
+    // Todo가 하나도 없으면(totalCount === 0) 0%로 처리 (0으로 나누기 방지)
+    const achievementMap = new Map(
+        weeklyAchievements.map(item => [
+            item._id.toString(),
+            item.totalCount === 0 ? 0 : Math.round((item.completedCount / item.totalCount) * 100)
+        ])
+    )
+
+    // 회원 목록에 그룹 정보, 주간 공부시간, 목표 달성률을 합쳐서 응답 형태 완성
     const usersWithGroup = users.map(u => ({
         ...u.toObject(),
-        group: groupMap.get(u.groupId) || null
+        group: groupMap.get(u.groupId) || null,     // 소속 그룹 정보 (Unranked면 null)
+        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,      // 이번 주 공부시간, 기록 없으면 0
+        achievementRate: achievementMap.get(u._id.toString()) || 0      // 개인 목표 달성률(%), 기록 없으면 0
     }))
 
     console.log("[관리자] 회원 목록 조회 성공")

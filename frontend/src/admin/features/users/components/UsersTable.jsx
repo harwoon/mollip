@@ -55,7 +55,7 @@ export default function UsersTable({ users }) {
                             <td>{formatStudyTime(user.weeklyStudyTime || 0)}</td>
                             <td>{user.currentStreak}일째</td>
                             <td>{user.maxStreak}일</td>
-                            <td>-</td>
+                            <td><td>{user.achievementRate}%</td></td>
                             <td>{user.group ? user.group.groupName : "미배정"}</td>
                             <td>-</td>
                             <td>-</td>
