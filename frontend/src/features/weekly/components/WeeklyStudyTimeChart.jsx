@@ -21,13 +21,14 @@ function makeWeeklyChartData(records, selectedDate) {
 
   return WEEK_DAYS.map((day, index) => {
     const date = monday.add(index, "day").format("YYYY-MM-DD")
-    const rawMinutes = studyTimeByDate[date] || 0
+    
+    const rawSeconds = studyTimeByDate[date] || 0
 
     return {
       name: day,
       date,
-      rawMinutes,
-      hours: Number((rawMinutes / 60).toFixed(1)),
+      rawSeconds,
+      hours: Number((rawSeconds / 3600).toFixed(1)),
     }
   })
 }
@@ -35,9 +36,12 @@ function makeWeeklyChartData(records, selectedDate) {
 function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
 
-  const { name, date, rawMinutes } = payload[0].payload
-  const hours = Math.floor(rawMinutes / 60)
-  const minutes = rawMinutes % 60
+  const { name, date, rawSeconds } = payload[0].payload
+  
+  const totalMinutes = Math.floor(rawSeconds / 60)
+  
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
 
   return (
     <div
