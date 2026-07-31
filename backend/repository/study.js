@@ -128,24 +128,17 @@ export async function getWeeklyStudyTimeByUSers(startDate, endDate) {
   ]);
 }
 
-/*
- * 사용자의 이번 주 공부시간과 출석일 조회
- *
- * 주간 공부시간:
- * 이번 주에 저장된 sumStudyTime의 합계
- *
- * 출석일:
- * sumStudyTime이 0보다 큰 서로 다른 studyDate의 개수
- */
+
+//사용자의 이번 주 공부시간과 출석일 조회
+//주간 공부시간: 이번 주에 저장된 sumStudyTime의 합계
+//출석일: sumStudyTime이 0보다 큰 서로 다른 studyDate의 개수
 export async function findWeeklyStudySummaryByUser(
   userId,
   weekStartDate,
   weekEndDate,
 ) {
   const result = await Study.aggregate([
-    /*
-     * 로그인 사용자와 이번 주 공부 기록 조회
-     */
+    // 로그인 사용자와 이번 주 공부 기록 조회
     {
       $match: {
         user: new mongoose.Types.ObjectId(String(userId)),
@@ -161,9 +154,7 @@ export async function findWeeklyStudySummaryByUser(
       },
     },
 
-    /*
-     * 총 공부시간과 공부한 날짜를 모음
-     */
+    // 총 공부시간과 공부한 날짜를 모음
     {
       $group: {
         _id: null,
@@ -171,20 +162,15 @@ export async function findWeeklyStudySummaryByUser(
         weeklyStudyMinutes: {
           $sum: "$sumStudyTime",
         },
-
-        /*
-         * 같은 날짜의 기록이 여러 개 있어도
-         * 출석은 하루로 계산
-         */
+        
+        //같은 날짜의 기록이 여러 개 있어도 출석은 하루로 계산
         attendanceDates: {
           $addToSet: "$studyDate",
         },
       },
     },
 
-    /*
-     * 반환 데이터 정리
-     */
+    // 반환 데이터 정리
     {
       $project: {
         _id: 0,
@@ -198,9 +184,7 @@ export async function findWeeklyStudySummaryByUser(
     },
   ]);
 
-  /*
-   * 이번 주 공부 기록이 없으면 기본값 반환
-   */
+   // 이번 주 공부 기록이 없으면 기본값 반환
   return (
     result[0] || {
       weeklyStudyMinutes: 0,
