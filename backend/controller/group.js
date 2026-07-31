@@ -247,14 +247,14 @@ export async function addGroup(req, res) {
       });
     }
 
-    if (minStudy <= time || minStudy > 604,800) {
+    if (minStudy <= time || minStudy > 168) {
       return res.status(400).json({
         message:
           "최소 공부시간 목표는 그룹 조건 시간보다 높고 168시간 이하여야 합니다.",
       });
     }
 
-    if (challengeStudy <= minStudy || challengeStudy > 604,800) {
+    if (challengeStudy <= minStudy || challengeStudy > 168) {
       return res.status(400).json({
         message:
           "도전 공부시간 목표는 최소 공부시간 목표보다 높고 168시간 이하여야 합니다.",
