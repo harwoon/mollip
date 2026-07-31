@@ -28,7 +28,13 @@ export default function AdminHomePage() {
     useEffect(() => {
 
         async function fetchLogs() {
-            const data = getLog()
+            try {
+                const data = await getLog()
+                setLogs(data)
+
+            } catch (error) {
+                console.error("로그 데이터 불러오기 실패:", error)
+            }
         }
         fetchLogs()
 
