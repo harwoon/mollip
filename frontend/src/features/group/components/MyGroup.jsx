@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import {getMyGroup, getHigher, getWeekStudyTime} from "../api/group"
+import { getMyGroup, getHigher, getWeekStudyTime } from "../api/group"
 
 import "./group_card.css"
 
@@ -13,21 +13,18 @@ export default function MyGroup() {
     useEffect(() => {
         const fetchGroupData = async () => {
             try {
-                const [myGroup, higherGroup, weeklyMinutes] = await Promise.all([
+                const [myGroup, higherGroup, weeklySecondsData] = await Promise.all([
                     getMyGroup(),
                     getHigher(),
                     getWeekStudyTime()
                 ])
                 
-                // 현재 주간 공부시간(분)
-                const myWeeklyMinutes = Number(weeklyMinutes) || 0
-
-                // 현재 그룹 기준시간(분)
-                const myGroupMinutes = Number(myGroup.groupTime) || 0
+                const myWeeklySeconds = Number(weeklySecondsData) || 0
+                const myGroupSeconds = Number(myGroup.groupTime) || 0
 
                 setGroupName(myGroup.groupName)
-                setGroupTime(myGroupMinutes)
-                setWeekStudyTime(myWeeklyMinutes)
+                setGroupTime(myGroupSeconds)
+                setWeekStudyTime(myWeeklySeconds)
 
                 // 최고 그룹이면 상위 그룹이 없음
                 if (!higherGroup) {
@@ -36,19 +33,17 @@ export default function MyGroup() {
                     return
                 }
 
-                const higherGroupMinutes = Number(higherGroup.groupTime) || 0
+                const higherGroupSeconds = Number(higherGroup.groupTime) || 0
 
-                // 상위 그룹까지 남은 시간
-                const calculatedRemainMinutes = Math.max(higherGroupMinutes - myWeeklyMinutes, 0)
+                const calculatedRemainSeconds = Math.max(higherGroupSeconds - myWeeklySeconds, 0)
 
-                // 상위 그룹 기준 달성률
-                const calculatedProgress = higherGroupMinutes > 0 ? Math.min(
+                const calculatedProgress = higherGroupSeconds > 0 ? Math.min(
                     Math.floor(
-                        (myWeeklyMinutes / higherGroupMinutes) * 100
+                        (myWeeklySeconds / higherGroupSeconds) * 100
                     ), 100
                 ) : 0
 
-                setRemainTime(calculatedRemainMinutes)
+                setRemainTime(calculatedRemainSeconds)
                 setProgress(calculatedProgress)
             } catch (error) {
                 console.error("그룹 데이터 가져오기 실패:", error)
@@ -56,18 +51,20 @@ export default function MyGroup() {
         }
         fetchGroupData()
     }, [])
-
-    const formatMinutes = (minutes) => {
-        const totalMinutes =
-            Math.floor(Number(minutes)) || 0
+    
+    const formatStudyTime = (rawSeconds) => {
+        const totalSeconds = Number(rawSeconds) || 0
+        const totalMinutes = Math.floor(totalSeconds / 60)
 
         const hours = Math.floor(totalMinutes / 60)
         const remainMinutes = totalMinutes % 60
 
+        if (hours === 0 && remainMinutes === 0) {
+            return "0분"
+        }
         if (hours === 0) {
             return `${remainMinutes}분`
         }
-
         if (remainMinutes === 0) {
             return `${hours}시간`
         }
@@ -99,44 +96,30 @@ export default function MyGroup() {
 
                 </div>
                 <strong className="groupConditionTime">
-                    {formatMinutes(groupTime)}
+                    {formatStudyTime(groupTime)}
                 </strong>
 
             </div>
 
             {/* 공부시간 */}
             <div className="groupStudyArea">
-
-                {/* <strong className="groupStudyTime">
-                    {formatMinutes(weekStudyTime)}
-                </strong> */}
-
                 <div className="groupCompareBadge">
-
                     <span>지난주보다 3시간</span>
-
-                    <span className="groupCompareArrow">
-                        ▲
-                    </span>
-
+                    <span className="groupCompareArrow">▲</span>
                 </div>
-
             </div>
 
             {/* 진행률 */}
             <div className="groupProgressBox">
 
                 <p className="groupProgressTitle">
-
                     <span
                         className="groupRemainTime"
                         style={{ color: "#7652C8" }}
                     >
-                        {formatMinutes(remainTime)}
+                        {formatStudyTime(remainTime)}
                     </span>
-
                     {" "}더 공부하면
-
                 </p>
 
                 <p className="groupProgressMessage">
@@ -146,7 +129,6 @@ export default function MyGroup() {
                 <div className="groupProgressArea">
 
                     <div className="groupProgressBar">
-
                         <div
                             className="groupProgressValue"
                             style={{
@@ -154,7 +136,6 @@ export default function MyGroup() {
                                 backgroundColor: "#7652C8"
                             }}
                         />
-
                     </div>
 
                     <span

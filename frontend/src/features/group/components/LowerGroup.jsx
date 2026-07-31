@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState, useEffect } from "react"
 import {getLower, getWeekStudyTime} from "../api/group"
 
 import "./group_card.css"
@@ -12,31 +12,29 @@ export default function LowerGroup() {
     useEffect(() => {
         const fetchGroupData = async () => {
             try {
-                const [lowerGroup, weeklyMinutes] = await Promise.all([
+                const [lowerGroup, weeklySecondsData] = await Promise.all([
                     getLower(),
                     getWeekStudyTime()
                 ])
 
-                const lowerGroupMinutes =
+                const lowerGroupSeconds =
                     Number(lowerGroup?.groupTime) || 0
 
-                const currentWeeklyMinutes =
-                    Number(weeklyMinutes) || 0
+                const currentWeeklySeconds =
+                    Number(weeklySecondsData) || 0
 
                 setGroupName(lowerGroup?.groupName || "")
-                setGroupTime(lowerGroupMinutes)
+                setGroupTime(lowerGroupSeconds)
 
-                // 하위 그룹으로 떨어지지 않기 위해 더 공부해야 하는 시간
-                const calculatedRemainTime = Math.max(lowerGroupMinutes - currentWeeklyMinutes, 0)
+                const calculatedRemainSeconds = Math.max(lowerGroupSeconds - currentWeeklySeconds, 0)
 
-                // 하위 그룹 조건시간에 대한 현재 달성률
-                const calculatedProgress = lowerGroupMinutes > 0 ? Math.min(
+                const calculatedProgress = lowerGroupSeconds > 0 ? Math.min(
                     Math.floor(
-                        (currentWeeklyMinutes / lowerGroupMinutes) * 100
+                        (currentWeeklySeconds / lowerGroupSeconds) * 100
                     ), 100
                 ) : 0
 
-                setRemainTime(calculatedRemainTime)
+                setRemainTime(calculatedRemainSeconds)
                 setProgress(calculatedProgress)
 
             } catch (error) {
@@ -47,15 +45,19 @@ export default function LowerGroup() {
         fetchGroupData()
     }, [])
 
-    const formatMinutes = (minutes) => {
-        const totalMinutes = Number(minutes) || 0
+    const formatStudyTime = (rawSeconds) => {
+        const totalSeconds = Number(rawSeconds) || 0
+        const totalMinutes = Math.floor(totalSeconds / 60)
+
         const hours = Math.floor(totalMinutes / 60)
         const remainMinutes = totalMinutes % 60
 
+        if (hours === 0 && remainMinutes === 0) {
+            return "0분"
+        }
         if (hours === 0) {
             return `${remainMinutes}분`
         }
-
         if (remainMinutes === 0) {
             return `${hours}시간`
         }
@@ -93,7 +95,7 @@ export default function LowerGroup() {
                     className="groupCardTime"
                     style={{ color: "#EC9999" }}
                 >
-                    {formatMinutes(groupTime)}
+                    {formatStudyTime(groupTime)}
                 </strong>
 
             </div>
@@ -106,7 +108,7 @@ export default function LowerGroup() {
                         className="groupRemainTime"
                         style={{ color: "#EC9999" }}
                     >
-                        {formatMinutes(remainTime)}
+                        {formatStudyTime(remainTime)}
                     </strong>
 
                     {" "}더 공부하지 않으면
@@ -116,29 +118,6 @@ export default function LowerGroup() {
                 <p className="groupProgressMessage">
                     하위 그룹으로 떨어질 수 있어요!
                 </p>
-
-                {/* <div className="groupProgressArea">
-
-                    <div className="groupProgressBar">
-
-                        <div
-                            className="groupProgressValue"
-                            style={{
-                                width: `${progress}%`,
-                                backgroundColor: "#EC9999"
-                            }}
-                        />
-
-                    </div>
-
-                    <span
-                        className="groupProgressPercent"
-                        style={{ color: "#EC9999" }}
-                    >
-                        {progress}%
-                    </span>
-
-                </div> */}
 
             </div>
 
