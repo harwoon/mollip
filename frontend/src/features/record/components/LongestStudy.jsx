@@ -14,7 +14,9 @@ export default function LongestStudy({ selectedDate, type }) {
         // API 요청
         const data = await getLongestRecord(type, formattedDate)
         
-        const totalMinutes = data || 0
+        const totalSeconds = data || 0
+
+        const totalMinutes = Math.floor(totalSeconds / 60)
 
         setHour(Math.floor(totalMinutes / 60))
         setMin(totalMinutes % 60)
