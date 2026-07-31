@@ -73,7 +73,7 @@ export default function Sidebar({ selectedSubject, time, isRunning }) {
         </NavLink>
 
         {/* 타이머 UI 박스 */}
-        {selectedSubject && (
+        {isRunning && selectedSubject && (
             <div style={{
                 margin: "15px 0",
                 padding: "12px",
