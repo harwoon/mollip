@@ -29,7 +29,7 @@ const studySchema = new mongoose.Schema(
             required: true,
         }
     },
-    {
+    { 
         timestamps: true
     }
 )
