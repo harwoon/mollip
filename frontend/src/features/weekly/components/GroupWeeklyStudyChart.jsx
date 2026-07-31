@@ -13,6 +13,7 @@ import {
 import { getGroupWeeklyStudyTime } from "../api/weekly";
 
 import styles from "./GroupWeeklyStudyChart.module.css";
+import { getChartTheme } from "../../../../util/chartTheme.js"
 
 const DAY_NAMES = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -84,6 +85,8 @@ function makeChartData(data) {
     const [chartData, setChartData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    // 차트 변수
+    const chartTheme = getChartTheme()
 
     useEffect(() => {
         const fetchGroupWeeklyData = async () => {
@@ -133,7 +136,7 @@ function makeChartData(data) {
                         <CartesianGrid
                             vertical={false}
                             strokeDasharray="2 6"
-                            stroke="#dddddd"
+                            stroke={chartTheme.colors.grid}
                         />
 
                         <XAxis
@@ -142,9 +145,9 @@ function makeChartData(data) {
                             axisLine={false}
                             tickLine={false}
                             tick={{
-                                fill: "#555555",
-                                fontSize: 12,
-                                fontWeight: "bold"
+                                fill: chartTheme.colors.axisStrong,
+                                fontSize: chartTheme.fontSizes.md,
+                                fontWeight: 700
                             }}
                             dy={10}
                         />
@@ -154,12 +157,10 @@ function makeChartData(data) {
                             tickLine={false}
                             domain={[0, "auto"]}
                             tick={{
-                                fill: "#888888",
-                                fontSize: 12
+                                fill: chartTheme.colors.axis,
+                                fontSize: chartTheme.fontSizes.md
                             }}
-                            tickFormatter={(value) =>
-                                `${value}H`
-                            }
+                            tickFormatter={(value) => `${value}H`}
                         />
 
                         <Tooltip
@@ -167,16 +168,15 @@ function makeChartData(data) {
                                 <CustomTooltip />
                             }
                             cursor={{
-                                stroke: "#d9d1ec",
-                                strokeDasharray:
-                                    "3 3"
+                                stroke: chartTheme.colors.primarySoft,
+                                strokeDasharray: "3 3"
                             }}
                         />
 
                         <Legend
                             wrapperStyle={{
-                                fontSize: "12px",
-                                color: "#555555",
+                                fontSize: chartTheme.fontSizes.md,
+                                color: chartTheme.colors.axisStrong,
                                 paddingTop: "10px"
                             }}
                         />
@@ -185,21 +185,27 @@ function makeChartData(data) {
                             type="monotone"
                             dataKey="groupTime"
                             name="그룹 평균 공부 시간"
-                            stroke="#efc7e9"
-                            strokeWidth={2}
+                            stroke={chartTheme.colors.secondarySoft}
+                            strokeWidth={chartTheme.sizes.lineWidth}
                             strokeDasharray="6 6"
                             dot={false}
-                            activeDot={{ r: 5 }}
+                            activeDot={{
+                                r: chartTheme.sizes.dotRadius,
+                                fill: chartTheme.colors.secondarySoft
+                            }}
                         />
 
                         <Line
                             type="monotone"
                             dataKey="personalTime"
                             name="개인 총 공부 시간"
-                            stroke="#9b83d0"
-                            strokeWidth={2.5}
+                            stroke={chartTheme.colors.primary}
+                            strokeWidth={chartTheme.sizes.lineWidth}
                             dot={false}
-                            activeDot={{ r: 5 }}
+                            activeDot={{
+                                r: chartTheme.sizes.dotRadius,
+                                fill: chartTheme.colors.primary
+                            }}
                         />
                     </LineChart>
                 </ResponsiveContainer>

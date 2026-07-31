@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from "recharts";
 import { getWeeklyTodoRecords } from "../api/weekly.js";
 import { getWeeklyTodoCompare } from "../api/weekly.js";
 
 import styles from "./GoalAchievementChart.module.css";
+import { getChartTheme } from "../../../../util/chartTheme.js"
 
 const WEEK_DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
@@ -63,6 +64,9 @@ function makeWeeklyChartData(records) {
     export default function GoalAchievementChart({ selectedDate }) {
     const [chartData, setChartData] = useState([]);
 
+    // 차트 변수
+    const chartTheme = getChartTheme()
+
     useEffect(() => {
         const fetchData = async () => {
         try {
@@ -95,12 +99,12 @@ function makeWeeklyChartData(records) {
                                 left: -10,
                                 bottom: 0
                             }}
-                            barSize={22}
+                            // barSize={22}
                         >
                             <CartesianGrid
                                 strokeDasharray="3 3"
                                 vertical={false}
-                                stroke="#dddddd"
+                                stroke={chartTheme.colors.grid}
                             />
 
                             <XAxis
@@ -108,10 +112,9 @@ function makeWeeklyChartData(records) {
                                 axisLine={false}
                                 tickLine={false}
                                 tick={{
-                                    fill: "#555555",
-                                    fontSize: 12,
-                                    fontWeight:
-                                        "bold"
+                                    fill: chartTheme.colors.axisStrong,
+                                    fontSize: chartTheme.fontSizes.md,
+                                    fontWeight: 700
                                 }}
                                 dy={10}
                             />
@@ -121,19 +124,28 @@ function makeWeeklyChartData(records) {
                                 ticks={[0, 20, 40, 60, 80, 100]}
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{fill: "#555555", fontSize: 11}}
+                                tick={{
+                                    fill: chartTheme.colors.axisStrong, 
+                                    fontSize: chartTheme.fontSizes.sm
+                                }}
                                 tickFormatter={(value) => `${value}%`}
                             />
 
                             <Tooltip
                                 content={<CustomTooltip />}
-                                cursor={{fill: "#f4f0fa"}}
+                                cursor={{fill: chartTheme.colors.cursor}}
                             />
 
                             <Bar
                                 dataKey="achievementRate"
-                                fill="#9b82c9"
-                                radius={[3, 3, 0, 0]}
+                                fill={chartTheme.colors.primarySoft}
+                                barSize={chartTheme.sizes.barSize}
+                                radius={[
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius,
+                                    0,
+                                    0
+                                ]}
                             />
                         </BarChart>
                     </ResponsiveContainer>

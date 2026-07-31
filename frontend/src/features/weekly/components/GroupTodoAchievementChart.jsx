@@ -6,6 +6,7 @@ import {Bar, BarChart, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer
 import { getWeeklyTodoCompare } from "../api/weekly"
 
 import styles from "./GroupTodoAchievementChart.module.css"
+import { getChartTheme } from "../../../../util/chartTheme.js"
 
 
 // 툴팁
@@ -54,6 +55,9 @@ function formatLegend(value) {
 
 export default function GroupTodoAchievementChart({ selectedDate }) {
     const [chartData, setChartData] = useState([]);
+    
+    // 차트 변수
+    const chartTheme = getChartTheme()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -114,7 +118,7 @@ export default function GroupTodoAchievementChart({ selectedDate }) {
                             <CartesianGrid
                                 strokeDasharray="3 3"
                                 vertical={false}
-                                stroke="#dddddd"
+                                stroke={chartTheme.colors.grid}
                             />
 
                             <XAxis
@@ -122,9 +126,9 @@ export default function GroupTodoAchievementChart({ selectedDate }) {
                                 axisLine={false}
                                 tickLine={false}
                                 tick={{
-                                    fill: "#555555",
-                                    fontSize: 12,
-                                    fontWeight: "bold"
+                                    fill: chartTheme.colors.axisStrong,
+                                    fontSize: chartTheme.fontSizes.md,
+                                    fontWeight: 700
                                 }}
                                 dy={10}
                             />
@@ -135,8 +139,8 @@ export default function GroupTodoAchievementChart({ selectedDate }) {
                                 axisLine={false}
                                 tickLine={false}
                                 tick={{
-                                    fill: "#888888",
-                                    fontSize: 11
+                                    fill: chartTheme.colors.axis,
+                                    fontSize: chartTheme.fontSizes.sm
                                 }}
                                 tickFormatter={(value) =>
                                     `${Math.abs(value)}%`
@@ -145,38 +149,54 @@ export default function GroupTodoAchievementChart({ selectedDate }) {
 
                             <Tooltip
                                 content={<CustomTooltip />}
-                                cursor={{fill: "#f5f1fa"}}
+                                cursor={{fill: chartTheme.colors.cursor}}
                             />
 
                             <Legend
                                 verticalAlign="top"
-                                align="left"
+                                align="right"
                                 formatter={formatLegend}
                                 wrapperStyle={{
                                     paddingBottom: "10px",
-                                    fontSize: "12px"
+                                    fontSize: chartTheme.fontSizes.md,
+                                    color: chartTheme.colors.axisStrong
                                 }}
                             />
 
                             {/* 개인과 그룹의 기준선 */}
-                            <ReferenceLine y={0} stroke="#bbbbbb"/>
+                            <ReferenceLine 
+                                y={0}
+                                stroke={chartTheme.colors.referenceLine}
+                            />
 
-                            {/* 위쪽 막대 */}
+                            {/* 개인 달성률 막대(위) */}
                             <Bar
                                 dataKey="personalRate"
                                 stackId="todo"
-                                fill="#654ca3"
-                                radius={[4, 4, 0, 0]}
-                                maxBarSize={28}
+                                fill={chartTheme.colors.primary}
+                                barSize={chartTheme.sizes.barSize}
+                                radius={[
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius,
+                                    0,
+                                    0
+                                ]}
+                                maxBarSize={chartTheme.sizes.barSize}
                             />
 
-                            {/* 아래쪽 막대 */}
+                            {/* 그룹 평균 막대(아래) */}
                             <Bar
                                 dataKey="groupRate"
                                 stackId="todo"
-                                fill="#e6c2e4"
-                                radius={[0, 0, 4, 4]}
-                                maxBarSize={28}
+                                fill={chartTheme.colors.secondarySoft}
+                                barSize={chartTheme.sizes.barSize}
+                                radius={[
+                                    0,
+                                    0,
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius
+                                ]}
+                                maxBarSize={chartTheme.sizes.barSize}
                             />
                         </BarChart>
                     </ResponsiveContainer>

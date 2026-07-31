@@ -4,6 +4,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { getWeeklyStudyRecords } from "../api/weekly"
 
 import styles from "./WeeklyStudyTimeChart.module.css"
+import { getChartTheme } from "../../../../util/chartTheme.js"
 
 const WEEK_DAYS = ["월", "화", "수", "목", "금", "토", "일"]
 
@@ -57,6 +58,9 @@ function CustomTooltip({ active, payload }) {
 export default function WeeklyStudyTimeChart({ selectedDate }) {
   const [chartData, setChartData] = useState([])
 
+  // 차트 변수
+  const chartTheme = getChartTheme()
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -92,7 +96,7 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="#dddddd"
+                stroke={chartTheme.colors.grid}
               />
 
               <XAxis
@@ -100,9 +104,9 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
                 axisLine={false}
                 tickLine={false}
                 tick={{
-                  fill: "#555555",
-                  fontSize: 12,
-                  fontWeight: "bold"
+                  fill: chartTheme.colors.axisStrong,
+                  fontSize: chartTheme.fontSizes.md,
+                  fontWeight: 700
                 }}
                 dy={10}
               />
@@ -111,8 +115,8 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
                 axisLine={false}
                 tickLine={false}
                 tick={{
-                  fill: "#888888",
-                  fontSize: 12
+                  fill: chartTheme.colors.axis,
+                  fontSize: chartTheme.fontSizes.md
                 }}
                 tickFormatter={(value) => `${value}H`}
               />
@@ -120,7 +124,7 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
               <Tooltip
                 content={<CustomTooltip />}
                 cursor={{
-                  stroke: "#d9d1ec",
+                  stroke: chartTheme.colors.primarySoft,
                   strokeDasharray: "3 3"
                 }}
               />
@@ -128,12 +132,12 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
               <Line
                 type="linear"
                 dataKey="hours"
-                stroke="#8a6bc7"
-                strokeWidth={2}
+                stroke={chartTheme.colors.primary}
+                strokeWidth={chartTheme.sizes.lineWidth}
                 dot={false}
                 activeDot={{
-                  r: 5,
-                  fill: "#8a6bc7"
+                  r: chartTheme.sizes.dotRadius,
+                  fill: chartTheme.colors.primary
                 }}
               />
             </LineChart>

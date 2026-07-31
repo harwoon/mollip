@@ -3,6 +3,7 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import { getGroupStreak } from "../api/weekly.js"
 
 import styles from "./GroupStreakChart.module.css"
+import { getChartTheme } from "../../../../util/chartTheme.js"
 
 function CustomTooltip({ active, payload }) {
     if (!active || !payload?.length) return null
@@ -29,6 +30,9 @@ export default function GroupStreakChart() {
     const [chartData, setChartData] = useState([])
     const [loading, setLoading] = useState(true)
 
+    // 차트 변수
+    const chartTheme = getChartTheme()
+
     useEffect(() => {
         const fetchData = async () => {
         try {
@@ -40,12 +44,12 @@ export default function GroupStreakChart() {
             {
                 name: "개인 공부 일수",
                 days: Number(data?.userStreak) || 0,
-                color: "#6f52aa",
+                color: theme.colors.primary,
             },
             {
                 name: "그룹 공부 일수",
                 days: Number(data?.groupStreak) || 0,
-                color: "#e8c5e8",
+                color: theme.colors.secondarySoft,
             },
             ])
         } catch (error) {
@@ -100,7 +104,7 @@ export default function GroupStreakChart() {
                             <CartesianGrid
                                 strokeDasharray="2 4"
                                 vertical={false}
-                                stroke="#bbbbbb"
+                                stroke={chartTheme.colors.referenceLine}
                             />
 
                             <XAxis
@@ -110,8 +114,8 @@ export default function GroupStreakChart() {
                                 axisLine={false}
                                 tickLine={false}
                                 tick={{
-                                    fill: "#222222",
-                                    fontSize: 11,
+                                    fill: chartTheme.colors.axisStrong,
+                                    fontSize: chartTheme.fontSizes.sm,
                                     fontWeight: 600
                                 }}
                                 tickFormatter={(value) =>
@@ -123,13 +127,18 @@ export default function GroupStreakChart() {
 
                             <Tooltip
                                 content={<CustomTooltip />}
-                                cursor={{fill: "#f4f0fa"}}
+                                cursor={{fill: chartTheme.colors.cursor}}
                             />
 
                             <Bar
                                 dataKey="days"
-                                barSize={30}
-                                radius={[2, 2, 2, 2]}
+                                barSize={chartTheme.sizes.barSize}
+                                radius={[
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius,
+                                    chartTheme.sizes.barRadius
+                                ]}
                             >
                                 {chartData.map(
                                     (item) => (<Cell
