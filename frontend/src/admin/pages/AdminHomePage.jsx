@@ -3,7 +3,7 @@ import { io } from 'socket.io-client'
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
-import { getUserCount, getWeeklyTodoAchievement } from "../features/home/api/user.js"
+import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
@@ -28,9 +28,7 @@ export default function AdminHomePage() {
     useEffect(() => {
 
         async function fetchLogs() {
-            const response = await fetch('http://127.0.0.1:3000/admin/logs', { headers: authHeaders() });
-            const data = await response.json()
-            setLogs(data)
+            const data = getLog()
         }
         fetchLogs()
 
@@ -124,7 +122,7 @@ export default function AdminHomePage() {
             </div>
 
             <div>
-                <h2>가입 / 탈퇴 실시간 로그</h2>
+                <h2>최근 활동</h2>
                 <div style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc' }}>
                     <ul>
                         {logs.map((log, index) => (

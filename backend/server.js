@@ -31,6 +31,8 @@ const io = new Server(server, {
     }
 })
 
+app.set('io',io)
+
 // 아래 코드 db/redis.js 파일로 옮김 (사유: 관리자랑 클라이언트랑 공유 모듈 만들려고 파일 새로 생성함)
 // const redisClient = new Redis()
 // redisClient.on('connect', () => console.log('Redis 연결 성공'));

@@ -724,33 +724,16 @@ function getKstDateParts(date = new Date()) {
   };
 }
 
-/*
- * 날짜를 YYYY-MM-DD 형식으로 변환
- */
+//날짜를 YYYY-MM-DD 형식으로 변환
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
-
-/*
- * 이번 주 월요일과 일요일 구하기
- */
+//이번 주 월요일과 일요일 구하기
 function getCurrentWeekRange() {
   const { year, month, day } = getKstDateParts();
-
-  /*
-   * 한국 날짜를 기준으로 계산하기 위해
-   * UTC 자정 날짜 객체 생성
-   */
   const today = new Date(Date.UTC(year, month - 1, day));
-
   const currentDay = today.getUTCDay();
-
-  /*
-   * 일요일이면 월요일까지 -6일
-   * 나머지는 1 - 현재 요일
-   */
   const mondayDifference = currentDay === 0 ? -6 : 1 - currentDay;
-
   const weekStart = new Date(today);
 
   weekStart.setUTCDate(today.getUTCDate() + mondayDifference);
@@ -766,9 +749,7 @@ function getCurrentWeekRange() {
   };
 }
 
-/*
- * 로그인 사용자의 주간 그룹 목표 달성 현황
- */
+//로그인 사용자의 주간 그룹 목표 달성 현황
 export async function getMyWeeklyGroupGoals(req, res) {
   try {
     const userId = req.user?._id;
@@ -779,9 +760,6 @@ export async function getMyWeeklyGroupGoals(req, res) {
       });
     }
 
-    /*
-     * 사용자에게 배정된 그룹 조회
-     */
     const user = await authRepository.findGroupByUserId(userId);
 
     if (!user) {
@@ -790,10 +768,6 @@ export async function getMyWeeklyGroupGoals(req, res) {
       });
     }
 
-    /*
-     * User 모델에서 사용하는 필드가
-     * groupId 또는 group인 경우 모두 대응
-     */
     const groupId =
       user.groupId?._id || user.groupId || user.group?._id || user.group;
 
@@ -803,12 +777,7 @@ export async function getMyWeeklyGroupGoals(req, res) {
       });
     }
 
-    /*
-     * 그룹 정보와 목표 조회
-     */
     const group = await groupRepository.findGroupGoalsById(groupId);
-    console.log("=============group=================");
-    console.log(group);
 
     if (!group) {
       return res.status(404).json({
@@ -817,19 +786,12 @@ export async function getMyWeeklyGroupGoals(req, res) {
     }
 
     const { weekStartDate, weekEndDate } = getCurrentWeekRange();
-
-    /*
-     * 이번 주 공부시간과 출석일 조회
-     */
     const studySummary = await studyRepository.findWeeklyStudySummaryByUser(
       userId,
       weekStartDate,
       weekEndDate,
     );
 
-    /*
-     * Todo 모델 연결 전 임시값
-     */
     const todoSummary = await todoRepository.findWeeklyTodoSummaryByUser(
       userId,
       weekStartDate,
