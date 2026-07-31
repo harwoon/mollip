@@ -1,5 +1,5 @@
 import SummaryCard from "./SummaryCard.jsx"
-import { RiGroupLine, RiUserSmileLine } from "react-icons/ri"
+import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine } from "react-icons/ri"
 
 import "./SummaryRow.css"
 
@@ -19,6 +19,13 @@ export default function SummaryRow({ summary }) {
                 value={summary.userCount}
                 unit="명"
                 diff={summary.userCountDiff}
+            />
+            <SummaryCard
+                icon={<RiCheckboxCircleLine />}
+                label="이번 주 목표 달성률"
+                value={summary.avgGoalRate}
+                unit="%"
+                diff={summary.avgGoalRateDiff}
             />
         </div>
     )

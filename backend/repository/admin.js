@@ -84,3 +84,12 @@ export async function getActiveUserIds() {
 
     return [...activeUserIds]
 }
+
+// 관리자 그룹별 주간 총공부시간용 유저 정보 가져오기
+export async function findAllUserGroups() {
+    return User.find({
+        role: "user",
+    })
+        .select("_id groupId")
+        .lean()
+}

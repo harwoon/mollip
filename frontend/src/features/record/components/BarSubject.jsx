@@ -26,17 +26,15 @@ export default function SubjectBarChart({ selectedDate, type }) {
                 // Recharts BarChart에 사용할 데이터로 변환
                 const formattedChartData = subjects.map((subject) => ({
                     name: subject.studyTitle,
-                    // '시간' 높이
-                    hours: Number((subject.sumStudyTime / 60).toFixed(1)),
+                    hours: Number((subject.sumStudyTime / 3600).toFixed(2)),
                     color: subject.subjectColor,
-                    rawMinutes: subject.sumStudyTime,
+                    rawSeconds: subject.sumStudyTime,
                 }))
 
                 setChartData(formattedChartData)
             } catch (error) {
                 console.error("과목 공부 시간을 가져오는데 실패했습니다:", error)
 
-                // 조회 실패 시 차트 초기화
                 setChartData([])
             }
         }
@@ -50,21 +48,16 @@ export default function SubjectBarChart({ selectedDate, type }) {
 
     // Recharts에 전달할 최종 차트 데이터
     const displayChartData = useMemo(() => {
-        // 실제 공부 기록이 있으면 그대로 사용
         if (hasChartData) {
             return chartData
         }
 
-        /*
-            공부 기록이 없더라도 차트 영역과 축이 보이도록
-            높이 0인 임시 데이터를 넣는다.
-        */
         return [
             {
                 name: "기록 없음",
                 hours: 0,
                 color: "#ddd8e8",
-                rawMinutes: 0
+                rawSeconds: 0
             }
         ]
     }, [chartData, hasChartData])
@@ -87,12 +80,13 @@ export default function SubjectBarChart({ selectedDate, type }) {
         ) {
             const {
                 name,
-                rawMinutes
+                rawSeconds
             } = payload[0].payload
 
-            // 전체 분을 시간과 분으로 변환
-            const hour = Math.floor(rawMinutes / 60)
-            const min = rawMinutes % 60
+            const totalMinutes = Math.floor(rawSeconds / 60)
+
+            const hour = Math.floor(totalMinutes / 60)
+            const min = totalMinutes % 60
 
             return (
                 <div

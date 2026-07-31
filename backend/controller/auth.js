@@ -7,6 +7,7 @@ import Subject from "../models/Subject.js"
 import * as subjectRepository from "../repository/subject.js"
 import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
+import AdminLog from "../models/AdminLog.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -68,6 +69,14 @@ export async function signup(req, res) {
     const userInsertedId = await authRepository.createUser(
         { userId, userPw: hashed, nickname, email }
     )
+
+    const newLog = await AdminLog.create({
+        type: 'SIGNUP',
+        userId: userId,
+        message: `${nickname}님이 서비스를 가입했습니다.`
+    })
+
+    req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
 
     // 가입완료 후
     const token = await createJwtToken(userInsertedId)
@@ -340,8 +349,16 @@ export async function deleteAll(req, res) {
         await studyRepository.deleteMany(userId)
         await subjectRepository.deleteMany(userId)
         await todoRepository.deleteMany(userId)
-        
+
         await authRepository.deleteUserById(userId)
+
+        const newLog = await AdminLog.create({
+            type: 'WITHDRAW',
+            userId: userId,
+            message: `${nickname}님이 서비스를 탈퇴했습니다.`
+        })
+
+        req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
 
         return res.status(200).json({ message: "모든 정보가 삭제되었습니다." })
     } catch (error) {

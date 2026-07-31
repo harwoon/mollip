@@ -3,13 +3,14 @@ import { io } from 'socket.io-client'
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
-import { getUserCount } from "../features/home/api/user.js"
+import { getUserCount, getWeeklyTodoAchievement } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminHomePage() {
     const [activeUsers, setActiveUsers] = useState([])
+    const [logs, setLogs] = useState([])
 
     const [summary, setSummary] = useState({
         groupCount: 0,
@@ -25,8 +26,20 @@ export default function AdminHomePage() {
     })
 
     useEffect(() => {
+
+        async function fetchLogs() {
+            const response = await fetch('http://127.0.0.1:3000/admin/logs', { headers: authHeaders() });
+            const data = await response.json()
+            setLogs(data)
+        }
+        fetchLogs()
+
         socket.connect()
         socket.emit('joinAdminRoom')
+
+        socket.on('newAdminLog', (newLog) => {
+            setLogs((prevLogs) => [newLog, ...prevLogs])
+        })
 
         socket.on('adminUserStarted', async (newUser) => {
             try {
@@ -55,15 +68,17 @@ export default function AdminHomePage() {
 
         async function fetchSummary() {
             try {
-                const [groupData, userData] = await Promise.all([
+                const [groupData, userData, todoAchievementData] = await Promise.all([
                     getGroupCount(),
                     getUserCount(),
+                    getWeeklyTodoAchievement()
                 ])
 
                 setSummary(prev => ({
                     ...prev,
                     groupCount: groupData.count,
-                    userCount: userData.count
+                    userCount: userData.count,
+                    avgGoalRate: todoAchievementData.achievement.achievementRate
                 }))
             } catch (error) {
                 console.error("데이터 조회 실패", error.message)
@@ -75,6 +90,7 @@ export default function AdminHomePage() {
         return () => {
             socket.off('adminUserStarted')
             socket.off('adminUserStopped')
+            socket.off('newAdminLog')
             socket.disconnect()
         }
     }, [])
@@ -105,6 +121,25 @@ export default function AdminHomePage() {
                         </li>
                     ))}
                 </ul>
+            </div>
+
+            <div>
+                <h2>가입 / 탈퇴 실시간 로그</h2>
+                <div style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc' }}>
+                    <ul>
+                        {logs.map((log, index) => (
+                            <li key={index}>
+                                <span style={{ color: log.type === 'SIGNUP' ? 'blue' : 'red' }}>
+                                    [{log.type === 'SIGNUP' ? '가입' : '탈퇴'}]
+                                </span>
+                                {' '}{log.message}
+                                <span style={{ color: 'gray', fontSize: '12px', marginLeft: '10px' }}>
+                                    ({new Date(log.createdAt).toLocaleString()})
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         </>
     )
