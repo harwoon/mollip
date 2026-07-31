@@ -34,7 +34,7 @@ router.get("/todo-achievement/weekly", adminController.getWeeklyTodoAchievement)
 // http://127.0.0.1:3000/admin/groups/count
 router.get("/groups/count", groupController.getGroupGount)
 
-// 그룹 주간 총 공부시간
+// 그룹 주간 총 공부시간, 모든 그룹 총 공부시간
 // http://127.0.0.1:3000/admin/groups/weekly-study-time
 router.get("/groups/weekly-study-time", adminController.getWeeklyGroupStudySummary,)
 

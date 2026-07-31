@@ -345,9 +345,18 @@ export async function getWeeklyGroupStudySummary(
             weeklyStudies,
         })
 
+    const allGroupsTotalStudyTime =
+        groupStatistics.reduce(
+            (total, group) =>
+                total +
+                (Number(group.totalStudyTime) || 0),
+            0,
+        )
+
     return {
         startDate,
         endDate,
+        allGroupsTotalStudyTime,
         groupStatistics,
     }
 }
