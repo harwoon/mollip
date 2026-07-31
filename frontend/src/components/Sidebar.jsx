@@ -13,7 +13,7 @@ export default function Sidebar({ selectedSubject, time, isRunning }) {
     return {
       textDecoration: "none",
       fontWeight: isActive ? "bold" : "normal",
-      color: isActive ? "#007bff" : "#333",
+      color: isActive ? "#7c5cc4" : "#333",
       padding: "10px",
       borderRadius: "8px",
       backgroundColor: isActive ? "#e9ecef" : "transparent",
