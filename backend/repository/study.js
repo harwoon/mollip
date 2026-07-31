@@ -194,27 +194,27 @@ export async function findWeeklyStudySummaryByUser(
     ]);
 
     // 반환 데이터 정리
-//     {
-//       $project: {
-//         _id: 0,
-//         weeklyStudyMinutes: 1,
-//         attendanceDates: 1,
+    //     {
+    //       $project: {
+    //         _id: 0,
+    //         weeklyStudyMinutes: 1,
+    //         attendanceDates: 1,
 
-//         attendanceDays: {
-//           $size: "$attendanceDates",
-//         },
-//       },
-//     },
-//   ]);
+    //         attendanceDays: {
+    //           $size: "$attendanceDates",
+    //         },
+    //       },
+    //     },
+    //   ]);
 
-   // 이번 주 공부 기록이 없으면 기본값 반환
-  return (
-    result[0] || {
-      weeklyStudyMinutes: 0,
-      attendanceDays: 0,
-      attendanceDates: [],
-    }
-  );
+    // 이번 주 공부 기록이 없으면 기본값 반환
+    return (
+        result[0] || {
+            weeklyStudyMinutes: 0,
+            attendanceDays: 0,
+            attendanceDates: [],
+        }
+    );
 }
 
 
@@ -232,11 +232,98 @@ export async function getTotalStudyTimeByUserId(userId) {
                 _id: null,
 
                 // 모든 Study의 sumStudyTime 합산
-                totalStudyTime: {$sum: "$sumStudyTime"}
+                totalStudyTime: { $sum: "$sumStudyTime" }
             }
         }
     ])
 
     // 공부 기록이 없는 사용자는 0 반환
     return result[0]?.totalStudyTime || 0
+}
+
+
+// 관리자 서비스 전체 학습시간 추이 조회
+export async function getServiceStudyTimeTrend(type, startDate,endDate,) {
+    let groupId
+
+    if (type === "daily") {groupId = "$studyDate"}
+
+    if (type === "weekly") {
+        groupId = {
+            $dateToString: {
+                format: "%Y-%m-%d",
+                date: {
+                    $dateTrunc: {
+                        date: {
+                            $dateFromString: {
+                                dateString: "$studyDate",
+                                format: "%Y-%m-%d"
+                            }
+                        },
+                        unit: "week",
+                        startOfWeek: "monday",
+                        timezone: "Asia/Seoul",
+                    }
+                },
+                timezone: "Asia/Seoul"
+            }
+        }
+    }
+
+    if (type === "monthly") {
+        groupId = {$substrBytes: ["$studyDate", 0, 7]}
+    }
+
+    return Study.aggregate([
+        {
+            $match: {
+                studyDate: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            }
+        },
+        {
+            $group: {
+                _id: groupId,
+                totalMinutes: {
+                    $sum: "$sumStudyTime"
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                date: "$_id",
+                totalMinutes: 1
+            }
+        },
+        {
+            $sort: {date: 1}
+        }
+    ])
+}
+
+// 현재 기간과 이전 기간의 총 공부시간을 계산할 때 공통으로 사용
+export async function getServiceStudyTimeTotal(startDate, endDate,) {
+    const result = await Study.aggregate([
+        {
+            // 조회 기간에 포함되는 모든 공부 기록 검색
+            $match: {
+                studyDate: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            }
+        },
+        {
+            // 날짜나 사용자 구분 없이 전체 공부시간을 하나로 합산
+            $group: {
+                _id: null,
+                totalMinutes: {$sum: "$sumStudyTime"}
+            }
+        }
+    ])
+    // 공부 기록 없으면 0 반환
+    return result[0]?.totalMinutes || 0
 }
