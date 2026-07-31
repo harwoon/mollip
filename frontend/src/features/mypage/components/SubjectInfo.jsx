@@ -1,21 +1,7 @@
 // [역할: 내 과목 조회 및 수정]
 import { useEffect, useState } from "react"
-
-import {
-    createSubject,
-    deleteSubject,
-    getSubjects,
-    updateSubject
-} from "../../subject/api/subject"
-
-import {
-    PiBookOpen,
-    PiDotsSixVertical,
-    PiInfo,
-    PiPlus,
-    PiTrash,
-    PiX
-} from "react-icons/pi"
+import {createSubject, deleteSubject, getSubjects, updateSubject} from "../../subject/api/subject"
+import {PiBookOpen, PiDotsSixVertical, PiInfo, PiPlus, PiTrash, PiX} from "react-icons/pi"
 
 import styles from "./SubjectInfo.module.css"
 
@@ -32,10 +18,16 @@ export default function SubjectInfo() {
     // 과목 목록
     const [subjects, setSubjects] = useState([])
 
+    // 현재 드래그 중인 과목의 ID
+    const [draggingSubjectId, setDraggingSubjectId] = useState(null)
+
+    // 현재 드래그한 과목이 올라가 있는 대상 과목의 ID
+    const [dragOverSubjectId, setDragOverSubjectId] = useState(null)
+
     // 과목 추가 모달 표시 여부
     const [isAdding, setIsAdding] = useState(false)
 
-    // 추가할 과목정보
+    // 추가할 과목 정보
     const [newSubject, setNewSubject] = useState({
         subjectName: "",
         subjectColor: ""
@@ -79,12 +71,102 @@ export default function SubjectInfo() {
         }
     }, [alertMessage, isAdding])
 
-    // 로그인한 사용자 과목 목록 조회
+    // 로그인한 사용자별로 과목 순서를 따로 저장하기 위한 key
+    function getSubjectOrderStorageKey() {
+        const userId =
+            localStorage.getItem("userId") ||
+            "unknown"
+
+        return `mollip-subject-order-${userId}`
+    }
+
+    // 현재 과목 배열의 ID 순서를 localStorage에 저장
+    function saveSubjectOrder(subjectList) {
+        const subjectIds = subjectList.map(
+            (subject) => subject._id
+        )
+
+        localStorage.setItem(
+            getSubjectOrderStorageKey(),
+            JSON.stringify(subjectIds)
+        )
+    }
+
+    // 서버에서 불러온 과목 목록에 저장된 프론트 순서를 적용
+    function applySavedSubjectOrder(subjectList) {
+        const savedOrderText =
+            localStorage.getItem(
+                getSubjectOrderStorageKey()
+            )
+
+        // 저장된 순서가 없으면 서버에서 받은 목록을 그대로 사용
+        if (!savedOrderText) {
+            return subjectList
+        }
+
+        try {
+            const savedSubjectIds =
+                JSON.parse(savedOrderText)
+
+            // 저장된 값이 배열이 아니면 서버 목록을 그대로 사용
+            if (!Array.isArray(savedSubjectIds)) {
+                return subjectList
+            }
+
+            // 과목 ID를 기준으로 과목을 찾기 위한 Map
+            const subjectMap = new Map(
+                subjectList.map((subject) => [
+                    subject._id,
+                    subject
+                ])
+            )
+
+            // 저장된 ID 순서대로 과목을 배치
+            const orderedSubjects =
+                savedSubjectIds
+                    .map((subjectId) =>
+                        subjectMap.get(subjectId)
+                    )
+                    .filter(Boolean)
+
+            // 순서 저장 이후 새롭게 추가된 과목
+            const unorderedSubjects =
+                subjectList.filter(
+                    (subject) =>
+                        !savedSubjectIds.includes(
+                            subject._id
+                        )
+                )
+
+            return [
+                ...orderedSubjects,
+                ...unorderedSubjects
+            ]
+        } catch (error) {
+            console.error(
+                "저장된 과목 순서 파싱 실패:",
+                error
+            )
+
+            return subjectList
+        }
+    }
+
+    // 로그인한 사용자의 과목 목록 조회
     async function loadSubjects() {
         try {
             const data = await getSubjects()
 
-            setSubjects(data.subjects ?? [])
+            const loadedSubjects =
+                data.subjects ?? []
+
+            // 서버 목록에 브라우저에 저장된 순서를 적용
+            const orderedSubjects =
+                applySavedSubjectOrder(
+                    loadedSubjects
+                )
+
+            setSubjects(orderedSubjects)
         } catch (error) {
             console.error(
                 "과목 목록 조회 오류:",
@@ -110,7 +192,8 @@ export default function SubjectInfo() {
     ) {
         return subjects.some(
             (subject) =>
-                subject._id !== excludedSubjectId &&
+                subject._id !==
+                    excludedSubjectId &&
                 subject.subjectColor === color
         )
     }
@@ -122,12 +205,10 @@ export default function SubjectInfo() {
     ) {
         setSubjects((previousSubjects) =>
             previousSubjects.map((subject) =>
-                subject._id === subjectId
-                    ? {
-                        ...subject,
-                        subjectName: value
-                    }
-                    : subject
+                subject._id === subjectId ? {
+                    ...subject,
+                    subjectName: value
+                }: subject
             )
         )
     }
@@ -152,20 +233,16 @@ export default function SubjectInfo() {
 
             setSubjects((previousSubjects) =>
                 previousSubjects.map((item) =>
-                    item._id === subject._id
-                        ? data.subject
-                        : item
+                    item._id === subject._id ? data.subject : item
                 )
             )
         } catch (error) {
             console.error(
-                "과목명 수정 오류:",
-                error
+                "과목명 수정 오류:", error
             )
 
             showAlert(
-                error.message ||
-                "과목명 수정에 실패했습니다."
+                error.message || "과목명 수정에 실패했습니다."
             )
 
             await loadSubjects()
@@ -173,25 +250,17 @@ export default function SubjectInfo() {
     }
 
     // 기존 과목 색상 변경
-    async function handleSubjectColorChange(
-        subject,
-        color
-    ) {
-        // 현재 과목에서 이미 선택된 색상은 요청하지 않음
+    async function handleSubjectColorChange(subject, color) {
+        // 현재 사용 중인 색상을 다시 선택한 경우
         if (subject.subjectColor === color) {
             return
         }
 
         // 다른 과목에서 사용 중인 색상인지 검사
         if (
-            isColorAlreadyUsed(
-                color,
-                subject._id
-            )
+            isColorAlreadyUsed(color, subject._id)
         ) {
-            showAlert(
-                "해당 컬러는 이미 사용 중입니다."
-            )
+            showAlert("해당 컬러는 이미 사용 중입니다.")
             return
         }
 
@@ -204,20 +273,16 @@ export default function SubjectInfo() {
 
             setSubjects((previousSubjects) =>
                 previousSubjects.map((item) =>
-                    item._id === subject._id
-                        ? data.subject
-                        : item
+                    item._id === subject._id ? data.subject : item
                 )
             )
         } catch (error) {
             console.error(
-                "과목 색상 수정 오류:",
-                error
+                "과목 색상 수정 오류:", error
             )
 
             showAlert(
-                error.message ||
-                "과목 색상 수정에 실패했습니다."
+                error.message || "과목 색상 수정에 실패했습니다."
             )
         }
     }
@@ -225,9 +290,7 @@ export default function SubjectInfo() {
     // 과목 추가 모달 열기
     function handleOpenAdd() {
         if (subjects.length >= 5) {
-            showAlert(
-                "과목은 최대 5개까지 설정 가능합니다."
-            )
+            showAlert("과목은 최대 5개까지 설정 가능합니다.")
             return
         }
 
@@ -250,9 +313,7 @@ export default function SubjectInfo() {
     // 새 과목 색상 선택
     function handleNewSubjectColorChange(color) {
         if (isColorAlreadyUsed(color)) {
-            showAlert(
-                "해당 컬러는 이미 사용 중입니다."
-            )
+            showAlert("해당 컬러는 이미 사용 중입니다.")
             return
         }
 
@@ -264,11 +325,9 @@ export default function SubjectInfo() {
 
     // 새 과목 생성
     async function handleCreateSubject() {
-        const subjectName =
-            newSubject.subjectName.trim()
+        const subjectName = newSubject.subjectName.trim()
 
-        const subjectColor =
-            newSubject.subjectColor
+        const subjectColor = newSubject.subjectColor
 
         if (!subjectName) {
             showAlert("과목명을 입력해주세요.")
@@ -281,9 +340,7 @@ export default function SubjectInfo() {
         }
 
         if (isColorAlreadyUsed(subjectColor)) {
-            showAlert(
-                "해당 컬러는 이미 사용 중입니다."
-            )
+            showAlert("해당 컬러는 이미 사용 중입니다.")
             return
         }
 
@@ -293,10 +350,17 @@ export default function SubjectInfo() {
                 subjectColor
             )
 
-            setSubjects((previousSubjects) => [
-                ...previousSubjects,
-                data.subject
-            ])
+            setSubjects((previousSubjects) => {
+                const nextSubjects = [
+                    ...previousSubjects,
+                    data.subject
+                ]
+
+                // 새 과목을 마지막 순서로 저장
+                saveSubjectOrder(nextSubjects)
+
+                return nextSubjects
+            })
 
             setNewSubject({
                 subjectName: "",
@@ -306,18 +370,15 @@ export default function SubjectInfo() {
             setIsAdding(false)
 
             showAlert(
-                data.message ||
-                "과목이 추가되었습니다."
+                data.message || "과목이 추가되었습니다."
             )
         } catch (error) {
             console.error(
-                "과목 생성 오류:",
-                error
+                "과목 생성 오류:", error
             )
 
             showAlert(
-                error.message ||
-                "과목 추가에 실패했습니다."
+                error.message || "과목 추가에 실패했습니다."
             )
         }
     }
@@ -332,6 +393,122 @@ export default function SubjectInfo() {
         setIsAdding(false)
     }
 
+    // 드래그를 시작했을 때 실행
+    function handleSubjectDragStart(event, subjectId) {
+        // 현재 드래그 중인 과목 ID 저장
+        setDraggingSubjectId(subjectId)
+
+        // 브라우저에 이동 동작임을 전달
+        event.dataTransfer.effectAllowed = "move"
+
+        // 드래그한 과목 ID를 브라우저 Drag 데이터에 저장
+        event.dataTransfer.setData(
+            "text/plain",
+            subjectId
+        )
+    }
+
+    // 드래그 중 다른 과목 위로 이동할 때 실행
+    function handleSubjectDragOver(event, targetSubjectId) {
+        // 기본 동작을 막아야 drop 이벤트가 발생함
+        event.preventDefault()
+
+        event.dataTransfer.dropEffect = "move"
+
+        // 자기 자신 위에 올라온 경우
+        if (
+            draggingSubjectId === targetSubjectId
+        ) {
+            setDragOverSubjectId(null)
+            return
+        }
+
+        setDragOverSubjectId(targetSubjectId)
+    }
+
+    // 드래그한 항목이 과목 영역을 벗어나면 표시 제거
+    function handleSubjectDragLeave(event) {
+        const nextElement = event.relatedTarget
+
+        // 같은 과목 내부의 자식 요소로 이동한 경우에는 유지
+        if (
+            nextElement &&
+            event.currentTarget.contains(nextElement)
+        ) {
+            return
+        }
+        setDragOverSubjectId(null)
+    }
+
+    // 과목 위에 드롭했을 때 배열 순서 변경
+    function handleSubjectDrop(event, targetSubjectId) {
+        event.preventDefault()
+
+        // state 반영이 늦은 경우를 대비해
+        // dataTransfer에 저장한 ID도 함께 확인
+        const sourceSubjectId = draggingSubjectId || event.dataTransfer.getData("text/plain")
+
+        // ID가 없거나 자기 자신에게 드롭한 경우
+        if (
+            !sourceSubjectId || sourceSubjectId === targetSubjectId
+        ) {
+            setDraggingSubjectId(null)
+            setDragOverSubjectId(null)
+            return
+        }
+
+        setSubjects((previousSubjects) => {
+            // 드래그한 과목의 기존 위치
+            const sourceIndex =
+                previousSubjects.findIndex(
+                    (subject) => subject._id === sourceSubjectId
+                )
+
+            // 드롭 대상 과목의 기존 위치
+            const targetIndex =
+                previousSubjects.findIndex(
+                    (subject) => subject._id === targetSubjectId
+                )
+
+            // 과목 ID를 찾지 못한 경우
+            if (
+                sourceIndex === -1 || targetIndex === -1
+            ) {
+                return previousSubjects
+            }
+
+            // 기존 state를 직접 수정하지 않도록 복사
+            const reorderedSubjects = [
+                ...previousSubjects
+            ]
+
+            // 드래그한 과목을 기존 위치에서 제거
+            const [movedSubject] =
+                reorderedSubjects.splice(
+                    sourceIndex,
+                    1
+                )
+
+            // 대상 과목이 있던 순서에 드래그한 과목을 삽입
+            reorderedSubjects.splice(targetIndex, 0, movedSubject)
+
+            // 변경된 순서를 브라우저에 저장
+            saveSubjectOrder(reorderedSubjects)
+
+            return reorderedSubjects
+        })
+
+        // 드래그 관련 상태 초기화
+        setDraggingSubjectId(null)
+        setDragOverSubjectId(null)
+    }
+
+    // 드래그가 종료됐을 때 상태 초기화
+    function handleSubjectDragEnd() {
+        setDraggingSubjectId(null)
+        setDragOverSubjectId(null)
+    }
+
     // 기존 과목 삭제
     async function handleDeleteSubject(subject) {
         const confirmed = window.confirm(
@@ -343,39 +520,37 @@ export default function SubjectInfo() {
         }
 
         try {
-            const data = await deleteSubject(
-                subject._id
-            )
+            const data = await deleteSubject(subject._id)
 
-            setSubjects((previousSubjects) =>
-                previousSubjects.filter(
-                    (item) =>
-                        item._id !== subject._id
-                )
-            )
+            setSubjects((previousSubjects) => {
+                const nextSubjects =
+                    previousSubjects.filter(
+                        (item) => item._id !== subject._id
+                    )
+
+                // 삭제된 과목을 순서 데이터에서도 제거
+                saveSubjectOrder(nextSubjects)
+
+                return nextSubjects
+            })
 
             showAlert(
-                data.message ||
-                "과목이 삭제되었습니다."
+                data.message || "과목이 삭제되었습니다."
             )
         } catch (error) {
             console.error(
-                "과목 삭제 오류:",
-                error
+                "과목 삭제 오류:", error
             )
 
             showAlert(
-                error.message ||
-                "과목 삭제에 실패했습니다."
+                error.message || "과목 삭제에 실패했습니다."
             )
         }
     }
 
     return (
         <>
-            <section
-                className={`commonSection ${styles.subjectInfo}`}
-            >
+            <section className={`commonSection ${styles.subjectInfo}`}>
                 {/* 과목 설정 제목 */}
                 <header className={styles.subjectHeader}>
                     <div className={styles.headerTitleArea}>
@@ -385,11 +560,7 @@ export default function SubjectInfo() {
 
                         <div>
                             <h2>과목 설정</h2>
-
-                            <p>
-                                공부할 과목을 최대 5개까지
-                                설정할 수 있습니다.
-                            </p>
+                            <p>공부할 과목을 최대 5개까지 설정할 수 있습니다.</p>
                         </div>
                     </div>
 
@@ -403,163 +574,131 @@ export default function SubjectInfo() {
                     <PiInfo aria-hidden="true" />
 
                     <span>
-                        과목은 최대 5개까지 설정 가능하며,
-                        통계 및 대시보드에 반영됩니다.
+                        과목은 최대 5개까지 설정 가능하며, 통계 및 대시보드에 반영됩니다.
                     </span>
                 </div>
 
                 {/* 등록된 과목 목록 */}
                 <div className={styles.subjectList}>
-                    {subjects.map((subject) => (
-                        <div
-                            key={subject._id}
-                            className={styles.subjectItem}
-                        >
-                            <span className={styles.dragHandle}>
-                                <PiDotsSixVertical
-                                    aria-hidden="true"
-                                />
-                            </span>
+                    {subjects.map((subject) => {
+                        const isDragging = draggingSubjectId === subject._id
+                        const isDragOver = dragOverSubjectId === subject._id
 
-                            <span
-                                className={
-                                    styles.subjectCurrentColor
-                                }
-                                style={{
-                                    backgroundColor:
-                                        subject.subjectColor
-                                }}
-                            />
-
-                            <input
-                                type="text"
-                                value={
-                                    subject.subjectName ?? ""
-                                }
-                                onChange={(event) =>
-                                    handleSubjectNameChange(
-                                        subject._id,
-                                        event.target.value
-                                    )
-                                }
-                                onBlur={() =>
-                                    handleSubjectNameBlur(
-                                        subject
-                                    )
-                                }
-                                className={
-                                    styles.subjectNameInput
-                                }
-                            />
-
-                            <span className={styles.colorLabel}>
-                                컬러 선택
-                            </span>
-
+                        return (
                             <div
-                                className={
-                                    styles.subjectColorList
-                                }
+                                key={subject._id}
+                                className={`${styles.subjectItem} ${
+                                    isDragging ? styles.draggingItem : ""
+                                } ${
+                                    isDragOver ? styles.dragOverItem : ""
+                                }`}
+
+                                onDragOver={(event) =>handleSubjectDragOver(event, subject._id)}
+                                onDragLeave={handleSubjectDragLeave}
+                                onDrop={(event) => handleSubjectDrop(event, subject._id)}
                             >
-                                {SubjectColorFix.map(
-                                    (color) => {
-                                        const isSelected =
-                                            subject.subjectColor ===
-                                            color
+                                {/* 드래그 핸들 */}
+                                <span 
+                                    className={styles.dragHandle}
+                                    draggable
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`${subject.subjectName} 과목 순서 이동`}
+                                    title="드래그하여 과목 순서 변경"
+                                    onDragStart={(event) => handleSubjectDragStart(event, subject._id)}
+                                    onDragEnd={handleSubjectDragEnd}
+                                >
+                                    <PiDotsSixVertical aria-hidden="true"/>
+                                </span>
 
-                                        const isUsed =
-                                            isColorAlreadyUsed(
-                                                color,
-                                                subject._id
-                                            )
+                                {/* 현재 선택된 과목 컬러 */}
+                                <span 
+                                    className={styles.subjectCurrentColor}
+                                    style={{backgroundColor: subject.subjectColor}}
+                                />
 
-                                        return (
-                                            <button
-                                                key={color}
-                                                type="button"
-                                                className={`${styles.colorButton} ${
-                                                    isSelected
-                                                        ? styles.selectedColor
-                                                        : ""
-                                                } ${
-                                                    isUsed
-                                                        ? styles.usedColor
-                                                        : ""
-                                                }`}
-                                                style={{
-                                                    backgroundColor:
-                                                        color
-                                                }}
-                                                onClick={() =>
-                                                    handleSubjectColorChange(
-                                                        subject,
-                                                        color
-                                                    )
-                                                }
-                                                aria-label={`${color} 색상 선택`}
-                                                aria-pressed={
-                                                    isSelected
-                                                }
-                                            >
-                                                {isSelected && "✓"}
-                                            </button>
+                                {/* 과목명 수정 */}
+                                <input
+                                    type="text"
+                                    value={subject.subjectName ?? ""}
+                                    className={styles.subjectNameInput}
+                                    onChange={(event) =>
+                                        handleSubjectNameChange(
+                                            subject._id,
+                                            event.target.value
                                         )
                                     }
-                                )}
+                                    onBlur={() =>
+                                        handleSubjectNameBlur(
+                                            subject
+                                        )
+                                    }
+                                />
+
+                                <span className={styles.colorLabel}>컬러 선택</span>
+
+                                {/* 과목 컬러 선택 */}
+                                <div className={styles.subjectColorList}>
+                                    {SubjectColorFix.map(
+                                        (color) => {
+                                            const isSelected = subject.subjectColor === color
+                                            const isUsed = isColorAlreadyUsed(color, subject._id)
+
+                                            return (
+                                                <button
+                                                    key={color}
+                                                    type="button"
+                                                    className={`${styles.colorButton} ${
+                                                        isSelected ? styles.selectedColor : ""
+                                                    } ${
+                                                        isUsed ? styles.usedColor : ""
+                                                    }`}
+                                                    style={{backgroundColor: color}}
+                                                    onClick={() => handleSubjectColorChange(subject, color)}
+                                                    aria-label={`${color} 색상 선택`}
+                                                    aria-pressed={isSelected}
+                                                >
+                                                    {isSelected && "✓"}
+                                                </button>
+                                            )
+                                        }
+                                    )}
+                                </div>
+
+                                {/* 과목 삭제 */}
+                                <button
+                                    type="button"
+                                    className={styles.deleteButton}
+                                    onClick={() => handleDeleteSubject(subject)}
+                                    aria-label={`${subject.subjectName} 과목 삭제`}
+                                >
+                                    <PiTrash aria-hidden="true"/>
+                                </button>
                             </div>
+                        )
+                    })}
 
-                            <button
-                                type="button"
-                                className={
-                                    styles.deleteButton
-                                }
-                                onClick={() =>
-                                    handleDeleteSubject(
-                                        subject
-                                    )
-                                }
-                                aria-label={`${subject.subjectName} 과목 삭제`}
-                            >
-                                <PiTrash aria-hidden="true" />
-                            </button>
-                        </div>
-                    ))}
-
-                    {/* 비어 있는 과목 슬롯 */}
+                    {/* 최대 5개까지 과목 추가 영역 표시 */}
                     {Array.from({
-                        length:
-                            Math.max(
-                                5 - subjects.length,
-                                0
-                            )
+                        length: Math.max(5 - subjects.length, 0)
                     }).map((_, index) => (
                         <button
                             key={`empty-subject-${index}`}
                             type="button"
-                            className={
-                                styles.emptySubjectItem
-                            }
+                            className={styles.emptySubjectItem}
                             onClick={handleOpenAdd}
                         >
-                            <span
-                                className={
-                                    styles.emptySubjectIcon
-                                }
-                            >
-                                <PiPlus aria-hidden="true" />
+                            <span className={styles.emptySubjectIcon}>
+                                <PiPlus aria-hidden="true"/>
                             </span>
-
                             <span>과목 추가하기</span>
                         </button>
                     ))}
                 </div>
 
                 <footer className={styles.subjectFooter}>
-                    <PiDotsSixVertical aria-hidden="true" />
-
-                    <span>
-                        드래그하여 순서를 변경할 수 있습니다.
-                    </span>
+                    <PiDotsSixVertical aria-hidden="true"/>
+                    <span>드래그하여 순서를 변경할 수 있습니다.</span>
                 </footer>
             </section>
 
@@ -570,8 +709,7 @@ export default function SubjectInfo() {
                     role="presentation"
                     onMouseDown={(event) => {
                         if (
-                            event.target ===
-                            event.currentTarget
+                            event.target === event.currentTarget
                         ) {
                             handleCancelCreate()
                         }
@@ -592,17 +730,11 @@ export default function SubjectInfo() {
                             <PiX aria-hidden="true" />
                         </button>
 
-                        <h2
-                            id="add-subject-title"
-                            className={styles.modalTitle}
-                        >
+                        <h2 id="add-subject-title" className={styles.modalTitle}>
                             과목 추가하기
                         </h2>
 
-                        <label
-                            className={styles.modalLabel}
-                            htmlFor="new-subject-name"
-                        >
+                        <label className={styles.modalLabel} htmlFor="new-subject-name">
                             과목명
                         </label>
 
@@ -611,63 +743,35 @@ export default function SubjectInfo() {
                             type="text"
                             placeholder="과목명을 입력해주세요."
                             value={newSubject.subjectName}
-                            onChange={
-                                handleNewSubjectNameChange
-                            }
+                            onChange={handleNewSubjectNameChange}
                             className={styles.modalInput}
                             autoFocus
                             maxLength={20}
                         />
 
-                        <fieldset
-                            className={
-                                styles.modalColorSection
-                            }
-                        >
+                        <fieldset className={styles.modalColorSection}>
                             <legend>컬러 선택</legend>
 
-                            <div
-                                className={
-                                    styles.modalColorList
-                                }
-                            >
+                            <div className={styles.modalColorList}>
                                 {SubjectColorFix.map(
                                     (color) => {
-                                        const isSelected =
-                                            newSubject.subjectColor ===
-                                            color
-
-                                        const isUsed =
-                                            isColorAlreadyUsed(
-                                                color
-                                            )
+                                        const isSelected = newSubject.subjectColor === color
+                                        const isUsed = isColorAlreadyUsed(color)
 
                                         return (
                                             <button
                                                 key={color}
                                                 type="button"
                                                 className={`${styles.modalColorButton} ${
-                                                    isSelected
-                                                        ? styles.selectedColor
-                                                        : ""
+                                                    isSelected ? styles.selectedColor : ""
                                                 } ${
-                                                    isUsed
-                                                        ? styles.usedColor
-                                                        : ""
+                                                    isUsed ? styles.usedColor : ""
                                                 }`}
-                                                style={{
-                                                    backgroundColor:
-                                                        color
-                                                }}
-                                                onClick={() =>
-                                                    handleNewSubjectColorChange(
-                                                        color
-                                                    )
+                                                style={{backgroundColor: color}}
+                                                onClick={() => handleNewSubjectColorChange(color)
                                                 }
                                                 aria-label={`${color} 색상 선택`}
-                                                aria-pressed={
-                                                    isSelected
-                                                }
+                                                aria-pressed={isSelected}
                                             >
                                                 {isSelected && "✓"}
                                             </button>
@@ -680,9 +784,7 @@ export default function SubjectInfo() {
                         <div className={styles.modalButtonArea}>
                             <button
                                 type="button"
-                                className={
-                                    styles.cancelCreateButton
-                                }
+                                className={styles.cancelCreateButton}
                                 onClick={handleCancelCreate}
                             >
                                 취소
@@ -690,9 +792,7 @@ export default function SubjectInfo() {
 
                             <button
                                 type="button"
-                                className={
-                                    styles.completeCreateButton
-                                }
+                                className={styles.completeCreateButton}
                                 onClick={handleCreateSubject}
                             >
                                 추가하기
@@ -704,10 +804,7 @@ export default function SubjectInfo() {
 
             {/* 커스텀 알림창 */}
             {alertMessage && (
-                <div
-                    className={styles.alertOverlay}
-                    role="presentation"
-                >
+                <div className={styles.alertOverlay} role="presentation">
                     <section
                         className={styles.alertModal}
                         role="alertdialog"
@@ -721,12 +818,8 @@ export default function SubjectInfo() {
 
                             <button
                                 type="button"
-                                className={
-                                    styles.alertCloseButton
-                                }
-                                onClick={() =>
-                                    setAlertMessage("")
-                                }
+                                className={styles.alertCloseButton}
+                                onClick={() => setAlertMessage("")}
                                 aria-label="알림 닫기"
                             >
                                 <PiX aria-hidden="true" />
@@ -740,12 +833,8 @@ export default function SubjectInfo() {
                         <div className={styles.alertButtonArea}>
                             <button
                                 type="button"
-                                className={
-                                    styles.alertConfirmButton
-                                }
-                                onClick={() =>
-                                    setAlertMessage("")
-                                }
+                                className={styles.alertConfirmButton}
+                                onClick={() => setAlertMessage("")}
                             >
                                 확인
                             </button>

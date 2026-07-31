@@ -8,6 +8,55 @@ import { getMyInfo } from "../features/auth/api/auth";
 
 import styles from "./HomePage.module.css";
 
+// 마이페이지에서 저장한 과목 순서를 홈 화면에도 적용
+function applySavedSubjectOrder(subjectList) {
+    const userId = localStorage.getItem("userId") || "unknown"
+    const storageKey = `mollip-subject-order-${userId}`
+    const savedOrderText = localStorage.getItem(storageKey)
+
+    // 저장된 과목 순서가 없으면 서버에서 받은 순서를 그대로 사용
+    if (!savedOrderText) {
+        return subjectList
+    }
+
+    try {
+        const savedSubjectIds = JSON.parse(savedOrderText)
+
+        // 저장된 값이 배열이 아니라면 서버 순서를 그대로 사용
+        if (!Array.isArray(savedSubjectIds)) {
+            return subjectList
+        }
+
+        // 과목 ID를 기준으로 과목 객체를 찾기 위한 Map
+        const subjectMap = new Map(
+            subjectList.map((subject) => [
+                subject._id,
+                subject
+            ])
+        )
+
+        // localStorage에 저장된 ID 순서대로 과목 배치
+        const orderedSubjects =
+            savedSubjectIds
+                .map((subjectId) => subjectMap.get(subjectId))
+                .filter(Boolean)
+
+        // 순서 저장 후 새롭게 추가된 과목은 마지막에 배치
+        const unorderedSubjects =
+            subjectList.filter(
+                (subject) => !savedSubjectIds.includes(subject._id)
+            )
+
+        return [
+            ...orderedSubjects,
+            ...unorderedSubjects
+        ]
+    } catch (error) {
+        console.error("홈 과목 순서 적용 실패:", error)
+        return subjectList
+    }
+}
+
 export default function HomePage() {
     const {
         selectedSubject,
@@ -41,17 +90,23 @@ export default function HomePage() {
             });
 
             if (subjectRes.ok) {
-            const subjectData = await subjectRes.json();
-            let finalSubjects = [];
-            if (Array.isArray(subjectData)) finalSubjects = subjectData;
-            else if (subjectData && typeof subjectData === "object") {
-                const arrayKey = Object.keys(subjectData).find((key) =>
-                Array.isArray(subjectData[key]),
-                );
-                if (arrayKey) finalSubjects = subjectData[arrayKey];
-                else if (subjectData.subjectName) finalSubjects = [subjectData];
-            }
-            setSubjects(finalSubjects);
+                const subjectData = await subjectRes.json()
+
+                let finalSubjects = []
+
+                if (Array.isArray(subjectData)) finalSubjects = subjectData
+                else if (subjectData && typeof subjectData === "object") {
+                    const arrayKey = Object.keys(subjectData)
+                    .find(
+                        (key) => Array.isArray(subjectData[key]),
+                    )
+                    if (arrayKey) finalSubjects = subjectData[arrayKey]
+                    else if (subjectData.subjectName) finalSubjects = [subjectData]
+                }
+                // 서버에서 받은 과목에
+                // 마이페이지에서 저장한 순서를 적용
+                const orderedSubjects = applySavedSubjectOrder(finalSubjects)
+                setSubjects(orderedSubjects)
             }
 
             const recordRes = await fetch(
