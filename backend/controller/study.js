@@ -6,18 +6,14 @@ import { getWeekRange, getYesterday } from "../util/date.js"
 // 공부 기록 추가
 export async function addStudy(req, res) {
     const userId = req.user._id
-    const { studyTitle, studyDate, startTime, endTime } = req.body
+    const { studyTitle, studyDate, sumStudyTime } = req.body
 
     //sumStudyTime
-    const start = new Date(startTime)
-    const end = new Date(endTime)
-
-    const sumStudyTime = Math.floor((end - start) / 1000)
 
     try {
         // 공부 기록 추가
         const studyRecord = await studyRepository.createStudy(
-            { user: userId, studyTitle, studyDate, startTime, endTime, sumStudyTime }
+            { user: userId, studyTitle, studyDate, sumStudyTime }
         )
 
         // 연속 공부 일수 업데이트 하기
