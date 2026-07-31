@@ -47,11 +47,11 @@
     --shadow-card: 0 6px 20px rgba(49, 39, 64, .04);
     --shadow-button: 0 8px 18px rgba(118, 83, 184, .18);
 
-    --font-xs: 12px;
-    --font-sm: 13px;
-    --font-md: 15px;
-    --font-lg: 18px;
-    --font-xl: 24px;
+    --font-xs: 14px;
+    --font-sm: 15px;
+    --font-md: 17px;
+    --font-lg: 21px;
+    --font-xl: 27px;
     --font-2xl: 30px;
     
     /* 기록 페이지를 포함한 차트·상태 UI 공통 토큰 */
