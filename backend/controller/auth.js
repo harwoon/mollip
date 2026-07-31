@@ -355,7 +355,7 @@ export async function deleteAll(req, res) {
         const newLog = await AdminLog.create({
             type: 'WITHDRAW',
             userId: userId,
-            message: `${nickname}님이 서비스를 탈퇴했습니다.`
+            message: `${req.user.nickname}님이 서비스를 탈퇴했습니다.`
         })
 
         req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
