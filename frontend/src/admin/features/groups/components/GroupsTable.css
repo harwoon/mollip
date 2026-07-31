@@ -1,7 +1,7 @@
 .groupsTableWrapper {
     width: 100%;
     overflow-x: auto;
-    border: 2px solid #2298f5;
+    border: 2px solid #7658B2;
     border-radius: 14px;
     background-color: #ffffff;
     box-sizing: border-box;
@@ -110,7 +110,7 @@
     min-height: 300px;
     align-items: center;
     justify-content: center;
-    border: 2px solid #2298f5;
+    border: 2px solid #7658B2;
     border-radius: 14px;
     color: #898995;
     background-color: #ffffff;
