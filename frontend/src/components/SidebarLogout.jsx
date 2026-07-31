@@ -1,27 +1,29 @@
 import { useNavigate } from "react-router-dom"
+import { FiLogOut } from "react-icons/fi"
 
 export default function SidebarLogout() {
-  const navigate = useNavigate()
+    const navigate = useNavigate()
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("userId")
-    setTime(0)
-    setIsRunning(false)
-    setSelectedSubject(null)
+    const handleLogout = () => {
+        localStorage.removeItem("token")
+        localStorage.removeItem("userId")
+        setTime(0)
+        setIsRunning(false)
+        setSelectedSubject(null)
 
-    navigate("/", {
-      replace: true
-    })
-  }
+        navigate("/", {
+        replace: true
+        })
+    }
 
-  return (
-    <button
-      type="button"
-      className="sidebarLogoutButton"
-      onClick={handleLogout}
-    >
-      로그아웃
-    </button>
-  )
+    return (
+        <button
+            type="button"
+            className="sidebarLogoutButton"
+            onClick={handleLogout}
+        >
+            <FiLogOut className="sidebarNavigationIcon" />
+            로그아웃
+        </button>
+    )
 }

@@ -50,7 +50,7 @@ export default function SidebarUserInfo(){
 
             <p className="sidebarGreeting">
                 <strong>{user.nickname || "사용자"}님</strong>
-                <span> 안녕하세요!</span>
+                <span>, 안녕하세요!</span>
             </p>
         </div>
     )

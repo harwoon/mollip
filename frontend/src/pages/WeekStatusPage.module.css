@@ -1,0 +1,40 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.section,
+.rankingSection {
+    padding: 15px;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+}
+.section h2,
+.rankingSection h2 {
+    margin: 0 0 10px 5px;
+    font-size: 18px;
+}
+.grid {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+.grid > * {
+    flex: 1 1 33.333%;
+    min-width: 0;
+    min-height: 220px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+@media (max-width: 1180px) {
+    .grid {
+        flex-direction: column;
+    }
+    .grid > * {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+}
