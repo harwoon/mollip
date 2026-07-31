@@ -3,7 +3,7 @@ import { io } from 'socket.io-client'
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
-import { getUserCount } from "../features/home/api/user.js"
+import { getUserCount, getWeeklyTodoAchievement } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
@@ -68,15 +68,17 @@ export default function AdminHomePage() {
 
         async function fetchSummary() {
             try {
-                const [groupData, userData] = await Promise.all([
+                const [groupData, userData, todoAchievementData] = await Promise.all([
                     getGroupCount(),
                     getUserCount(),
+                    getWeeklyTodoAchievement()
                 ])
 
                 setSummary(prev => ({
                     ...prev,
                     groupCount: groupData.count,
-                    userCount: userData.count
+                    userCount: userData.count,
+                    avgGoalRate: todoAchievementData.achievement.achievementRate
                 }))
             } catch (error) {
                 console.error("데이터 조회 실패", error.message)
