@@ -8,6 +8,7 @@ import * as adminRepository from "../repository/admin.js"
 
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
+import { calculateWeeklyStudyTimeByGroup } from "../util/ratio.js"
 
 // const now = new Date()
 
@@ -83,7 +84,7 @@ export async function getWeeklyTodoCompareStats(userId, date) {
 
     // 로그인 사용자, 그룹 조회
     const loginUser = await authRepository.getUserGroup(userId)
-    if(!loginUser){
+    if (!loginUser) {
         throw new Error("사용자 정보를 찾을 수 없습니다.")
     }
 
@@ -91,11 +92,11 @@ export async function getWeeklyTodoCompareStats(userId, date) {
     const groupUsers = await authRepository.getUsersByGroupId(
         loginUser.groupId
     )
-    if(groupUsers.length === 0){
-        return[]
+    if (groupUsers.length === 0) {
+        return []
     }
 
-    const {startDate, endDate} = getWeekRange(date)
+    const { startDate, endDate } = getWeekRange(date)
     const groupUserIds = groupUsers.map(user => user._id)
 
     // 그룹원 전체 일주일 Todo 조회
@@ -126,7 +127,7 @@ export async function getWeeklyTodoCompareStats(userId, date) {
 
     // 달성률 계산 함수
     function calculateAchievementRate(totalCount, completedCount) {
-        if(totalCount === 0){
+        if (totalCount === 0) {
             return 0
         }
         return Number(
@@ -198,7 +199,7 @@ export async function getGroupTodoAchievementRanking(date) {
     const { startDate, endDate } = getWeekRange(date)
 
     // 모든 그룹과 일반 사용자 조회
-const [groups, users] = await Promise.all([
+    const [groups, users] = await Promise.all([
         adminRepository.findAllGroups(),
         adminRepository.getAllUsersWithGroup()
     ])
@@ -274,8 +275,8 @@ const [groups, users] = await Promise.all([
             const achievementData = userAchievementMap.get(
                 user._id.toString()
             ) || {
-                    totalCount: 0,
-                    completedCount: 0
+                totalCount: 0,
+                completedCount: 0
             }
 
             return calculateAchievementRate(
@@ -315,9 +316,44 @@ const [groups, users] = await Promise.all([
     }))
 }
 
+
+export async function getWeeklyGroupStudySummary(
+    referenceDate = new Date(),
+) {
+    const {
+        startDate,
+        endDate,
+    } = getWeekRange(referenceDate)
+
+    const [
+        groups,
+        users,
+        weeklyStudies,
+    ] = await Promise.all([
+        groupRepository.findAllGroups(),
+        adminRepository.findAllUserGroups(),
+        studyRepository.getWeeklyStudyTimeByUSers(
+            startDate,
+            endDate,
+        ),
+    ])
+
+    const groupStatistics =
+        calculateWeeklyStudyTimeByGroup({
+            groups,
+            users,
+            weeklyStudies,
+        })
+
+    return {
+        startDate,
+        endDate,
+        groupStatistics,
+    }
+}
 // 전체 사용자 주간 Todo 달성률
 export async function getWeeklyTodoAchievement() {
-    const {startDate, endDate} = getWeekRange(new Date())
+    const { startDate, endDate } = getWeekRange(new Date())
 
     // 사용자별 이번주 Todo 전체개수, 완료계수 집계
     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(
@@ -337,7 +373,7 @@ export async function getWeeklyTodoAchievement() {
         totalCount += achievement.totalCount || 0
         completedCount += achievement.completedCount || 0
     })
-    
+
     // Todo 하나도 없으면 0 처리
     const achievementRate = totalCount === 0 ? 0 : Number(
         (completedCount / totalCount * 100).toFixed(1)  // 소수점 첫째자리까지 표현

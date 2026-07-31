@@ -273,7 +273,6 @@ export async function findWeeklyTodoSummaryByUser(
   );
 }
 
-
 // 전체 사용자의 주간 Todo 달성 현황 조회
 export async function getWeeklyAchievementByUsers(
   startDate,

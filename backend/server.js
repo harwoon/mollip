@@ -1,7 +1,8 @@
 import express from "express"
 import http from 'http'
 import { Server } from 'socket.io'
-import Redis from 'ioredis'
+// import Redis from 'ioredis'
+import redisClient from "./db/redis.js"
 import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
@@ -30,9 +31,10 @@ const io = new Server(server, {
     }
 })
 
-const redisClient = new Redis()
-redisClient.on('connect', () => console.log('Redis 연결 성공'));
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+// 아래 코드 db/redis.js 파일로 옮김 (사유: 관리자랑 클라이언트랑 공유 모듈 만들려고 파일 새로 생성함)
+// const redisClient = new Redis()
+// redisClient.on('connect', () => console.log('Redis 연결 성공'));
+// redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
 app.use(
     cors({

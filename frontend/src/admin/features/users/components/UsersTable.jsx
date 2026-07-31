@@ -14,7 +14,7 @@ function formatStudyTime(minutes) {
     return m > 0 ? `${h}시간 ${m}분` : `${h}시간`
 }
 
-export default function UsersTable({ users }) {
+export default function UsersTable({ users, activeUserIds }) {
     return (
         <table className="usersTable">
             <thead>
@@ -39,29 +39,37 @@ export default function UsersTable({ users }) {
                         </td>
                     </tr>
                 ) : (
-                    users.map(user => (
-                        <tr key={user._id}>
-                            <td>
-                                <img
-                                    src={getProfileImageUrl(user.profileImg)}
-                                    alt={`${user.nickname} 프로필`}
-                                    className="usersTableAvatar"
-                                    onError={(e) => {
-                                        e.currentTarget.src = "/images/noprofile.png"
-                                    }}
-                                />
-                            </td>
-                            <td>{user.nickname}</td>
-                            <td>{formatStudyTime(user.weeklyStudyTime || 0)}</td>
-                            <td>{user.currentStreak}일째</td>
-                            <td>{user.maxStreak}일</td>
-                            <td>{user.achievementRate}%</td>
-                            <td>{user.group ? user.group.groupName : "미배정"}</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>{new Date(user.createdAt).toLocaleDateString("ko-KR")}</td>
-                        </tr>
-                    ))
+                    users.map(user => {
+                        const isStudying = activeUserIds.has(user._id)
+
+                        return (
+                            <tr key={user._id}>
+                                <td>
+                                    <img
+                                        src={getProfileImageUrl(user.profileImg)}
+                                        alt={`${user.nickname} 프로필`}
+                                        className="usersTableAvatar"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "/images/noprofile.png"
+                                        }}
+                                    />
+                                </td>
+                                <td>{user.nickname}</td>
+                                <td>{Math.floor((user.weeklyStudyTime || 0) / 60)}시간</td>
+                                <td>{user.currentStreak}일째</td>
+                                <td>{user.maxStreak}일</td>
+                                <td>{user.achievementRate}%</td>
+                                <td>{user.group ? user.group.groupName : "미배정"}</td>
+                                <td>-</td>
+                                <td>
+                                    <span className={isStudying ? "statusStudying" : "statusResting"}>
+                                        ● {isStudying ? "공부중" : "휴식중"}
+                                    </span>
+                                </td>
+                                <td>{new Date(user.createdAt).toLocaleDateString("ko-KR")}</td>
+                            </tr>
+                        )
+                    })
                 )}
             </tbody>
         </table>

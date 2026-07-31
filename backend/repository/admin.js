@@ -1,3 +1,4 @@
+import redisClient from "../db/redis.js"
 import User from "../models/User.js"
 import Group from "../models/Group.js"
 
@@ -65,5 +66,30 @@ export async function getAllUsersWithGroup() {
 export async function findAllGroups() {
     return Group.find()
         .select("_id groupName groupColor")
+        .lean()
+}
+
+// 현재 공부 중인 전체 유저 ID 목록 조회 (Redis)
+export async function getActiveUserIds() {
+
+    // 저장된 Redis 키를 전부 찾기
+    const keys = await redisClient.keys("study:*")
+    const activeUserIds = new Set()
+
+    for (const key of keys) {
+        // 각 그룹 키마다 hgetall로 "그룹에서 지금 공부 중인 유저들" 가져옴
+        const users = await redisClient.hgetall(key)
+        Object.keys(users).forEach(userId => activeUserIds.add(userId))
+    }
+
+    return [...activeUserIds]
+}
+
+// 관리자 그룹별 주간 총공부시간용 유저 정보 가져오기
+export async function findAllUserGroups() {
+    return User.find({
+        role: "user",
+    })
+        .select("_id groupId")
         .lean()
 }

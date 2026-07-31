@@ -47,3 +47,15 @@ export async function getUserDetail(id) {
 
     return data
 }
+
+// 현재 공부 중인 유저 ID 목록 조회
+export async function getActiveUsers() {
+    const response = await fetch(`${API_URL}/admin/users/active`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.message)
+    return data
+}

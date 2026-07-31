@@ -5,6 +5,7 @@ import * as statisticsService from "../service/statisticsService.js"
 
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
+import { calculateStudyStatistics } from "../util/ratio.js"
 
 
 // 관리자
@@ -164,5 +165,47 @@ export async function getWeeklyTodoAchievement(req, res) {
     }catch(error){
         console.error("이번주 전체 Todo 달성률 조회 실패: ", error)
         return res.status(500).json({message: "이번주 전체 Todo 달성률을 불러오지 못했습니다."})
+    }
+}
+
+// 현재 공부 중인 전체 유저 ID 목록 조회
+export async function getActiveUsers(req, res) {
+    try {
+        const activeUserIds = await adminRepository.getActiveUserIds()
+        return res.status(200).json({
+            message: "현재 공부 중인 유저 목록을 성공적으로 불러왔습니다.",
+            activeUserIds
+        })
+    } catch (error) {
+        console.error("활성 유저 조회 오류:", error)
+        return res.status(500).json({
+            message: "활성 유저 조회 중 오류가 발생했습니다."
+        })
+    }
+}
+
+export async function getWeeklyGroupStudySummary(
+    req,
+    res,
+) {
+    try {
+        const result =
+            await statisticsService.getWeeklyGroupStudySummary()
+
+        return res.status(200).json({
+            message:
+                "그룹별 주간 공부시간을 불러왔습니다.",
+            ...result,
+        })
+    } catch (error) {
+        console.error(
+            "그룹별 주간 공부시간 조회 실패:",
+            error,
+        )
+
+        return res.status(500).json({
+            message:
+                "그룹별 주간 공부시간 조회 중 오류가 발생했습니다.",
+        })
     }
 }
