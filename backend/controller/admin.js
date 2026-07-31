@@ -28,7 +28,7 @@ export async function getUserCount(req, res) {
 
 // 회원 목록 조회
 export async function getUsers(req, res) {
-    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=15 } = req.query
+    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
 
     const skip = (Number(page) - 1) * Number(limit)
     const filters = { search, groupId }
