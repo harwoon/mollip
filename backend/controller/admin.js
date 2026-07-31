@@ -7,6 +7,8 @@ import AdminLog from "../models/AdminLog.js"
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
+import Study from '../models/Study.js'
+import mongoose from 'mongoose'
 
 
 // 관리자
@@ -26,32 +28,44 @@ export async function getUserCount(req, res) {
     }
 }
 
+// 회원 목록 조회
 export async function getUsers(req, res) {
-    const {
-        search, groupId, status,
-        sortBy = "createdAt", sortOrder = "desc",
-        page = 1, limit = 10
-    } = req.query
+    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
 
-    // 1. 검색/그룹 조건에 맞는 유저를 전부 가져옴 (아직 정렬/페이지 안 나눔)
-    const users = await adminRepository.findAllMatchingUsers({ search, groupId })
+    const skip = (Number(page) - 1) * Number(limit)
+    const filters = { search, groupId }
 
-    // 2. 소속 그룹 정보 매핑용 Map 생성 (groupId -> Group 문서)
+    const [users, total] = await Promise.all([
+        adminRepository.findUsers({
+            ...filters,
+            sortBy,
+            sortOrder: sortOrder === "asc" ? 1 : -1,
+            skip,
+            limit: Number(limit)
+        }),
+        adminRepository.countUsers(filters)
+    ])
+
     const groupIds = [...new Set(users.map(u => u.groupId).filter(id => id !== "Unranked"))]
     const groups = await Group.find({ _id: { $in: groupIds } })
     const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
 
-    // 3. 이번 주(월~일) 날짜 범위
+    // 이번 주(월~일) 날짜 범위 계산
     const { startDate, endDate } = getWeekRange(new Date())
 
-    // 4. 정렬/필터에 필요한 계산값들을 전체 유저 기준으로 미리 집계
-    //    (검색된 유저 각각이 아니라 전체를 한 번에 계산해서, 나중에 정렬해도 결과가 정확함)
+    // 전체 유저의 이번 주 총 공부시간을 한 번에 집계 (분 단위)
     const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
+
+    // 유저ID → 주간 공부시간으로 빠르게 조회하기 위한 Map 생성
     const weeklyTimeMap = new Map(
         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
     )
 
+     // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
+
+    // 유저ID → 목표 달성률(%)로 변환한 Map 생성
+    // Todo가 하나도 없으면(totalCount === 0) 0%로 처리 (0으로 나누기 방지)
     const achievementMap = new Map(
         weeklyAchievements.map(item => [
             item._id.toString(),
@@ -59,47 +73,19 @@ export async function getUsers(req, res) {
         ])
     )
 
-    // 실시간 공부중 상태 (Redis 기준)
-    const activeUserIds = new Set(await adminRepository.getActiveUserIds())
-
-    // 5. 검색된 유저들에 그룹정보/계산값 병합
-    let enrichedUsers = users.map(u => ({
+    // 회원 목록에 그룹 정보, 주간 공부시간, 목표 달성률을 합쳐서 응답 형태 완성
+    const usersWithGroup = users.map(u => ({
         ...u.toObject(),
-        group: groupMap.get(u.groupId) || null,
-        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,
-        achievementRate: achievementMap.get(u._id.toString()) || 0,
-        isStudying: activeUserIds.has(u._id.toString())
+        group: groupMap.get(u.groupId) || null,     // 소속 그룹 정보 (Unranked면 null)
+        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,      // 이번 주 공부시간, 기록 없으면 0
+        achievementRate: achievementMap.get(u._id.toString()) || 0      // 개인 목표 달성률(%), 기록 없으면 0
     }))
 
-    // 6. 상태 필터 (셀렉트박스에서 '상태' 선택 시에만 적용, 그 외엔 무시됨)
-    if (status === "studying") {
-        enrichedUsers = enrichedUsers.filter(u => u.isStudying)
-    } else if (status === "resting") {
-        enrichedUsers = enrichedUsers.filter(u => !u.isStudying)
-    }
-
-    // 7. 정렬
-    // DB 필드(닉네임, 가입일 등)든 계산값(공부시간, 달성률)이든 상관없이
-    // sortBy로 넘어온 필드명 그대로 비교해서 정렬 (JS에서 처리)
-    enrichedUsers.sort((a, b) => {
-        const dir = sortOrder === "asc" ? 1 : -1
-        const aVal = a[sortBy]
-        const bVal = b[sortBy]
-        if (aVal < bVal) return -1 * dir
-        if (aVal > bVal) return 1 * dir
-        return 0
-    })
-
-    // 8. 정렬 끝난 결과에서 요청한 페이지만 잘라내기
-    const total = enrichedUsers.length
-    const skip = (Number(page) - 1) * Number(limit)
-    const pagedUsers = enrichedUsers.slice(skip, skip + Number(limit))
-
     console.log("[관리자] 회원 목록 조회 성공")
-
+    
     return res.status(200).json({
         message: "회원 목록을 성공적으로 불러왔습니다",
-        users: pagedUsers,
+        users: usersWithGroup,
         pagination: {
             total,
             page: Number(page),
@@ -239,5 +225,77 @@ export async function getLog(req,res) {
         console.error("최근 활동 로그 가져오기 실패:",error,)
 
         return res.status(500).json({message:"최근 활동 로그 가져오던 중 오류가 발생했습니다.",})
+    }
+}
+
+// 유저의 누적 총 공부시간 가져오기 (기간별)
+export async function getTotalStudy(req, res) {
+    const { type, userId, start, end } = req.query
+    
+    try {
+        // 1. 검색 조건 (Match): 특정 유저의 시작일~종료일 사이의 데이터만 필터링
+        const matchCondition = {
+            user: new mongoose.Types.ObjectId(userId), // String을 ObjectId로 변환
+            studyDate: { $gte: start, $lte: end } // 문자열 날짜("YYYY-MM-DD") 크기 비교
+        }
+        let groupCondition = {}
+
+        // 2. 타입별 그룹화 조건 설정 (Group)
+        if (type === 'daily') {
+            // 일간: "YYYY-MM-DD" 그대로 묶기
+            groupCondition = { 
+                _id: "$studyDate", 
+                totalStudyTime: { $sum: "$sumStudyTime" } 
+            };
+        } 
+        else if (type === 'weekly') {
+            // 주간: 문자열 날짜를 Date로 변환 후, 연도와 주차(Week) 단위로 묶기
+            groupCondition = {
+                _id: {
+                    year: { $isoWeekYear: { $dateFromString: { dateString: "$studyDate" } } },
+                    week: { $isoWeek: { $dateFromString: { dateString: "$studyDate" } } }
+                },
+                totalStudyTime: { $sum: "$sumStudyTime" }
+            }
+        } 
+        else if (type === 'monthly') {
+            // 월간: "YYYY-MM-DD"에서 앞 7글자("YYYY-MM")만 잘라서 묶기
+            groupCondition = {
+                _id: { $substr: ["$studyDate", 0, 7] },
+                totalStudyTime: { $sum: "$sumStudyTime" }
+            };
+        } 
+        else {
+            return res.status(400).json({ message: "올바른 type을 입력해주세요 (daily, weekly, monthly)." })
+        }
+
+        // 3. MongoDB 집계(Aggregation) 실행
+        const total = await Study.aggregate([
+            { $match: matchCondition },  // 조건에 맞는 데이터 찾기
+            { $group: groupCondition },  // 일/주/월 단위로 묶어서 합계(sum) 구하기
+            { $sort: { "_id": 1 } }      // 과거 날짜부터 오름차순 정렬
+        ]);
+
+        // 4. 프론트엔드에서 바로 차트(Chart)에 그리기 쉽도록 데이터 가공
+        const formattedResult = total.map(item => {
+            let dateLabel = item._id;
+            
+            // 주간 데이터일 경우 _id가 객체이므로 예쁘게 텍스트로 변환
+            if (type === 'weekly') {
+                dateLabel = `${item._id.year}년 ${item._id.week}주차`
+            }
+
+            return {
+                date: dateLabel,            // 예: "2026-07-20", "2026년 31주차", "2026-07"
+                totalStudyTime: item.totalStudyTime // 초(Seconds) 단위 총합
+            };
+        });
+
+        // 결과 반환
+        return res.status(200).json(formattedResult)
+        
+    } catch (error) {
+        console.error("유저 총 공부시간 가져오기 실패:", error);
+        return res.status(500).json({ message: "유저의 총 공부시간을 가져오던 중 오류가 발생했습니다." })
     }
 }
