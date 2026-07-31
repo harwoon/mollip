@@ -7,6 +7,10 @@ function CustomTooltip({ active, payload }) {
 
   const { name, days, color } = payload[0].payload
 
+  const formattedDays = Number.isInteger(Number(days)) 
+    ? days 
+    : Number(days).toFixed(2)
+
   return (
     <div
       style={{
@@ -17,7 +21,7 @@ function CustomTooltip({ active, payload }) {
       }}
     >
       <p style={{ margin: "0 0 5px", color, fontWeight: "bold" }}>{name}</p>
-      <p style={{ margin: 0, color: "#333" }}>{days}일</p>
+      <p style={{ margin: 0, color: "#333" }}>{formattedDays}일</p>
     </div>
   )
 }
