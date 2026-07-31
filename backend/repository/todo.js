@@ -171,3 +171,40 @@ export async function getWeeklyTodoListsByUsers(userIds, startDate, endDate) {
 export const deleteMany = async (userId) => {
     return await TodoList.deleteMany({ user: userId })
 }
+
+// 전체 유저의 주간 Todo 달성 현황 합계(그룹핑해서 한 번의 쿼리 사용) - 관리자
+export async function getWeeklyAchievementByUsers(startDate, endDate) {
+    return TodoList.aggregate([
+        {
+            // 1단계: 이번 주 범위(startDate~endDate)에 해당하는 TodoList 문서만 필터링
+            $match: {
+                todoDate: { $gte: startDate, $lte: endDate }
+            }
+        },
+        {
+            // 2단계: 문서(하루치 todo 목록)마다 전체 개수와 완료 개수를 계산
+            $project: {
+                user: 1,
+                totalCount: { $size: "$todo" },     // todo 배열 전체 길이
+                completedCount: {
+                    // state가 true인 todo만 걸러내서 개수 세기
+                    $size: {
+                        $filter: {
+                            input: "$todo",
+                            as: "t",
+                            cond: { $eq: ["$$t.state", true] }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // 3단계: 유저별로 여러 날짜의 개수를 합산 (이번 주 전체 합계)
+            $group: {
+                _id: "$user",
+                totalCount: { $sum: "$totalCount" },
+                completedCount: { $sum: "$completedCount" }
+            }
+        }
+    ])
+}
