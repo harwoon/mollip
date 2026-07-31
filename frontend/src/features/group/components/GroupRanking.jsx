@@ -15,15 +15,19 @@ export default function GroupRanking() {
     // 현재 로그인한 사용자의 li 요소
     const currentUserRef = useRef(null)
 
-    const currentUserId =
-        localStorage.getItem("userId")
+    const currentUserId = localStorage.getItem("userId")
 
-    function formatStudyTime(totalMinutes) {
-        const hours = Math.floor(
-            (Number(totalMinutes) || 0) / 60,
-        )
+    function formatStudyTime(rawSeconds) {
+        const totalMinutes = Math.floor((Number(rawSeconds) || 0) / 60)
 
-        return `${hours}H`
+        const hours = Math.floor(totalMinutes / 60)
+        const minutes = totalMinutes % 60
+
+        if (hours === 0 && minutes === 0) return "0M"
+        if (hours === 0) return `${minutes}M`
+        if (minutes === 0) return `${hours}H`
+
+        return `${hours}H ${minutes}M`
     }
 
     useEffect(() => {
@@ -32,8 +36,7 @@ export default function GroupRanking() {
                 setLoading(true)
                 setError("")
 
-                const rankingData =
-                    await getWeeklyGroupRanking()
+                const rankingData = await getWeeklyGroupRanking()
 
                 setRanking(rankingData)
             } catch (error) {
@@ -53,11 +56,8 @@ export default function GroupRanking() {
 
     // 랭킹 조회 후 현재 사용자의 위치로 스크롤
     useEffect(() => {
-        const container =
-            rankingContainerRef.current
-
-        const currentUserElement =
-            currentUserRef.current
+        const container = rankingContainerRef.current
+        const currentUserElement = currentUserRef.current
 
         if (!container || !currentUserElement) {
             return
@@ -110,8 +110,8 @@ export default function GroupRanking() {
                                         <li
                                             key={user.userId}
                                             className={`${styles.topThreeItem} ${isCurrentUser
-                                                    ? styles.currentUser
-                                                    : ""
+                                                ? styles.currentUser
+                                                : ""
                                                 }`}
                                         >
                                             <strong
@@ -194,8 +194,8 @@ export default function GroupRanking() {
                                                         : null
                                                 }
                                                 className={`${styles.rankingItem} ${isCurrentUser
-                                                        ? styles.currentUser
-                                                        : ""
+                                                    ? styles.currentUser
+                                                    : ""
                                                     }`}
                                             >
                                                 <strong
@@ -203,9 +203,7 @@ export default function GroupRanking() {
                                                         styles.rank
                                                     }
                                                 >
-                                                    {index +
-                                                        1}
-                                                    위
+                                                    {index + 1}위
                                                 </strong>
 
                                                 <img
@@ -225,9 +223,7 @@ export default function GroupRanking() {
                                                         styles.nickname
                                                     }
                                                 >
-                                                    {
-                                                        user.nickname
-                                                    }
+                                                    {user.nickname}
 
                                                     {isCurrentUser && (
                                                         <span
