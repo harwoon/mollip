@@ -303,7 +303,7 @@ export async function addGroup(req, res) {
     const group = await groupRepository.createGroup({
       groupName: groupName.trim(),
       groupColor: groupColor.trim(),
-      groupTime: time,
+      groupTime: time * 3600,
       goals,
     });
 
