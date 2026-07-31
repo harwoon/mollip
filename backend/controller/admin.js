@@ -26,44 +26,32 @@ export async function getUserCount(req, res) {
     }
 }
 
-// 회원 목록 조회
 export async function getUsers(req, res) {
-    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
+    const {
+        search, groupId, status,
+        sortBy = "createdAt", sortOrder = "desc",
+        page = 1, limit = 10
+    } = req.query
 
-    const skip = (Number(page) - 1) * Number(limit)
-    const filters = { search, groupId }
+    // 1. 검색/그룹 조건에 맞는 유저를 전부 가져옴 (아직 정렬/페이지 안 나눔)
+    const users = await adminRepository.findAllMatchingUsers({ search, groupId })
 
-    const [users, total] = await Promise.all([
-        adminRepository.findUsers({
-            ...filters,
-            sortBy,
-            sortOrder: sortOrder === "asc" ? 1 : -1,
-            skip,
-            limit: Number(limit)
-        }),
-        adminRepository.countUsers(filters)
-    ])
-
+    // 2. 소속 그룹 정보 매핑용 Map 생성 (groupId -> Group 문서)
     const groupIds = [...new Set(users.map(u => u.groupId).filter(id => id !== "Unranked"))]
     const groups = await Group.find({ _id: { $in: groupIds } })
     const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
 
-    // 이번 주(월~일) 날짜 범위 계산
+    // 3. 이번 주(월~일) 날짜 범위
     const { startDate, endDate } = getWeekRange(new Date())
 
-    // 전체 유저의 이번 주 총 공부시간을 한 번에 집계 (분 단위)
+    // 4. 정렬/필터에 필요한 계산값들을 전체 유저 기준으로 미리 집계
+    //    (검색된 유저 각각이 아니라 전체를 한 번에 계산해서, 나중에 정렬해도 결과가 정확함)
     const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
-
-    // 유저ID → 주간 공부시간으로 빠르게 조회하기 위한 Map 생성
     const weeklyTimeMap = new Map(
         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
     )
 
-     // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
-
-    // 유저ID → 목표 달성률(%)로 변환한 Map 생성
-    // Todo가 하나도 없으면(totalCount === 0) 0%로 처리 (0으로 나누기 방지)
     const achievementMap = new Map(
         weeklyAchievements.map(item => [
             item._id.toString(),
@@ -71,19 +59,47 @@ export async function getUsers(req, res) {
         ])
     )
 
-    // 회원 목록에 그룹 정보, 주간 공부시간, 목표 달성률을 합쳐서 응답 형태 완성
-    const usersWithGroup = users.map(u => ({
+    // 실시간 공부중 상태 (Redis 기준)
+    const activeUserIds = new Set(await adminRepository.getActiveUserIds())
+
+    // 5. 검색된 유저들에 그룹정보/계산값 병합
+    let enrichedUsers = users.map(u => ({
         ...u.toObject(),
-        group: groupMap.get(u.groupId) || null,     // 소속 그룹 정보 (Unranked면 null)
-        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,      // 이번 주 공부시간, 기록 없으면 0
-        achievementRate: achievementMap.get(u._id.toString()) || 0      // 개인 목표 달성률(%), 기록 없으면 0
+        group: groupMap.get(u.groupId) || null,
+        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,
+        achievementRate: achievementMap.get(u._id.toString()) || 0,
+        isStudying: activeUserIds.has(u._id.toString())
     }))
 
+    // 6. 상태 필터 (셀렉트박스에서 '상태' 선택 시에만 적용, 그 외엔 무시됨)
+    if (status === "studying") {
+        enrichedUsers = enrichedUsers.filter(u => u.isStudying)
+    } else if (status === "resting") {
+        enrichedUsers = enrichedUsers.filter(u => !u.isStudying)
+    }
+
+    // 7. 정렬
+    // DB 필드(닉네임, 가입일 등)든 계산값(공부시간, 달성률)이든 상관없이
+    // sortBy로 넘어온 필드명 그대로 비교해서 정렬 (JS에서 처리)
+    enrichedUsers.sort((a, b) => {
+        const dir = sortOrder === "asc" ? 1 : -1
+        const aVal = a[sortBy]
+        const bVal = b[sortBy]
+        if (aVal < bVal) return -1 * dir
+        if (aVal > bVal) return 1 * dir
+        return 0
+    })
+
+    // 8. 정렬 끝난 결과에서 요청한 페이지만 잘라내기
+    const total = enrichedUsers.length
+    const skip = (Number(page) - 1) * Number(limit)
+    const pagedUsers = enrichedUsers.slice(skip, skip + Number(limit))
+
     console.log("[관리자] 회원 목록 조회 성공")
-    
+
     return res.status(200).json({
         message: "회원 목록을 성공적으로 불러왔습니다",
-        users: usersWithGroup,
+        users: pagedUsers,
         pagination: {
             total,
             page: Number(page),

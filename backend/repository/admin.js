@@ -8,44 +8,19 @@ export async function countAllUsers() {
     return User.countDocuments({ role: 'user' })
 }
 
-// 회원 목록 조회 (검색/필터/정렬/페이지네이션)
-export async function findUsers({ search, groupId, sortBy, sortOrder, skip, limit }) {
-    // DB에 던질 검색 조건 객체를 일반 유저 대상으로 고정
-    const query = { role: "user"}
+// 검색/그룹 필터가 적용된 전체 유저 조회
+// (정렬·페이지네이션은 여기서 하지 않고, 이후 controller에서 계산값까지 합친 뒤 처리함)
+export async function findAllMatchingUsers({ search, groupId }) {
+    const query = { role: "user" }
 
-    // 아래에서 조건이 있을 때만 하나씩 채워 넣음
-    if(search) {
-        const regex = new RegExp(search, 'i')
-
-        // 검색어와 이름이 일치하는 그룹들의 ID 조회 (소속 그룹 검색용)
-        const matchedGroups = await Group.find({ groupName: regex }).select("_id")
-        const matchedGroupIds = matchedGroups.map(g => g._id.toString())
-
-        // 닉네임에 일치하거나, 소속 그룹명이 일치하는 유저
-        query.$or = [
-            { nickname: regex },
-            { groupId: { $in: matchedGroupIds } }
-        ]
-    }
-    if(groupId) query.groupId = groupId
-
-    return User.find(query)
-        .select("-userPw")          // 비밀번호 제외 모든 필드 정보 제공
-        .sort({ [sortBy]: sortOrder })
-        .skip(skip)
-        .limit(limit)
-}
-
-// 회원 목록 개수
-export async function countUsers({ search, groupId }) {
-    const query = { role: 'user' }
-    
-    if(search) {
+    if (search) {
         const regex = new RegExp(search, "i")
 
+        // 검색어와 그룹명이 일치하는 그룹들의 ID 조회 (소속 그룹 검색용)
         const matchedGroups = await Group.find({ groupName: regex }).select("_id")
         const matchedGroupIds = matchedGroups.map(g => g._id.toString())
 
+        // 닉네임 또는 소속 그룹명 중 하나라도 일치하면 검색 결과에 포함
         query.$or = [
             { nickname: regex },
             { groupId: { $in: matchedGroupIds } }
@@ -53,7 +28,7 @@ export async function countUsers({ search, groupId }) {
     }
     if (groupId) query.groupId = groupId
 
-    return User.countDocuments(query)
+    return User.find(query).select("-userPw")
 }
 
 // 회원 상세 목록 조회
