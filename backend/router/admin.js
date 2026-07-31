@@ -53,4 +53,8 @@ router.patch("/groups/:id", groupController.updateGroup)
 // http://127.0.0.1:3000/admin/group-todo-achievement?date=2026-07-30
 router.get("/group-todo-achievement", adminController.getGroupTodoAchievement)
 
+// 가입 탈퇴 로그 가져오기
+// http://127.0.0.1:3000/admin/log
+router.get("/log",adminController.getLog)
+
 export default router
