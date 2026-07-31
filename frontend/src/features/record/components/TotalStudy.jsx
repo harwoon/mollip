@@ -16,8 +16,8 @@ export default function TotalStudy({ selectedDate, type }) {
         
         const totalMinutes = data || 0
 
-        setHour(Math.floor(totalMinutes / 60))
-        setMin(totalMinutes % 60)
+        setHour(Math.floor(totalMinutes / 3600))
+        setMin(Math.floor((totalMinutes % 3600) / 60))
 
       } catch (error) {
         console.error("공부 시간을 가져오는데 실패했습니다:", error)
