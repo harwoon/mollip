@@ -27,6 +27,15 @@ export const isAuth = async (req, res, next) => {
             console.log("해당 ID 없음")
             return res.status(401).json(AUTH_ERROR)
         }
+
+        // 탈퇴 회원 차단
+        if (user.useYn === "N") {
+            console.log("탈퇴한 회원")
+            return res.status(401).json({
+                message: "탈퇴한 회원입니다."
+            })
+        }
+
         req.user = user
         req.token = token
         next()

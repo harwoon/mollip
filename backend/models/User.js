@@ -48,6 +48,31 @@ const userSchema = new mongoose.Schema(
         maxStreak: {
             type: Number,
             default: 0
+        },
+
+        // 이용중, 탈퇴
+        useYn: {
+            type: String,
+            enum: ["Y", "N"],
+            default: "Y"
+        },
+
+        // 탈퇴사유
+        withdrawalReason: {
+            type: String,
+            default: ""
+        },
+
+        // 탈퇴일
+        withdrawnAt: {
+            type: Date,
+            default: null
+        },
+
+        // 탈퇴직전 누적공부시간
+        totalStudyTime: {
+            type: Number,
+            default: 0
         }
     },
     {

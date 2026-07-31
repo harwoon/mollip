@@ -76,7 +76,14 @@ export async function signup(req, res) {
         message: `${nickname}님이 서비스를 가입했습니다.`
     })
 
-    req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
+    // req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
+    // 서버에 등록된 Socket.io 객체 가져오기 - 승아 수정 79~86
+    const io = req.app.get("io")
+
+    // Socket.io가 있을 때만 관리자 방에 실시간 로그 전송
+    if (io) {
+        io.to("admin_room").emit("newAdminLog", newLog)
+    }
 
     // 가입완료 후
     const token = await createJwtToken(userInsertedId)
@@ -102,6 +109,11 @@ export async function login(req, res) {
     if (!user) {
         console.log("존재하지 않는 ID 입력")
         return res.status(401).json({ message: "아이디 또는 비밀번호를 확인해주세요" })
+    }
+
+    // 탈퇴한 회원 로그인 차단
+    if (user.useYn === "N") {
+        return res.status(403).json({message: "탈퇴한 회원입니다."})
     }
 
     // 비밀번호 확인
@@ -341,28 +353,109 @@ export async function getSubjects(req, res) {
     })
 }
 
-// 유저 탈퇴
-export async function deleteAll(req, res) {
+// // 유저 탈퇴- 사용안함
+// export async function deleteAll(req, res) {
+//     try {
+//         const userId = req.user._id
+
+//         await studyRepository.deleteMany(userId)
+//         await subjectRepository.deleteMany(userId)
+//         await todoRepository.deleteMany(userId)
+
+//         await authRepository.deleteUserById(userId)
+
+//         const newLog = await AdminLog.create({
+//             type: 'WITHDRAW',
+//             userId: userId,
+//             message: `${nickname}님이 서비스를 탈퇴했습니다.`
+//         })
+
+//         req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
+
+//         return res.status(200).json({ message: "모든 정보가 삭제되었습니다." })
+//     } catch (error) {
+//         console.error("회원탈퇴 에러:", error)
+//         return res.status(500).json({ message: "회원탈퇴 처리 중 오류가 발생했습니다." })
+//     }
+// }
+
+
+// 회원 탈퇴
+export async function withdraw(req, res) {
+    const userId = req.user._id
+
+    const {confirmationText, withdrawalReason} = req.body
+
+    // 탈퇴 확인 문구 검사
+    if (confirmationText !== "탈퇴하겠습니다") {
+        return res.status(400).json({
+            message: '"탈퇴하겠습니다"를 정확히 입력해주세요.'
+        })
+    }
+
+    // 탈퇴 사유 검사
+    if (!withdrawalReason || !withdrawalReason.trim()) {
+        return res.status(400).json({
+            message: "탈퇴 사유를 입력해주세요."
+        })
+    }
+
     try {
-        const userId = req.user._id
+        // Study 기록을 삭제하기 전에 전체 공부시간 계산
+        const totalStudyTime = await studyRepository.getTotalStudyTimeByUserId(userId)
 
-        await studyRepository.deleteMany(userId)
-        await subjectRepository.deleteMany(userId)
-        await todoRepository.deleteMany(userId)
+        // User는 삭제하지 않고 탈퇴 상태로 UPDATE
+        const withdrawnUser = await authRepository.withdrawUser(
+            userId,
+            withdrawalReason.trim(),
+            totalStudyTime
+        )
 
-        await authRepository.deleteUserById(userId)
+        // 이미 탈퇴했거나 사용자를 찾지 못한 경우
+        if (!withdrawnUser) {
+            return res.status(404).json({
+                message: "회원을 찾을 수 없거나 이미 탈퇴한 회원입니다."
+            })
+        }
 
+        // 탈퇴 회원의 상세 데이터 삭제
+        await Promise.all([
+            // 공부 기록 삭제
+            studyRepository.deleteMany(userId),
+
+            // 등록 과목 삭제
+            subjectRepository.deleteMany(userId),
+
+            // TodoList 삭제
+            todoRepository.deleteMany(userId)
+        ])
+
+        // 관리자 화면에서 탈퇴정보 뿌려주기위해 AdminLog에 저장
         const newLog = await AdminLog.create({
-            type: 'WITHDRAW',
-            userId: userId,
-            message: `${nickname}님이 서비스를 탈퇴했습니다.`
+            type: "WITHDRAW",
+
+            // ObjectId가 아닌 로그인 아이디를 저장
+            userId: withdrawnUser.userId,
+
+            message: `${withdrawnUser.nickname}님이 서비스를 탈퇴했습니다.`
         })
 
-        req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
+        // Socket.io가 설정되어 있을 때만 관리자에게 알림
+        const io = req.app.get("io")
+        if (io) {
+            io.to("admin_room").emit(
+                "newAdminLog",
+                newLog
+            )
+        }
+        return res.status(200).json({
+            message: "회원 탈퇴가 완료되었습니다."
+        })
 
-        return res.status(200).json({ message: "모든 정보가 삭제되었습니다." })
     } catch (error) {
-        console.error("회원탈퇴 에러:", error)
-        return res.status(500).json({ message: "회원탈퇴 처리 중 오류가 발생했습니다." })
+        console.error("회원 탈퇴 오류:", error)
+        return res.status(500).json({
+            message: "회원 탈퇴 처리 중 오류가 발생했습니다."
+        })
     }
 }
