@@ -1,10 +1,10 @@
 import SubjectInfo from "../features/mypage/components/SubjectInfo"
-import USerInfo from "../features/mypage/components/USerInfo"
+import UserInfo from "../features/mypage/components/UserInfo"
 
 export default function MyPage() {
     return (
         <div className="myPage">
-            <USerInfo />
+            <UserInfo />
             <SubjectInfo />
         </div>
     )

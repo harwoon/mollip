@@ -2,14 +2,18 @@
 import { useEffect, useState, useRef } from "react"
 import { getMyInfo } from "../../auth/api/auth"
 import { PiPencilSimpleDuotone } from "react-icons/pi"
+import { useNavigate } from "react-router-dom"
 
-import { updateMyInfo, updateProfileImage } from "../api/mypage"
+import { updateMyInfo, updateProfileImage, withdrawMyAccount } from "../api/mypage"
 
 import styles from "./UserInfo.module.css"
 
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 export default function UserInfo(){
+    // 회원 탈퇴 후 로그인 페이지 이동
+    const navigate = useNavigate()
+
     // 프로필 표시할 사용자 정보
     const [user, setUser] = useState({
         nickname: "",
@@ -167,17 +171,24 @@ export default function UserInfo(){
             setIsEditing(false)
             alert(infoData.message || "회원정보가 수정되었습니다!")
 
-            // 여기서 수정된거 한번 더 go
+        }catch (error) {
+            console.error(
+                "회원정보 수정 오류:",
+                error
+            )
 
-        }catch (error){
-            console.error("회원정보 수정 오류: ", error)
-            alert(error.message)
+            alert(
+                error.message ||
+                "회원정보 수정에 실패했습니다."
+            )
         }
     }
 
-    // 수정 취소: 수정 전 사용자 정보로 돌림
-    function handleCancel(){
+    // 수정 취소
+    function handleCancel() {
+        // 수정 전 정보로 되돌리기
         setUser(originalUser)
+
         setSelectedImageFile(null)
 
         if (previewImageUrl) {
@@ -191,6 +202,64 @@ export default function UserInfo(){
         }
 
         setIsEditing(false)
+    }
+
+    // 회원 탈퇴
+    async function handleWithdraw() {
+        console.log("버튼클릭")
+        // 탈퇴 확인 문구 입력
+        const confirmationText = window.prompt('"탈퇴하겠습니다"를 입력해주세요.')
+        // 취소한 경우
+        if (confirmationText === null) {return}
+        // 확인 문구 검사
+        if (confirmationText !== "탈퇴하겠습니다") {
+            alert('"탈퇴하겠습니다"를 정확히 입력해주세요.')
+            return
+        }
+
+        // 탈퇴 사유 입력
+        const withdrawalReason = window.prompt("탈퇴 사유를 입력해주세요.")
+        // 취소한 경우
+        if (withdrawalReason === null) {return}
+        // 탈퇴 사유 공백 검사
+        if (!withdrawalReason.trim()) {
+            alert("탈퇴 사유를 입력해주세요.")
+            return
+        }
+
+        // 최종 확인
+        const isConfirmed = window.confirm(
+            "회원 탈퇴 후 공부 기록, 과목, Todo 데이터는 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?"
+        )
+
+        if (!isConfirmed) {
+            return
+        }
+
+        try {
+            // 회원 탈퇴 API 요청
+            const data = await withdrawMyAccount(
+                confirmationText,
+                withdrawalReason.trim()
+            )
+
+            // 로그인 및 사용자 정보 삭제
+            localStorage.removeItem("token")
+            localStorage.removeItem("role")
+            localStorage.removeItem("groupId")
+            localStorage.removeItem("userId")
+            localStorage.removeItem("user")
+            alert(data.message || "회원 탈퇴가 완료되었습니다.")
+
+            // 로그인 페이지로 이동
+            navigate("/", {
+                replace: true
+            })
+
+        } catch (error) {
+            console.error("회원 탈퇴 오류:", error)
+            alert(error.message || "회원 탈퇴에 실패했습니다.")
+        }
     }
 
     return(
@@ -279,6 +348,7 @@ export default function UserInfo(){
                 <button
                     type="button"
                     className={styles.withdrawButton}
+                    onClick={handleWithdraw}
                 >
                     회원 탈퇴하기
                 </button>

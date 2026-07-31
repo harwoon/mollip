@@ -62,3 +62,28 @@ export async function updateProfileImage(imageFile) {
 
     return data
 }
+
+// 회원 탈퇴
+export async function withdrawMyAccount(confirmationText, withdrawalReason) {
+    const token = localStorage.getItem("token")
+
+    const response = await fetch("http://127.0.0.1:3000/auth/withdraw",{
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            confirmationText,
+            withdrawalReason
+        })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message)
+    }
+
+    return data
+}
