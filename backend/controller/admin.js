@@ -1,8 +1,10 @@
 import * as adminRepository from "../repository/admin.js"
 import * as studyRepository from "../repository/study.js"
+import * as statisticsService from "../service/statisticsService.js"
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
 import * as todoRepository from "../repository/todo.js"
+
 
 // 관리자
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
@@ -117,4 +119,33 @@ export async function getUserDetail(req, res) {
         group,
         totalStudyTime
     })
+}
+
+
+// 그룹별 주간 Todo 달성률
+export async function getGroupTodoAchievement(req, res) {
+    const { date } = req.query
+
+    if (!date) {
+        return res.status(400).json({
+            message: "date를 입력해주세요."
+        })
+    }
+
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+    if (!datePattern.test(date)) {
+        return res.status(400).json({
+            message: "date는 YYYY-MM-DD 형식으로 입력해주세요."
+        })
+    }
+
+    try {
+        const result = await statisticsService.getGroupTodoAchievementRanking(date)
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.error("그룹별 Todo 달성률 조회 오류:", error)
+        return res.status(500).json({message: "그룹별 Todo 달성률을 불러오지 못했습니다."})
+    }
 }

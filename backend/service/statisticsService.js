@@ -3,6 +3,8 @@ import dayjs from "dayjs"
 import * as authRepository from "../repository/auth.js"
 import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
+import * as groupRepository from "../repository/admin.js"
+import * as adminRepository from "../repository/admin.js"
 
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
@@ -189,4 +191,126 @@ export async function getWeeklyTodoCompareStats(userId, date) {
     }
 
     return result
+}
+
+// 관리자 페이지 그룹별 주간 Todo 달성률
+export async function getGroupTodoAchievementRanking(date) {
+    const { startDate, endDate } = getWeekRange(date)
+
+    // 모든 그룹과 일반 사용자 조회
+const [groups, users] = await Promise.all([
+        adminRepository.findAllGroups(),
+        adminRepository.getAllUsersWithGroup()
+    ])
+    
+    if (groups.length === 0) {
+        return []
+    }
+
+    const userIds = users.map(user => user._id)
+
+    // 전체 사용자의 해당 주 Todo를 한 번에 조회
+    const todoLists = userIds.length > 0 ? await todoRepository.getWeeklyTodoListsByUsers(
+        userIds,
+        startDate,
+        endDate
+    ) : []
+
+
+    // 사용자별 주간 Todo 개수 저장
+    // key: 사용자 ID
+    // value: {totalCount: 5, completedCount: 3}
+    const userAchievementMap = new Map()
+    users.forEach(user => {
+        userAchievementMap.set(user._id.toString(), {
+            totalCount: 0,
+            completedCount: 0
+        })
+    })
+
+    todoLists.forEach(todoList => {
+        const userId = todoList.user.toString()
+
+        const todos = Array.isArray(todoList.todo) ? todoList.todo : []
+
+        const completedCount = todos.filter(
+            todo => todo.state === true
+        ).length
+
+        const currentData = userAchievementMap.get(userId) || {
+            totalCount: 0,
+            completedCount: 0
+        }
+
+        currentData.totalCount += todos.length
+        currentData.completedCount += completedCount
+
+        userAchievementMap.set(userId, currentData)
+    })
+
+    // 개인 주간 Todo 달성률 계산
+    function calculateAchievementRate(totalCount, completedCount) {
+        if (totalCount === 0) {
+            return 0
+        }
+
+        return Number(
+            (
+                completedCount /
+                totalCount *
+                100
+            ).toFixed(1)
+        )
+    }
+
+    const result = groups.map(group => {
+        const groupId = group._id.toString()
+
+        // 현재 그룹에 속한 사용자
+        const groupUsers = users.filter(user => user.groupId?.toString() === groupId)
+
+        // 그룹원별 개인 주간 달성률
+        const memberRates = groupUsers.map(user => {
+            const achievementData = userAchievementMap.get(
+                user._id.toString()
+            ) || {
+                    totalCount: 0,
+                    completedCount: 0
+            }
+
+            return calculateAchievementRate(
+                achievementData.totalCount,
+                achievementData.completedCount
+            )
+        })
+
+        // 개인 달성률들의 평균
+        const achievementRate = memberRates.length > 0 ? Number(
+            (
+                memberRates.reduce((sum, rate) => sum + rate, 0) / memberRates.length
+            ).toFixed(1)
+        ) : 0
+
+        return {
+            groupId,
+            groupName: group.groupName,
+            groupColor: group.groupColor,
+            memberCount: groupUsers.length,
+            achievementRate
+        }
+    })
+
+    // 달성률 높은 순으로 정렬
+    result.sort((a, b) => {
+        return (
+            b.achievementRate - a.achievementRate ||
+            b.memberCount - a.memberCount
+        )
+    })
+
+    // 순위 추가
+    return result.map((group, index) => ({
+        rank: index + 1,
+        ...group
+    }))
 }
