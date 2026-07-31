@@ -1,0 +1,90 @@
+.container {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-4);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.title {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-2);
+
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+.legend {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.legendColor {
+    flex: 0 0 10px;
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+}
+
+.legendName {
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+}
+
+.chartArea {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+}
+
+.tooltip {
+    padding: var(--space-3);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.tooltipTitle {
+    margin-bottom: var(--space-1);
+
+    font-size: var(--font-sm);
+    font-weight: 700;
+}
+
+.tooltipDays {
+    color: var(--color-text);
+    font-size: var(--font-sm);
+}
+
+.emptyMessage {
+    flex: 1 1 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    text-align: center;
+}

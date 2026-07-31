@@ -1,40 +1,117 @@
 .page {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-4);
+
+    overflow: hidden;
 }
-.section,
-.rankingSection {
-    padding: 15px;
-    background: var(--color-surface-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-}
-.section h2,
-.rankingSection h2 {
-    margin: 0 0 10px 5px;
-    font-size: 18px;
-}
-.grid {
-    display: flex;
-    gap: 15px;
+
+
+/* =========================
+   개인·그룹 통계
+========================= */
+
+.statisticsSection {
+    flex: 1 1 0;
     width: 100%;
-}
-.grid > * {
-    flex: 1 1 33.333%;
     min-width: 0;
-    min-height: 220px;
-    padding: 15px;
-    background: #fff;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.sectionTitle {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-2);
+    padding-left: var(--space-2);
+
+    color: var(--color-text);
+    font-size: var(--font-lg);
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.statisticsPanel {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-3);
+
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-4);
+
+    background: var(--color-primary-50);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
+
+    overflow: hidden;
 }
+
+.statisticsPanel > * {
+    flex: 1 1 33.333%;
+    min-width: 0;
+    min-height: 0;
+}
+
+
+/* =========================
+   랭킹
+========================= */
+
+.rankingSection {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.rankingPanel {
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-3);
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   화면 폭 대응
+========================= */
+
 @media (max-width: 1180px) {
-    .grid {
+    .page {
+        height: auto;
+        min-height: 100%;
+        overflow-y: auto;
+    }
+
+    .statisticsSection {
+        flex: none;
+        min-height: 750px;
+    }
+
+    .statisticsPanel {
         flex-direction: column;
     }
-    .grid > * {
-        flex: 1 1 auto;
+
+    .statisticsPanel > * {
+        flex: 1 1 0;
         width: 100%;
     }
 }

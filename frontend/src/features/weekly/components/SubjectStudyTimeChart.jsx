@@ -4,208 +4,124 @@ import dayjs from "dayjs";
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
+import styles from "./SubjectStudyTimeChart.module.css";
+
 export default function SubjectStudyTimeChart({ selectedDate }) {
-  const [chartData, setChartData] = useState([]);
+    const [chartData, setChartData] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+    useEffect(() => {
+        const fetchData = async () => {
+        try {
+            const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
 
-        const data = await getWeeklySubjectRatio(formattedDate);
+            const data = await getWeeklySubjectRatio(formattedDate);
 
-        const subjects = Array.isArray(data.subjects) ? data.subjects : [];
+            const subjects = Array.isArray(data.subjects) ? data.subjects : [];
 
-        const formattedChartData = subjects.map((subject) => ({
-          name: subject.studyTitle,
+            const formattedChartData = subjects.map((subject) => ({
+            name: subject.studyTitle,
 
-          // 파이 차트의 크기를 결정하는 값
-          value: Number(subject.sumStudyTime) || 0,
+            // 파이 차트의 크기를 결정하는 값
+            value: Number(subject.sumStudyTime) || 0,
 
-          // 서버에서 계산한 비율
-          ratio: Number(subject.ratio) || 0,
+            // 서버에서 계산한 비율
+            ratio: Number(subject.ratio) || 0,
 
-          rawSeconds: Number(subject.sumStudyTime) || 0,
+            rawSeconds: Number(subject.sumStudyTime) || 0,
 
-          color: subject.subjectColor || "#D9D9D9",
-        }));
+            color: subject.subjectColor || "#D9D9D9",
+            }));
 
-        setChartData(formattedChartData);
-      } catch (error) {
-        console.error(
-          "주간 과목별 공부 시간을 가져오는데 실패했습니다:",
-          error,
+            setChartData(formattedChartData);
+        } catch (error) {
+            console.error(
+            "주간 과목별 공부 시간을 가져오는데 실패했습니다:",
+            error,
+            );
+
+            setChartData([]);
+        }
+        };
+
+        fetchData();
+    }, [selectedDate]);
+
+    const CustomTooltip = ({ active, payload }) => {
+        if (!active || !payload || !payload.length) {
+        return null;
+        }
+
+        const { name, rawSeconds, ratio, color } = payload[0].payload;
+
+        const totalMinutes = Math.floor(rawSeconds / 60);
+
+        const hours = Math.floor(totalMinutes / 60);
+
+        const minutes = totalMinutes % 60;
+
+        return (
+        <div className={styles.tooltip}>
+            <p className={styles.tooltipTitle} style={{ color }}>
+            {name}
+            </p>
+
+            <p className={styles.tooltipTime}>
+            {hours}시간 {minutes}분
+            </p>
+
+            <p className={styles.tooltipRatio}>전체 공부 시간의 {ratio}%</p>
+        </div>
         );
-
-        setChartData([]);
-      }
     };
 
-    fetchData();
-  }, [selectedDate]);
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload || !payload.length) {
-      return null;
-    }
-
-    const { name, rawSeconds, ratio, color } = payload[0].payload;
-
-    const totalMinutes = Math.floor(rawSeconds / 60);
-    
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
     return (
-      <div
-        style={{
-          backgroundColor: "#fff",
-          padding: "12px",
-          border: "none",
-          borderRadius: "12px",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-        }}
-      >
-        <p
-          style={{
-            margin: "0 0 5px 0",
-            fontWeight: "bold",
-            color,
-          }}
-        >
-          {name}
-        </p>
+        <section className={`commonSection ${styles.container}`}>
+        <h3 className={styles.title}>주간 과목별 공부 시간</h3>
 
-        <p
-          style={{
-            margin: "0 0 4px 0",
-            color: "#333",
-          }}
-        >
-          {hours}시간 {minutes}분
-        </p>
+        {chartData.length > 0 ? (
+            <div className={styles.content}>
+            <div className={styles.legend}>
+                {chartData.map((subject) => (
+                <div key={subject.name} className={styles.legendItem}>
+                    <span
+                    className={styles.legendColor}
+                    style={{
+                        backgroundColor: subject.color,
+                    }}
+                    />
 
-        <p
-          style={{
-            margin: 0,
-            color: "#888",
-            fontSize: "12px",
-          }}
-        >
-          전체 공부 시간의 {ratio}%
-        </p>
-      </div>
-    );
-  };
+                    <span className={styles.legendName}>{subject.name}</span>
+                </div>
+                ))}
+            </div>
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        padding: "20px",
-        boxSizing: "border-box",
-        backgroundColor: "#fcfbf9",
-        borderRadius: "20px",
-      }}
-    >
-      <h3
-        style={{
-          margin: "0 0 20px 0",
-          color: "#333",
-          fontSize: "1.2rem",
-        }}
-      >
-        주간 과목별 공부 시간
-      </h3>
+            <div className={styles.chartArea}>
+                <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                    <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={0}
+                    outerRadius="75%"
+                    paddingAngle={0}
+                    stroke="none"
+                    >
+                    {chartData.map((subject, index) => (
+                        <Cell key={`cell-${index}`} fill={subject.color} />
+                    ))}
+                    </Pie>
 
-      {chartData.length > 0 ? (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-            height: "260px",
-          }}
-        >
-          <div
-            style={{
-              width: "30%",
-              minWidth: "90px",
-              paddingLeft: "20px",
-            }}
-          >
-            {chartData.map((subject) => (
-              <div
-                key={subject.name}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "7px",
-                  marginBottom: "12px",
-                }}
-              >
-                <span
-                  style={{
-                    width: "9px",
-                    height: "9px",
-                    flexShrink: 0,
-                    borderRadius: "50%",
-                    backgroundColor: subject.color,
-                  }}
-                />
-
-                <span
-                  style={{
-                    color: "#555",
-                    fontSize: "12px",
-                  }}
-                >
-                  {subject.name}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              width: "70%",
-              height: "100%",
-            }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={0}
-                  outerRadius={90}
-                  paddingAngle={0}
-                  stroke="none"
-                >
-                  {chartData.map((subject, index) => (
-                    <Cell key={`cell-${index}`} fill={subject.color} />
-                  ))}
-                </Pie>
-
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      ) : (
-        <p
-          style={{
-            margin: "40px 0",
-            textAlign: "center",
-            color: "#aaa",
-          }}
-        >
-          공부 기록이 없습니다.
-        </p>
-      )}
-    </div>
-  );
+                    <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+                </ResponsiveContainer>
+            </div>
+            </div>
+        ) : (
+            <p className={styles.emptyMessage}>공부 기록이 없습니다.</p>
+        )}
+        </section>
+    )
 }

@@ -1,0 +1,136 @@
+.rankingContainer {
+    width: 100%;
+    min-width: 0;
+}
+
+.rankingList {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.rankingItem {
+    width: 100%;
+    min-width: 0;
+    min-height: 45px;
+    padding: var(--space-2) var(--space-4);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.rankingItem:hover {
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+}
+
+
+/* 현재 사용자 */
+.currentUser {
+    color: var(--color-text);
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+    box-shadow: inset 4px 0 0 var(--color-primary-500);
+}
+
+.currentUser:hover {
+    background: var(--color-primary-100);
+    border-color: var(--color-primary-400);
+}
+
+
+/* 순위 */
+.rank {
+    flex: 0 0 35px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 700;
+    text-align: center;
+}
+
+.currentUser .rank {
+    color: var(--color-primary-700);
+}
+
+
+/* 프로필 */
+.profileImage {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+
+    object-fit: cover;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+}
+
+
+/* 닉네임 */
+.nickname {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.currentUser .nickname {
+    color: var(--color-primary-700);
+    font-weight: 700;
+}
+
+
+/* 공부시간 */
+.studyTime {
+    flex: 0 0 auto;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.currentUser .studyTime {
+    color: var(--color-primary-700);
+    font-weight: 700;
+}
+
+
+/* 로딩 및 오류 */
+.stateMessage {
+    width: 100%;
+    min-height: 80px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    text-align: center;
+}
+
+.errorMessage {
+    color: var(--color-danger);
+}
