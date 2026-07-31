@@ -25,8 +25,7 @@ export default function SubjectStudyTimeChart({ selectedDate }) {
           // 서버에서 계산한 비율
           ratio: Number(subject.ratio) || 0,
 
-          // 툴팁에서 사용하는 분 단위 원본
-          rawMinutes: Number(subject.sumStudyTime) || 0,
+          rawSeconds: Number(subject.sumStudyTime) || 0,
 
           color: subject.subjectColor || "#D9D9D9",
         }));
@@ -50,10 +49,12 @@ export default function SubjectStudyTimeChart({ selectedDate }) {
       return null;
     }
 
-    const { name, rawMinutes, ratio, color } = payload[0].payload;
+    const { name, rawSeconds, ratio, color } = payload[0].payload;
 
-    const hours = Math.floor(rawMinutes / 60);
-    const minutes = rawMinutes % 60;
+    const totalMinutes = Math.floor(rawSeconds / 60);
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
     return (
       <div
