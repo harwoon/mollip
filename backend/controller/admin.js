@@ -1,9 +1,10 @@
 import * as adminRepository from "../repository/admin.js"
 import * as studyRepository from "../repository/study.js"
+import * as todoRepository from "../repository/todo.js"
 import * as statisticsService from "../service/statisticsService.js"
+
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
-import * as todoRepository from "../repository/todo.js"
 
 
 // 관리자
@@ -147,5 +148,21 @@ export async function getGroupTodoAchievement(req, res) {
     } catch (error) {
         console.error("그룹별 Todo 달성률 조회 오류:", error)
         return res.status(500).json({message: "그룹별 Todo 달성률을 불러오지 못했습니다."})
+    }
+}
+
+
+// 전체 사용자 이번주 Todo 달성률
+export async function getWeeklyTodoAchievement(req, res) {
+    try{
+        const achievement = await statisticsService.getWeeklyTodoAchievement()
+        return res.status(200).json({
+            message:"이번 주 전체 Todo 달성률을 성공적으로 불러왔습니다.",
+            achievement
+        })
+
+    }catch(error){
+        console.error("이번주 전체 Todo 달성률 조회 실패: ", error)
+        return res.status(500).json({message: "이번주 전체 Todo 달성률을 불러오지 못했습니다."})
     }
 }
