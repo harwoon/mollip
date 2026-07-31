@@ -1,55 +1,274 @@
 .timerContainer {
-  background-color: #FFFDF9;
-  border-radius: 20px;
-  padding: 40px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: var(--space-7);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--radius-lg);
+
+    transition:
+        color 0.3s ease,
+        background-color 0.3s ease;
 }
+
+
+/* =========================
+     타이머 상태
+========================= */
+
+.timerIdle {
+    color: var(--color-text-secondary);
+    background: var(--color-surface-soft);
+}
+
+.timerRunning {
+    color: var(--color-surface);
+    background: #a8d5ba;
+}
+
+.timerStopped {
+    color: var(--color-surface);
+    background: #f2c4c4;
+}
+
+
+/* =========================
+     안내 문구
+========================= */
 
 .timerTitle {
-  font-size: 1.2rem;
-  color: #333333;
-  margin-bottom: 15px;
-  font-weight: 500;
+    margin-bottom: var(--space-4);
+
+    color: inherit;
+    font-size: var(--font-lg);
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+
+    transition: color 0.3s ease;
 }
+
+.studyDay {
+    margin-right: var(--space-1);
+
+    color: var(--color-primary-600);
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.timerRunning .studyDay,
+.timerStopped .studyDay {
+    color: var(--color-surface);
+}
+
+
+/* =========================
+     타이머 숫자
+========================= */
 
 .timerDisplay {
-  font-size: 5rem;
-  font-weight: 700;
-  color: #8B71CC;
-  margin-bottom: 25px;
-  letter-spacing: 2px;
-}
+    margin-bottom: var(--space-6);
 
-.timerButtons {
-  display: flex;
-  gap: 15px;
-}
-
-.timerBtn {
-  background-color: #FFFFFF;
-  color: #8B71CC;
-  border: 1px solid #E0D8F0;
-  border-radius: 30px;
-  padding: 10px 40px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.timerBtn:hover {
-  background-color: #8B71CC;
-  color: #FFFFFF;
+    font-size: clamp(48px, 5vw, 74px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
 }
 
 .milliseconds {
-  font-size: 16px;
-  /* color: #c7bde0; */
-  margin-left: 8px;
-  font-weight: 400;
+    margin-left: var(--space-1);
+
+    font-size: var(--font-md);
+    font-weight: 500;
+    letter-spacing: 0;
+
+    display: inline-block;
+    width: 20px;
+}
+
+
+/* =========================
+     버튼
+========================= */
+
+.timerButtons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+}
+
+.timerBtn {
+    min-width: 110px;
+    min-height: 42px;
+    padding: 0 var(--space-5);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: transparent;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.timerBtn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* 대기 상태 */
+.timerIdle .timerBtn {
+    color: var(--color-primary-600);
+    background: transparent;
+    border-color: var(--color-border-strong);
+}
+
+.timerIdle .timerBtn:hover {
+    color: var(--color-surface);
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-600);
+}
+
+
+/* 공부 진행 중 */
+.timerRunning .timerBtn {
+    color: var(--color-surface);
+    border-color: var(--color-surface);
+}
+
+.timerRunning .startButton {
+    color: #a8d5ba;
+    background: var(--color-surface);
+    border-color: var(--color-surface);
+}
+
+
+/* 공부 중지 상태 */
+.timerStopped .timerBtn {
+    color: var(--color-surface);
+    border-color: var(--color-surface);
+}
+
+.timerStopped .stopButton {
+    color: #f2c4c4;
+    background: var(--color-surface);
+    border-color: var(--color-surface);
+}
+
+
+/* =========================
+     총 공부시간
+========================= */
+
+.totalTimeArea {
+    margin-top: var(--space-5);
+
+    text-align: center;
+}
+
+.totalTimeText {
+    color: inherit;
+    font-size: var(--font-sm);
+    line-height: 1.5;
+}
+
+.totalTimeText strong {
+    color: inherit;
+    font-weight: 700;
+}
+
+
+/* =========================
+     기존 커스텀 알럿
+========================= */
+
+.alertOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    width: 100vw;
+    height: 100vh;
+    padding: var(--space-5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.alertBox {
+    width: 320px;
+    max-width: 100%;
+    padding: var(--space-5) var(--space-6);
+
+    color: var(--color-text);
+    text-align: left;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.alertHeader {
+    margin-bottom: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.alertHeader strong {
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+.alertCloseButton {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-lg);
+
+    border-radius: var(--radius-sm);
+
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.alertCloseButton:hover {
+    color: var(--color-primary-700);
+    background: var(--color-primary-50);
+}
+
+.alertMessage {
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    line-height: 1.6;
 }
