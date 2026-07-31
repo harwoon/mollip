@@ -2,6 +2,9 @@ import express from "express";
 import * as groupRepository from "../repository/group.js";
 import { assignWeeklyGroups } from "../service/weeklyGroupService.js";
 import * as statisticsService from "../service/statisticsService.js";
+import * as authRepository from "../repository/auth.js";
+import * as studyRepository from "../repository/study.js";
+import * as todoRepository from "../repository/todo.js";
 
 // 그룹 목록 조회 (확인용)
 export async function getGroups(req, res) {
@@ -24,7 +27,7 @@ export async function getGroups(req, res) {
 export async function getGroupsColor(req, res) {
   const { id } = req.params;
   try {
-   const group = await groupRepository.findById(id);
+    const group = await groupRepository.findById(id);
 
     if (!group) {
       return res.status(404).json({
@@ -680,6 +683,197 @@ export async function getWeeklyRanking(req, res) {
 
     res.status(500).json({
       message: error.message,
+    });
+  }
+}
+
+export async function getWeeklyGroup(req, res) {
+  try {
+    const ranking = await statisticsService.getWeeklyGroupRanking(req.user._id);
+
+    res.status(200).json({
+      ranking,
+    });
+  } catch (error) {
+    console.error("주간 랭킹 조회 실패:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+function getKstDateParts(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const parts = formatter.formatToParts(date);
+
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
+
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+  };
+}
+
+/*
+ * 날짜를 YYYY-MM-DD 형식으로 변환
+ */
+function formatDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+/*
+ * 이번 주 월요일과 일요일 구하기
+ */
+function getCurrentWeekRange() {
+  const { year, month, day } = getKstDateParts();
+
+  /*
+   * 한국 날짜를 기준으로 계산하기 위해
+   * UTC 자정 날짜 객체 생성
+   */
+  const today = new Date(Date.UTC(year, month - 1, day));
+
+  const currentDay = today.getUTCDay();
+
+  /*
+   * 일요일이면 월요일까지 -6일
+   * 나머지는 1 - 현재 요일
+   */
+  const mondayDifference = currentDay === 0 ? -6 : 1 - currentDay;
+
+  const weekStart = new Date(today);
+
+  weekStart.setUTCDate(today.getUTCDate() + mondayDifference);
+
+  const weekEnd = new Date(weekStart);
+
+  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+
+  return {
+    weekStartDate: formatDate(weekStart),
+
+    weekEndDate: formatDate(weekEnd),
+  };
+}
+
+/*
+ * 로그인 사용자의 주간 그룹 목표 달성 현황
+ */
+export async function getMyWeeklyGroupGoals(req, res) {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "로그인 사용자 정보가 없습니다.",
+      });
+    }
+
+    /*
+     * 사용자에게 배정된 그룹 조회
+     */
+    const user = await authRepository.findGroupByUserId(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "존재하지 않는 사용자입니다.",
+      });
+    }
+
+    /*
+     * User 모델에서 사용하는 필드가
+     * groupId 또는 group인 경우 모두 대응
+     */
+    const groupId =
+      user.groupId?._id || user.groupId || user.group?._id || user.group;
+
+    if (!groupId) {
+      return res.status(404).json({
+        message: "현재 배정된 그룹이 없습니다.",
+      });
+    }
+
+    /*
+     * 그룹 정보와 목표 조회
+     */
+    const group = await groupRepository.findGroupGoalsById(groupId);
+    console.log("=============group=================");
+    console.log(group);
+
+    if (!group) {
+      return res.status(404).json({
+        message: "배정된 그룹 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    const { weekStartDate, weekEndDate } = getCurrentWeekRange();
+
+    /*
+     * 이번 주 공부시간과 출석일 조회
+     */
+    const studySummary = await studyRepository.findWeeklyStudySummaryByUser(
+      userId,
+      weekStartDate,
+      weekEndDate,
+    );
+
+    /*
+     * Todo 모델 연결 전 임시값
+     */
+    const todoSummary = await todoRepository.findWeeklyTodoSummaryByUser(
+      userId,
+      weekStartDate,
+      weekEndDate,
+    );
+
+    return res.status(200).json({
+      message: "주간 그룹 목표 현황을 성공적으로 불러왔습니다.",
+
+      weekStartDate,
+      weekEndDate,
+
+      group: {
+        _id: group._id,
+        groupName: group.groupName,
+        groupColor: group.groupColor,
+        groupTime: group.groupTime,
+      },
+
+      goals: group.goals || [],
+
+      weeklyStudyMinutes: studySummary.weeklyStudyMinutes,
+
+      attendanceDays: studySummary.attendanceDays,
+
+      attendanceDates: studySummary.attendanceDates,
+
+      totalTodoCount: todoSummary.totalTodoCount,
+
+      completedTodoCount: todoSummary.completedTodoCount,
+
+      todoCompletionRate: todoSummary.todoCompletionRate,
+    });
+  } catch (error) {
+    console.error("주간 그룹 목표 조회 오류:", error);
+
+    if (error.name === "CastError" || error.name === "BSONError") {
+      return res.status(400).json({
+        message: "올바르지 않은 사용자 또는 그룹 정보입니다.",
+      });
+    }
+
+    return res.status(500).json({
+      message: "주간 그룹 목표 조회 중 오류가 발생했습니다.",
     });
   }
 }

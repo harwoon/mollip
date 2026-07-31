@@ -25,7 +25,6 @@ export default function Timer({
   const [timerStatus, setTimerStatus] = useState('IDLE')
   const prevSubjectName = useRef(null)
 
-  // 💡 커스텀 알럿창을 띄우기 위한 상태
   const [alertMessage, setAlertMessage] = useState(null)
 
   const groupId = userInfo?.groupId
@@ -42,7 +41,15 @@ export default function Timer({
     }
   }, [selectedSubject])
 
-  // 💡 상태에 따른 타이머 숫자 글자 색상 (IDLE: 보라색, RUNNING/STOPPED: 흰색)
+  useEffect(() => {
+    if (isRunning) {
+      setTimerStatus('RUNNING') 
+    } else if (!isRunning && time > 0) {
+      setTimerStatus('STOPPED') 
+      setLastSavedTime(Math.floor(time / 100))
+    }
+  }, [isRunning])
+
   let numberColor = '#8a6bc7'
   if (timerStatus === 'RUNNING' || timerStatus === 'STOPPED') {
     numberColor = '#ffffff'
