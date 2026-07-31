@@ -1,0 +1,57 @@
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 20px 0;
+}
+
+.paginationButton {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e0e0ea;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #8a8a98;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.paginationButton:hover {
+    border-color: #7c5cc4;
+    color: #7c5cc4;
+}
+
+.paginationButton.active {
+    background-color: #7c5cc4;
+    border-color: #7c5cc4;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.paginationDots {
+    width: 20px;
+    text-align: center;
+    color: #b5b5c0;
+    font-size: 13px;
+}
+
+.paginationArrow {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #8a8a98;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.paginationArrow:hover:not(:disabled) {
+    color: #7c5cc4;
+}
+
+.paginationArrow:disabled {
+    color: #d8d8e0;
+    cursor: default;
+}

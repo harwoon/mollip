@@ -438,6 +438,10 @@ export async function withdraw(req, res) {
             userId: withdrawnUser.userId,
 
             message: `${withdrawnUser.nickname}님이 서비스를 탈퇴했습니다.`
+            
+            // type: 'WITHDRAW',
+            // userId: userId,
+            // message: `${req.user.nickname}님이 서비스를 탈퇴했습니다.`
         })
 
         // Socket.io가 설정되어 있을 때만 관리자에게 알림

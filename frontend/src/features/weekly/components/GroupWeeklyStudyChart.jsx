@@ -10,8 +10,8 @@ function makeChartData(data) {
     data.map((item) => [
       item.day,
       {
-        personalTime: Number(item.personalTime) || 0,
-        groupTime: Number(item.groupTime) || 0,
+        personalRawMinutes: Number(item.personalTime) || 0,
+        groupRawMinutes: Number(item.groupTime) || 0,
       },
     ]),
   )
@@ -19,19 +19,25 @@ function makeChartData(data) {
   return DAY_NAMES.map((day) => {
     const studyTime = studyTimeMap.get(day)
 
+    const personalRawMinutes = studyTime?.personalRawMinutes || 0
+    const groupRawMinutes = studyTime?.groupRawMinutes || 0
+
     return {
       day,
-      personalTime: studyTime?.personalTime || 0,
-      groupTime: studyTime?.groupTime || 0,
+      personalRawMinutes,
+      groupRawMinutes,
+      personalTime: Number((personalRawMinutes / 60).toFixed(2)),
+      groupTime: Number((groupRawMinutes / 60).toFixed(2)),
     }
   })
 }
 
-function formatStudyTime(value) {
-  const totalMinutes = Math.round((Number(value) || 0) * 60)
+function formatStudyTime(rawMinutes) {
+  const totalMinutes = Math.floor(rawMinutes)
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
 
+  if (hours === 0 && minutes === 0) return "0분"
   if (hours === 0) return `${minutes}분`
   if (minutes === 0) return `${hours}시간`
 
@@ -42,15 +48,30 @@ function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
 
   return (
-    <div>
-      <strong>{label}요일</strong>
+    <div
+      style={{
+        padding: "12px",
+        backgroundColor: "#fff",
+        borderRadius: "12px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+        border: "none"
+      }}
+    >
+      <strong style={{ display: "block", marginBottom: "8px", color: "#333" }}>{label}요일</strong>
 
-      {payload.map((item) => (
-        <div key={item.dataKey}>
-          <span>{item.name}: </span>
-          <b>{formatStudyTime(item.value)}</b>
-        </div>
-      ))}
+      {payload.map((item) => {
+        const rawMinutes = item.dataKey === "personalTime" 
+          ? item.payload.personalRawMinutes 
+          : item.payload.groupRawMinutes
+
+        return (
+          <div key={item.dataKey} style={{ marginBottom: "4px", fontSize: "13px", color: "#555" }}>
+            <span style={{ color: item.stroke, fontWeight: "bold" }}>● </span>
+            <span>{item.name}: </span>
+            <b style={{ color: "#333" }}>{formatStudyTime(rawMinutes)}</b>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -82,34 +103,45 @@ export default function GroupWeeklyStudyChart({ selectedDate }) {
     fetchGroupWeeklyData()
   }, [selectedDate])
 
-  if (loading) return <p>주간 통계를 불러오는 중...</p>
-  if (error) return <p>{error}</p>
+  if (loading) return <p style={{ textAlign: "center", color: "#aaa", padding: "40px 0" }}>주간 통계를 불러오는 중...</p>
+  if (error) return <p style={{ textAlign: "center", color: "#e74c3c", padding: "40px 0" }}>{error}</p>
 
   return (
-    <section>
-      <h3>주간 총 공부량</h3>
+    <section
+      style={{
+        width: "100%",
+        padding: "20px",
+        boxSizing: "border-box",
+        backgroundColor: "#fcfbf9",
+        borderRadius: "20px",
+      }}
+    >
+      <h3 style={{ margin: "0 0 20px", color: "#333", fontSize: "1.2rem" }}>주간 총 공부량</h3>
 
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={chartData} margin={{ top: 20, right: 20, bottom: 10, left: -10 }}>
-          <CartesianGrid vertical={false} strokeDasharray="2 6" />
+          <CartesianGrid vertical={false} strokeDasharray="2 6" stroke="#ddd" />
 
           <XAxis
             dataKey="day"
             interval={0}
             axisLine={false}
             tickLine={false}
+            tick={{ fill: "#555", fontSize: 12, fontWeight: "bold" }}
+            dy={10}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
             domain={[0, "auto"]}
+            tick={{ fill: "#888", fontSize: 12 }}
             tickFormatter={(value) => `${value}H`}
           />
 
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#d9d1ec", strokeDasharray: "3 3" }} />
 
-          <Legend />
+          <Legend wrapperStyle={{ fontSize: "12px", color: "#555", paddingTop: "10px" }} />
 
           <Line
             type="monotone"

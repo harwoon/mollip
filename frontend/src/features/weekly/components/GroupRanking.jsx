@@ -14,12 +14,17 @@ export default function GroupRanking() {
     const [error, setError] =
         useState("")
 
-    function formatStudyTime(totalMinutes) {
-        const hours = Math.floor(
-            (Number(totalMinutes) || 0) / 60,
-        )
+function formatStudyTime(rawSeconds) {
+        const totalMinutes = Math.floor((Number(rawSeconds) || 0) / 60)
 
-        return `${hours}H`
+        const hours = Math.floor(totalMinutes / 60)
+        const minutes = totalMinutes % 60
+
+        if (hours === 0 && minutes === 0) return "0M"
+        if (hours === 0) return `${minutes}M`
+        if (minutes === 0) return `${hours}H`
+        
+        return `${hours}H ${minutes}M`
     }
 
     useEffect(() => {

@@ -128,15 +128,10 @@ export async function getWeeklyStudyTimeByUSers(startDate, endDate) {
     ]);
 }
 
-/*
- * 사용자의 이번 주 공부시간과 출석일 조회
- *
- * 주간 공부시간:
- * 이번 주에 저장된 sumStudyTime의 합계
- *
- * 출석일:
- * sumStudyTime이 0보다 큰 서로 다른 studyDate의 개수
- */
+
+//사용자의 이번 주 공부시간과 출석일 조회
+//주간 공부시간: 이번 주에 저장된 sumStudyTime의 합계
+//출석일: sumStudyTime이 0보다 큰 서로 다른 studyDate의 개수
 export async function findWeeklyStudySummaryByUser(
     userId,
     weekStartDate,
@@ -198,16 +193,28 @@ export async function findWeeklyStudySummaryByUser(
         },
     ]);
 
-    /*
-     * 이번 주 공부 기록이 없으면 기본값 반환
-     */
-    return (
-        result[0] || {
-            weeklyStudyMinutes: 0,
-            attendanceDays: 0,
-            attendanceDates: [],
-        }
-    );
+    // 반환 데이터 정리
+//     {
+//       $project: {
+//         _id: 0,
+//         weeklyStudyMinutes: 1,
+//         attendanceDates: 1,
+
+//         attendanceDays: {
+//           $size: "$attendanceDates",
+//         },
+//       },
+//     },
+//   ]);
+
+   // 이번 주 공부 기록이 없으면 기본값 반환
+  return (
+    result[0] || {
+      weeklyStudyMinutes: 0,
+      attendanceDays: 0,
+      attendanceDates: [],
+    }
+  );
 }
 
 

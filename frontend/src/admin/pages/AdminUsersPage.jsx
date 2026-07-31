@@ -3,12 +3,13 @@ import { io } from "socket.io-client"
 import Topbar from "../components/AdminTopbar.jsx"
 import UsersTable from "../features/users/components/UsersTable.jsx"
 import { getUsers, getActiveUsers } from "../features/users/api/user.js"
+import Pagination from "../components/Pagination.jsx"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState([])
-    const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 15, totalPages: 0 })
+    const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 })
 
     const [search, setSearch] = useState("")
     const [sortOrder, setSortOrder] = useState("desc")
@@ -17,7 +18,7 @@ export default function AdminUsersPage() {
 
     async function fetchUsers() {
         try {
-            const data = await getUsers({ search, sortOrder, page, limit: 15 })
+            const data = await getUsers({ search, sortOrder, page, limit: 10 })
             setUsers(data.users)
             setPagination(data.pagination)
         } catch (err) {
@@ -94,12 +95,11 @@ export default function AdminUsersPage() {
 
             <div className="usersLayout">
                 <UsersTable users={users} activeUserIds={activeUserIds} />
-
-                <div className="usersPagination">
-                    <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>이전</button>
-                    <span>{pagination.page} / {pagination.totalPages || 1}</span>
-                    <button disabled={page >= pagination.totalPages} onClick={() => setPage(p => p + 1)}>다음</button>
-                </div>
+                <Pagination
+                    page={page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={setPage}
+                />             
             </div>
         </div>
     )

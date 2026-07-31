@@ -85,10 +85,10 @@ export default function GroupGoalCard() {
     } = groupGoalData;
 
     /*
-     * 공부시간은 DB에서 분으로 받으므로
+     * 분 단위 공부시간을
      * 시간 단위로 변환
      */
-    const weeklyStudyHours = weeklyStudyMinutes / 60;
+    const weeklyStudyHours = Number((weeklyStudyMinutes / 3600).toFixed(1));
 
     return [...goals]
       .sort((first, second) => first.order - second.order)
@@ -99,7 +99,7 @@ export default function GroupGoalCard() {
           goal.goalType === "MIN_STUDY_TIME" ||
           goal.goalType === "CHALLENGE_STUDY_TIME"
         ) {
-          currentValue = Number(weeklyStudyHours.toFixed(1));
+          currentValue = weeklyStudyHours;
         }
 
         if (goal.goalType === "TODO_COMPLETION_RATE") {

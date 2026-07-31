@@ -3,6 +3,7 @@ import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import * as statisticsService from "../service/statisticsService.js"
 
+import AdminLog from "../models/AdminLog.js"
 import Group from "../models/Group.js"
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
@@ -27,7 +28,7 @@ export async function getUserCount(req, res) {
 
 // 회원 목록 조회
 export async function getUsers(req, res) {
-    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=15 } = req.query
+    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
 
     const skip = (Number(page) - 1) * Number(limit)
     const filters = { search, groupId }
@@ -207,5 +208,20 @@ export async function getWeeklyGroupStudySummary(
             message:
                 "그룹별 주간 공부시간 조회 중 오류가 발생했습니다.",
         })
+    }
+}
+
+// 가입 탈퇴 로그 가져오기
+export async function getLog(req,res) {
+    try {
+
+        const data = await adminRepository.getAllLog()
+
+        return res.status(200).json(data)
+        
+    } catch (error) {
+        console.error("최근 활동 로그 가져오기 실패:",error,)
+
+        return res.status(500).json({message:"최근 활동 로그 가져오던 중 오류가 발생했습니다.",})
     }
 }

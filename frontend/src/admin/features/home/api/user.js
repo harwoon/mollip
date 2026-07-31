@@ -47,3 +47,29 @@ export async function getWeeklyTodoAchievement() {
 
     return data
 }
+
+//로그 가져오기
+export async function getLog(){
+    const token  = localStorage.getItem('token')
+
+    const response = await fetch(
+        `${API_URL}/admin/log`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "최근 활동 로그를 불러오지 못했습니다."
+        )
+    }
+
+    return data
+}
