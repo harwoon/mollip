@@ -1,0 +1,247 @@
+.recordPage {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   페이지 상단
+========================= */
+
+.pageHeader {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+}
+
+.headerLeft {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+}
+
+
+/* =========================
+   전체 본문
+========================= */
+
+.recordBody {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   왼쪽 메인 영역
+========================= */
+
+.mainArea {
+    flex: 1 1 76%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   요약 카드 3개
+========================= */
+
+.summaryRow {
+    flex: 0 0 28%;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+.summaryRow > * {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+}
+
+
+/* =========================
+   하단 그래프 영역
+========================= */
+
+.chartRow {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+.barArea {
+    flex: 1 1 50%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.heatmapArea {
+    flex: 1 1 50%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.barArea > *,
+.heatmapArea > * {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+
+/* =========================
+   오른쪽 Todo 영역
+========================= */
+
+.todoArea {
+    flex: 0 1 24%;
+    min-width: 300px;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.todoArea > * {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+
+/* =========================
+   반응형
+========================= */
+
+@media (max-width: 1280px) {
+    .recordBody,
+    .mainArea,
+    .summaryRow,
+    .chartRow {
+        gap: var(--space-4);
+    }
+
+    .mainArea {
+        flex-basis: 72%;
+    }
+
+    .todoArea {
+        flex-basis: 28%;
+        min-width: 280px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .recordPage {
+        height: auto;
+        min-height: 100%;
+
+        overflow: visible;
+    }
+
+    .pageHeader {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .headerLeft {
+        flex-wrap: wrap;
+    }
+
+    .recordBody {
+        flex-direction: column;
+
+        overflow: visible;
+    }
+
+    .mainArea,
+    .todoArea {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+
+        overflow: visible;
+    }
+
+    .summaryRow {
+        flex: none;
+        min-height: 200px;
+    }
+
+    .chartRow {
+        flex: none;
+        min-height: 420px;
+    }
+
+    .todoArea {
+        min-height: 600px;
+    }
+}
+
+@media (max-width: 760px) {
+    .summaryRow,
+    .chartRow {
+        flex-direction: column;
+    }
+
+    .summaryRow > *,
+    .barArea,
+    .heatmapArea {
+        flex: none;
+        width: 100%;
+        min-height: 280px;
+    }
+}

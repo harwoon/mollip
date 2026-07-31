@@ -1,179 +1,249 @@
-/* 목표 달성률과 Todo 목록을 세로로 배치 */
 .todoRecord {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    min-width: 0;
+    gap: var(--space-5);
+
+    overflow: hidden;    
+    
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
 }
 
 
 /* =========================
-   목표 달성률 카드
+   목표 달성률
 ========================= */
 
 .achievementCard {
-    padding: 20px;
-    background-color: #ffffff;
-    border: 1px solid #eeeaf5;
-    border-radius: 16px;
+    position: relative;
+    flex: 0 0 280px;
+    min-height: 0;
+    padding: var(--space-5);
+
+    display: flex;
+    flex-direction: column;
+
+    /* background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); */
+
+    /* overflow: hidden; */
+}
+.achievementCard::before {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 70%;
+    height: 5px;
+    border-bottom: 1px dashed var(--color-text-muted);
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -10px;
+    opacity: .5;
+    z-index: 5;
 }
 
 .achievementTitle {
-    margin: 0 0 12px;
-    color: #222222;
-    font-size: 18px;
+    flex: 0 0 auto;
+    margin-bottom: var(--space-3);
+
+    color: var(--color-text);
+    font-size: var(--font-lg);
     font-weight: 700;
 }
 
-
-/* =========================
-   Recharts 도넛 차트
-========================= */
-
 .chartArea {
     position: relative;
+
+    flex: 1 1 auto;
     width: 100%;
-    height: 190px;
+    min-height: 0;
 }
 
-/* 도넛 차트 중앙 문구 */
 .chartCenter {
     position: absolute;
     top: 50%;
     left: 50%;
 
     display: flex;
-    flex-direction: column;
     align-items: center;
+    flex-direction: column;
     justify-content: center;
+
+    text-align: center;
 
     transform: translate(-50%, -50%);
     pointer-events: none;
 }
 
 .achievementLabel {
-    margin-bottom: 2px;
-    color: #888094;
-    font-size: 12px;
+    margin-bottom: var(--space-1);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
 }
 
 .achievementRate {
-    color: #7654bd;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.2;
+    color: var(--color-primary-600);
+    font-size: var(--font-2xl);
+    font-weight: 800;
 }
 
-
-/* 완료 / 미완료 범례 */
 .achievementSummary {
+    flex: 0 0 auto;
+    margin-top: var(--space-2);
+
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    margin-top: 4px;
+    gap: var(--space-5);
 }
 
 .achievementSummaryItem {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #68626f;
-    font-size: 13px;
+    gap: var(--space-2);
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
 }
 
 .summaryDot {
-    display: inline-block;
     width: 8px;
     height: 8px;
+
     border-radius: 50%;
 }
 
 .completedDot {
-    background-color: #7654bd;
+    background: var(--color-primary-600);
 }
 
 .incompleteDot {
-    background-color: #ebe7f3;
+    background: var(--color-primary-100);
 }
 
 
 /* =========================
-   Past List 카드
+   Past List
 ========================= */
 
 .pastListCard {
+    flex: 1 1 auto;
     min-width: 0;
-    padding: 20px;
-    background-color: #ffffff;
-    border: 1px solid #eeeaf5;
-    border-radius: 16px;
+    min-height: 0;
+    padding: var(--space-5);
+
+    display: flex;
+    flex-direction: column;
+
+    /* background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg); */
+
+    overflow: hidden;
 }
 
 .pastListHeader {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-4);
+
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: var(--space-3);
 }
 
 .pastListTitle {
     flex-shrink: 0;
-    margin: 0;
-    color: #222222;
-    font-size: 18px;
+
+    color: var(--color-text);
+    font-size: var(--font-lg);
     font-weight: 700;
 }
 
 
 /* =========================
-   전체 / 완료 / 미완료 필터
+   필터
 ========================= */
 
 .todoFilter {
+    padding: var(--space-1);
+
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px;
-    background-color: #f4f1f9;
-    border-radius: 8px;
+    gap: var(--space-1);
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-md);
 }
 
 .todoFilterButton {
+    min-height: 30px;
+    padding: 0 var(--space-2);
+
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-1);
 
-    padding: 6px 9px;
-    border: 0;
-    border-radius: 6px;
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    font-weight: 600;
 
-    background-color: transparent;
-    color: #81798c;
-
-    font-family: inherit;
-    font-size: 12px;
-    cursor: pointer;
+    background: transparent;
+    border-radius: var(--radius-sm);
 
     transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+        color 0.15s ease,
+        background-color 0.15s ease;
 }
 
 .todoFilterButton:hover {
-    background-color: #ebe5f5;
-    color: #6844ad;
+    color: var(--color-primary-700);
+    background: var(--color-primary-100);
 }
 
 .todoFilterButton span {
-    font-size: 11px;
+    font-size: var(--font-xs);
 }
 
-/* 현재 선택된 필터 */
-.todoFilterButton.active {
-    background-color: #7654bd;
-    color: #ffffff;
+.active {
+    color: var(--color-surface);
+    background: var(--color-primary-600);
+}
+
+.active:hover {
+    color: var(--color-surface);
+    background: var(--color-primary-700);
+}
+
+
+/* =========================
+   목록 상태
+========================= */
+
+.todoRecordMessage {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    text-align: center;
+}
+
+.errorMessage {
+    color: var(--color-danger);
 }
 
 
@@ -182,120 +252,96 @@
 ========================= */
 
 .pastTodoList {
-    max-height: 300px;
-    margin: 0;
-    padding: 0;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    padding-right: var(--space-2);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-x: hidden;
     overflow-y: auto;
-    list-style: none;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-300) transparent;
 }
 
-/* 스크롤바 */
 .pastTodoList::-webkit-scrollbar {
     width: 5px;
 }
 
 .pastTodoList::-webkit-scrollbar-thumb {
-    background-color: #c9bfdc;
-    border-radius: 10px;
+    background: var(--color-primary-300);
+    border-radius: var(--radius-sm);
 }
 
 .pastTodoList::-webkit-scrollbar-track {
-    background-color: transparent;
+    background: transparent;
 }
 
 .pastTodoItem {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 45px;
+    padding: var(--space-2) 0;
+
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: var(--space-2);
 
-    min-width: 0;
-    padding: 10px 4px;
-
-    border-bottom: 1px solid #f2eff6;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .pastTodoItem:last-child {
     border-bottom: 0;
 }
 
-/* 완료 또는 미완료 표시 */
 .pastTodoState {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+
     display: flex;
-    flex: 0 0 18px;
     align-items: center;
     justify-content: center;
 
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-
-    font-size: 11px;
+    font-size: var(--font-xs);
     font-weight: 700;
+
+    border-radius: var(--radius-sm);
 }
 
-/* 완료 Todo */
 .completedItem .pastTodoState {
-    background-color: #d9f3e6;
-    color: #32976a;
+    color: var(--color-success);
+    background: rgba(69, 184, 135, 0.12);
 }
 
-/* 미완료 Todo */
 .incompleteItem .pastTodoState {
-    background-color: #ffe1e1;
-    color: #db6666;
+    color: var(--color-danger);
+    background: rgba(239, 108, 115, 0.12);
 }
 
-/* Todo 내용 */
 .pastTodoText {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
 
-    overflow: hidden;
-    color: #4c4752;
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
 
-    font-size: 13px;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* Todo 날짜 */
+.completedItem .pastTodoText {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
 .pastTodoDate {
-    flex-shrink: 0;
-    color: #aaa3b1;
-    font-size: 11px;
-}
+    flex: 0 0 auto;
 
-
-/* =========================
-   로딩 / 오류 / 빈 목록
-========================= */
-
-.todoRecordMessage {
-    margin: 0;
-    padding: 32px 10px;
-    color: #918a99;
-    font-size: 13px;
-    text-align: center;
-}
-
-.errorMessage {
-    color: #d95c5c;
-}
-
-
-/* 화면 폭이 좁아질 때 */
-@media (max-width: 600px) {
-    .pastListHeader {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .todoFilter {
-        width: 100%;
-    }
-
-    .todoFilterButton {
-        flex: 1;
-        justify-content: center;
-    }
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
 }

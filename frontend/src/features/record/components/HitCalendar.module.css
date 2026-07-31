@@ -1,0 +1,154 @@
+.container {
+    height: 100%;
+    min-height: 0;
+    padding: var(--space-5);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.title {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-4);
+
+    color: var(--color-text);
+    font-size: var(--font-lg);
+    font-weight: 700;
+}
+
+.calendarCard {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.calendar {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    padding: 0;
+
+    border: 0 !important;
+    border-radius: 0;
+}
+
+.message,
+.error {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-2);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+}
+
+.error {
+    color: var(--color-danger);
+}
+
+.legend {
+    flex: 0 0 auto;
+    margin-top: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.legendItem {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.legendColor {
+    flex: 0 0 12px;
+    width: 12px;
+    height: 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+}
+
+:global(.heat-level-0) {
+    color: var(--color-text-secondary);
+    background: var(--color-surface) !important;
+}
+
+:global(.heat-level-1) {
+    color: var(--color-text-secondary);
+    background: var(--color-primary-100) !important;
+}
+
+:global(.heat-level-2) {
+    color: var(--color-surface);
+    background: var(--color-primary-300) !important;
+}
+
+:global(.heat-level-3) {
+    color: var(--color-surface);
+    background: var(--color-primary-500) !important;
+}
+
+:global(.heat-level-4) {
+    color: var(--color-surface);
+    background: var(--color-primary-700) !important;
+}
+
+.calendar :global(.react-calendar__tile) {
+    position: relative;
+    overflow: visible !important;
+}
+
+.tooltip {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + var(--space-2));
+    z-index: 100;
+
+    padding: var(--space-2) var(--space-3);
+
+    color: var(--color-surface);
+    font-size: var(--font-xs);
+    white-space: nowrap;
+
+    background: var(--color-text);
+    border-radius: var(--radius-sm);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateX(-50%);
+    transition: opacity 0.15s ease;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.calendar :global(.react-calendar__tile abbr) {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+}

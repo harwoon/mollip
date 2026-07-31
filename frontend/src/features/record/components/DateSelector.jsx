@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import dayjs from 'dayjs'
 import Calendar from 'react-calendar'
 
+import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi"
+import styles from "./DateSelector.module.css"
+
 export default function DateSelector({ selectedDate, onChangeDate }) {
     const [isOpen, setIsOpen] = useState(false)
 
@@ -20,30 +23,49 @@ export default function DateSelector({ selectedDate, onChangeDate }) {
     }
 
     return (
+        <div className={styles.wrapper}>
+            <div className={styles.selectorBox}>
+                <FiCalendar
+                    className={styles.calendarIcon}
+                    aria-hidden="true"
+                />
 
-        <div className="date-selector-wrapper">
-            <div className="date-selector-box">
-                <span className="calendar-icon">📅</span>
-
-                <span
-                    className="date-text"
+                <button
+                    type="button"
+                    className={styles.dateButton}
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    {dayjs(selectedDate).format('YYYY. MM. DD (ddd)')}
-                </span>
+                    {dayjs(selectedDate).format("YYYY. MM. DD (ddd)")}
+                </button>
 
-                <div className="arrow-buttons">
-                    <button onClick={handlePrev}>&lt;</button>
-                    <button onClick={handleNext}>&gt;</button>
+                <div className={styles.arrowButtons}>
+                    <button
+                        type="button"
+                        onClick={handlePrev}
+                        aria-label="이전 날짜"
+                    >
+                        <FiChevronLeft />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleNext}
+                        aria-label="다음 날짜"
+                    >
+                        <FiChevronRight />
+                    </button>
                 </div>
             </div>
 
             {isOpen && (
-                <div className="calendar-popup">
+                <div className={styles.calendarPopup}>
                     <Calendar
+                        className="app-calendar"
                         onChange={handleDateClick}
                         value={selectedDate}
-                        formatDay={(locale, date) => dayjs(date).format('D')}
+                        formatDay={(locale, date) =>
+                            dayjs(date).format("D")
+                        }
                         next2Label={null}
                         prev2Label={null}
                     />

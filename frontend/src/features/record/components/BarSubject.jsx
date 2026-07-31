@@ -12,6 +12,8 @@ import {
     ResponsiveContainer
 } from 'recharts'
 
+import styles from "./BarSubject.module.css"
+
 export default function SubjectBarChart({ selectedDate, type }) {
     const [chartData, setChartData] = useState([])
 
@@ -56,7 +58,7 @@ export default function SubjectBarChart({ selectedDate, type }) {
             {
                 name: "기록 없음",
                 hours: 0,
-                color: "#ddd8e8",
+                color: "var(--color-border)",
                 rawSeconds: 0
             }
         ]
@@ -89,34 +91,9 @@ export default function SubjectBarChart({ selectedDate, type }) {
             const min = totalMinutes % 60
 
             return (
-                <div
-                    style={{
-                        padding: "12px",
-                        backgroundColor: "#ffffff",
-                        border: "none",
-                        borderRadius: "12px",
-                        boxShadow:
-                            "0px 4px 12px rgba(0, 0, 0, 0.08)"
-                    }}
-                >
-                    <p
-                        style={{
-                            margin: "0 0 5px 0",
-                            color: "#8a6bc7",
-                            fontWeight: "bold"
-                        }}
-                    >
-                        {name}
-                    </p>
-
-                    <p
-                        style={{
-                            margin: 0,
-                            color: "#333333"
-                        }}
-                    >
-                        {hour}시간 {min}분
-                    </p>
+                <div className={styles.tooltip}>
+                    <p className={styles.tooltipTitle}>{name}</p>
+                    <p className={styles.tooltipTime}>{hour}시간 {min}분</p>
                 </div>
             )
         }
@@ -126,39 +103,11 @@ export default function SubjectBarChart({ selectedDate, type }) {
 
 
     return (
-        <div
-            style={{
-                width: "100%",
-                padding: "20px",
-                backgroundColor: "#fcfbf9",
-                borderRadius: "20px"
-            }}
-        >
-            <h3
-                style={{
-                    marginBottom: "20px",
-                    color: "#333333",
-                    fontSize: "1.2rem",
-                    textAlign: "center"
-                }}
-            >
-                과목별 공부 시간 비교
-            </h3>
+        <section className={`commonSection ${styles.container}`}>
+            <h3 className={styles.title}>과목별 공부 시간 비교</h3>
 
-
-            {/* Recharts 막대 차트 영역 */}
-            <div
-                style={{
-                    position: "relative",
-                    width: "100%",
-                    height: "250px"
-                }}
-            >
-                {/* 부모 크기에 맞춰 차트 크기 자동 조절 */}
-                <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                >
+            <div className={styles.chartArea}>
+                <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={displayChartData}
                         margin={{
@@ -169,14 +118,12 @@ export default function SubjectBarChart({ selectedDate, type }) {
                         }}
                         barSize={30}
                     >
-                        {/* 가로 기준선 */}
                         <CartesianGrid
                             strokeDasharray="3 3"
                             vertical={false}
                             stroke="#eeeeee"
                         />
 
-                        {/* 과목명 X축 */}
                         <XAxis
                             dataKey="name"
                             axisLine={false}
@@ -188,7 +135,6 @@ export default function SubjectBarChart({ selectedDate, type }) {
                             dy={10}
                         />
 
-                        {/* 공부시간 Y축 */}
                         <YAxis
                             axisLine={false}
                             tickLine={false}
@@ -199,7 +145,6 @@ export default function SubjectBarChart({ selectedDate, type }) {
                             domain={[0, "auto"]}
                         />
 
-                        {/* 실제 데이터가 있을 때만 Tooltip 표시 */}
                         {hasChartData && (
                             <Tooltip
                                 content={<CustomTooltip />}
@@ -209,7 +154,6 @@ export default function SubjectBarChart({ selectedDate, type }) {
                             />
                         )}
 
-                        {/* 과목별 공부시간 막대 */}
                         <Bar
                             dataKey="hours"
                             radius={[10, 10, 0, 0]}
@@ -227,47 +171,13 @@ export default function SubjectBarChart({ selectedDate, type }) {
                     </BarChart>
                 </ResponsiveContainer>
 
-
-                {/* 공부 기록이 없을 때 차트 위에 안내 문구 표시 */}
                 {!hasChartData && (
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-
-                            transform:
-                                "translate(-50%, -50%)",
-                            textAlign: "center",
-                            pointerEvents: "none"
-                        }}
-                    >
-                        <span
-                            style={{
-                                color: "#999999",
-                                fontSize: "0.8rem"
-                            }}
-                        >
-                            과목별 공부 기록
-                        </span>
-
-                        <strong
-                            style={{
-                                marginTop: "3px",
-                                color: "#777777",
-                                fontSize: "1rem"
-                            }}
-                        >
-                            없음
-                        </strong>
+                    <div className={styles.emptyState}>
+                        <span>과목별 공부 기록</span>
+                        <strong>없음</strong>
                     </div>
                 )}
             </div>
-        </div>
+        </section>
     )
 }

@@ -122,6 +122,7 @@
   text-align: center;
 }
 
+
 /* react-calendar 공통 디자인 */
 .app-calendar,
 .react-calendar {
@@ -152,4 +153,223 @@
 }
 @media (max-width: 860px) {
   .app-grid--2, .app-grid--3, .app-grid--4 { grid-template-columns: 1fr; }
+}
+
+/* 공통 탭 */
+.app-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  border-radius: 999px;
+}
+
+.app-tab {
+  min-height: 30px;
+  padding: 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  border-radius: 999px;
+  transition: color .15s ease, background-color .15s ease;
+}
+
+.app-tab:hover {
+  color: var(--color-primary-700);
+  background: var(--color-surface);
+}
+
+.app-tab.active {
+  color: #fff;
+  background: var(--color-primary-600);
+}
+
+/* 공통 날짜 선택기 */
+.app-date-selector {
+  position: relative;
+  z-index: 20;
+}
+
+.app-date-selector__box {
+  min-height: 42px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.app-date-selector__icon {
+  flex: 0 0 auto;
+  color: var(--color-primary-600);
+  font-size: var(--font-lg);
+}
+
+.app-date-selector__text {
+  min-width: 150px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  text-align: left;
+}
+
+.app-date-selector__arrows {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: var(--space-2);
+}
+
+.app-date-selector__arrows button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.app-date-selector__arrows button:hover {
+  color: var(--color-primary-700);
+  background: var(--color-primary-50);
+}
+
+.app-date-selector__popup {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  width: 320px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* 기록 요약 카드 */
+.record-summary-card {
+  min-height: var(--record-summary-min-height);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.record-summary-title {
+  color: var(--color-text-secondary);
+  font-size: var(--font-md);
+  font-weight: 700;
+}
+
+.record-summary-value {
+  color: var(--color-primary-700);
+  font-size: clamp(26px, 2vw, 34px);
+  font-weight: 800;
+  letter-spacing: -.04em;
+}
+
+.record-summary-card--chart {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.record-summary-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.record-summary-chart {
+  position: relative;
+  flex: 0 0 130px;
+  width: 130px;
+  height: 110px;
+}
+
+/* 기록 상세 패널 */
+.app-record-panel {
+  min-height: var(--record-detail-min-height);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.app-record-panel__title {
+  margin-bottom: var(--space-5);
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  font-weight: 700;
+  text-align: left;
+}
+
+.record-bar-chart {
+  position: relative;
+  width: 100%;
+  height: 340px;
+}
+
+.record-chart-empty {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  text-align: center;
+  pointer-events: none;
+}
+
+.record-chart-empty strong {
+  margin-top: 3px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-md);
+}
+
+@media (max-width: 900px) {
+  .app-date-selector,
+  .app-date-selector__box,
+  .app-date-selector__text {
+    width: 100%;
+  }
+
+  .app-date-selector__text {
+    flex: 1;
+  }
+
+  .app-date-selector__popup {
+    left: 0;
+    right: auto;
+    width: min(100%, 360px);
+  }
+
+  .record-summary-card--chart {
+    align-items: flex-start;
+  }
+}
+
+.record-chart-tooltip {
+  padding: var(--space-3);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  font-size: var(--font-sm);
+}
+
+.record-chart-tooltip__title {
+  margin-bottom: 5px;
+  color: var(--color-primary-700);
+  font-weight: 700;
 }
