@@ -70,6 +70,14 @@ export async function signup(req, res) {
         { userId, userPw: hashed, nickname, email }
     )
 
+    const newLog = await AdminLog.create({
+        type: 'SIGNUP',
+        userId: userId,
+        message: `${nickname}님이 서비스를 가입했습니다.`
+    })
+
+    req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
+
     // 가입완료 후
     const token = await createJwtToken(userInsertedId)
 
@@ -341,7 +349,7 @@ export async function deleteAll(req, res) {
         await studyRepository.deleteMany(userId)
         await subjectRepository.deleteMany(userId)
         await todoRepository.deleteMany(userId)
-        
+
         await authRepository.deleteUserById(userId)
 
         const newLog = await AdminLog.create({
