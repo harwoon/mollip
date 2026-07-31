@@ -67,3 +67,11 @@ export async function findAllGroups() {
         .select("_id groupName groupColor")
         .lean()
 }
+// 관리자 그룹별 주간 총공부시간용 유저 정보 가져오기
+export async function findAllUserGroups() {
+    return User.find({
+        role: "user",
+    })
+        .select("_id groupId")
+        .lean()
+}

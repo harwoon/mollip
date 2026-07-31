@@ -23,7 +23,7 @@ export default function GroupRanking() {
             (Number(totalMinutes) || 0) / 60,
         )
 
-        return `${hours}시간`
+        return `${hours}H`
     }
 
     useEffect(() => {

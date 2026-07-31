@@ -8,6 +8,7 @@ import * as adminRepository from "../repository/admin.js"
 
 import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
+import { calculateWeeklyStudyTimeByGroup } from "../util/ratio.js"
 
 // const now = new Date()
 
@@ -202,7 +203,7 @@ const [groups, users] = await Promise.all([
         adminRepository.findAllGroups(),
         adminRepository.getAllUsersWithGroup()
     ])
-
+    
     if (groups.length === 0) {
         return []
     }
@@ -315,39 +316,37 @@ const [groups, users] = await Promise.all([
     }))
 }
 
-// 전체 사용자 주간 Todo 달성률
-export async function getWeeklyTodoAchievement() {
-    const {startDate, endDate} = getWeekRange(new Date())
-
-    // 사용자별 이번주 Todo 전체개수, 완료계수 집계
-    const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(
-        startDate,
-        endDate
-    )
-
-    // 확인용 로그
-    console.log("이번 주 조회 기간:", startDate, endDate)
-    console.log("사용자별 Todo 집계:", weeklyAchievements)
-
-    let totalCount = 0
-    let completedCount = 0
-
-    // 사용자별 집계값을 전체 기준으로 합산
-    weeklyAchievements.forEach(achievement => {
-        totalCount += achievement.totalCount || 0
-        completedCount += achievement.completedCount || 0
-    })
-    
-    // Todo 하나도 없으면 0 처리
-    const achievementRate = totalCount === 0 ? 0 : Number(
-        (completedCount / totalCount * 100).toFixed(1)  // 소수점 첫째자리까지 표현
-    )
-
-    return(
+export async function getWeeklyGroupStudySummary(
+    referenceDate = new Date(),
+) {
+    const {
         startDate,
         endDate,
-        totalCount,
-        completedCount,
-        achievementRate
-    )
+    } = getWeekRange(referenceDate)
+
+    const [
+        groups,
+        users,
+        weeklyStudies,
+    ] = await Promise.all([
+        groupRepository.findAllGroups(),
+        adminRepository.findAllUserGroups(),
+        studyRepository.getWeeklyStudyTimeByUSers(
+            startDate,
+            endDate,
+        ),
+    ])
+
+    const groupStatistics =
+        calculateWeeklyStudyTimeByGroup({
+            groups,
+            users,
+            weeklyStudies,
+        })
+
+    return {
+        startDate,
+        endDate,
+        groupStatistics,
+    }
 }
