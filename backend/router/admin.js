@@ -23,6 +23,9 @@ router.get("/users/:id", adminController.getUserDetail)
 // http://127.0.0.1:3000/admin/assign-weekly
 router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 
+// http://127.0.0.1:3000/admin/todo-achievement/weekly
+router.get("/todo-achievement/weekly", adminController.getWeeklyTodoAchievement)
+
 // 그룹 관리
 // =================================================
 // http://127.0.0.1:3000/admin/groups/count
