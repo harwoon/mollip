@@ -31,77 +31,153 @@ export async function getUserCount(req, res) {
 }
 
 // 회원 목록 조회
-export async function getUsers(req, res) {
-    const { 
-        search, groupId, status,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-        page = 1, limit = 10 
-    } = req.query
+// export async function getUsers(req, res) {
+//     const { 
+//         search, groupId, status,
+//         sortBy = "createdAt",
+//         sortOrder = "desc",
+//         page = 1, limit = 10 
+//     } = req.query
 
-    // 1.  검색/그룹 조건에 맞는 유저를 전부 가져옴 (아직 정렬/페이지 안나눔)
+//     // 1.  검색/그룹 조건에 맞는 유저를 전부 가져옴 (아직 정렬/페이지 안나눔)
+//     const users = await adminRepository.findAllMatchingUsers({ search, groupId })
+
+//     // 2. 소속 그룹 정보 매핑용 Map 생성
+//     const groupIds = [...new Set(users.map(u => u.groupId).filter(id => id !== "Unranked"))]
+//     const groups = await Group.find({ _id: { $in: groupIds } })
+//     const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
+
+//     // 이번 주(월~일) 날짜 범위 계산
+//     const { startDate, endDate } = getWeekRange(new Date())
+
+//     // 전체 유저의 이번 주 총 공부시간을 한 번에 집계 (분 단위)
+//     const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
+
+//     // 유저ID → 주간 공부시간으로 빠르게 조회하기 위한 Map 생성
+//     const weeklyTimeMap = new Map(
+//         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
+//     )
+
+//     // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
+//     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
+
+//     // 유저ID → 목표 달성률(%)로 변환한 Map 생성
+//     // Todo가 하나도 없으면(totalCount === 0) 0%로 처리 (0으로 나누기 방지)
+//     const achievementMap = new Map(
+//         weeklyAchievements.map(item => [
+//             item._id.toString(),
+//             item.totalCount === 0 ? 0 : Math.round((item.completedCount / item.totalCount) * 100)
+//         ])
+//     )
+    
+//     // 현재 실시간으로 공부 중인 유저ID 목록을 Set으로 변환
+//     // (Set으로 만드는 이유: 나중에 .has()로 바르게 "이 유저가 공부중인기" 확인하기 위함)
+//     const activeUserIds = new Set(await adminRepository.getActiveUserIds())
+
+//     // 검색된 유저 한 명 한 명에, 앞서 계산해둔 그룹정보/공부시간/달성률/실시간상태를 합쳐
+//     // 화면에 필요한 최종 형태로 만듦 (원본 users 배열은 그대로 두고 새 배열을 만듦)
+//     let enrichedUsers = users.map(user => ({
+//         ...user.toObject(),
+//         group: groupMap.get(user.groupId) || null,
+//         weeklyStudyTime: weeklyTimeMap.get(user._id.toString()) || 0,
+//         achievementRate: achievementMap.get(user._id.toString()) || 0,
+//         isStudying: activeUserIds.has(user._id.toString())
+//     }))
+
+//     // 셀렉트 박스에서 '상태'를 선택했을 때만 걸리는 필터
+//     if (status === "studying") {
+//         enrichedUsers = enrichedUsers.filter(user => user.isStudying)
+//     } else if (status === "resting") {
+//         enrichedUsers = enrichedUsers.filter(user => !user.isStudying)
+//     }
+
+//     // 정렬처리
+//     // '상태' 필터가 걸려있을 땐 별도 정렬 기준이 없으니, 닉네임 오름차순으로 고정 정렬
+//     // 
+//     if (sortBy === "status") {
+//         enrichedUsers.sort((a, b) => a.nickname.localeCompare(b.nickname, "ko"))
+//     } else {
+//         enrichedUsers.sort((a, b) => {
+//             // sortOrder가 "asc"면 1(오름차순), 아니면 -1(내림차순)
+//             const dir = sortOrder === "asc" ? 1 : -1
+
+//             // sortBy로 넘어온 필드명(예: "nickname", "weeklyStudyTime")의 값을 두 유저에서 각각 꺼냄
+//             const aVal = a[sortBy]
+//             const bVal = b[sortBy]
+//             if (aVal < bVal) return -1 * dir
+//             if (aVal > bVal) return 1 * dir
+//             return 0
+//         })
+//     }
+
+//     // 정렬/필터가 끝난 "전체 결과 개수"를 페이지네이션 정보로 쓰기 위해 저장
+//     const total = enrichedUsers.length
+
+//     // 몇 번째 항목부터 끊어서 보여줄지 계산 (예: page=2, limit=10 이면 skip=10 → 11번째부터)
+//     const skip = (Number(page) - 1) * Number(limit)
+
+//     // 정렬 다 끝난 전체 목록에서, 이번에 보여줄 페이지 분량만 잘라냄
+//     const pagedUsers = enrichedUsers.slice(skip, skip + Number(limit))
+
+//     console.log("[관리자] 회원 목록 조회 성공")
+
+//     return res.status(200).json({
+//         message: "회원 목록을 성공적으로 불러왔습니다",
+//         users: pagedUsers,
+//         pagination: {
+//             total,
+//             page: Number(page),
+//             limit: Number(limit),
+//             totalPages: Math.ceil(total / Number(limit))
+//         }
+//     })
+// }
+
+// 검색/필터/정렬이 적용된 전체 유저 목록을 만드는 공용 함수
+// (getUsers와 엑셀 다운로드가 이 함수를 공유해서 씀 — 페이지네이션은 각자 알아서 처리)
+async function buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder }) {
     const users = await adminRepository.findAllMatchingUsers({ search, groupId })
 
-    // 2. 소속 그룹 정보 매핑용 Map 생성
     const groupIds = [...new Set(users.map(u => u.groupId).filter(id => id !== "Unranked"))]
     const groups = await Group.find({ _id: { $in: groupIds } })
     const groupMap = new Map(groups.map(g => [g.id.toString(), g]))
 
-    // 이번 주(월~일) 날짜 범위 계산
     const { startDate, endDate } = getWeekRange(new Date())
 
-    // 전체 유저의 이번 주 총 공부시간을 한 번에 집계 (분 단위)
     const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
-
-    // 유저ID → 주간 공부시간으로 빠르게 조회하기 위한 Map 생성
     const weeklyTimeMap = new Map(
         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
     )
 
-    // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
-
-    // 유저ID → 목표 달성률(%)로 변환한 Map 생성
-    // Todo가 하나도 없으면(totalCount === 0) 0%로 처리 (0으로 나누기 방지)
     const achievementMap = new Map(
         weeklyAchievements.map(item => [
             item._id.toString(),
             item.totalCount === 0 ? 0 : Math.round((item.completedCount / item.totalCount) * 100)
         ])
     )
-    
-    // 현재 실시간으로 공부 중인 유저ID 목록을 Set으로 변환
-    // (Set으로 만드는 이유: 나중에 .has()로 바르게 "이 유저가 공부중인기" 확인하기 위함)
+
     const activeUserIds = new Set(await adminRepository.getActiveUserIds())
 
-    // 검색된 유저 한 명 한 명에, 앞서 계산해둔 그룹정보/공부시간/달성률/실시간상태를 합쳐
-    // 화면에 필요한 최종 형태로 만듦 (원본 users 배열은 그대로 두고 새 배열을 만듦)
-    let enrichedUsers = users.map(user => ({
-        ...user.toObject(),
-        group: groupMap.get(user.groupId) || null,
-        weeklyStudyTime: weeklyTimeMap.get(user._id.toString()) || 0,
-        achievementRate: achievementMap.get(user._id.toString()) || 0,
-        isStudying: activeUserIds.has(user._id.toString())
+    let enrichedUsers = users.map(u => ({
+        ...u.toObject(),
+        group: groupMap.get(u.groupId) || null,
+        weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,
+        achievementRate: achievementMap.get(u._id.toString()) || 0,
+        isStudying: activeUserIds.has(u._id.toString())
     }))
 
-    // 셀렉트 박스에서 '상태'를 선택했을 때만 걸리는 필터
     if (status === "studying") {
-        enrichedUsers = enrichedUsers.filter(user => user.isStudying)
+        enrichedUsers = enrichedUsers.filter(u => u.isStudying)
     } else if (status === "resting") {
-        enrichedUsers = enrichedUsers.filter(user => !user.isStudying)
+        enrichedUsers = enrichedUsers.filter(u => !u.isStudying)
     }
 
-    // 정렬처리
-    // '상태' 필터가 걸려있을 땐 별도 정렬 기준이 없으니, 닉네임 오름차순으로 고정 정렬
-    // 
     if (sortBy === "status") {
         enrichedUsers.sort((a, b) => a.nickname.localeCompare(b.nickname, "ko"))
     } else {
         enrichedUsers.sort((a, b) => {
-            // sortOrder가 "asc"면 1(오름차순), 아니면 -1(내림차순)
             const dir = sortOrder === "asc" ? 1 : -1
-
-            // sortBy로 넘어온 필드명(예: "nickname", "weeklyStudyTime")의 값을 두 유저에서 각각 꺼냄
             const aVal = a[sortBy]
             const bVal = b[sortBy]
             if (aVal < bVal) return -1 * dir
@@ -110,13 +186,21 @@ export async function getUsers(req, res) {
         })
     }
 
-    // 정렬/필터가 끝난 "전체 결과 개수"를 페이지네이션 정보로 쓰기 위해 저장
+    return enrichedUsers
+}
+
+// 회원 목록 조회 (화면용, 페이지네이션 적용)
+export async function getUsers(req, res) {
+    const {
+        search, groupId, status,
+        sortBy = "createdAt", sortOrder = "desc",
+        page = 1, limit = 10
+    } = req.query
+
+    const enrichedUsers = await buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder })
+
     const total = enrichedUsers.length
-
-    // 몇 번째 항목부터 끊어서 보여줄지 계산 (예: page=2, limit=10 이면 skip=10 → 11번째부터)
     const skip = (Number(page) - 1) * Number(limit)
-
-    // 정렬 다 끝난 전체 목록에서, 이번에 보여줄 페이지 분량만 잘라냄
     const pagedUsers = enrichedUsers.slice(skip, skip + Number(limit))
 
     console.log("[관리자] 회원 목록 조회 성공")
@@ -131,6 +215,25 @@ export async function getUsers(req, res) {
             totalPages: Math.ceil(total / Number(limit))
         }
     })
+}
+
+// 회원 목록 엑셀 다운로드용 (검색/필터된 전체, 페이지네이션 없음)
+export async function getUsersExport(req, res) {
+    const { search, groupId, status, sortBy = "createdAt", sortOrder = "desc" } = req.query
+
+    try {
+        const enrichedUsers = await buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder })
+
+        console.log("[관리자] 회원 목록 엑셀용 전체 조회 성공")
+
+        return res.status(200).json({
+            message: "엑셀 다운로드용 회원 목록을 성공적으로 불러왔습니다",
+            users: enrichedUsers
+        })
+    } catch (error) {
+        console.error("엑셀용 회원 목록 조회 오류:", error)
+        return res.status(500).json({ message: "엑셀 다운로드용 데이터 조회 중 오류가 발생했습니다." })
+    }
 }
 
 // 회원 상세 목록 조회

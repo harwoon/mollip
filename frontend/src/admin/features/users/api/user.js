@@ -60,3 +60,26 @@ export async function getActiveUsers() {
     if (!response.ok) throw new Error(data.message)
     return data
 }
+
+// 엑셀 다운로드용 전체 회원 목록 조회 (페이지네이션 없음)
+export async function getUsersExportData({ search, groupId, status, sortBy, sortOrder } = {}) {
+    const params = new URLSearchParams()
+
+    if (search) params.append("search", search)
+    if (groupId) params.append("groupId", groupId)
+    if (sortBy) params.append("sortBy", sortBy)
+    if (sortOrder) params.append("sortOrder", sortOrder)
+    if (status) params.append("status", status)
+
+    const response = await fetch(`${API_URL}/admin/users/export?${params.toString()}`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+        throw new Error(data.message || "엑셀 데이터를 불러오지 못했습니다.")
+    }
+
+    return data
+}

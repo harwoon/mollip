@@ -3,7 +3,8 @@ import { io } from "socket.io-client"
 import Topbar from "../components/AdminTopbar.jsx"
 import UsersTable from "../features/users/components/UsersTable.jsx"
 import Pagination from "../components/Pagination.jsx"
-import { getUsers, getActiveUsers } from "../features/users/api/user.js"
+import { getUsers, getActiveUsers, getUsersExportData } from "../features/users/api/user.js"
+import * as XLSX from "xlsx"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
@@ -105,6 +106,47 @@ export default function AdminUsersPage() {
         setPage(1)
         setSortOrder(e.target.value)
     }
+    // 컴포넌트 내부에 함수 추가
+    async function handleExportExcel() {
+        try {
+            const params = { search, sortBy }
+
+            if (isStatusSort) {
+                params.status = sortOrder
+            } else {
+                params.sortOrder = sortOrder
+            }
+
+            const data = await getUsersExportData(params)
+
+            const rows = data.users.map(user => ({
+                "닉네임": user.nickname,
+                "이번주 총 공부시간(시간)": Math.floor((user.weeklyStudyTime || 0) / 60),
+                "현재 연속 학습일": user.currentStreak,
+                "최대 연속 학습일": user.maxStreak,
+                "개인 목표 달성률(%)": user.achievementRate,
+                "소속 그룹": user.group ? user.group.groupName : "미배정",
+                "그룹 목표 달성률(%)": user.groupAchievementRate ?? "-",
+                "상태": user.isStudying ? "공부중" : "휴식중",
+                "가입일": new Date(user.createdAt).toLocaleDateString("ko-KR")
+            }))
+
+            const worksheet = XLSX.utils.json_to_sheet(rows)
+            const workbook = XLSX.utils.book_new()
+            XLSX.utils.book_append_sheet(workbook, worksheet, "회원목록")
+
+            // 날짜 + 시:분:초까지 포함해서 파일명 중복 방지
+            const now = new Date()
+            const timestamp = now
+                .toLocaleString("sv-SE")   // "2026-08-01 21:35:07" 형태 (24시간제, 하이픈/콜론 포함)
+                .replace(" ", "_")
+                .replace(/:/g, "-")        // "2026-08-01_21-35-07"
+
+            XLSX.writeFile(workbook, `회원목록_${timestamp}.xlsx`)
+        } catch (err) {
+            alert("엑셀 다운로드에 실패했습니다: " + err.message)
+        }
+    }
 
     return (
         <div>
@@ -138,6 +180,10 @@ export default function AdminUsersPage() {
                         <option value="desc">내림차순</option>
                     </select>
                 )}
+
+                <button type="button" onClick={handleExportExcel}>
+                    엑셀 다운로드
+                </button>
             </Topbar>
 
             <div className="usersLayout">
