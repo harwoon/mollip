@@ -36,14 +36,14 @@ export default function LoginForm() {
                 userPw
             )
 
-            /*
-             * 기존 로그인 성공 처리 코드를 유지하세요.
-             *
-             * 예:
-             * localStorage.setItem("token", result.token)
-             * localStorage.setItem("userId", result.user._id)
-             * localStorage.setItem("groupId", result.user.groupId)
-             */
+            // 로그인한 사용자의 역할 확인
+            const role = result.user.role
+
+            // 관리자와 일반 사용자의 홈 경로 분리
+            if (role === "admin") {
+                navigate("/admin/home")
+                return
+            }
 
             navigate("/home")
         } catch (error) {
