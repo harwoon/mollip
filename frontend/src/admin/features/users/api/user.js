@@ -9,7 +9,7 @@ function authHeaders() {
 }
 
 // 회원 목록 조회 (검색/필터/정렬/페이지네이션)
-export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit } = {}) {
+export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit, status } = {}) {
     // URLSearchParams: 값이 있는 파라미터만 골라서 쿼리스트링으로 자동 조립
     const params = new URLSearchParams()
 
@@ -19,6 +19,7 @@ export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit
     if (sortOrder) params.append("sortOrder", sortOrder)
     if (page) params.append("page", page)
     if (limit) params.append("limit", limit)
+    if (status) params.append("status", status)
 
     const response = await fetch(`${API_URL}/admin/users?${params.toString()}`, {
         method: "GET",
