@@ -1,0 +1,158 @@
+.section {
+    width: 100%;
+
+    /* height: 100%; 제거 */
+    height: auto;
+    min-height: 460px;
+
+    padding: 28px 32px;
+
+    border: 1px solid #eeeaf4;
+    border-radius: 24px;
+    background-color: #ffffff;
+
+    box-shadow: 0 8px 24px rgb(35 24 62 / 5%);
+
+    box-sizing: border-box;
+
+    /* 잘리지 않도록 */
+    overflow: visible;
+}
+
+.header {
+display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    /* 기존 20px 또는 너무 큰 값이면 축소 */
+    margin-bottom: 14px;
+}
+
+.titleArea {
+    min-width: 0;
+}
+
+.title {
+    margin: 0;
+
+    color: #272331;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.description {
+    margin: 8px 0 0;
+
+    color: #777184;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.week {
+    display: block;
+
+    margin-top: 6px;
+
+    color: #aaa4b3;
+    font-size: 12px;
+}
+
+.content {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        190px;
+
+    align-items: center;
+    gap: 28px;
+
+    width: 100%;
+    min-height: 320px;
+}
+
+.goalList {
+    min-width: 0;
+}
+
+.emptyMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 180px;
+    margin: 0;
+
+    color: #9992a6;
+    font-size: 14px;
+}
+
+.achievementArea {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+}
+
+.stateBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 250px;
+    padding: 30px;
+
+    border: 1px solid #eeeaf4;
+    border-radius: 24px;
+    background-color: #ffffff;
+
+    box-sizing: border-box;
+}
+
+.stateMessage {
+    margin: 0;
+
+    color: #8f8999;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.errorMessage {
+    color: #db5b62;
+}
+
+@media (max-width: 1100px) {
+    .section {
+        padding: 24px;
+    }
+
+    .content {
+        grid-template-columns: minmax(0, 1fr) 170px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 760px) {
+    .section {
+        padding: 22px 20px;
+        border-radius: 18px;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .achievementArea {
+        order: -1;
+        padding-bottom: 16px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+}

@@ -2,9 +2,8 @@ import express from "express";
 import * as groupRepository from "../repository/group.js";
 import { assignWeeklyGroups } from "../service/weeklyGroupService.js";
 import * as statisticsService from "../service/statisticsService.js";
-import * as authRepository from "../repository/auth.js";
-import * as studyRepository from "../repository/study.js";
-import * as todoRepository from "../repository/todo.js";
+
+import * as groupGoalService from "../service/groupGoalService.js"
 
 // 그룹 목록 조회 (확인용)
 export async function getGroups(req, res) {
@@ -703,139 +702,50 @@ export async function getWeeklyGroup(req, res) {
   }
 }
 
-function getKstDateParts(date = new Date()) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-
-  const parts = formatter.formatToParts(date);
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value]),
-  );
-
-  return {
-    year: Number(values.year),
-    month: Number(values.month),
-    day: Number(values.day),
-  };
-}
-
-//날짜를 YYYY-MM-DD 형식으로 변환
-function formatDate(date) {
-  return date.toISOString().slice(0, 10);
-}
-//이번 주 월요일과 일요일 구하기
-function getCurrentWeekRange() {
-  const { year, month, day } = getKstDateParts();
-  const today = new Date(Date.UTC(year, month - 1, day));
-  const currentDay = today.getUTCDay();
-  const mondayDifference = currentDay === 0 ? -6 : 1 - currentDay;
-  const weekStart = new Date(today);
-
-  weekStart.setUTCDate(today.getUTCDate() + mondayDifference);
-
-  const weekEnd = new Date(weekStart);
-
-  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
-
-  return {
-    weekStartDate: formatDate(weekStart),
-
-    weekEndDate: formatDate(weekEnd),
-  };
-}
-
-//로그인 사용자의 주간 그룹 목표 달성 현황
+// 로그인 사용자의 주간 그룹 목표 달성 현황
 export async function getMyWeeklyGroupGoals(req, res) {
   try {
-    const userId = req.user?._id;
+    const userId = req.user?._id
 
+    // isAuth를 거치기 때문에 일반적으로 존재하지만,
+    // 예외 상황을 대비하여 한 번 더 확인
     if (!userId) {
       return res.status(401).json({
-        message: "로그인 사용자 정보가 없습니다.",
-      });
+        message: "로그인 사용자 정보가 없습니다."
+      })
     }
 
-    const user = await authRepository.findGroupByUserId(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "존재하지 않는 사용자입니다.",
-      });
-    }
-
-    const groupId =
-      user.groupId?._id || user.groupId || user.group?._id || user.group;
-
-    if (!groupId) {
-      return res.status(404).json({
-        message: "현재 배정된 그룹이 없습니다.",
-      });
-    }
-
-    const group = await groupRepository.findGroupGoalsById(groupId);
-
-    if (!group) {
-      return res.status(404).json({
-        message: "배정된 그룹 정보를 찾을 수 없습니다.",
-      });
-    }
-
-    const { weekStartDate, weekEndDate } = getCurrentWeekRange();
-    const studySummary = await studyRepository.findWeeklyStudySummaryByUser(
-      userId,
-      weekStartDate,
-      weekEndDate,
-    );
-
-    const todoSummary = await todoRepository.findWeeklyTodoSummaryByUser(
-      userId,
-      weekStartDate,
-      weekEndDate,
-    );
+    const result =
+      await groupGoalService.getMyWeeklyGroupGoalStatus(userId)
 
     return res.status(200).json({
       message: "주간 그룹 목표 현황을 성공적으로 불러왔습니다.",
-
-      weekStartDate,
-      weekEndDate,
-
-      group: {
-        _id: group._id,
-        groupName: group.groupName,
-        groupColor: group.groupColor,
-        groupTime: group.groupTime,
-      },
-
-      goals: group.goals || [],
-
-      weeklyStudyMinutes: studySummary.weeklyStudyMinutes,
-
-      attendanceDays: studySummary.attendanceDays,
-
-      attendanceDates: studySummary.attendanceDates,
-
-      totalTodoCount: todoSummary.totalTodoCount,
-
-      completedTodoCount: todoSummary.completedTodoCount,
-
-      todoCompletionRate: todoSummary.todoCompletionRate,
-    });
+      ...result
+    })
   } catch (error) {
-    console.error("주간 그룹 목표 조회 오류:", error);
+    console.error("주간 그룹 목표 조회 오류:", error)
 
-    if (error.name === "CastError" || error.name === "BSONError") {
+    // ObjectId 형식 오류
+    if (
+      error.name === "CastError" ||
+      error.name === "BSONError"
+    ) {
       return res.status(400).json({
-        message: "올바르지 않은 사용자 또는 그룹 정보입니다.",
-      });
+        message: "올바르지 않은 사용자 또는 그룹 정보입니다."
+      })
     }
 
-    return res.status(500).json({
-      message: "주간 그룹 목표 조회 중 오류가 발생했습니다.",
-    });
+    /*
+     * Service에서 발생시킨 오류에 statusCode가 있으면
+     * 해당 상태 코드를 사용
+     */
+    const statusCode = error.statusCode || 500
+
+    return res.status(statusCode).json({
+      message:
+        statusCode === 500
+          ? "주간 그룹 목표 조회 중 오류가 발생했습니다."
+          : error.message
+    })
   }
 }

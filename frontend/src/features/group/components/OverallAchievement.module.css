@@ -1,0 +1,54 @@
+.achievement {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.chart {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 164px;
+    height: 164px;
+
+    border-radius: 50%;
+
+    background: conic-gradient(
+        var(--achievement-color) 0deg,
+        var(--achievement-color) var(--progress-degree),
+        #eee7ff var(--progress-degree),
+        #eee7ff 360deg
+    );
+}
+
+.chartInner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 126px;
+    height: 126px;
+
+    border-radius: 50%;
+    background-color: #ffffff;
+}
+
+.label {
+    margin-bottom: 10px;
+
+    color: #9992ad;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.rate {
+    color: var(--achievement-color);
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+}
