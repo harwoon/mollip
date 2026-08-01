@@ -40,6 +40,12 @@ router.get("/groups/weekly-study-time", adminController.getWeeklyGroupStudySumma
 
 // http://127.0.0.1:3000/admin/groups
 router.get("/groups", groupController.getGroups)
+// 그룹별 인원, 평균 목표 달성률, 평균 공부시간, 평균 학습일 조회
+// http://127.0.0.1:3000/admin/groups/statistics
+router.get(
+    "/groups/statistics",
+    adminController.getGroupStatistics
+)
 
 // http://127.0.0.1:3000/admin/groups/:id
 router.get("/groups/:id", groupController.getGroupsColor)
@@ -55,11 +61,14 @@ router.get("/group-todo-achievement", adminController.getGroupTodoAchievement)
 
 // 가입 탈퇴 로그 가져오기
 // http://127.0.0.1:3000/admin/log
-router.get("/log",adminController.getLog)
+router.get("/log", adminController.getLog)
 
 // 유저 상세 조회
 // =================================================
 // http://127.0.0.1:3000/admin/user/totalStudy?type=daily&userId=6a670d0cc8a40c958ee09962&start=2026-07-20&end=2026-07-30
-router.get("/user/totalStudy",adminController.getTotalStudy)
+router.get("/user/totalStudy", adminController.getTotalStudy)
 
 export default router
+
+
+

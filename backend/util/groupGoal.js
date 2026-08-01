@@ -56,9 +56,9 @@ export function calculateGoalProgress(goal, summary = {}) {
     targetValue === 0
       ? 100
       : Math.min(
-          (currentValue / targetValue) * 100,
-          100,
-        );
+        (currentValue / targetValue) * 100,
+        100,
+      );
 
   return {
     goalType: goal.goalType,
@@ -120,4 +120,64 @@ export function buildWeeklyGoalProgress(
     overallAchievementRate:
       calculateOverallAchievementRate(calculatedGoals),
   };
+}
+
+/**
+ * 그룹 회원들의 평균 목표 달성률 계산
+ *
+ * memberSummaries 배열에는 활동 없는 회원도
+ * 0값을 가진 객체로 반드시 포함되어야 한다.
+ */
+export function calculateAverageGoalAchievementRate(
+  goals,
+  memberSummaries
+) {
+  if (
+    !Array.isArray(memberSummaries) ||
+    memberSummaries.length === 0
+  ) {
+    return 0
+  }
+
+  const totalAchievementRate =
+    memberSummaries.reduce(
+      (total, summary) => {
+        const {
+          overallAchievementRate
+        } = buildWeeklyGoalProgress(
+          goals || [],
+          {
+            weeklyStudySeconds:
+              Number(
+                summary.weeklyStudySeconds
+              ) || 0,
+
+            todoCompletionRate:
+              Number(
+                summary.todoCompletionRate
+              ) || 0,
+
+            attendanceDays:
+              Number(
+                summary.attendanceDays
+              ) || 0
+          }
+        )
+
+        return (
+          total +
+          (
+            Number(
+              overallAchievementRate
+            ) || 0
+          )
+        )
+      },
+      0
+    )
+
+  return roundToTwo(
+    totalAchievementRate /
+    memberSummaries.length
+  )
 }

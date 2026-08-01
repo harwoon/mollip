@@ -332,3 +332,160 @@ export async function getWeeklyAchievementByUsers(
     },
   ]);
 }
+
+/**
+ * 여러 사용자의 주간 Todo 달성 현황 일괄 조회
+ *
+ * 반환값:
+ * - 전체 Todo 개수
+ * - 완료 Todo 개수
+ * - Todo 완료율
+ */
+export async function findWeeklyTodoSummariesByUsers(
+  userIds,
+  weekStartDate,
+  weekEndDate
+) {
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    return []
+  }
+
+  /*
+   * 문자열과 ObjectId가 섞여 있어도 처리할 수 있도록
+   * ObjectId로 통일하고 중복을 제거
+   */
+  const validUserIds = [
+    ...new Set(
+      userIds.map((userId) => String(userId))
+    )
+  ]
+    .filter((userId) =>
+      mongoose.isValidObjectId(userId)
+    )
+    .map((userId) =>
+      new mongoose.Types.ObjectId(userId)
+    )
+
+  if (validUserIds.length === 0) {
+    return []
+  }
+
+  return TodoList.aggregate([
+    /*
+     * 1. 대상 사용자와 이번 주 TodoList 조회
+     */
+    {
+      $match: {
+        user: {
+          $in: validUserIds
+        },
+
+        todoDate: {
+          $gte: weekStartDate,
+          $lte: weekEndDate
+        }
+      }
+    },
+
+    /*
+     * 2. TodoList 문서마다
+     * 전체 Todo와 완료 Todo 개수 계산
+     */
+    {
+      $project: {
+        user: 1,
+
+        totalTodoCount: {
+          $size: {
+            $ifNull: ["$todo", []]
+          }
+        },
+
+        completedTodoCount: {
+          $size: {
+            $filter: {
+              input: {
+                $ifNull: ["$todo", []]
+              },
+
+              as: "todoItem",
+
+              cond: {
+                $eq: [
+                  "$$todoItem.state",
+                  true
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    /*
+     * 3. 한 사용자에게 여러 날짜의 TodoList가 있으면
+     * 주간 기준으로 모두 합산
+     */
+    {
+      $group: {
+        _id: "$user",
+
+        totalTodoCount: {
+          $sum: "$totalTodoCount"
+        },
+
+        completedTodoCount: {
+          $sum: "$completedTodoCount"
+        }
+      }
+    },
+
+    /*
+     * 4. Todo 완료율 계산
+     *
+     * Todo가 0개라면 완료율 0%
+     */
+    {
+      $project: {
+        _id: 0,
+
+        userId: "$_id",
+
+        totalTodoCount: 1,
+        completedTodoCount: 1,
+
+        todoCompletionRate: {
+          $cond: [
+            {
+              $eq: [
+                "$totalTodoCount",
+                0
+              ]
+            },
+
+            0,
+
+            {
+              $round: [
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        "$completedTodoCount",
+                        "$totalTodoCount"
+                      ]
+                    },
+
+                    100
+                  ]
+                },
+
+                2
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ])
+}

@@ -372,3 +372,161 @@ export async function getServiceStudyTimeTotal(startDate, endDate,) {
     // 공부 기록 없으면 0 반환
     return result[0]?.totalMinutes || 0
 }
+
+/**
+ * 여러 사용자의 주간 공부시간과 출석일을 한 번에 조회
+ *
+ * 주간 공부시간:
+ * 이번 주 sumStudyTime 전체 합계
+ *
+ * 출석일:
+ * 같은 날짜의 공부시간을 합산한 뒤
+ * 하루 총공부시간이 60초 이상인 날짜
+ */
+export async function findWeeklyStudySummariesByUsers(
+    userIds,
+    weekStartDate,
+    weekEndDate
+) {
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+        return []
+    }
+
+    /*
+     * 문자열과 ObjectId가 섞여 있어도 안전하게 처리
+     * 중복 사용자 ID도 제거
+     */
+    const validUserIds = [
+        ...new Set(
+            userIds.map((userId) => String(userId))
+        )
+    ]
+        .filter((userId) =>
+            mongoose.isValidObjectId(userId)
+        )
+        .map((userId) =>
+            new mongoose.Types.ObjectId(userId)
+        )
+
+    if (validUserIds.length === 0) {
+        return []
+    }
+
+    return Study.aggregate([
+        /*
+         * 1. 대상 사용자들의 이번 주 공부 기록 조회
+         */
+        {
+            $match: {
+                user: {
+                    $in: validUserIds
+                },
+
+                studyDate: {
+                    $gte: weekStartDate,
+                    $lte: weekEndDate
+                },
+
+                sumStudyTime: {
+                    $gt: 0
+                }
+            }
+        },
+
+        /*
+         * 2. 사용자와 날짜별로 공부시간 합산
+         *
+         * 같은 회원이 같은 날짜에 여러 번 공부했으면
+         * 해당 날짜 공부시간을 하나로 합침
+         */
+        {
+            $group: {
+                _id: {
+                    user: "$user",
+                    studyDate: "$studyDate"
+                },
+
+                dailyStudySeconds: {
+                    $sum: "$sumStudyTime"
+                }
+            }
+        },
+
+        /*
+         * 출석 날짜가 날짜순으로 들어가도록 정렬
+         */
+        {
+            $sort: {
+                "_id.user": 1,
+                "_id.studyDate": 1
+            }
+        },
+
+        /*
+         * 3. 사용자별 주간 공부시간 계산
+         */
+        {
+            $group: {
+                _id: "$_id.user",
+
+                weeklyStudySeconds: {
+                    $sum: "$dailyStudySeconds"
+                },
+
+                dailyStudies: {
+                    $push: {
+                        studyDate: "$_id.studyDate",
+                        dailyStudySeconds:
+                            "$dailyStudySeconds"
+                    }
+                }
+            }
+        },
+
+        /*
+         * 4. 하루 60초 이상 공부한 날짜만 출석 처리
+         */
+        {
+            $project: {
+                _id: 0,
+
+                userId: "$_id",
+
+                weeklyStudySeconds: 1,
+
+                attendanceDates: {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: "$dailyStudies",
+                                as: "dailyStudy",
+
+                                cond: {
+                                    $gte: [
+                                        "$$dailyStudy.dailyStudySeconds",
+                                        60
+                                    ]
+                                }
+                            }
+                        },
+
+                        as: "attendance",
+
+                        in: "$$attendance.studyDate"
+                    }
+                }
+            }
+        },
+
+        /*
+         * 5. 출석일 개수 계산
+         */
+        {
+            $addFields: {
+                attendanceDays: {
+                    $size: "$attendanceDates"
+                }
+            }
+        }
+    ])
+}

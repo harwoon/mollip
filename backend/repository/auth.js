@@ -180,3 +180,22 @@ export async function withdrawUser(userId, withdrawalReason, totalStudyTime) {
         }
     )
 }
+
+// 그룹에 배정된 활성 일반 회원 조회
+export async function findActiveUsersWithGroup() {
+    return User.find({
+        useYn: "Y",
+
+        // 관리자는 그룹 인원에서 제외
+        role: {
+            $ne: "admin"
+        },
+
+        // 그룹이 배정된 사용자만 조회
+        groupId: {
+            $nin: [null, ""]
+        }
+    })
+        .select("_id groupId")
+        .lean()
+}

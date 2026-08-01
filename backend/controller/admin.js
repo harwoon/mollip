@@ -9,6 +9,8 @@ import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 import Study from '../models/Study.js'
 import mongoose from 'mongoose'
+import * as adminGroupStatisticsService
+    from "../service/adminGroupStatisticsService.js"
 
 
 // 관리자
@@ -20,7 +22,7 @@ export async function getUserCount(req, res) {
             message: "전체 사용자 수를 성공적으로 불러왔습니다.",
             count
         })
-    } catch(error) {
+    } catch (error) {
         console.log("전체 사용자 수 조회 오류: ", error)
         return res.status(500).json({
             message: "전체 사용자 수 조회 중 오류가 발생했습니다."
@@ -30,7 +32,7 @@ export async function getUserCount(req, res) {
 
 // 회원 목록 조회
 export async function getUsers(req, res) {
-    const { search, groupId, sortBy="createdAt", sortOrder="desc", page=1, limit=10 } = req.query
+    const { search, groupId, sortBy = "createdAt", sortOrder = "desc", page = 1, limit = 10 } = req.query
 
     const skip = (Number(page) - 1) * Number(limit)
     const filters = { search, groupId }
@@ -61,7 +63,7 @@ export async function getUsers(req, res) {
         weeklyStudyTimes.map(item => [item._id.toString(), item.totalStudyTime])
     )
 
-     // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
+    // 전체 유저의 이번 주 Todo 완료 현황(전체 개수/완료 개수)을 한 번에 집계
     const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(startDate, endDate)
 
     // 유저ID → 목표 달성률(%)로 변환한 Map 생성
@@ -82,7 +84,7 @@ export async function getUsers(req, res) {
     }))
 
     console.log("[관리자] 회원 목록 조회 성공")
-    
+
     return res.status(200).json({
         message: "회원 목록을 성공적으로 불러왔습니다",
         users: usersWithGroup,
@@ -113,7 +115,7 @@ export async function getUserDetail(req, res) {
     const group = user.groupId !== "Unranked"
         ? await Group.findById(user.groupId)
         : null
-    
+
     const studyRecords = await studyRepository.getAllByUserId(id)
     const totalStudyTime = studyRecords.reduce((sum, r) => sum + (r.sumStudyTime || 0), 0)
 
@@ -151,23 +153,23 @@ export async function getGroupTodoAchievement(req, res) {
 
     } catch (error) {
         console.error("그룹별 Todo 달성률 조회 오류:", error)
-        return res.status(500).json({message: "그룹별 Todo 달성률을 불러오지 못했습니다."})
+        return res.status(500).json({ message: "그룹별 Todo 달성률을 불러오지 못했습니다." })
     }
 }
 
 
 // 전체 사용자 이번주 Todo 달성률
 export async function getWeeklyTodoAchievement(req, res) {
-    try{
+    try {
         const achievement = await statisticsService.getWeeklyTodoAchievement()
         return res.status(200).json({
-            message:"이번 주 전체 Todo 달성률을 성공적으로 불러왔습니다.",
+            message: "이번 주 전체 Todo 달성률을 성공적으로 불러왔습니다.",
             achievement
         })
 
-    }catch(error){
+    } catch (error) {
         console.error("이번주 전체 Todo 달성률 조회 실패: ", error)
-        return res.status(500).json({message: "이번주 전체 Todo 달성률을 불러오지 못했습니다."})
+        return res.status(500).json({ message: "이번주 전체 Todo 달성률을 불러오지 못했습니다." })
     }
 }
 
@@ -214,24 +216,24 @@ export async function getWeeklyGroupStudySummary(
 }
 
 // 가입 탈퇴 로그 가져오기
-export async function getLog(req,res) {
+export async function getLog(req, res) {
     try {
 
         const data = await adminRepository.getAllLog()
 
         return res.status(200).json(data)
-        
-    } catch (error) {
-        console.error("최근 활동 로그 가져오기 실패:",error,)
 
-        return res.status(500).json({message:"최근 활동 로그 가져오던 중 오류가 발생했습니다.",})
+    } catch (error) {
+        console.error("최근 활동 로그 가져오기 실패:", error,)
+
+        return res.status(500).json({ message: "최근 활동 로그 가져오던 중 오류가 발생했습니다.", })
     }
 }
 
 // 유저의 누적 총 공부시간 가져오기 (기간별)
 export async function getTotalStudy(req, res) {
     const { type, userId, start, end } = req.query
-    
+
     try {
         // 1. 검색 조건 (Match): 특정 유저의 시작일~종료일 사이의 데이터만 필터링
         const matchCondition = {
@@ -243,11 +245,11 @@ export async function getTotalStudy(req, res) {
         // 2. 타입별 그룹화 조건 설정 (Group)
         if (type === 'daily') {
             // 일간: "YYYY-MM-DD" 그대로 묶기
-            groupCondition = { 
-                _id: "$studyDate", 
-                totalStudyTime: { $sum: "$sumStudyTime" } 
+            groupCondition = {
+                _id: "$studyDate",
+                totalStudyTime: { $sum: "$sumStudyTime" }
             };
-        } 
+        }
         else if (type === 'weekly') {
             // 주간: 문자열 날짜를 Date로 변환 후, 연도와 주차(Week) 단위로 묶기
             groupCondition = {
@@ -257,14 +259,14 @@ export async function getTotalStudy(req, res) {
                 },
                 totalStudyTime: { $sum: "$sumStudyTime" }
             }
-        } 
+        }
         else if (type === 'monthly') {
             // 월간: "YYYY-MM-DD"에서 앞 7글자("YYYY-MM")만 잘라서 묶기
             groupCondition = {
                 _id: { $substr: ["$studyDate", 0, 7] },
                 totalStudyTime: { $sum: "$sumStudyTime" }
             };
-        } 
+        }
         else {
             return res.status(400).json({ message: "올바른 type을 입력해주세요 (daily, weekly, monthly)." })
         }
@@ -279,7 +281,7 @@ export async function getTotalStudy(req, res) {
         // 4. 프론트엔드에서 바로 차트(Chart)에 그리기 쉽도록 데이터 가공
         const formattedResult = total.map(item => {
             let dateLabel = item._id;
-            
+
             // 주간 데이터일 경우 _id가 객체이므로 예쁘게 텍스트로 변환
             if (type === 'weekly') {
                 dateLabel = `${item._id.year}년 ${item._id.week}주차`
@@ -293,9 +295,40 @@ export async function getTotalStudy(req, res) {
 
         // 결과 반환
         return res.status(200).json(formattedResult)
-        
+
     } catch (error) {
         console.error("유저 총 공부시간 가져오기 실패:", error);
         return res.status(500).json({ message: "유저의 총 공부시간을 가져오던 중 오류가 발생했습니다." })
+    }
+}
+
+// 그룹별 인원, 평균 목표 달성률,
+// 평균 공부시간, 평균 학습일 조회
+export async function getGroupStatistics(req, res) {
+    try {
+        const result =
+            await adminGroupStatisticsService
+                .getGroupStatistics()
+
+        return res.status(200).json({
+            message:
+                "그룹별 통계를 성공적으로 불러왔습니다.",
+            ...result
+        })
+    } catch (error) {
+        console.error(
+            "그룹별 통계 조회 오류:",
+            error
+        )
+
+        const statusCode =
+            error.statusCode || 500
+
+        return res.status(statusCode).json({
+            message:
+                statusCode === 500
+                    ? "그룹별 통계 조회 중 오류가 발생했습니다."
+                    : error.message
+        })
     }
 }
