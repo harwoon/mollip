@@ -95,3 +95,34 @@ export function getPreviousPeriod(startDate, endDate){
         endDate: previousEndDate,
     }
 }
+
+// 한국 시간 기준 오늘 날짜 구하기
+export function getKstToday(date = new Date()) {
+    const formatter = new Intl.DateTimeFormat(
+        "en-US",
+        {
+            timeZone: "Asia/Seoul",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+        }
+    )
+
+    const parts = formatter.formatToParts(date)
+
+    const values = Object.fromEntries(
+        parts.map((part) => [
+            part.type,
+            part.value
+        ])
+    )
+
+    return `${values.year}-${values.month}-${values.day}`
+}
+
+export function getCurrentWeekRange() {
+    const today = getKstToday()
+
+    return getWeekRange(today)
+}
+

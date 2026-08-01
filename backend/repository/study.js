@@ -129,92 +129,137 @@ export async function getWeeklyStudyTimeByUSers(startDate, endDate) {
 }
 
 
-//사용자의 이번 주 공부시간과 출석일 조회
-//주간 공부시간: 이번 주에 저장된 sumStudyTime의 합계
-//출석일: sumStudyTime이 0보다 큰 서로 다른 studyDate의 개수
+// 사용자의 이번 주 공부시간과 출석일 조회
+// 주간 공부시간: 이번 주 sumStudyTime 전체 합계
+// 출석일: 해당 날짜의 공부시간 합계가 60초 이상인 날짜
 export async function findWeeklyStudySummaryByUser(
     userId,
     weekStartDate,
-    weekEndDate,
+    weekEndDate
 ) {
     const result = await Study.aggregate([
         /*
-         * 로그인 사용자와 이번 주 공부 기록 조회
+         * 1. 로그인 사용자의 이번 주 공부 기록 조회
          */
         {
             $match: {
-                user: new mongoose.Types.ObjectId(String(userId)),
+                user: new mongoose.Types.ObjectId(
+                    String(userId)
+                ),
 
                 studyDate: {
                     $gte: weekStartDate,
-                    $lte: weekEndDate,
+                    $lte: weekEndDate
                 },
 
+                // 0초 이하의 잘못된 기록 제외
                 sumStudyTime: {
-                    $gt: 0,
-                },
-            },
+                    $gt: 0
+                }
+            }
         },
 
         /*
-         * 총 공부시간과 공부한 날짜를 모음
+         * 2. 같은 날짜의 공부시간 합산
+         *
+         * 한 날짜에 공부 기록이 여러 개 있더라도
+         * 하나의 날짜로 묶어줍니다.
+         */
+        {
+            $group: {
+                _id: "$studyDate",
+
+                dailyStudySeconds: {
+                    $sum: "$sumStudyTime"
+                }
+            }
+        },
+
+        /*
+         * 날짜를 오름차순으로 정렬
+         */
+        {
+            $sort: {
+                _id: 1
+            }
+        },
+
+        /*
+         * 3. 주간 총공부시간과 일별 공부시간 목록 생성
          */
         {
             $group: {
                 _id: null,
 
-                weeklyStudyMinutes: {
-                    $sum: "$sumStudyTime",
+                weeklyStudySeconds: {
+                    $sum: "$dailyStudySeconds"
                 },
 
-                /*
-                 * 같은 날짜의 기록이 여러 개 있어도
-                 * 출석은 하루로 계산
-                 */
-                attendanceDates: {
-                    $addToSet: "$studyDate",
-                },
-            },
+                dailyStudies: {
+                    $push: {
+                        studyDate: "$_id",
+                        dailyStudySeconds:
+                            "$dailyStudySeconds"
+                    }
+                }
+            }
         },
 
         /*
-         * 반환 데이터 정리
+         * 4. 하루 공부시간이 60초 이상인 날짜만 출석 처리
          */
         {
             $project: {
                 _id: 0,
-                weeklyStudyMinutes: 1,
-                attendanceDates: 1,
 
-                attendanceDays: {
-                    $size: "$attendanceDates",
-                },
-            },
+                weeklyStudySeconds: 1,
+
+                attendanceDates: {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: "$dailyStudies",
+                                as: "dailyStudy",
+
+                                cond: {
+                                    $gte: [
+                                        "$$dailyStudy.dailyStudySeconds",
+                                        60
+                                    ]
+                                }
+                            }
+                        },
+
+                        as: "attendance",
+
+                        in: "$$attendance.studyDate"
+                    }
+                }
+            }
         },
-    ]);
 
-    // 반환 데이터 정리
-    //     {
-    //       $project: {
-    //         _id: 0,
-    //         weeklyStudyMinutes: 1,
-    //         attendanceDates: 1,
+        /*
+         * 5. 출석 날짜 개수 계산
+         */
+        {
+            $addFields: {
+                attendanceDays: {
+                    $size: "$attendanceDates"
+                }
+            }
+        }
+    ])
 
-    //         attendanceDays: {
-    //           $size: "$attendanceDates",
-    //         },
-    //       },
-    //     },
-    //   ]);
-
-    // 이번 주 공부 기록이 없으면 기본값 반환
+    /*
+     * 이번 주 공부 기록이 없으면 기본값 반환
+     */
     return (
         result[0] || {
-            weeklyStudyMinutes: 0,
+            weeklyStudySeconds: 0,
             attendanceDays: 0,
-            attendanceDates: [],
+            attendanceDates: []
         }
-    );
+    )
 }
 
 
@@ -243,10 +288,10 @@ export async function getTotalStudyTimeByUserId(userId) {
 
 
 // 관리자 서비스 전체 학습시간 추이 조회
-export async function getServiceStudyTimeTrend(type, startDate,endDate,) {
+export async function getServiceStudyTimeTrend(type, startDate, endDate,) {
     let groupId
 
-    if (type === "daily") {groupId = "$studyDate"}
+    if (type === "daily") { groupId = "$studyDate" }
 
     if (type === "weekly") {
         groupId = {
@@ -271,7 +316,7 @@ export async function getServiceStudyTimeTrend(type, startDate,endDate,) {
     }
 
     if (type === "monthly") {
-        groupId = {$substrBytes: ["$studyDate", 0, 7]}
+        groupId = { $substrBytes: ["$studyDate", 0, 7] }
     }
 
     return Study.aggregate([
@@ -299,7 +344,7 @@ export async function getServiceStudyTimeTrend(type, startDate,endDate,) {
             }
         },
         {
-            $sort: {date: 1}
+            $sort: { date: 1 }
         }
     ])
 }
@@ -320,7 +365,7 @@ export async function getServiceStudyTimeTotal(startDate, endDate,) {
             // 날짜나 사용자 구분 없이 전체 공부시간을 하나로 합산
             $group: {
                 _id: null,
-                totalMinutes: {$sum: "$sumStudyTime"}
+                totalMinutes: { $sum: "$sumStudyTime" }
             }
         }
     ])

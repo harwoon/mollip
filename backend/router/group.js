@@ -24,8 +24,8 @@ router.get("/lower", isAuth, groupController.getLower);
 //http://127.0.0.1:3000/group/weekly-ranking
 router.get("/weekly-ranking", isAuth, groupController.getWeeklyRanking);
 
-// 주간 그룹 목표달성
-//http://127.0.0.1:3000/group/goals/me
-router.get("/goals/me", isAuth, groupController.getMyWeeklyGroupGoals);
+// 로그인 사용자의 주간 그룹 목표 달성 현황
+// GET http://127.0.0.1:3000/group/goals/me
+router.get("/goals/me", isAuth, groupController.getMyWeeklyGroupGoals)
 
 export default router;
