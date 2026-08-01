@@ -9,8 +9,7 @@ import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 import Study from '../models/Study.js'
 import mongoose from 'mongoose'
-import * as adminGroupStatisticsService
-    from "../service/adminGroupStatisticsService.js"
+import * as adminGroupStatisticsService from "../service/adminGroupStatisticsService.js"
 
 
 // 관리자
@@ -157,6 +156,12 @@ async function buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder }
         ])
     )
 
+    // 그룹별 평균 목표 달성률 조회 (성욱님 통계 서비스 재사용)
+    const groupStats = await adminGroupStatisticsService.getGroupStatistics()
+    const groupAchievementMap = new Map(
+        groupStats.groups.map(g => [g._id.toString(), g.averageGoalAchievementRate])
+    )
+
     const activeUserIds = new Set(await adminRepository.getActiveUserIds())
 
     let enrichedUsers = users.map(u => ({
@@ -164,6 +169,9 @@ async function buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder }
         group: groupMap.get(u.groupId) || null,
         weeklyStudyTime: weeklyTimeMap.get(u._id.toString()) || 0,
         achievementRate: achievementMap.get(u._id.toString()) || 0,
+        groupAchievementRate: u.groupId !== "Unranked"
+            ? (groupAchievementMap.get(u.groupId) ?? 0)
+            : null,                                       
         isStudying: activeUserIds.has(u._id.toString())
     }))
 

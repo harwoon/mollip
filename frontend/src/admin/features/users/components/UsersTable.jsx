@@ -66,7 +66,21 @@ export default function UsersTable({ users, activeUserIds }) {
                                     </div>
                                 </td>
                                 <td>{user.group ? user.group.groupName : "미배정"}</td>
-                                <td>-</td>
+                                <td>
+                                    {user.groupAchievementRate !== null ? (
+                                        <div className="goalRateCell">
+                                            <span className="goalRateText">{user.groupAchievementRate}%</span>
+                                            <div className="goalRateTrack">
+                                                <div
+                                                    className="goalRateBar"
+                                                    style={{ width: `${Math.min(Math.max(user.groupAchievementRate, 0), 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        "-"
+                                    )}  
+                                </td>
                                 <td>
                                     <span className={isStudying ? "statusStudying" : "statusResting"}>
                                         ● {isStudying ? "공부중" : "휴식중"}
