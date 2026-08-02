@@ -2,7 +2,11 @@ import User from "../models/User.js";
 
 // id 중복확인 및 단일 유저 조회
 export async function findByUserid(userId) {
-    return User.findOne({ userId });
+    return User.findOne({ 
+
+        userId,
+        useYn: "Y",
+    });
 }
 
 // 회원가입
