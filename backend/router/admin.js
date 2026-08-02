@@ -8,6 +8,11 @@ const router = express.Router()
 // 해당 라우터 전체에 두 미들웨어 순서대로 적용
 router.use(isAuth, isAdmin)
 
+// 홈 대시보드
+// =================================================
+// http://127.0.0.1:3000/admin/study-time-trend?type=daily&startDate=2026-07-01&endDate=2026-07-14
+router.get("/study-time-trend", adminController.getStudyTimeTrend)
+
 // 회원 관리
 // =================================================
 // http://127.0.0.1:3000/admin/users/count
