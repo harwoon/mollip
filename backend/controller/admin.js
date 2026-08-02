@@ -10,6 +10,7 @@ import { calculateStudyStatistics } from "../util/ratio.js"
 import Study from '../models/Study.js'
 import mongoose from 'mongoose'
 import * as adminGroupStatisticsService from "../service/adminGroupStatisticsService.js"
+import { getWeekOfMonth } from "../util/date.js"
 
 
 // 관리자
@@ -68,7 +69,7 @@ export async function getUserCount(req, res) {
 //             item.totalCount === 0 ? 0 : Math.round((item.completedCount / item.totalCount) * 100)
 //         ])
 //     )
-    
+
 //     // 현재 실시간으로 공부 중인 유저ID 목록을 Set으로 변환
 //     // (Set으로 만드는 이유: 나중에 .has()로 바르게 "이 유저가 공부중인기" 확인하기 위함)
 //     const activeUserIds = new Set(await adminRepository.getActiveUserIds())
@@ -171,7 +172,7 @@ async function buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder }
         achievementRate: achievementMap.get(u._id.toString()) || 0,
         groupAchievementRate: u.groupId !== "Unranked"
             ? (groupAchievementMap.get(u.groupId) ?? 0)
-            : null,                                       
+            : null,
         isStudying: activeUserIds.has(u._id.toString())
     }))
 
@@ -395,7 +396,7 @@ export async function getTotalStudy(req, res) {
             groupCondition = {
                 _id: "$studyDate",
                 totalStudyTime: { $sum: "$sumStudyTime" }
-            };
+            }
         }
         else if (type === 'weekly') {
             // 주간: 문자열 날짜를 Date로 변환 후, 연도와 주차(Week) 단위로 묶기
@@ -404,7 +405,8 @@ export async function getTotalStudy(req, res) {
                     year: { $isoWeekYear: { $dateFromString: { dateString: "$studyDate" } } },
                     week: { $isoWeek: { $dateFromString: { dateString: "$studyDate" } } }
                 },
-                totalStudyTime: { $sum: "$sumStudyTime" }
+                totalStudyTime: { $sum: "$sumStudyTime" },
+                firstDate: { $min: "$studyDate" }
             }
         }
         else if (type === 'monthly') {
@@ -427,18 +429,25 @@ export async function getTotalStudy(req, res) {
 
         // 4. 프론트엔드에서 바로 차트(Chart)에 그리기 쉽도록 데이터 가공
         const formattedResult = total.map(item => {
-            let dateLabel = item._id;
+            let dateLabel = item._id
 
-            // 주간 데이터일 경우 _id가 객체이므로 예쁘게 텍스트로 변환
+            // 주간 데이터일 경우
             if (type === 'weekly') {
-                dateLabel = `${item._id.year}년 ${item._id.week}주차`
+                // firstDate("YYYY-MM-DD")에서 월 추출
+                const month = parseInt(item.firstDate.split('-')[1], 10)
+
+                // 해당 월의 몇 주차인지 계산
+                const weekOfMonth = getWeekOfMonth(item.firstDate)
+
+                // 예: "2026년 7월 3주차"
+                dateLabel = `${item._id.year}년 ${month}월 ${weekOfMonth}주차`
             }
 
             return {
-                date: dateLabel,            // 예: "2026-07-20", "2026년 31주차", "2026-07"
-                totalStudyTime: item.totalStudyTime // 초(Seconds) 단위 총합
-            };
-        });
+                date: dateLabel,
+                totalStudyTime: item.totalStudyTime
+            }
+        })
 
         // 결과 반환
         return res.status(200).json(formattedResult)

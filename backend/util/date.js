@@ -126,3 +126,15 @@ export function getCurrentWeekRange() {
     return getWeekRange(today)
 }
 
+// 달의 몇 주차인지 계산하는 함수
+export function getWeekOfMonth(dateString) {
+    const date = new Date(dateString)
+    const firstDate = new Date(date.getFullYear(), date.getMonth(), 1)
+    
+    // 1일의 요일 구하기 (0: 일요일, 1: 월요일 ... 6: 토요일)
+    // ISO 기준(월요일 시작)에 맞추기 위해 일요일(0)을 7로 변환
+    const firstDay = firstDate.getDay() || 7
+    
+    // (현재 일자 + 1일의 요일 보정치) / 7 을 올림 처리
+    return Math.ceil((date.getDate() + (firstDay - 1)) / 7)
+}
