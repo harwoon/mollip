@@ -127,7 +127,7 @@ export default function AdminUsersPage() {
                 "현재 연속 학습일": user.currentStreak,
                 "최대 연속 학습일": user.maxStreak,
                 "개인 목표 달성률(%)": user.achievementRate,
-                "소속 그룹": user.group ? user.group.groupName : "미배정",
+                "소속 그룹": user.group ? user.group.groupName : "탈퇴",
                 "그룹 목표 달성률(%)": user.groupAchievementRate ?? "-",
                 "상태": user.isStudying ? "공부중" : "휴식중",
                 "가입일": new Date(user.createdAt).toLocaleDateString("ko-KR")

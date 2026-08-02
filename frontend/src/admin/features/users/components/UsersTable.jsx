@@ -65,7 +65,7 @@ export default function UsersTable({ users, activeUserIds }) {
                                         </div>
                                     </div>
                                 </td>
-                                <td>{user.group ? user.group.groupName : "미배정"}</td>
+                                <td>{user.group ? user.group.groupName : "탈퇴"}</td>
                                 <td>
                                     {user.groupAchievementRate !== null ? (
                                         <div className="goalRateCell">
