@@ -6,7 +6,7 @@ export default function RecentUser({logs}) {
             <h2>최근 활동</h2>
             <div style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc' }}>
                 <ul>
-                    {logs.map((log, index) => (
+                    {logs?.map((log, index) => (
                         <li key={index}>
                             <span style={{ color: log.type === 'SIGNUP' ? 'blue' : 'red' }}>
                                 [{log.type === 'SIGNUP' ? '가입' : '탈퇴'}]
