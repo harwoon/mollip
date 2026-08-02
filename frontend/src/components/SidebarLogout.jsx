@@ -5,12 +5,16 @@ export default function SidebarLogout() {
     const navigate = useNavigate()
 
     const handleLogout = () => {
-        localStorage.clear()
-        // setTime(0)
-        // setIsRunning(false)
-        // setSelectedSubject(null)
 
+        const isLogout = window.confirm("로그아웃 하시겠습니까?")
+
+        if (!isLogout) return
+
+        localStorage.clear()
+
+        // 로그인 페이지로 이동
         navigate("/", { replace: true })
+        
     }
 
     return (
