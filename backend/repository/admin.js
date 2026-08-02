@@ -2,6 +2,10 @@ import redisClient from "../db/redis.js"
 import User from "../models/User.js"
 import Group from "../models/Group.js"
 import AdminLog from "../models/AdminLog.js"
+import { config } from "../config.mjs"
+
+const dormantGroupId =
+    config.group.dormantId
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 export async function countAllUsers() {

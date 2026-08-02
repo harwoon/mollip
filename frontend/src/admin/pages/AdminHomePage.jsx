@@ -7,12 +7,14 @@ import { getActiveUsers } from "../features/users/api/user.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 import { getTotalTime } from "../features/home/api/study.js"
+import { getGroupStudyTime } from "../features/groups/api/group.js"
+import GroupStudyTimeChart from "../features/home/components/GroupStudyTimeChart.jsx"
 
 import ActiveUser from "../features/home/components/ActiveUser.jsx"
 import RecentUser from "../features/home/components/RecentUser.jsx"
 import StudyTrend from "../features/home/components/StudyTrend.jsx"
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
-import {fetchAdminGroupStatistics} from "../features/groups/api/adminGroupStatisticsApi.js"
+import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
 
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
@@ -31,7 +33,7 @@ export default function AdminHomePage() {
         studyingCountNote: "수정 필요",
 
         weeklyTotalTime: 0,
-        weeklyTotalTimeDiff: "수정 필요",
+        weeklyTotalTimeDiff: "",
 
         avgGoalRate: 0,
         avgGoalRateDiff: "수정 필요",
@@ -41,6 +43,15 @@ export default function AdminHomePage() {
     const [groupsLoading, setGroupsLoading] = useState(true)
     const [groupsError, setGroupsError] = useState("")
 
+    const [groupStudySummary, setGroupStudySummary] = useState({
+        startDate: "",
+        endDate: "",
+        allGroupsTotalStudyTime: 0,
+        groupStatistics: [],
+    })
+
+    const [groupStudyLoading, setGroupStudyLoading] = useState(true)
+    const [groupStudyError, setGroupStudyError] = useState("")
     useEffect(() => {
 
         async function fetchLogs() {
@@ -160,10 +171,42 @@ export default function AdminHomePage() {
                 setGroupsLoading(false)
             }
         }
+        async function fetchGroupStudySummary() {
+            try {
+                setGroupStudyLoading(true)
+                setGroupStudyError("")
+
+                const data = await getGroupStudyTime()
+
+                setGroupStudySummary({
+                    startDate: data.startDate || "",
+                    endDate: data.endDate || "",
+                    allGroupsTotalStudyTime:
+                        Number(data.allGroupsTotalStudyTime) || 0,
+                    groupStatistics:
+                        Array.isArray(data.groupStatistics)
+                            ? data.groupStatistics
+                            : [],
+                })
+            } catch (error) {
+                console.error(
+                    "그룹별 공부시간 조회 실패:",
+                    error,
+                )
+
+                setGroupStudyError(
+                    error.message ||
+                    "그룹별 공부시간을 불러오지 못했습니다.",
+                )
+            } finally {
+                setGroupStudyLoading(false)
+            }
+        }
 
         fetchActiveCount()
         fetchSummary()
         fetchGroupStatistics()
+        fetchGroupStudySummary()
 
         return () => {
             socket.off('adminUserStarted')
@@ -181,10 +224,16 @@ export default function AdminHomePage() {
                     description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
                 />
                 <SummaryRow summary={summary} />
+
+                <GroupStudyTimeChart
+                    summary={groupStudySummary}
+                    loading={groupStudyLoading}
+                    error={groupStudyError}
+                />
             </div>
 
-            <ActiveUser activeUsers={activeUsers}/>
-        
+            <ActiveUser activeUsers={activeUsers} />
+
             {/* 그룹 목표 달성률 */}
             <div className="groupsAchievementPanel">
                 {groupsError && (
@@ -199,9 +248,11 @@ export default function AdminHomePage() {
                 />
             </div>
 
-            <RecentUser logs={logs}/>
 
-            <StudyTrend/>
+
+            <RecentUser logs={logs} />
+
+            <StudyTrend />
         </>
     )
 }

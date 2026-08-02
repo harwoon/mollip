@@ -1,0 +1,167 @@
+.groupStudySection {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(260px, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.groupStudyPanel,
+.weeklyTotalStudyCard {
+    box-sizing: border-box;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 14px;
+}
+
+.groupStudyPanel h3 {
+    margin: 0 0 20px;
+    font-size: 16px;
+}
+
+.groupStudyContent {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.groupDonutWrapper {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    flex-shrink: 0;
+}
+
+.groupDonutCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.groupDonutCenter span {
+    font-size: 12px;
+    color: #777777;
+}
+
+.groupDonutCenter strong {
+    margin-top: 4px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.groupStudyLegend {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.groupStudyLegendItem {
+    display: grid;
+    grid-template-columns: 10px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.groupStudyLegendColor {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.groupStudyLegendName {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.groupStudyLegendValue {
+    color: #777777;
+    white-space: nowrap;
+}
+
+.weeklyTotalStudyCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    align-self: start;
+}
+
+.weeklyTotalStudyIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #eee9ff;
+    font-size: 26px;
+}
+
+.weeklyTotalStudyCard p {
+    margin: 0 0 5px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.weeklyTotalStudyCard strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 25px;
+    color: #7656d6;
+}
+
+.weeklyTotalStudyCard small {
+    color: #999999;
+}
+
+.groupStudyTooltip {
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px
+        rgba(0, 0, 0, 0.1);
+}
+
+.groupStudyTooltip p {
+    margin: 5px 0 0;
+    font-size: 12px;
+}
+
+.groupStudyError {
+    color: #e24343;
+}
+
+.groupStudyEmpty {
+    padding: 40px 0;
+    color: #777777;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .groupStudySection {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .groupStudyContent {
+        flex-direction: column;
+    }
+
+    .groupStudyLegend {
+        width: 100%;
+    }
+}

@@ -16,6 +16,7 @@ import todoRouter from "./router/todo.js"
 import groupRouter from "./router/group.js"
 import { startWeeklyGroupJob } from "./jobs/weeklyGroupJob.js"
 import { startStreakJob } from "./jobs/streakJob.js"
+import {startDormantGroupJob} from "./jobs/dormantGroupJob.js"
 
 
 const app = express()
@@ -113,6 +114,7 @@ app.use((req, res) => {
 connectDB().then(() => {
     startWeeklyGroupJob()
     startStreakJob()
+    startDormantGroupJob()
 
     server.listen(config.host.port, () => {
         console.log(`웹 서버 및 소켓 서버 실행 중 (포트: ${config.host.port}) ...`)
