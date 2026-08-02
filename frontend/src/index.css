@@ -267,3 +267,27 @@ body{
 .usersLayout { padding: 18px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
 .adminGroupsPage { height: 100%; padding: var(--page-padding); overflow-y: auto; }
 .groupsPageSection { padding: 20px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+
+/* ===========================
+   Notebook 대응 (반응형 전)
+   1366px ~ 1600px
+=========================== */
+@media (max-width: 1600px) {
+    :root {
+        --sidebar-width: 250px;
+        --page-padding: 20px;
+        --card-gap: 16px;
+        --content-max-width: 1400px;
+    }
+
+    body {
+        font-size: 15px;
+    }
+
+    .container,
+    .layout,
+    .page,
+    main {
+        zoom: 0.9;
+    }
+}
