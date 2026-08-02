@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
 
         groupId: {
             type: String,
-            default: 'Unranked',
+            default: '6a6c309cb5f65e32d4078d00',
         },
         lastStudyDate: {
             type: String,
