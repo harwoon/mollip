@@ -12,6 +12,9 @@ router.use(isAuth, isAdmin)
 // http://127.0.0.1:3000/admin/study-time-trend?type=daily&startDate=2026-07-01&endDate=2026-07-14
 router.get("/study-time-trend", adminController.getStudyTimeTrend)
 
+// 관리자 홈 전체 회원의 이번 주 총 공부시간
+// http://localhost:3000/admin/weekly-total-study-time
+router.get("/weekly-total-study-time", adminController.getWeeklyTotalStudyTime)
 
 // 회원 관리 =================================================
 // 전체 회원 수 조회 : 탈퇴회원 제외, 정상회원+휴면회원

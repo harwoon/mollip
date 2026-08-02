@@ -12,28 +12,28 @@ export default function SummaryRow({ summary }) {
                 label="전체 사용자 수"
                 value={summary.totalUserCount}
                 unit="명"
-                diff={summary.normalUserCountDiff}
+                diff={summary}
             />
             <SummaryCard
                 icon={<RiGroupLine/>}
                 label="운영중인 그룹 수"
                 value={summary.groupCount}
                 unit="개"
-                diff={summary.groupCountDiff}
+                diff={summary}
             />
             <SummaryCard
                 icon={<HiOutlineFire/>}
                 label="현재 공부 중 인원"
                 value={summary.studyingCount}
                 unit="명"
-                diff={summary.studyingCountDiff}
+                diff={summary}
             />
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}
                 label="이번 주 todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
-                diff={summary.avgGoalRateDiff}
+                diff={summary}
             />
         </div>
     )
