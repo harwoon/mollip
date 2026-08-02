@@ -83,3 +83,25 @@ export async function getUsersExportData({ search, groupId, status, sortBy, sort
 
     return data
 }
+
+// 전체 회원 수
+// http://127.0.0.1:3000/admin/users/count
+export async function getUsersCount() {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_URL}/admin/users/count`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "전체 회원 수를 불러오지 못했습니다.")
+    }
+
+    const { normalUserCount, dormantUserCount } = data
+
+
+    return { normalUserCount, dormantUserCount }
+}

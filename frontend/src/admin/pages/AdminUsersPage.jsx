@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { io } from "socket.io-client"
 import Topbar from "../components/AdminTopbar.jsx"
 import UsersTable from "../features/users/components/UsersTable.jsx"
+import { TotalUser } from "../features/users/components/TotalUser.jsx"
 import Pagination from "../components/Pagination.jsx"
 import { getUsers, getActiveUsers, getUsersExportData } from "../features/users/api/user.js"
 import * as XLSX from "xlsx"
@@ -190,6 +191,8 @@ export default function AdminUsersPage() {
                     </button>
                 </div>
             </Topbar>
+
+            <TotalUser/>
 
             <div className="usersLayout">
                 <UsersTable users={users} activeUserIds={activeUserIds} />
