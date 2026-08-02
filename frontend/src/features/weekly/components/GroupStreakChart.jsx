@@ -44,12 +44,12 @@ export default function GroupStreakChart() {
             {
                 name: "개인 공부 일수",
                 days: Number(data?.userStreak) || 0,
-                color: theme.colors.primary,
+                color: chartTheme.colors.primary,
             },
             {
                 name: "그룹 공부 일수",
                 days: Number(data?.groupStreak) || 0,
-                color: theme.colors.secondarySoft,
+                color: chartTheme.colors.secondarySoft,
             },
             ])
         } catch (error) {
