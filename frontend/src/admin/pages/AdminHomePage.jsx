@@ -6,6 +6,9 @@ import { getGroupCount } from "../features/home/api/group.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
+import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
+import {fetchAdminGroupStatistics} from "../features/groups/api/adminGroupStatisticsApi.js"
+
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminHomePage() {
@@ -24,6 +27,10 @@ export default function AdminHomePage() {
         avgGoalRate: 0,
         avgGoalRateDiff: "수정 필요",
     })
+
+    const [groups, setGroups] = useState([])
+    const [groupsLoading, setGroupsLoading] = useState(true)
+    const [groupsError, setGroupsError] = useState("")
 
     useEffect(() => {
 
@@ -89,7 +96,28 @@ export default function AdminHomePage() {
             }
         }
 
+        async function fetchGroupStatistics() {
+            try {
+                setGroupsLoading(true)
+                setGroupsError("")
+
+                const data = await fetchAdminGroupStatistics()
+                const groupList = Array.isArray(data.groups) ? data.groups : []
+                setGroups(groupList)
+
+            } catch (error) {
+                console.error("그룹 목표 달성률 조회 실패:", error)
+
+                setGroups([])
+
+                setGroupsError(error.message || "그룹 목표 달성률을 불러오지 못했습니다.")
+            } finally {
+                setGroupsLoading(false)
+            }
+        }
+
         fetchSummary()
+        fetchGroupStatistics()
 
         return () => {
             socket.off('adminUserStarted')
@@ -125,6 +153,20 @@ export default function AdminHomePage() {
                         </li>
                     ))}
                 </ul>
+            </div>
+        
+            {/* 그룹 목표 달성률 */}
+            <div className="groupsAchievementPanel">
+                {groupsError && (
+                    <p className="groupsAchievementError">
+                        {groupsError}
+                    </p>
+                )}
+
+                <GroupGoalAchievement
+                    groups={groups}
+                    loading={groupsLoading}
+                />
             </div>
 
             <div>
