@@ -1,11 +1,19 @@
 import SummaryCard from "./SummaryCard.jsx"
 import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine } from "react-icons/ri"
+import { HiOutlineFire } from "react-icons/hi"
 
 import "./SummaryRow.css"
 
 export default function SummaryRow({ summary }) {
     return (
         <div className="summaryRow">
+            <SummaryCard
+                icon={<RiUserSmileLine/>}
+                label="전체 사용자 수"
+                value={summary.totalUserCount}
+                unit="명"
+                diff={summary.normalUserCountDiff}
+            />
             <SummaryCard
                 icon={<RiGroupLine/>}
                 label="운영중인 그룹 수"
@@ -14,11 +22,11 @@ export default function SummaryRow({ summary }) {
                 diff={summary.groupCountDiff}
             />
             <SummaryCard
-                icon={<RiUserSmileLine/>}
-                label="전체 사용자 수"
-                value={summary.totalUserCount}
+                icon={<HiOutlineFire/>}
+                label="현재 공부 중 인원"
+                value={summary.studyingCount}
                 unit="명"
-                diff={summary.normalUserCount}
+                diff={summary.studyingCountDiff}
             />
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}

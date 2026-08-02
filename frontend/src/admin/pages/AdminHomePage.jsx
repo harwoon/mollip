@@ -3,6 +3,7 @@ import { io } from 'socket.io-client'
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
+import { getActiveUsers } from "../features/users/api/user.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
@@ -77,11 +78,29 @@ export default function AdminHomePage() {
                 if (isAlreadyActive) return prev
                 return [...prev, newUser]
             })
+
+            // 공부중 인원수 +1
+            setSummary(prev => ({ ...prev, studyingCount: prev.studyingCount + 1 }))
         })
 
         socket.on('adminUserStopped', ({ userId: stoppedUserId }) => {
             setActiveUsers((prev) => prev.filter(user => user.userId !== stoppedUserId))
+
+            // 공부중 인원수 -1 (0 밑으로는 안 내려가게)
+            setSummary(prev => ({ ...prev, studyingCount: Math.max(prev.studyingCount - 1, 0) }))
         })
+
+        async function fetchActiveCount() {
+            try {
+                const data = await getActiveUsers()
+                setSummary(prev => ({
+                    ...prev,
+                    studyingCount: data.activeUserIds.length
+                }))
+            } catch (error) {
+                console.error("현재 공부중 인원 조회 실패:", error.message)
+            }
+        }
 
         async function fetchSummary() {
             try {
@@ -136,6 +155,7 @@ export default function AdminHomePage() {
             }
         }
 
+        fetchActiveCount()
         fetchSummary()
         fetchGroupStatistics()
 
