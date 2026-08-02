@@ -5,7 +5,7 @@ import SidebarStudyStreak from "./SidebarStudyStreak"
 import SidebarLogout from "./SidebarLogout"
 
 import "./Sidebar.css"
-import { FiBarChart2, FiBookOpen, FiHome, FiLogOut, FiSettings, FiUsers } from "react-icons/fi"
+import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 

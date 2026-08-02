@@ -5,15 +5,12 @@ export default function SidebarLogout() {
     const navigate = useNavigate()
 
     const handleLogout = () => {
-        localStorage.removeItem("token")
-        localStorage.removeItem("userId")
-        setTime(0)
-        setIsRunning(false)
-        setSelectedSubject(null)
+        localStorage.clear()
+        // setTime(0)
+        // setIsRunning(false)
+        // setSelectedSubject(null)
 
-        navigate("/", {
-        replace: true
-        })
+        navigate("/", { replace: true })
     }
 
     return (
