@@ -16,9 +16,9 @@ export default function SummaryRow({ summary }) {
             <SummaryCard
                 icon={<RiUserSmileLine/>}
                 label="전체 사용자 수"
-                value={summary.userCount}
+                value={summary.totalUserCount}
                 unit="명"
-                diff={summary.userCountDiff}
+                diff={summary.normalUserCount}
             />
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}

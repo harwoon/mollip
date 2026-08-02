@@ -20,12 +20,16 @@ export default function AdminHomePage() {
     const [summary, setSummary] = useState({
         groupCount: 0,
         groupCountDiff: "수정 필요",
-        userCount: 0,
+
+        totalUserCount: 0, // 탈퇴회원, 관리자 제외한 일반 회원 수
         userCountDiff: "수정 필요",
+
         studyingCount: 0,
         studyingCountNote: "수정 필요",
+
         weeklyTotalTime: "수정 필요",
         weeklyTotalTimeDiff: "수정 필요",
+
         avgGoalRate: 0,
         avgGoalRateDiff: "수정 필요",
     })
@@ -89,9 +93,23 @@ export default function AdminHomePage() {
 
                 setSummary(prev => ({
                     ...prev,
-                    groupCount: groupData.count,
-                    userCount: userData.count,
-                    avgGoalRate: todoAchievementData.achievement.achievementRate
+                    // 운영 중인 그룹 수
+                    groupCount: groupData.count || 0,
+
+                    // 탈퇴 회원을 제외한 전체 회원 수
+                    totalUserCount: userData.totalUserCount || 0,
+
+                    // 탈퇴 회원 수
+                    withdrawnUserCount: userData.withdrawnUserCount || 0,
+
+                    // 휴면 회원을 제외한 정상 회원 수
+                    normalUserCount: userData.normalUserCount || 0,
+
+                    // 휴면 그룹 소속 회원 수
+                    dormantUserCount: userData.dormantUserCount || 0,
+
+                    // 이번 주 전체 Todo 달성률
+                    avgGoalRate: todoAchievementData.achievement?.achievementRate || 0
                 }))
             } catch (error) {
                 console.error("데이터 조회 실패", error.message)
