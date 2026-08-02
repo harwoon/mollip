@@ -37,6 +37,10 @@ router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 // http://127.0.0.1:3000/admin/todo-achievement/weekly
 router.get("/todo-achievement/weekly", adminController.getWeeklyTodoAchievement)
 
+// 관리자 홈 전체 회원의 이번 주 평균 공부시간 조회
+// http://127.0.0.1:3000/admin/weekly-average-study-time
+router.get("/weekly-average-study-time", adminController.getWeeklyAverageStudyTime)
+
 // 그룹 관리
 // =================================================
 // http://127.0.0.1:3000/admin/groups/count
