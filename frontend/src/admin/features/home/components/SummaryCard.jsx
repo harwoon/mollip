@@ -11,7 +11,7 @@ export default function SummaryCard({ icon, label, value, unit, diff }) {
                 <p className="summaryCardValue">
                     {value}<span className="summaryCardUnit">{unit}</span>
                 </p>
-                {diff && <p className="summaryCardDiff">{diff}</p>}
+                {diff && <p className="summaryCardDiff">수정필요</p>}
             </div>
         </div>
     )
