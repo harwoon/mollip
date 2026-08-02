@@ -647,3 +647,55 @@ export async function getStudyTimeTrend(req, res) {
         })
     }
 }
+
+
+// 회원현황: summary - 이번주 평균 학습시간
+export async function getWeeklyAverageStudyTime(req, res) {
+    try{
+        // 오늘날짜 기준 이번주 월요일, 일요일 계산
+        const {startDate, endDate} = getWeekRange(new Date())
+
+        // 이번주 학습기록 있는 회원별 주간 공부시간 조회
+        const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
+
+        // 이번주 실제 공부한 회원수
+        const studyUserCount = weeklyStudyTimes.length
+
+        // 회원별 공부시간 더해서 이번주 전체 공부시간 계산
+        const totalWeeklyStudyTime = weeklyStudyTimes.reduce(
+            (sum, user) => {
+                return sum + (user.totalStudyTime || 0)
+            },
+            0
+        )
+
+
+        // 이번주 평균 공부시간 = 이번주 전체 공부시간 / 이번주 공부한 회원수
+        // 공부한 회원 없으면 평균 0 반환
+        const averageWeeklyStudyTime = studyUserCount === 0 ? 0 : Number(
+            (totalWeeklyStudyTime / studyUserCount).toFixed(1)
+        )
+
+        return res.status(200).json({
+            message: "이번 주 회원 평균 공부시간을 성공적으로 불러왔습니다.",
+            startDate,
+            endDate,
+            // 이번 주에 실제 공부한 회원 수
+            studyUserCount,
+            // 이번 주 전체 회원 공부시간 합계 (분)
+            totalWeeklyStudyTime,
+            // 이번 주 공부한 회원 기준 평균 공부시간 (분)
+            averageWeeklyStudyTime
+        })
+
+    }catch(error){
+        console.error(
+            "전체 회원 주간 평균 공부시간 조회 실패: ". error
+        )
+
+        return res.status(500).json({
+            message: "전체 회원의 이번주 평균 공부시간을 불러오지 못했습니다."
+        })
+    }
+    
+}
