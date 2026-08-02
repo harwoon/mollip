@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom"
 import {FiBarChart2, FiBookOpen, FiHome} from "react-icons/fi"
 import "../../components/Sidebar.css"
 import SidebarUserInfo from "../../components/SidebarUserInfo.jsx"
+import SidebarLogout from "../../components/SidebarLogout.jsx"
 
 export default function AdminSidebar() {
     // 현재 주소와 NavLink의 주소가 일치하면
@@ -45,6 +46,7 @@ export default function AdminSidebar() {
                     </div>
                 </nav>
             </div>
+            <SidebarLogout />
         </aside>
     )
 }
