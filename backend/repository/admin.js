@@ -5,8 +5,54 @@ import AdminLog from "../models/AdminLog.js"
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 export async function countAllUsers() {
-    return User.countDocuments({ role: 'user' })
+    // 휴면 그룹 ObjectId
+    const dormantGroupId = "6a6c35fa39f4827ac141db88"
+
+    // 각 회원수 Promise.all 비교
+    const[
+        totalUserCount,
+        withdrawnUserCount,
+        dormantUserCount
+    ] = await Promise.all([
+        
+        // 전체 회원수 = 관리자, 탈퇴회원 제외 | 정상회워느 휴면회원 포함
+        User.countDocuments({
+            role: "user",
+            useYn: "Y"
+        }),
+        
+        // 탈퇴 회원수 = UseYn:n | 관리자 제외
+        User.countDocuments({
+            role: "user",
+            useYn: "N"
+        }),
+
+        // 휴면 회원수 = 탈퇴안한 회원 중 groupId 휴면그룹 ID
+        User.countDocuments({
+            role: "user",
+            useYn: "Y",
+            groupId: dormantGroupId
+        })
+    ])
+
+    // 정상 회원수 = 전체회원(정상, 휴면) - 휴면
+    const normalUserCount = totalUserCount - dormantUserCount
+
+    return{
+        // 탈퇴하지 않은 전체 일반 회원 수
+        totalUserCount,
+
+        // 탈퇴한 일반 회원 수
+        withdrawnUserCount,
+
+        // 탈퇴하지 않았고 휴면 그룹이 아닌 회원 수
+        normalUserCount,
+
+        // 탈퇴하지 않았고 휴면 그룹에 속한 회원 수
+        dormantUserCount
+    }
 }
+
 
 // 검색/그룹 필터가 적용된 전체 유저 조회
 // (정렬·페이지네이션은 여기서 하지 않고, 이후 controller에서 계산값까지 합친 뒤 처리함)

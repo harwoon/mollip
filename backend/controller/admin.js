@@ -15,12 +15,17 @@ import { getWeekRange, getInclusiveDayCount, getPreviousPeriod, parseDate } from
 
 // 관리자
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
+// totalUserCount 탈퇴하지 않은 전체 일반 회원 수
+// normalUserCount 휴면 그룹을 제외한 일반 회원 수
+// dormantUserCount 휴면 그룹에 속한 회원 수
 export async function getUserCount(req, res) {
     try {
-        const count = await adminRepository.countAllUsers()
+        const userStatusSummary = await adminRepository.countAllUsers()
+        // const count = await adminRepository.countAllUsers()
         return res.status(200).json({
             message: "전체 사용자 수를 성공적으로 불러왔습니다.",
-            count
+            ...userStatusSummary
+            // count
         })
     } catch (error) {
         console.log("전체 사용자 수 조회 오류: ", error)
@@ -649,7 +654,7 @@ export async function getStudyTimeTrend(req, res) {
 }
 
 
-// 회원현황: summary - 이번주 평균 학습시간
+// 회원현황: summary 이번주 평균 학습시간
 export async function getWeeklyAverageStudyTime(req, res) {
     try{
         // 오늘날짜 기준 이번주 월요일, 일요일 계산
@@ -668,7 +673,6 @@ export async function getWeeklyAverageStudyTime(req, res) {
             },
             0
         )
-
 
         // 이번주 평균 공부시간 = 이번주 전체 공부시간 / 이번주 공부한 회원수
         // 공부한 회원 없으면 평균 0 반환
