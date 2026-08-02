@@ -6,6 +6,7 @@ import { getGroupCount } from "../features/home/api/group.js"
 import { getActiveUsers } from "../features/users/api/user.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
+import { getTotalTime } from "../features/home/api/study.js"
 
 import ActiveUser from "../features/home/components/ActiveUser.jsx"
 import RecentUser from "../features/home/components/RecentUser.jsx"
@@ -29,7 +30,7 @@ export default function AdminHomePage() {
         studyingCount: 0,
         studyingCountNote: "수정 필요",
 
-        weeklyTotalTime: "수정 필요",
+        weeklyTotalTime: 0,
         weeklyTotalTimeDiff: "수정 필요",
 
         avgGoalRate: 0,
@@ -105,10 +106,11 @@ export default function AdminHomePage() {
 
         async function fetchSummary() {
             try {
-                const [groupData, userData, todoAchievementData] = await Promise.all([
+                const [groupData, userData, todoAchievementData, totalTimeData] = await Promise.all([
                     getGroupCount(),
                     getUserCount(),
-                    getWeeklyTodoAchievement()
+                    getWeeklyTodoAchievement(),
+                    getTotalTime()
                 ])
 
                 setSummary(prev => ({
@@ -127,6 +129,9 @@ export default function AdminHomePage() {
 
                     // 휴면 그룹 소속 회원 수
                     dormantUserCount: userData.dormantUserCount || 0,
+
+                    // 이번 주 총 공부시간
+                    weeklyTotalTime: totalTimeData || 0,
 
                     // 이번 주 전체 Todo 달성률
                     avgGoalRate: todoAchievementData.achievement?.achievementRate || 0

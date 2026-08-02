@@ -1,5 +1,5 @@
 import SummaryCard from "./SummaryCard.jsx"
-import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine } from "react-icons/ri"
+import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine, RiTimeLine } from "react-icons/ri"
 import { HiOutlineFire } from "react-icons/hi"
 
 import "./SummaryRow.css"
@@ -26,6 +26,13 @@ export default function SummaryRow({ summary }) {
                 label="현재 공부 중 인원"
                 value={summary.studyingCount}
                 unit="명"
+                diff={summary}
+            />
+            <SummaryCard
+                icon={<RiTimeLine/>}
+                label="이번 주 총 공부 시간"
+                value={summary.weeklyTotalTime}
+                unit="시간"
                 diff={summary}
             />
             <SummaryCard
