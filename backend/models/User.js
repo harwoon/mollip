@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema(
     {
         userId: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         },
         userPw: {
             type: String,
@@ -54,6 +55,18 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["Y", "N"],
             default: "Y"
+        },
+
+        // 탈퇴 전 아이디 - 탈퇴시 보관용
+        withdrawnUserId: {
+            type: String,
+            default: null
+        },
+
+        // 탈퇴 전 이메일 - 탈퇴시 보관용
+        withdrawnEmail: {
+            type: String,
+            default: null
         },
 
         // 탈퇴사유
