@@ -5,6 +5,7 @@ import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
+import ActiveUser from "../features/home/components/ActiveUser.jsx"
 
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
 import {fetchAdminGroupStatistics} from "../features/groups/api/adminGroupStatisticsApi.js"
@@ -137,23 +138,7 @@ export default function AdminHomePage() {
                 <SummaryRow summary={summary} />
             </div>
 
-            <div>
-                <h2>실시간 접속자</h2>
-                <ul>
-                    {activeUsers.map(user => (
-                        <li key={user.userId}>
-                            <img src={`http://127.0.0.1:3000${user.profileImg}`} alt="프로필" width="30" />
-                            <span>{user.userName}</span>
-                            <span style={{ backgroundColor: user.groupColor || '#ccc', color: '#fff', marginLeft: '10px', padding: '2px 5px', borderRadius: '5px', fontSize: '12px' }}>
-                                {user.groupName}
-                            </span>
-                            <span style={{ marginLeft: '10px' }}>
-                                {user.subjectName} 과목 공부 중입니다.
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <ActiveUser activeUsers={activeUsers}/>
         
             {/* 그룹 목표 달성률 */}
             <div className="groupsAchievementPanel">
@@ -169,24 +154,7 @@ export default function AdminHomePage() {
                 />
             </div>
 
-            <div>
-                <h2>최근 활동</h2>
-                <div style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc' }}>
-                    <ul>
-                        {logs.map((log, index) => (
-                            <li key={index}>
-                                <span style={{ color: log.type === 'SIGNUP' ? 'blue' : 'red' }}>
-                                    [{log.type === 'SIGNUP' ? '가입' : '탈퇴'}]
-                                </span>
-                                {' '}{log.message}
-                                <span style={{ color: 'gray', fontSize: '12px', marginLeft: '10px' }}>
-                                    ({new Date(log.createdAt).toLocaleString()})
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            <ActiveUser logs={logs}/>
         </>
     )
 }
