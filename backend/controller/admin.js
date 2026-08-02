@@ -593,13 +593,25 @@ export async function getStudyTimeTrend(req, res) {
         // 현재 선택 기간과 동일한 일수의 이전 기간 계산
         const previousPeriod = getPreviousPeriod(startDate, endDate)
 
-        // 차트 추이 데이터 조회
-        const trend =
+        // DB에서는 실제 공부 기록이 존재하는 구간만 조회됨
+        //
+        // 예:
+        // 조회 기간이 07-16 ~ 07-22이고
+        // 07-20에만 공부했다면 07-20 데이터만 반환
+        const rawTrend =
             await studyRepository.getServiceStudyTimeTrend(
                 type,
                 startDate,
                 endDate
             )
+
+        // 기록이 없는 일·주·월을 totalMinutes: 0으로 채움
+        const trend = fillMissingTrendData(
+            type,
+            startDate,
+            endDate,
+            rawTrend
+        )
 
         // 현재 선택 기간의 서비스 전체 공부시간 합계
         const currentTotalMinutes =
@@ -653,6 +665,132 @@ export async function getStudyTimeTrend(req, res) {
     }
 }
 
+// Date 객체 YYYY-MM-DD 문자열로 변환
+// toISOString()을 사용하면 한국 시간과 UTC 차이 때문에 날짜가 하루 전으로 변할 수 있으므로 직접 문자열을 조합
+function formatLocalDate(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+}
+
+// YYYY-MM-DD 문자열을 로컬 Date 객체로 변환
+function parseLocalDate(dateString) {
+    const [year, month, day] = dateString.split("-").map(Number)
+    return new Date(
+        year,
+        month - 1,
+        day
+    )
+}
+
+// 전달받은 날짜가 속한 주의 월요일 계산
+function getMonday(date) {
+    const result = new Date(date)
+    const day = result.getDay()
+    const differenceFromMonday = day === 0 ? 6 : day - 1
+
+    result.setDate(
+        result.getDate() - differenceFromMonday
+    )
+    return result
+}
+
+// 조회 단위에 맞춰 누락된 구간을 0분으로 채움
+function fillMissingTrendData(type, startDate, endDate, rawTrend) {
+    // "2026-07-20" → 7200
+    const trendMap = new Map(
+        rawTrend.map(item => [
+            item.date,
+            Number(item.totalMinutes) || 0
+        ])
+    )
+    const filledTrend = []
+
+    // 일간 조회 (기록이 없는 날짜는 totalMinutes: 0으로 추가)
+    if (type === "daily") {
+        const currentDate = parseLocalDate(startDate)
+        const lastDate = parseLocalDate(endDate)
+
+        while (currentDate <= lastDate) {
+            const date = formatLocalDate(currentDate)
+            filledTrend.push({
+                date,
+                totalMinutes: trendMap.get(date) || 0
+            })
+
+            currentDate.setDate(
+                currentDate.getDate() + 1
+            )
+        }
+        return filledTrend
+    }
+
+    // 주간 조회 : 시작일이 속한 주의 월요일부터 한 주씩 증가
+    if (type === "weekly") {
+        const currentMonday = getMonday(parseLocalDate(startDate))
+        const endDateObject = parseLocalDate(endDate)
+
+        while (currentMonday <= endDateObject) {
+            const date = formatLocalDate(currentMonday)
+
+            filledTrend.push({
+                // 해당 주 월요일
+                date,
+
+                // 공부 기록이 없는 주는 0분
+                totalMinutes: trendMap.get(date) || 0
+            })
+            currentMonday.setDate(
+                currentMonday.getDate() + 7
+            )
+        }
+
+        return filledTrend
+    }
+
+    // 월간 조회 : 시작 월부터 종료 월까지 한 달씩 증가
+    if (type === "monthly") {
+        const startDateObject = parseLocalDate(startDate)
+        const endDateObject = parseLocalDate(endDate)
+
+        const currentMonth = new Date(
+            startDateObject.getFullYear(),
+            startDateObject.getMonth(),
+            1
+        )
+
+        const lastMonth = new Date(
+            endDateObject.getFullYear(),
+            endDateObject.getMonth(),
+            1
+        )
+
+        while (currentMonth <= lastMonth) {
+            const year = currentMonth.getFullYear()
+
+            const month = String(
+                currentMonth.getMonth() + 1
+            ).padStart(2, "0")
+
+            const date = `${year}-${month}`
+
+            filledTrend.push({
+                date,
+                totalMinutes: trendMap.get(date) || 0
+            })
+
+            currentMonth.setMonth(
+                currentMonth.getMonth() + 1
+            )
+        }
+
+        return filledTrend
+    }
+
+    // 이미 type 검증을 하고 있지만 예외 상황에서는 원본 데이터 반환
+    return rawTrend
+}
 
 // 회원현황: summary 이번주 평균 학습시간
 export async function getWeeklyAverageStudyTime(req, res) {
@@ -694,7 +832,7 @@ export async function getWeeklyAverageStudyTime(req, res) {
 
     }catch(error){
         console.error(
-            "전체 회원 주간 평균 공부시간 조회 실패: ". error
+            "전체 회원 주간 평균 공부시간 조회 실패: ", error
         )
 
         return res.status(500).json({
