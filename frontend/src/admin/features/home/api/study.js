@@ -14,9 +14,11 @@ export async function getStudyTrend(type, start, end) {
 
     const data = await response.json()
 
-    if(!response.ok) {
-        throw new Error(data.message || "그룹 수를 불러오지 못했습니다.")
+    if (!response.ok) {
+        throw new Error(data.message || "학습 시간 추이 데이터를 불러오지 못했습니다.")
     }
 
-    return data
+    const {trend, currentPeriod, previousPeriod, comparison} = data
+
+    return  {trend, currentPeriod, previousPeriod, comparison}
 }

@@ -9,6 +9,7 @@ import { getGroup } from "../features/groups/api/group.js"
 
 import ActiveUser from "../features/home/components/ActiveUser.jsx"
 import RecentUser from "../features/home/components/RecentUser.jsx"
+import StudyTrend from "../features/home/components/StudyTrend.jsx"
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
 import {fetchAdminGroupStatistics} from "../features/groups/api/adminGroupStatisticsApi.js"
 
@@ -194,6 +195,8 @@ export default function AdminHomePage() {
             </div>
 
             <RecentUser logs={logs}/>
+
+            <StudyTrend/>
         </>
     )
 }
