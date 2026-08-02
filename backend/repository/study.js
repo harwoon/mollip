@@ -1,5 +1,6 @@
 import Study from "../models/Study.js";
 import mongoose from "mongoose";
+import User from "../models/User.js"
 
 export async function createStudy(studyData) {
     const study = new Study(studyData);
@@ -529,4 +530,123 @@ export async function findWeeklyStudySummariesByUsers(
             }
         }
     ])
+}
+
+
+// 관리자 홈 전체 회원의 이번 주 총 공부시간 조회
+export async function getWeeklyStudyTimeSummary(startDate, endDate) {
+    const [currentUsers, withdrawnUsers] = await Promise.all([
+        // 현재 이용 중인 회원 (정상 회원, 휴면 회원)
+        User.find({
+            role: "user",
+            useYn: "Y"
+        }).select("_id"),
+
+        // 탈퇴 회원
+        User.find({
+            role: "user",
+            useYn: "N"
+        }).select("_id")
+    ])
+    
+    // 회원 문서에서 MongoDB ObjectId만 배열로 추출
+    const currentUserIds = currentUsers.map(user => user._id)
+    const withdrawnUserIds = withdrawnUsers.map(user => user._id)
+
+
+    
+
+    // 현재 회원의 이번 주 총 공부시간 조회
+    //
+    // 현재 회원이 한 명도 없으면
+    // aggregate를 실행하지 않고 0을 사용
+    const currentStudyResult =
+        currentUserIds.length === 0
+            ? []
+            : await Study.aggregate([
+                {
+                    // 현재 회원들의 이번 주 Study 기록만 조회
+                    $match: {
+                        user: {
+                            $in: currentUserIds
+                        },
+
+                        studyDate: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    // 사용자와 날짜 구분 없이
+                    // 현재 회원의 모든 공부시간을 하나로 합산
+                    $group: {
+                        _id: null,
+
+                        currentWeeklyStudyTime: {
+                            $sum: "$sumStudyTime"
+                        }
+                    }
+                }
+            ])
+
+    // 탈퇴 회원의 이번 주 총 공부시간 조회
+    //
+    // 탈퇴 회원이 한 명도 없으면
+    // aggregate를 실행하지 않고 0을 사용
+    const withdrawnStudyResult =
+        withdrawnUserIds.length === 0
+            ? []
+            : await Study.aggregate([
+                {
+                    // 탈퇴 회원들의 이번 주 Study 기록만 조회
+                    $match: {
+                        user: {
+                            $in: withdrawnUserIds
+                        },
+
+                        studyDate: {
+                            $gte: startDate,
+                            $lte: endDate
+                        }
+                    }
+                },
+                {
+                    // 사용자와 날짜 구분 없이
+                    // 탈퇴 회원의 모든 공부시간을 하나로 합산
+                    $group: {
+                        _id: null,
+
+                        withdrawnWeeklyStudyTime: {
+                            $sum: "$sumStudyTime"
+                        }
+                    }
+                }
+            ])
+
+    // 현재 회원의 공부 기록이 없으면 0
+    const currentWeeklyStudyTime =
+        currentStudyResult[0]
+            ?.currentWeeklyStudyTime || 0
+
+    // 탈퇴 회원의 공부 기록이 없으면 0
+    const withdrawnWeeklyStudyTime =
+        withdrawnStudyResult[0]
+            ?.withdrawnWeeklyStudyTime || 0
+
+    // 현재 회원과 탈퇴 회원의 공부시간 합계
+    const totalWeeklyStudyTime =
+        currentWeeklyStudyTime +
+        withdrawnWeeklyStudyTime
+
+    return {
+        // 정상 회원 + 휴면 회원의 이번 주 총 공부시간
+        currentWeeklyStudyTime,
+
+        // 탈퇴 회원의 이번 주 총 공부시간
+        withdrawnWeeklyStudyTime,
+
+        // 현재 회원과 탈퇴 회원 전체의 이번 주 총 공부시간
+        totalWeeklyStudyTime
+    }
 }

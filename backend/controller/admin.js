@@ -839,5 +839,35 @@ export async function getWeeklyAverageStudyTime(req, res) {
             message: "전체 회원의 이번주 평균 공부시간을 불러오지 못했습니다."
         })
     }
-    
+}
+
+// 관리자 홈 전체 회원의 이번 주 총 공부시간 조회
+export async function getWeeklyTotalStudyTime(req, res) {
+    try {
+        // 오늘 날짜를 기준 이번주 계산
+        const { startDate, endDate } = getWeekRange(new Date())
+
+        // 관리자, 탈퇴회원 제외한 주간 총 공부시간
+        const summary = await studyRepository.getWeeklyStudyTimeSummary(
+                startDate,
+                endDate
+            )
+
+        return res.status(200).json({
+            message: "전체 회원의 이번 주 총 공부시간을 성공적으로 불러왔습니다.",
+            startDate,
+            endDate,
+            // 정상 회원 + 휴면 회원 이번주 총 공부시간
+            currentWeeklyStudyTime: summary.currentWeeklyStudyTime,
+            // 탈퇴한 회원 이번주 총 공부시간
+            withdrawnWeeklyStudyTime: summary.withdrawnWeeklyStudyTime,
+            // 현재회원, 탈토회원 포함한 이번주 총 공부시간
+            totalWeeklyStudyTime: summary.totalWeeklyStudyTime
+        })
+    } catch (error) {
+        console.error("전체 회원 주간 총 공부시간 조회 실패:", error)
+        return res.status(500).json({
+            message: "전체 회원의 이번 주 총 공부시간을 불러오지 못했습니다."
+        })
+    }
 }
