@@ -6,6 +6,11 @@ import { getGroupCount } from "../features/home/api/group.js"
 import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
 import { getGroup } from "../features/groups/api/group.js"
 
+import ActiveUser from "../features/home/components/ActiveUser.jsx"
+import RecentUser from "../features/home/components/RecentUser.jsx"
+import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
+import {fetchAdminGroupStatistics} from "../features/groups/api/adminGroupStatisticsApi.js"
+
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminHomePage() {
@@ -24,6 +29,10 @@ export default function AdminHomePage() {
         avgGoalRate: 0,
         avgGoalRateDiff: "수정 필요",
     })
+
+    const [groups, setGroups] = useState([])
+    const [groupsLoading, setGroupsLoading] = useState(true)
+    const [groupsError, setGroupsError] = useState("")
 
     useEffect(() => {
 
@@ -89,7 +98,28 @@ export default function AdminHomePage() {
             }
         }
 
+        async function fetchGroupStatistics() {
+            try {
+                setGroupsLoading(true)
+                setGroupsError("")
+
+                const data = await fetchAdminGroupStatistics()
+                const groupList = Array.isArray(data.groups) ? data.groups : []
+                setGroups(groupList)
+
+            } catch (error) {
+                console.error("그룹 목표 달성률 조회 실패:", error)
+
+                setGroups([])
+
+                setGroupsError(error.message || "그룹 목표 달성률을 불러오지 못했습니다.")
+            } finally {
+                setGroupsLoading(false)
+            }
+        }
+
         fetchSummary()
+        fetchGroupStatistics()
 
         return () => {
             socket.off('adminUserStarted')
@@ -109,42 +139,23 @@ export default function AdminHomePage() {
                 <SummaryRow summary={summary} />
             </div>
 
-            <div>
-                <h2>실시간 접속자</h2>
-                <ul>
-                    {activeUsers.map(user => (
-                        <li key={user.userId}>
-                            <img src={`http://127.0.0.1:3000${user.profileImg}`} alt="프로필" width="30" />
-                            <span>{user.userName}</span>
-                            <span style={{ backgroundColor: user.groupColor || '#ccc', color: '#fff', marginLeft: '10px', padding: '2px 5px', borderRadius: '5px', fontSize: '12px' }}>
-                                {user.groupName}
-                            </span>
-                            <span style={{ marginLeft: '10px' }}>
-                                {user.subjectName} 과목 공부 중입니다.
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+            <ActiveUser activeUsers={activeUsers}/>
+        
+            {/* 그룹 목표 달성률 */}
+            <div className="groupsAchievementPanel">
+                {groupsError && (
+                    <p className="groupsAchievementError">
+                        {groupsError}
+                    </p>
+                )}
+
+                <GroupGoalAchievement
+                    groups={groups}
+                    loading={groupsLoading}
+                />
             </div>
 
-            <div>
-                <h2>최근 활동</h2>
-                <div style={{ height: '200px', overflowY: 'scroll', border: '1px solid #ccc' }}>
-                    <ul>
-                        {logs.map((log, index) => (
-                            <li key={index}>
-                                <span style={{ color: log.type === 'SIGNUP' ? 'blue' : 'red' }}>
-                                    [{log.type === 'SIGNUP' ? '가입' : '탈퇴'}]
-                                </span>
-                                {' '}{log.message}
-                                <span style={{ color: 'gray', fontSize: '12px', marginLeft: '10px' }}>
-                                    ({new Date(log.createdAt).toLocaleString()})
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+            <RecentUser logs={logs}/>
         </>
     )
 }

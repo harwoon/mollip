@@ -5,12 +5,12 @@ import * as statisticsService from "../service/statisticsService.js"
 
 import AdminLog from "../models/AdminLog.js"
 import Group from "../models/Group.js"
-import { getWeekRange } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 import Study from '../models/Study.js'
 import mongoose from 'mongoose'
 import * as adminGroupStatisticsService from "../service/adminGroupStatisticsService.js"
 import { getWeekOfMonth } from "../util/date.js"
+import { getWeekRange, getInclusiveDayCount, getPreviousPeriod, parseDate } from "../util/date.js"
 
 
 // 관리자
@@ -487,4 +487,215 @@ export async function getGroupStatistics(req, res) {
                     : error.message
         })
     }
+}
+
+// 관리자 서비스 전체 학습시간 추이 조회
+export async function getStudyTimeTrend(req, res) {
+    const {type, startDate, endDate} = req.query
+
+    // 허용하는 조회 단위
+    const allowedTypes  = ["daily", "weekly", "monthly"]
+
+    // 날짜 문자열이 YYYY-MM-DD 형식인지 검사
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+    // 하나라도 없으면 요청 실패
+    if (!type || !startDate || !endDate) {
+        return res.status(400).json({
+            message: "type, startDate, endDate를 모두 입력해주세요."
+        })
+    }
+
+    // 다른 type 들어오면 요청 실패
+    if (!allowedTypes.includes(type)) {
+        return res.status(400).json({
+            message: "type은 daily, weekly, monthly 중 하나여야 합니다."
+        })
+    }
+
+    // 시작일, 종료일 문자열 형식 검사
+    if(
+        !datePattern.test(startDate) ||
+        !datePattern.test(endDate)
+    ) {
+        return res.status(400).json({
+            message: "날짜는 YYYY-MM-DD 형식으로 입력해주세요."
+        })
+    }
+
+    // 문자열 날짜 Date 객체 변환
+    const startDateObj = parseDate(startDate)
+    const endDateObj = parseDate(endDate)
+
+    // 존재하지 않는 날짜까지 검사 (2026-02-30은 정규식으로 통과함, 별도 확인필요)
+    const isValidStartDate =
+        startDateObj.getFullYear() === Number(startDate.slice(0, 4)) &&
+        startDateObj.getMonth() + 1 === Number(startDate.slice(5, 7)) &&
+        startDateObj.getDate() === Number(startDate.slice(8, 10))
+
+    const isValidEndDate =
+        endDateObj.getFullYear() === Number(endDate.slice(0, 4)) &&
+        endDateObj.getMonth() + 1 === Number(endDate.slice(5, 7)) &&
+        endDateObj.getDate() === Number(endDate.slice(8, 10))
+
+    // 존재하지 않는 날짜면 요청 실패
+    if (!isValidStartDate || !isValidEndDate) {
+        return res.status(400).json({
+            message: "실제로 존재하는 날짜를 입력해주세요."
+        })
+    }
+
+    // 시작일이 종료일보다 뒤인 경우 요청 실패
+    if (startDateObj > endDateObj) {
+        return res.status(400).json({
+            message: "startDate는 endDate보다 늦을 수 없습니다."
+        })
+    }
+
+    // 시작일과 종료일 모두 포함한 조회 기간 계산 (07-01 ~ 07-14는 14일)
+    const periodDays = getInclusiveDayCount(
+        startDate,
+        endDate
+    )
+
+    // 일간 데이터는 최대 14일까지 조회 가능
+    if (type === "daily" && periodDays > 14) {
+        return res.status(400).json({
+            message: "일간 조회는 최대 14일까지 가능합니다."
+        })
+    }
+
+    // 주간 데이터는 최대 3개월까지 조회 가능
+    if (type === "weekly") {
+        // 시작일 객체를 복사 원본 날짜가 변경되지 않도록 처리
+        const weeklyLimitDate = new Date(startDateObj)
+
+        // 조회 시작일을 기준으로 3개월 뒤 날짜 계산
+        weeklyLimitDate.setMonth(
+            weeklyLimitDate.getMonth() + 3
+        )
+
+        // 종료일이 허용 날짜보다 뒤라면 조회 제한 초과
+        if (endDateObj > weeklyLimitDate) {
+            return res.status(400).json({
+                message: "주간 조회는 최대 3개월까지 가능합니다."
+            })
+        }
+    }
+
+    try {
+
+        // 현재 선택 기간과 동일한 일수의 이전 기간 계산
+        const previousPeriod = getPreviousPeriod(startDate, endDate)
+
+        // 차트 추이 데이터 조회
+        const trend =
+            await studyRepository.getServiceStudyTimeTrend(
+                type,
+                startDate,
+                endDate
+            )
+
+        // 현재 선택 기간의 서비스 전체 공부시간 합계
+        const currentTotalMinutes =
+            await studyRepository.getServiceStudyTimeTotal(
+                startDate,
+                endDate
+            )
+
+        // 이전 동일 기간의 서비스 전체 공부시간 합계
+        const previousTotalMinutes =
+            await studyRepository.getServiceStudyTimeTotal(
+                previousPeriod.startDate,
+                previousPeriod.endDate
+            )
+
+        // 현재 기간에서 이전 기간을 뺀 증감 공부시간
+        const differenceMinutes = currentTotalMinutes - previousTotalMinutes
+
+        // 이전 기간 합계가 0이면 나눗셈이 불가능하므로 null 반환
+        const changeRate =
+            previousTotalMinutes === 0 ? null : Number(
+                (differenceMinutes / previousTotalMinutes * 100).toFixed(2)
+            )
+
+
+        return res.status(200).json({
+            message: "서비스 학습시간 추이를 성공적으로 조회했습니다.",
+            type,
+            trend,
+            currentPeriod: {
+                startDate,
+                endDate,
+                totalMinutes: currentTotalMinutes
+            },
+            previousPeriod: {
+                startDate: previousPeriod.startDate,
+                endDate: previousPeriod.endDate,
+                totalMinutes: previousTotalMinutes
+            },
+            comparison: {
+                differenceMinutes,
+                changeRate
+            }
+        })
+
+    } catch (error) {
+        console.error("서비스 학습시간 추이 조회 실패:", error)
+        return res.status(500).json({
+            message: "서비스 학습시간 추이 조회 중 오류가 발생했습니다."
+        })
+    }
+}
+
+
+// 회원현황: summary - 이번주 평균 학습시간
+export async function getWeeklyAverageStudyTime(req, res) {
+    try{
+        // 오늘날짜 기준 이번주 월요일, 일요일 계산
+        const {startDate, endDate} = getWeekRange(new Date())
+
+        // 이번주 학습기록 있는 회원별 주간 공부시간 조회
+        const weeklyStudyTimes = await studyRepository.getWeeklyStudyTimeByUSers(startDate, endDate)
+
+        // 이번주 실제 공부한 회원수
+        const studyUserCount = weeklyStudyTimes.length
+
+        // 회원별 공부시간 더해서 이번주 전체 공부시간 계산
+        const totalWeeklyStudyTime = weeklyStudyTimes.reduce(
+            (sum, user) => {
+                return sum + (user.totalStudyTime || 0)
+            },
+            0
+        )
+
+
+        // 이번주 평균 공부시간 = 이번주 전체 공부시간 / 이번주 공부한 회원수
+        // 공부한 회원 없으면 평균 0 반환
+        const averageWeeklyStudyTime = studyUserCount === 0 ? 0 : Number(
+            (totalWeeklyStudyTime / studyUserCount).toFixed(1)
+        )
+
+        return res.status(200).json({
+            message: "이번 주 회원 평균 공부시간을 성공적으로 불러왔습니다.",
+            startDate,
+            endDate,
+            // 이번 주에 실제 공부한 회원 수
+            studyUserCount,
+            // 이번 주 전체 회원 공부시간 합계 (분)
+            totalWeeklyStudyTime,
+            // 이번 주 공부한 회원 기준 평균 공부시간 (분)
+            averageWeeklyStudyTime
+        })
+
+    }catch(error){
+        console.error(
+            "전체 회원 주간 평균 공부시간 조회 실패: ". error
+        )
+
+        return res.status(500).json({
+            message: "전체 회원의 이번주 평균 공부시간을 불러오지 못했습니다."
+        })
+    }
+    
 }
