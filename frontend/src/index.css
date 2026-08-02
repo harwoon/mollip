@@ -264,9 +264,9 @@ body{
   :root { --sidebar-width: 188px; --page-padding: 18px; }
 }
 
-.usersLayout { padding: 18px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.usersLayout { padding: 18px; background: #fff; }
 .adminGroupsPage { height: 100%; padding: var(--page-padding); overflow-y: auto; }
-.groupsPageSection { padding: 20px; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.groupsPageSection { padding: 20px; background: #fff; }
 
 /* ===========================
    Notebook 대응 (반응형 전)

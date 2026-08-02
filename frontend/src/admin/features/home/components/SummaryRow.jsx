@@ -22,7 +22,7 @@ export default function SummaryRow({ summary }) {
             />
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}
-                label="이번 주 목표 달성률"
+                label="평균 Todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
                 diff={summary.avgGoalRateDiff}

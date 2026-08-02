@@ -6,6 +6,8 @@ import Pagination from "../components/Pagination.jsx"
 import { getUsers, getActiveUsers, getUsersExportData } from "../features/users/api/user.js"
 import * as XLSX from "xlsx"
 
+import "./AdminUsersPage.css"
+
 const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 // 정렬 기준별 설정 (백엔드로 보낼 sortBy 값 + 기본 정렬 방향)
@@ -151,39 +153,42 @@ export default function AdminUsersPage() {
     return (
         <div>
             <Topbar
-                title="회원 조회"
+                title="회원 현황"
                 description="서비스에 가입한 회원 목록을 확인할 수 있습니다."
             >
-                <input
-                    type="text"
-                    placeholder="검색할 닉네임 또는 소속 그룹을 입력하세요."
-                    value={search}
-                    onChange={handleSearchChange}
-                />
+                <div className="usersToolbarActions">
+                    <input
+                        type="text"
+                        className="usersInputbox"
+                        placeholder="검색할 닉네임 또는 소속 그룹을 입력하세요."
+                        value={search}
+                        onChange={handleSearchChange}
+                    />
 
-                <select value={sortBy} onChange={handleSortByChange}>
-                    {SORT_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-
-                {isStatusSort ? (
-                    <select value={sortOrder} onChange={handleSortOrderChange}>
-                        <option value="studying">공부중</option>
-                        <option value="resting">휴식중</option>
+                    <select value={sortBy} onChange={handleSortByChange}>
+                        {SORT_OPTIONS.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
                     </select>
-                ) : (
-                    <select value={sortOrder} onChange={handleSortOrderChange}>
-                        <option value="asc">오름차순</option>
-                        <option value="desc">내림차순</option>
-                    </select>
-                )}
 
-                <button type="button" onClick={handleExportExcel}>
-                    엑셀 다운로드
-                </button>
+                    {isStatusSort ? (
+                        <select value={sortOrder} onChange={handleSortOrderChange}>
+                            <option value="studying">공부중</option>
+                            <option value="resting">휴식중</option>
+                        </select>
+                    ) : (
+                        <select value={sortOrder} onChange={handleSortOrderChange}>
+                            <option value="asc">오름차순</option>
+                            <option value="desc">내림차순</option>
+                        </select>
+                    )}
+
+                    <button type="button" className="createXlsxButton" onClick={handleExportExcel}>
+                        엑셀 다운로드
+                    </button>
+                </div>
             </Topbar>
 
             <div className="usersLayout">

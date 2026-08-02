@@ -103,7 +103,7 @@ export default function AdminHomePage() {
         <>
             <div>
                 <Topbar
-                    title="관리자 홈"
+                    title="관리자 대시보드"
                     description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
                 />
                 <SummaryRow summary={summary} />

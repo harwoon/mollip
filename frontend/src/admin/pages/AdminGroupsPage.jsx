@@ -1,19 +1,9 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import Topbar from "../components/AdminTopbar.jsx";
-import GroupsTable from "../features/groups/components/GroupsTable.jsx";
-import GroupForm from "../features/groups/components/GroupForm.jsx";
-
-import {
-  fetchAdminGroupStatistics,
-} from "../features/groups/api/adminGroupStatisticsApi.js";
-
-import "./AdminGroupsPage.css";
+import { useCallback, useEffect, useMemo, useState } from "react"
+import Topbar from "../components/AdminTopbar.jsx"
+import GroupsTable from "../features/groups/components/GroupsTable.jsx"
+import GroupForm from "../features/groups/components/GroupForm.jsx"
+import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
+import "./AdminGroupsPage.css"
 
 export default function AdminGroupsPage() {
   const [groups, setGroups] = useState([]);
@@ -190,29 +180,13 @@ export default function AdminGroupsPage() {
   return (
     <div className="adminGroupsPage">
       <Topbar
-        title="그룹 관리"
+        title="그룹 현황"
         description="생성된 모든 그룹과 이번 주 통계를 관리하고 조회할 수 있습니다."
-      />
-
-      <section className="groupsPageSection">
-        <div className="groupsToolbar">
-          <div>
-            <h2>그룹 관리하기</h2>
-
-            <p>
-              생성된 모든 그룹과 이번 주 통계를
-              조회할 수 있습니다.
-            </p>
-          </div>
-
-          <div className="groupsToolbarActions">
+      >
+        <div className="groupsToolbarActions">
             <select
               value={sortField}
-              onChange={(event) =>
-                setSortField(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setSortField(event.target.value)}
             >
               <option value="groupConditionHours">
                 그룹 조건 시간
@@ -264,7 +238,9 @@ export default function AdminGroupsPage() {
               그룹 생성하기
             </button>
           </div>
-        </div>
+      </Topbar>
+
+      <section className="groupsPageSection">
 
         {error && (
           <p className="groupsPageError">
