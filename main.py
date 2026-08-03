@@ -1,0 +1,98 @@
+import os
+import json
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from openai import OpenAI
+from dotenv import load_dotenv
+
+# uvicorn main:app --reload
+
+load_dotenv()
+
+app = FastAPI()
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+# Express에서 넘어올 데이터 형식 정의
+class WeeklyStudyData(BaseModel):
+    userName: str
+    totalStudyHours: int
+    achievementRate: int
+    topSubjects: list[str]
+    missedTodos: list[str]
+
+# 2. 리포트 생성 API 엔드포인트
+@app.post("/ai/weekly-report")
+async def generate_weekly_report(data: WeeklyStudyData):
+    try:
+        # 프롬프트 작성
+        system_prompt = """
+        당신은 사용자의 주간 학습 데이터를 분석하여 날카롭고 다정한 학습 코칭을 제공하는 1:1 AI 튜터입니다.
+        사용자의 이번 주 데이터를 바탕으로 아래 4가지 영역에 대한 분석 결과를 반드시 JSON 형식으로만 반환하세요.
+        JSON 키값과 구조는 아래 형식을 엄격하게 지켜야 합니다.
+
+        [출력 JSON 구조]
+        {
+          "diagnosis": "최근 학습 패턴에 대한 1~2줄의 짧고 명확한 총평",
+          "patterns": [
+            {
+              "title": "발견된 패턴 요약 (예: 주말에 학습이 몰리는 경향이 있어요.)",
+              "description": "해당 패턴에 대한 상세 설명 및 조언"
+            }
+          ],
+          "recommendations": [
+            {
+              "day": "추천 요일 (예: 화요일)",
+              "task": "추천 Todo 내용 (미달성 Todo나 주요 과목 기반)",
+              "duration": "예상 소요 시간 (예: 40분)",
+              "effect": "예상 효과 (예: 이해도 향상 및 복습 완료율 증가)"
+            }
+          ],
+          "expectedChanges": [
+            {
+              "label": "변화 지표명 (예: Todo 달성률)",
+              "from": "현재 수치 (예: 71%)",
+              "to": "예상 수치 (예: 83% 내외)",
+              "trend": "up 또는 down"
+            }
+          ]
+        }
+        """
+        
+        # missedTodos가 비어있을 경우 예외 처리
+        missed_todos_str = ', '.join(data.missedTodos) if data.missedTodos else '없음 (모두 달성!)'
+
+        user_prompt = f"""
+        [사용자 이름]: {data.userName}
+        [이번 주 총 공부시간]: {data.totalStudyHours}시간
+        [Todo 달성률]: {data.achievementRate}%
+        [주로 공부한 과목]: {', '.join(data.topSubjects)}
+        [완료하지 못한(실패한) Todo 목록]: {missed_todos_str}
+        
+        위 데이터를 분석하여, 사용자가 실패한 Todo를 다음 주 추천 계획에 적절히 배치하고,
+        달성률과 공부 시간을 반영하여 정확한 JSON 리포트를 작성해 주세요.
+        """
+
+        # OpenAI API 호출
+        response = client.chat.completions.create(
+            model= "gpt-5-nano", #"gpt-4o", 
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            response_format={"type": "json_object"}
+            #,temperature=0.7
+        )
+
+        # JSON 파싱
+        ai_coaching_text = response.choices[0].message.content
+        report_data = json.loads(ai_coaching_text) # 문자열을 진짜 파이썬 딕셔너리로 변환
+
+        # 결과 반환
+        return {
+            "success": True,
+            "report": report_data # JSON 객체가 반환
+        }
+
+    except Exception as e:
+        print(f"Error generating report: {e}")
+        raise HTTPException(status_code=500, detail="AI 리포트 생성 중 오류가 발생했습니다.")
