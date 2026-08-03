@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema(
             unique: true,
         },
         profileImg: {
-            type: String
+            type: String,
+            default: "/images/noprofile.png"
         },
 
         role: {

@@ -42,16 +42,36 @@ export async function loginUser(userId, userPw) {
 }
 
 // 회원가입
-export async function signupUser(userId, userPw, nickname, email) {
+export async function signupUser(userId, userPw, nickname, email, profileFile) {
+    const formData = new FormData()
 
-    const response = await fetch(`${API_URL}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, userPw, nickname, email }),
-    })
+    formData.append("userId", userId)
+    formData.append("userPw", userPw)
+    formData.append("nickname", nickname)
+    formData.append("email", email)
 
+    // 사용자가 이미지를 선택한 경우에만 파일 전송
+    if (profileFile) {
+        formData.append(
+            "profileImage", profileFile
+        )
+    }
+
+    const response = await fetch(
+        `${API_URL}/auth/signup`,
+        {
+            method: "POST",
+            body: formData
+        }
+    )
     const data = await response.json()
-    if (!response.ok) throw new Error(data.message)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "회원가입에 실패했습니다."
+        )
+    }
+    return data
 }
 
 // 아이디 중복 확인

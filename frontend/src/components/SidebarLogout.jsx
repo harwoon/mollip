@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { FiLogOut } from "react-icons/fi"
 import { socket } from "../../util/socket"
+import { googleLogout } from "@react-oauth/google"
 
 export default function SidebarLogout({ userInfo, isRunning, onStopAndSave }) {
     const navigate = useNavigate()
@@ -23,6 +24,8 @@ export default function SidebarLogout({ userInfo, isRunning, onStopAndSave }) {
                 userId: userInfo._id
             })
         }
+
+        googleLogout()
 
         localStorage.clear()
         navigate("/", { replace: true })

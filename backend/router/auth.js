@@ -11,7 +11,7 @@ router.get("/checkId", authController.checkId)
 
 // 회원가입
 // http://127.0.0.1:3000/auth/signup
-router.post("/signup", authController.signup)
+router.post("/signup", uploadProfile.single("profileImage"), authController.signup)
 
 // 로그인
 // http://127.0.0.1:3000/auth/login
