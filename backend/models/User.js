@@ -85,6 +85,28 @@ const userSchema = new mongoose.Schema(
         totalStudyTime: {
             type: Number,
             default: 0
+        },
+
+        // 사용자 설정 과목 순서
+        // Subject 문서의 ObjectId만 순서대로 저장(과목은 subject 컬렉션이고 순서만 저장함)
+        subjectOrder: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Subject"
+                }
+            ],
+
+            // 과목을 등록하지 않은 사용자 = 빈 배열
+            default: [],
+
+            //배열 5개를 초과 저장 X 검증
+            validate: {
+                validator(subjectIds) {
+                    return subjectIds.length <= 5
+                },
+                message: "과목 순서는 최대 5개까지만 저장할 수 있습니다."
+            }
         }
     },
     {

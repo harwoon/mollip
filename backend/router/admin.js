@@ -13,6 +13,9 @@ router.use(isAuth, isAdmin)
 router.get("/study-time-trend", adminController.getStudyTimeTrend)
 
 // 관리자 홈 전체 회원의 이번 주 총 공부시간
+// currentWeeklyStudyTime: 정상 회원 + 휴면 회원 이번주 총 공부시간
+// withdrawnWeeklyStudyTime: 탈퇴한 회원 이번주 총 공부시간
+// totalWeeklyStudyTime: 현재회원, 탈토회원 포함한 이번주 총 공부시간
 // http://localhost:3000/admin/weekly-total-study-time
 router.get("/weekly-total-study-time", adminController.getWeeklyTotalStudyTime)
 
@@ -41,6 +44,9 @@ router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 router.get("/todo-achievement/weekly", adminController.getWeeklyTodoAchievement)
 
 // 관리자 홈 전체 회원의 이번 주 평균 공부시간 조회
+// studyUserCount: 이번 주에 실제 공부한 회원 수
+// totalWeeklyStudyTime: 이번 주 전체 회원 공부시간 합계 (분)
+// averageWeeklyStudyTime: 이번 주 공부한 회원 기준 평균 공부시간 (분)
 // http://127.0.0.1:3000/admin/weekly-average-study-time
 router.get("/weekly-average-study-time", adminController.getWeeklyAverageStudyTime)
 

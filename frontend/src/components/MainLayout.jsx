@@ -3,6 +3,10 @@ import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
 
 export default function MainLayout() {
+    const [userInfo, setUserInfo] = useState(() => {
+        const savedUser = localStorage.getItem("user") // 로그인할 때 쓴 키 이름("user" 또는 "userInfo")
+        return savedUser ? JSON.parse(savedUser) : null
+    })
 
     // 새로고침해도 데이터가 안 날아가도록 localStorage에서 초기값을 불러옴.
     const [selectedSubject, setSelectedSubject] = useState(() => {
@@ -66,7 +70,7 @@ export default function MainLayout() {
             setIsRunning(false)
             setActualStartTime(null)
             expectedTimeRef.current = 0
-            
+
             localStorage.removeItem("mollip_time")
             localStorage.removeItem("mollip_isRunning")
             localStorage.removeItem("mollip_actualStartTime")
@@ -100,6 +104,7 @@ export default function MainLayout() {
                 selectedSubject={selectedSubject}
                 time={time}
                 isRunning={isRunning}
+                userInfo={userInfo}
             />
             <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
                 <Outlet context={{

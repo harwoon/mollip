@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom"
 import { FiLogOut } from "react-icons/fi"
+import { socket } from "../../util/socket"
 
-export default function SidebarLogout() {
+export default function SidebarLogout({ userInfo }) {
     const navigate = useNavigate()
 
     const handleLogout = () => {
@@ -10,11 +11,17 @@ export default function SidebarLogout() {
 
         if (!isLogout) return
 
+        if (userInfo && userInfo.groupId && userInfo._id) {
+            socket.emit("stopStudy", {
+                groupId: userInfo.groupId,
+                userId: userInfo._id
+            })
+        }
+
         localStorage.clear()
 
         // 로그인 페이지로 이동
         navigate("/", { replace: true })
-        
     }
 
     return (

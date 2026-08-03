@@ -38,6 +38,54 @@ function isBannedWord(text) {
     return badWords.some(word => cleanText.includes(word))
 }
 
+// Subject ObjectId 배열 중복제거
+// Object 객체끼리 === 비교 정확하지 않아서 문자열 변환 후 중복제거함
+function removeDuplicateSubjectIds(subjectIds) {
+    return [
+        ...new Set(
+            subjectIds.map(
+                (subjectId) => subjectId.toString()
+            )
+        )
+    ]
+}
+
+// User.subjectOrder 기준으로 과목목록 정렬
+// subjectOrder에 없는 과목은 배열 마지막에 추가
+// ubjectOrder가 비어 있는 경우 과목이 사라지지 않도록 설정
+function sortSubjectsBySavedOrder(subjects, subjectOrder = []) {
+    // 과목 ID → 과목 문서 형태의 Map 생성
+    const subjectMap = new Map(
+        subjects.map((subject) => [
+            subject._id.toString(),
+            subject
+        ])
+    )
+
+    // 저장된 순서 중 현재 활성 상태인 과목만 배치
+    const orderedSubjects = subjectOrder
+        .map((subjectId) =>
+            subjectMap.get(subjectId.toString())
+        )
+        .filter(Boolean)
+
+    // subjectOrder에 아직 포함되지 않은 과목 찾기
+    const savedIdSet = new Set(
+        subjectOrder.map((subjectId) =>
+            subjectId.toString()
+        )
+    )
+
+    const unorderedSubjects = subjects.filter(
+        (subject) =>
+            !savedIdSet.has(subject._id.toString())
+    )
+
+    return [
+        ...orderedSubjects,
+        ...unorderedSubjects
+    ]
+}
 
 // 회원 중복 체크
 export async function checkId(req, res) {
@@ -129,9 +177,25 @@ export async function login(req, res) {
     const userObj = user.toObject()
     const { userPw: _, ...safeUser } = userObj // 비밀번호 보안처리
 
-    console.log("로그인 성공 및 토큰 발급 완료")
-    return res.status(200).json({ token, user: safeUser })
-}
+    // 로그인 시 DB에서 조회된 subjectOrder 확인
+    // console.log(
+    //     "로그인 DB subjectOrder:",
+    //     user.subjectOrder?.map(
+    //         (subjectId) => subjectId.toString()
+    //     )
+    // )
+
+    // // 실제 로그인 응답에 포함될 subjectOrder 확인
+    // console.log(
+    //     "로그인 응답 subjectOrder:",
+    //     safeUser.subjectOrder?.map(
+    //         (subjectId) => subjectId.toString()
+    //     )
+    // )
+
+        console.log("로그인 성공 및 토큰 발급 완료")
+        return res.status(200).json({ token, user: safeUser })
+    }
 
 // 로그인 유지 체크
 export async function me(req, res) {
@@ -239,25 +303,41 @@ export async function addSubject(req, res) {
     const existingSubject = allSubjects.find(sub => sub.subjectName === subjectName.trim())
 
     if (existingSubject) {
+        // Soft Delete된 같은 이름 과목 활상화, 이름 색상 갱신
         const updatedSubject = await subjectRepository.updateSubject(
             existingSubject._id,
             subjectName.trim(),
             subjectColor
         )
 
-        console.log("기존 과목 복구 및 수정 성공!")
+        // 복구된 과목 ObjectId User.subjectOrder 배열 마지막에 다시 추가
+        await authRepository.addSubjectToOrder(
+            userId,
+            updatedSubject._id
+        )
+
+        console.log("기존 과목 복구 및 순서 배열 추가 성공!")
+
         return res.status(200).json({
             message: "과목이 정상적으로 추가되었습니다.", // 사용자에겐 추가되었다고 표시
             subject: updatedSubject
         })
     } else {
+        // Subject 컬렉션에 새 과목 생성
         const newSubject = await subjectRepository.createSubject({
             user: userId,
             subjectName: subjectName.trim(),
             subjectColor: subjectColor
         })
 
-        console.log("새 과목 추가 성공!")
+        // 생성된 과목 ObjectId를 ser.subjectOrder 배열 마지막에 추가
+        await authRepository.addSubjectToOrder(
+            userId,
+            newSubject._id
+        )
+
+        console.log("새 과목 추가 및 순서 배열 저장 성공!")
+
         return res.status(201).json({
             message: "과목이 정상적으로 추가되었습니다.",
             subject: newSubject
@@ -321,36 +401,178 @@ export async function updateSubject(req, res) {
 
 // 유저 과목 삭제 (Soft Delete)
 export async function deleteSubject(req, res) {
-    const subjectId = req.params.id
-    const userId = req.user._id
+    try {
+        const subjectId = req.params.id
+        const userId = req.user._id
 
-    // 1. 과목 존재 여부 및 권한 확인
-    const subject = await subjectRepository.findBySubjectId(subjectId)
-    if (!subject || subject.useYn === 'N') {
-        return res.status(404).json({ message: "이미 삭제되었거나 없는 과목입니다." })
+        // 과목 존재 여부, 권한 확인
+        const subject = await subjectRepository.findBySubjectId(subjectId)
+        if (!subject || subject.useYn === 'N') {
+            return res.status(404).json({ message: "이미 삭제되었거나 없는 과목입니다." })
+        }
+        if (subject.user.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "삭제 권한이 없습니다." })
+        }
+
+        // 과목은 Soft Delete | 과목 순서에선 ObjectId 제거
+        await Promise.all([
+            subjectRepository.deleteSubject(
+                subjectId
+            ),
+
+            authRepository.removeSubjectFromOrder(
+                userId,
+                subjectId
+            )
+        ])
+        console.log("과목 삭제 및 순서 배열 제거 완료!")
+        return res.status(200).json({
+            message: "과목이 삭제되었습니다."
+        })
+
+    } catch (error) {
+        console.error("과목 삭제 오류:", error)
+        return res.status(500).json({
+            message: "과목을 삭제하는 중 오류가 발생했습니다."
+        })
     }
-    if (subject.user.toString() !== userId.toString()) {
-        return res.status(403).json({ message: "삭제 권한이 없습니다." })
-    }
-
-    // 2. 상태를 'N'으로 변경하여 삭제 처리
-    await subjectRepository.deleteSubject(subjectId)
-
-    console.log("과목 삭제(Soft Delete) 완료!")
-    return res.status(200).json({ message: "과목이 삭제되었습니다." })
 }
 
 // 유저 과목 목록 조회
 export async function getSubjects(req, res) {
-    const userId = req.user._id
+    try {
+        const userId = req.user._id
 
-    const subjects = await subjectRepository.findActiveSubjectsByUser(userId)
+        // 현재 로그인 사용자의 활성 과목 조회
+        const subjects = await subjectRepository.findActiveSubjectsByUser(userId)
 
-    console.log("과목 목록 조회 성공!")
-    return res.status(200).json({
-        message: "과목 목록을 성공적으로 불러왔습니다.",
-        subjects: subjects
-    })
+        /*
+         * isAuth 미들웨어에서 req.user에 User 문서 전체를 넣었기 때문에
+         * User에 저장된 subjectOrder를 바로 사용할 수 있다.
+         *
+         * 기존 회원은 subjectOrder가 없거나 빈 배열일 수 있으므로
+         * 빈 배열을 기본값으로 사용한다.
+         */
+        const savedSubjectOrder =
+            req.user.subjectOrder ?? []
+
+        // User.subjectOrder에 저장된 ObjectId 순서대로 과목 정렬
+        const orderedSubjects =
+            sortSubjectsBySavedOrder(
+                subjects,
+                savedSubjectOrder
+            )
+
+        console.log(
+            "User에 저장된 과목 순서:",
+            savedSubjectOrder.map(
+                (subjectId) => subjectId.toString()
+            )
+        )
+
+        console.log(
+            "과목 조회 응답 순서:",
+            orderedSubjects.map((subject) => ({
+                id: subject._id.toString(),
+                name: subject.subjectName
+            }))
+        )
+
+        return res.status(200).json({
+            message:
+                "과목 목록을 성공적으로 불러왔습니다.",
+
+            // 중요: 원본 subjects가 아니라 정렬된 배열 반환
+            subjects: orderedSubjects
+        })
+    } catch (error) {
+        console.error("과목 목록 조회 오류:", error)
+
+        return res.status(500).json({
+            message:
+                "과목 목록을 불러오는 중 오류가 발생했습니다."
+        })
+    }
+}
+
+// 사용자 드래그앤드롭으로 변경한 과목순서 저장
+export async function updateSubjectOrder(req, res) {
+    try {
+        const userId = req.user._id
+        const { subjectIds } = req.body
+
+        if (!Array.isArray(subjectIds)) {
+            return res.status(400).json({
+                message: "과목 순서는 배열 형식이어야 합니다."
+            })
+        }
+
+        if (subjectIds.length > 5) {
+            return res.status(400).json({
+                message: "과목 순서는 최대 5개까지만 저장할 수 있습니다."
+            })
+        }
+
+        // 중복 과목 ID 검사
+        const uniqueSubjectIds = removeDuplicateSubjectIds(subjectIds)
+        if (
+            uniqueSubjectIds.length !== subjectIds.length
+        ) {
+            return res.status(400).json({
+                message: "과목 순서에 중복된 과목이 있습니다."
+            })
+        }
+
+        // 현재 사용자 활성과목 전체 조회
+        const activeSubjects = await subjectRepository.findActiveSubjectsByUser(userId)
+        const activeSubjectIds = activeSubjects.map((subject) => subject._id.toString())
+
+        // 보낸 배열이 현재 활성과목 전체를 포함하는지 검사
+        // 활성과목 [a, b, c] | 요청 배열 [a,c] => B가 빠져있어 저장 거부
+        if (
+            uniqueSubjectIds.length !== activeSubjectIds.length
+        ) {
+            return res.status(400).json({
+                message: "현재 등록된 모든 과목의 순서를 전달해주세요."
+            })
+        }
+
+        // 다른 사용자의 과목 ID가 들어왔는지 검사
+        const activeSubjectIdSet = new Set(activeSubjectIds)
+        const hasInvalidSubject = uniqueSubjectIds.some((subjectId) => !activeSubjectIdSet.has(subjectId))
+
+        if (hasInvalidSubject) {
+            return res.status(403).json({
+                message: "본인의 과목만 순서를 변경할 수 있습니다."
+            })
+        }
+
+        // 검증 끝난 ObjectId 배열 = User 저장
+        await authRepository.updateSubjectOrder(userId, uniqueSubjectIds)
+
+        // 저장된 순서대로 응답
+        const subjectMap = new Map(
+            activeSubjects.map((subject) => [
+                subject._id.toString(),
+                subject
+            ])
+        )
+
+        const orderedSubjects =
+            uniqueSubjectIds.map(
+                (subjectId) => subjectMap.get(subjectId)
+            )
+
+        return res.status(200).json({
+            message: "과목 순서가 저장되었습니다.",
+            subjects: orderedSubjects
+        })
+    } catch (error) {
+        console.error("과목 순서 저장 오류:", error)
+        return res.status(500).json({
+            message: "과목 순서를 저장하는 중 오류가 발생했습니다."
+        })
+    }
 }
 
 // // 유저 탈퇴- 사용안함

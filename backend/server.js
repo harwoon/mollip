@@ -16,7 +16,7 @@ import todoRouter from "./router/todo.js"
 import groupRouter from "./router/group.js"
 import { startWeeklyGroupJob } from "./jobs/weeklyGroupJob.js"
 import { startStreakJob } from "./jobs/streakJob.js"
-import {startDormantGroupJob} from "./jobs/dormantGroupJob.js"
+import { startDormantGroupJob } from "./jobs/dormantGroupJob.js"
 
 
 const app = express()
@@ -32,7 +32,7 @@ const io = new Server(server, {
     }
 })
 
-app.set('io',io)
+app.set('io', io)
 
 // 아래 코드 db/redis.js 파일로 옮김 (사유: 관리자랑 클라이언트랑 공유 모듈 만들려고 파일 새로 생성함)
 // const redisClient = new Redis()
@@ -80,6 +80,8 @@ io.on('connection', (socket) => {
     // 공부 시작
     socket.on('startStudy', async ({ groupId, userId, userName, profileImg, subjectName }) => {
         const startTime = Date.now()
+        socket.studyInfo = { groupId, userId }
+
         try {
             await redisClient.hset(`study:${groupId}`, userId, JSON.stringify({ userName, startTime, profileImg }))
             socket.to(groupId).emit('userStartedStudy', { userId, userName, startTime, profileImg })
@@ -94,6 +96,8 @@ io.on('connection', (socket) => {
     // 공부 종료
     socket.on('stopStudy', async ({ groupId, userId }) => {
         try {
+            socket.studyInfo = null;
+
             await redisClient.hdel(`study:${groupId}`, userId)
             socket.to(groupId).emit('userStoppedStudy', { userId })
             socket.to('admin_room').emit('adminUserStopped', { userId })
@@ -102,10 +106,22 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         console.log('소켓 연결 끊김:', socket.id)
+
+        if (socket.studyInfo) {
+            const { groupId, userId } = socket.studyInfo
+            try {
+                await redisClient.hdel(`study:${groupId}`, userId)
+                io.to(groupId).emit('userStoppedStudy', { userId })
+                io.to('admin_room').emit('adminUserStopped', { userId })
+            } catch (error) {
+                console.error("비정상 종료 Redis 삭제 실패:", error)
+            }
+        }
     })
 })
+
 
 app.use((req, res) => {
     res.sendStatus(404)

@@ -111,3 +111,32 @@ export async function deleteSubject(subjectId) {
 }
 
 
+// 드래그앤드롭으로 변경된 과목 순서 저장
+export async function updateSubjectOrder(subjectIds) {
+    const token = getToken()
+
+    const response = await fetch(`${API_URL}/auth/subject/order`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+
+            // 현재 화면에 표시된 과목 배열순서를 서버에 그대로 전달
+            body: JSON.stringify({
+                subjectIds
+            })
+        }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "과목 순서 저장에 실패했습니다."
+        )
+    }
+
+    return data
+}

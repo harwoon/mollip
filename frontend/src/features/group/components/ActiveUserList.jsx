@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { io } from 'socket.io-client'
+import { socket } from '../../../../util/socket'
 
 import { FiClock, FiUsers } from "react-icons/fi"
 import styles from "./ActiveUserList.module.css"
 
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
-
-const socket = io("http://127.0.0.1:3000", {
-    autoConnect: false
-})
 
 const StudyTimer = ({ startTime }) => {
     const [timeText, setTimeText] = useState("00:00:00")

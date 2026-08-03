@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import styles from "./Timer.module.css"
-import { io } from "socket.io-client"
+import { socket } from "../../../../util/socket"
 
-const socket = io("http://localhost:3000", {
-  autoConnect: true
-})
 
 export default function Timer({
   selectedSubject = null,

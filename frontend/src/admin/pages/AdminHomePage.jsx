@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { io } from 'socket.io-client'
+import { socket } from "../../../util/socket.js"
 import Topbar from "../components/AdminTopbar.jsx"
 import SummaryRow from "../features/home/components/SummaryRow.jsx"
 import { getGroupCount } from "../features/home/api/group.js"
@@ -15,8 +15,6 @@ import RecentUser from "../features/home/components/RecentUser.jsx"
 import StudyTrend from "../features/home/components/StudyTrend.jsx"
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
-
-const socket = io("http://127.0.0.1:3000", { autoConnect: false })
 
 export default function AdminHomePage() {
     const [activeUsers, setActiveUsers] = useState([])

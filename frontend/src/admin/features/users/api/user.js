@@ -105,3 +105,25 @@ export async function getUsersCount() {
 
     return { normalUserCount, dormantUserCount }
 }
+
+// 이번주 공부한 회원, 이번주 평균 공부시간
+// http://127.0.0.1:3000/admin/weekly-average-study-time
+export async function getUsersAverage() {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_URL}/admin/weekly-average-study-time`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "이번주 공부 데이터를 불러오지 못했습니다.")
+    }
+
+    const { studyUserCount, averageWeeklyStudyTime } = data
+
+
+    return { studyUserCount, averageWeeklyStudyTime }
+}

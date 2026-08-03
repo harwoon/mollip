@@ -1,6 +1,6 @@
 // [역할: 내 과목 조회 및 수정]
 import { useEffect, useState } from "react"
-import {createSubject, deleteSubject, getSubjects, updateSubject} from "../../subject/api/subject"
+import {createSubject, deleteSubject, getSubjects, updateSubject, updateSubjectOrder} from "../../subject/api/subject"
 import {PiBookOpen, PiDotsSixVertical, PiInfo, PiPlus, PiTrash, PiX} from "react-icons/pi"
 
 import styles from "./SubjectInfo.module.css"
@@ -71,111 +71,21 @@ export default function SubjectInfo() {
         }
     }, [alertMessage, isAdding])
 
-    // 로그인한 사용자별로 과목 순서를 따로 저장하기 위한 key
-    function getSubjectOrderStorageKey() {
-        const userId =
-            localStorage.getItem("userId") ||
-            "unknown"
-
-        return `mollip-subject-order-${userId}`
-    }
-
-    // 현재 과목 배열의 ID 순서를 localStorage에 저장
-    function saveSubjectOrder(subjectList) {
-        const subjectIds = subjectList.map(
-            (subject) => subject._id
-        )
-
-        localStorage.setItem(
-            getSubjectOrderStorageKey(),
-            JSON.stringify(subjectIds)
-        )
-    }
-
-    // 서버에서 불러온 과목 목록에 저장된 프론트 순서를 적용
-    function applySavedSubjectOrder(subjectList) {
-        const savedOrderText =
-            localStorage.getItem(
-                getSubjectOrderStorageKey()
-            )
-
-        // 저장된 순서가 없으면 서버에서 받은 목록을 그대로 사용
-        if (!savedOrderText) {
-            return subjectList
-        }
-
-        try {
-            const savedSubjectIds =
-                JSON.parse(savedOrderText)
-
-            // 저장된 값이 배열이 아니면 서버 목록을 그대로 사용
-            if (!Array.isArray(savedSubjectIds)) {
-                return subjectList
-            }
-
-            // 과목 ID를 기준으로 과목을 찾기 위한 Map
-            const subjectMap = new Map(
-                subjectList.map((subject) => [
-                    subject._id,
-                    subject
-                ])
-            )
-
-            // 저장된 ID 순서대로 과목을 배치
-            const orderedSubjects =
-                savedSubjectIds
-                    .map((subjectId) =>
-                        subjectMap.get(subjectId)
-                    )
-                    .filter(Boolean)
-
-            // 순서 저장 이후 새롭게 추가된 과목
-            const unorderedSubjects =
-                subjectList.filter(
-                    (subject) =>
-                        !savedSubjectIds.includes(
-                            subject._id
-                        )
-                )
-
-            return [
-                ...orderedSubjects,
-                ...unorderedSubjects
-            ]
-        } catch (error) {
-            console.error(
-                "저장된 과목 순서 파싱 실패:",
-                error
-            )
-
-            return subjectList
-        }
-    }
-
     // 로그인한 사용자의 과목 목록 조회
     async function loadSubjects() {
         try {
             const data = await getSubjects()
 
-            const loadedSubjects =
-                data.subjects ?? []
+            // 백엔드 User.subjectOrder 기준으로 반환
+            setSubjects(data.subjects ?? [])
 
-            // 서버 목록에 브라우저에 저장된 순서를 적용
-            const orderedSubjects =
-                applySavedSubjectOrder(
-                    loadedSubjects
-                )
-
-            setSubjects(orderedSubjects)
         } catch (error) {
             console.error(
-                "과목 목록 조회 오류:",
-                error
+                "과목 목록 조회 오류:", error
             )
 
             setAlertMessage(
-                error.message ||
-                "과목 목록을 불러오지 못했습니다."
+                error.message || "과목 목록을 불러오지 못했습니다."
             )
         }
     }
@@ -350,17 +260,11 @@ export default function SubjectInfo() {
                 subjectColor
             )
 
-            setSubjects((previousSubjects) => {
-                const nextSubjects = [
-                    ...previousSubjects,
-                    data.subject
-                ]
-
-                // 새 과목을 마지막 순서로 저장
-                saveSubjectOrder(nextSubjects)
-
-                return nextSubjects
-            })
+            // 화면 목록 마지막에 새 과목 추가
+            setSubjects((previousSubjects) => [
+                ...previousSubjects,
+                data.subject
+            ])
 
             setNewSubject({
                 subjectName: "",
@@ -440,13 +344,13 @@ export default function SubjectInfo() {
         setDragOverSubjectId(null)
     }
 
-    // 과목 위에 드롭했을 때 배열 순서 변경
-    function handleSubjectDrop(event, targetSubjectId) {
+    // 과목 위에 드롭했을 때 순서 변경 후 서버 저장
+    async function handleSubjectDrop(event, targetSubjectId) {
         event.preventDefault()
 
-        // state 반영이 늦은 경우를 대비해
-        // dataTransfer에 저장한 ID도 함께 확인
-        const sourceSubjectId = draggingSubjectId || event.dataTransfer.getData("text/plain")
+        // state 반영 늦은 경우 대비 > dataTransfer에 저장된 ID도 함께 확인
+        const sourceSubjectId =
+            draggingSubjectId || event.dataTransfer.getData("text/plain")
 
         // ID가 없거나 자기 자신에게 드롭한 경우
         if (
@@ -457,50 +361,81 @@ export default function SubjectInfo() {
             return
         }
 
-        setSubjects((previousSubjects) => {
-            // 드래그한 과목의 기존 위치
-            const sourceIndex =
-                previousSubjects.findIndex(
-                    (subject) => subject._id === sourceSubjectId
-                )
+        // 서버 저장 실패 시 복구하기 위한 이전 배열
+        const previousSubjects = [...subjects]
 
-            // 드롭 대상 과목의 기존 위치
-            const targetIndex =
-                previousSubjects.findIndex(
-                    (subject) => subject._id === targetSubjectId
-                )
+        // 드래그한 과목의 기존 위치
+        const sourceIndex =
+            previousSubjects.findIndex(
+                (subject) => subject._id === sourceSubjectId
+            )
 
-            // 과목 ID를 찾지 못한 경우
-            if (
-                sourceIndex === -1 || targetIndex === -1
-            ) {
-                return previousSubjects
-            }
+        // 드롭 대상 과목의 기존 위치
+        const targetIndex =
+            previousSubjects.findIndex(
+                (subject) => subject._id === targetSubjectId
+            )
 
-            // 기존 state를 직접 수정하지 않도록 복사
-            const reorderedSubjects = [
-                ...previousSubjects
-            ]
+        // 과목 ID를 찾지 못한 경우
+        if (
+            sourceIndex === -1 || targetIndex === -1
+        ) {
+            setDraggingSubjectId(null)
+            setDragOverSubjectId(null)
+            return
+        }
 
-            // 드래그한 과목을 기존 위치에서 제거
-            const [movedSubject] =
-                reorderedSubjects.splice(
-                    sourceIndex,
-                    1
-                )
+        // 기존 state를 직접 수정하지 않도록 복사
+        const reorderedSubjects = [
+            ...previousSubjects
+        ]
 
-            // 대상 과목이 있던 순서에 드래그한 과목을 삽입
-            reorderedSubjects.splice(targetIndex, 0, movedSubject)
+        // 드래그한 과목을 기존 위치에서 제거
+        const [movedSubject] =
+            reorderedSubjects.splice(
+                sourceIndex,
+                1
+            )
 
-            // 변경된 순서를 브라우저에 저장
-            saveSubjectOrder(reorderedSubjects)
+        // 대상 과목 위치에 삽입
+        reorderedSubjects.splice(
+            targetIndex,
+            0,
+            movedSubject
+        )
 
-            return reorderedSubjects
-        })
+        // 화면 순서를 먼저 변경
+        setSubjects(reorderedSubjects)
 
         // 드래그 관련 상태 초기화
         setDraggingSubjectId(null)
         setDragOverSubjectId(null)
+
+        try {
+            // 정렬된 과목 ObjectId 배열 생성
+            const subjectIds = reorderedSubjects.map(
+                (subject) => subject._id
+            )
+
+            // 백엔드 User.subjectOrder에 저장
+            const data = await updateSubjectOrder(subjectIds)
+
+            // 서버가 반환한 최종 순서로 다시 동기화
+            if (Array.isArray(data.subjects)) {
+                setSubjects(data.subjects)
+            }
+        } catch (error) {
+            console.error(
+                "과목 순서 저장 오류:", error
+            )
+
+            // 서버 저장 실패 시 이전 순서로 복구
+            setSubjects(previousSubjects)
+
+            showAlert(
+                error.message || "과목 순서를 저장하지 못했습니다."
+            )
+        }
     }
 
     // 드래그가 종료됐을 때 상태 초기화
@@ -522,25 +457,19 @@ export default function SubjectInfo() {
         try {
             const data = await deleteSubject(subject._id)
 
-            setSubjects((previousSubjects) => {
-                const nextSubjects =
-                    previousSubjects.filter(
-                        (item) => item._id !== subject._id
-                    )
-
-                // 삭제된 과목을 순서 데이터에서도 제거
-                saveSubjectOrder(nextSubjects)
-
-                return nextSubjects
-            })
+            // 삭제한 과목을 화면 목록에서 제거
+            setSubjects((previousSubjects) =>
+                previousSubjects.filter(
+                    (item) =>
+                        item._id !== subject._id
+                )
+            )
 
             showAlert(
                 data.message || "과목이 삭제되었습니다."
             )
         } catch (error) {
-            console.error(
-                "과목 삭제 오류:", error
-            )
+            console.error("과목 삭제 오류:", error)
 
             showAlert(
                 error.message || "과목 삭제에 실패했습니다."

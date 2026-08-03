@@ -51,7 +51,7 @@ export default function UsersTable({ users, activeUserIds }) {
                                 <td>
                                     <strong>{user.nickname}</strong>
                                 </td>
-                                <td>{Math.floor((user.weeklyStudyTime || 0) / 60)}시간</td>
+                                <td>{Math.floor((user.weeklyStudyTime || 0) / 3600)}시간</td>
                                 <td>{user.currentStreak}일째</td>
                                 <td>{user.maxStreak}일</td>
                                 <td>
