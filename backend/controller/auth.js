@@ -177,25 +177,25 @@ export async function login(req, res) {
     const userObj = user.toObject()
     const { userPw: _, ...safeUser } = userObj // 비밀번호 보안처리
 
-// 로그인 시 DB에서 조회된 subjectOrder 확인
-console.log(
-    "로그인 DB subjectOrder:",
-    user.subjectOrder?.map(
-        (subjectId) => subjectId.toString()
-    )
-)
+    // 로그인 시 DB에서 조회된 subjectOrder 확인
+    // console.log(
+    //     "로그인 DB subjectOrder:",
+    //     user.subjectOrder?.map(
+    //         (subjectId) => subjectId.toString()
+    //     )
+    // )
 
-// 실제 로그인 응답에 포함될 subjectOrder 확인
-console.log(
-    "로그인 응답 subjectOrder:",
-    safeUser.subjectOrder?.map(
-        (subjectId) => subjectId.toString()
-    )
-)
+    // // 실제 로그인 응답에 포함될 subjectOrder 확인
+    // console.log(
+    //     "로그인 응답 subjectOrder:",
+    //     safeUser.subjectOrder?.map(
+    //         (subjectId) => subjectId.toString()
+    //     )
+    // )
 
-    console.log("로그인 성공 및 토큰 발급 완료")
-    return res.status(200).json({ token, user: safeUser })
-}
+        console.log("로그인 성공 및 토큰 발급 완료")
+        return res.status(200).json({ token, user: safeUser })
+    }
 
 // 로그인 유지 체크
 export async function me(req, res) {
