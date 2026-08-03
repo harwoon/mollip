@@ -8,6 +8,7 @@ import * as subjectRepository from "../repository/subject.js"
 import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import AdminLog from "../models/AdminLog.js"
+import { createJwtToken } from "../util/jwt.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -141,12 +142,12 @@ export async function signup(req, res) {
     res.status(201).json({ token, userInsertedId })
 }
 
-// JWT 토큰 생성
-async function createJwtToken(id) {
-    return jwt.sign({ id }, config.jwt.secretKey, {
-        expiresIn: config.jwt.expiresInSec
-    })
-}
+// // JWT 토큰 생성 google 계정 인증 때문에 jwt 파일 생성해서 주석처리 
+// async function createJwtToken(id) {
+//     return jwt.sign({ id }, config.jwt.secretKey, {
+//         expiresIn: config.jwt.expiresInSec
+//     })
+// }
 
 // 로그인
 export async function login(req, res) {
@@ -161,8 +162,21 @@ export async function login(req, res) {
 
     // 탈퇴한 회원 로그인 차단
     if (user.useYn === "N") {
-        return res.status(403).json({message: "탈퇴한 회원입니다."})
+        return res.status(403).json({ message: "탈퇴한 회원입니다." })
     }
+
+    // 구글 로그인 인지 확인
+    if (
+        user.authProvider ===
+        "google" ||
+        !user.userPw
+    ) {
+        return res.status(400).json({
+            message:
+                "Google로 가입한 계정입니다. Google 로그인을 이용해주세요.",
+        })
+    }
+
 
     // 비밀번호 확인
     const isValidPw = await bcrypt.compare(userPw, user.userPw)
@@ -193,9 +207,9 @@ export async function login(req, res) {
     //     )
     // )
 
-        console.log("로그인 성공 및 토큰 발급 완료")
-        return res.status(200).json({ token, user: safeUser })
-    }
+    console.log("로그인 성공 및 토큰 발급 완료")
+    return res.status(200).json({ token, user: safeUser })
+}
 
 // 로그인 유지 체크
 export async function me(req, res) {
@@ -606,7 +620,7 @@ export async function updateSubjectOrder(req, res) {
 export async function withdraw(req, res) {
     const userId = req.user._id
 
-    const {confirmationText, withdrawalReason} = req.body
+    const { confirmationText, withdrawalReason } = req.body
 
     // 탈퇴 확인 문구 검사
     if (confirmationText !== "탈퇴하겠습니다") {
@@ -660,7 +674,7 @@ export async function withdraw(req, res) {
             userId: withdrawnUser.userId,
 
             message: `${withdrawnUser.nickname}님이 서비스를 탈퇴했습니다.`
-            
+
             // type: 'WITHDRAW',
             // userId: userId,
             // message: `${req.user.nickname}님이 서비스를 탈퇴했습니다.`

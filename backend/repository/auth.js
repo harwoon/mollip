@@ -59,9 +59,36 @@ export async function assignDormantUsers(
     )
 }
 
+// Google 고유 ID로 사용자 조회
+export async function findByGoogleId(
+    googleId,
+) {
+    return User.findOne({
+        googleId,
+        useYn: "Y",
+    })
+}
+
+// 이메일로 활성 사용자 조회
+export async function findByEmail(
+    email,
+) {
+    return User.findOne({
+        email,
+        useYn: "Y",
+    })
+}
+
+// Google 회원 생성
+export async function createGoogleUser(
+    userData,
+) {
+    return User.create(userData)
+}
+
 // id 중복확인 및 단일 유저 조회
 export async function findByUserid(userId) {
-    return User.findOne({ 
+    return User.findOne({
         userId,
         useYn: "Y",
     });
@@ -208,8 +235,8 @@ export async function resetExpiredStreaks(yesterdayString) {
 }
 
 export async function getUsersByGroupId(groupId) {
-    return User.find({ 
-        groupId ,
+    return User.find({
+        groupId,
         // 탈퇴 회원이 그룹 통계에 포함되지 않도록 제외
         useYn: "Y"
     }).select(
@@ -335,7 +362,7 @@ export async function addSubjectToOrder(userId, subjectId) {
         userId,
         {
             // push로 사용하면 동일 과목 ID 중복될 수 있어서 addToset 사용함
-            $addToSet: {subjectOrder: subjectId}
+            $addToSet: { subjectOrder: subjectId }
         },
         {
             new: true,

@@ -29,4 +29,9 @@ export const config = {
             "DORMANT_GROUP_ID",
         ),
     },
+    google: {
+        clientId: required(
+            "GOOGLE_CLIENT_ID",
+        ),
+    },
 }

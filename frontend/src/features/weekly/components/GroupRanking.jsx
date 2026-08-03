@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react"
 import { getWeeklyGroupRanking } from "../api/groupRanking.js"
+import { getProfileImageUrl } from "../../../util/profileImage.js"
 
 import styles from "./GroupRanking.module.css"
-
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 export default function GroupRanking() {
     const [ranking, setRanking] =
@@ -16,7 +14,7 @@ export default function GroupRanking() {
     const [error, setError] =
         useState("")
 
-function formatStudyTime(rawSeconds) {
+    function formatStudyTime(rawSeconds) {
         const totalMinutes = Math.floor((Number(rawSeconds) || 0) / 60)
 
         const hours = Math.floor(totalMinutes / 60)
@@ -25,7 +23,7 @@ function formatStudyTime(rawSeconds) {
         if (hours === 0 && minutes === 0) return "0M"
         if (hours === 0) return `${minutes}M`
         if (minutes === 0) return `${hours}H`
-        
+
         return `${hours}H ${minutes}M`
     }
 
@@ -116,30 +114,33 @@ function formatStudyTime(rawSeconds) {
             ) : (
                 <ol className={styles.rankingList}>
                     {visibleRanking.map(
-                        (user, index) => {const imageUrl = user.profileImg
-                            ? `${API_URL}${user.profileImg}`
-                            : "/images/noprofile.png"
+                        (user, index) => {
 
                             const isCurrentUser = String(user.userId) === String(currentUserId)
 
                             return (
-                                <li key={user.userId} 
+                                <li key={user.userId}
                                     className={`${styles.rankingItem} ${isCurrentUser ? styles.currentUser : ""}`}
                                 >
                                     <strong className={styles.rank}>
-                                        {startIndex + index +1}
+                                        {startIndex + index + 1}
                                     </strong>
 
-                                    <img 
+                                    <img
                                         className={styles.profileImage}
-                                        src={imageUrl}
+                                        src={getProfileImageUrl(
+                                            user.profileImg,
+                                        )}
                                         alt={`${user.nickname} 프로필`}
                                         onError={(event) => {
-                                            console.error("이미지 로드 실패 주소:",
-                                                event.currentTarget.src
-                                            )
+                                            event.currentTarget.onerror =
+                                                null
+
+                                            event.currentTarget.src =
+                                                "/images/noprofile.png"
                                         }}
                                     />
+
 
                                     <span className={styles.nickname}>{user.nickname}</span>
                                     <span className={styles.studyTime}>

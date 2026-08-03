@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-
+import GoogleLoginButton from "./GoogleLoginButton"
 import { loginUser } from "../api/auth"
 
 import { PiX } from "react-icons/pi"
@@ -14,6 +14,22 @@ export default function LoginForm() {
     const [alertMessage, setAlertMessage] = useState("")
 
     const navigate = useNavigate()
+    const moveAfterLogin = (
+        result,
+    ) => {
+        const role =
+            result.user.role
+
+        if (role === "admin") {
+            navigate(
+                "/admin/home",
+            )
+
+            return
+        }
+
+        navigate("/home")
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -33,9 +49,10 @@ export default function LoginForm() {
         try {
             const result = await loginUser(
                 trimmedUserId,
-                userPw
+                userPw,
             )
 
+            moveAfterLogin(result)
             // 로그인한 사용자의 역할 확인
             const role = result.user.role
 
@@ -110,6 +127,30 @@ export default function LoginForm() {
                 >
                     로그인
                 </button>
+
+                <div
+                    style={{
+                        marginTop: "20px",
+                        display: "flex",
+                        justifyContent:
+                            "center",
+                    }}
+                >
+                    <GoogleLoginButton
+                        onSuccess={
+                            moveAfterLogin
+                        }
+                        onError={
+                            setAlertMessage
+                        }
+                    />
+                </div>
+
+                <p
+                    className={
+                        styles.signupGuide
+                    }
+                ></p>
 
                 <p className={styles.signupGuide}>
                     아직 계정이 없으신가요?
