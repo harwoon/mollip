@@ -9,7 +9,7 @@ import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icon
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
-export default function Sidebar({ selectedSubject, time, isRunning, userInfo }) {
+export default function Sidebar({ selectedSubject, time, isRunning, userInfo, onStopAndSave }) {
     const getNavClassName = ({ isActive }) => {
         return isActive 
             ? "sidebarNavigationLink sidebarNavigationLinkActive" 
@@ -104,7 +104,7 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo }) 
                 </div>
 
                 <div className="sidebarLogout">
-                    <SidebarLogout userInfo={userInfo} />
+                    <SidebarLogout userInfo={userInfo} isRunning={isRunning} onStopAndSave={onStopAndSave} />
                 </div>
             </div>
         </aside>
