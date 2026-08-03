@@ -102,6 +102,13 @@ export default function SignupForm() {
     const handleSubmit = async (event) => {
         event.preventDefault()
 
+        // 회원가입 완료 모달이 열린 상태에서
+        // Enter로 회원가입이 다시 요청되는 것을 방지
+        if (moveToLoginAfterAlert) {
+            handleAlertConfirm()
+            return
+        }
+
         const trimmedUserId = userId.trim()
         const trimmedNickname = nickname.trim()
         const trimmedEmail = email.trim()
@@ -175,6 +182,15 @@ export default function SignupForm() {
             <form
                 className={styles.form}
                 onSubmit={handleSubmit}
+                onKeyDown={(event) => {
+                    if (
+                        alertMessage &&
+                        event.key === "Enter"
+                    ) {
+                        event.preventDefault()
+                        handleAlertConfirm()
+                    }
+                }}
             >
                 <div className={styles.profileArea}>
                     <div className={styles.profilePreview}>
@@ -325,6 +341,7 @@ export default function SignupForm() {
                             type="button"
                             className={styles.alertConfirmButton}
                             onClick={handleAlertConfirm}
+                            autoFocus
                         >
                             확인
                         </button>
