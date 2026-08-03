@@ -1,8 +1,10 @@
+import { useState } from "react"
 import { NavLink } from "react-router-dom"
 
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
 import SidebarLogout from "./SidebarLogout"
+import AiReportModal from "./AiReportModal.jsx"
 
 import "./Sidebar.css"
 import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
@@ -10,6 +12,8 @@ import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icon
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
 export default function Sidebar({ selectedSubject, time, isRunning, userInfo, onStopAndSave }) {
+    const [isReportOpen, setIsReportOpen] = useState(false)
+    
     const getNavClassName = ({ isActive }) => {
         return isActive 
             ? "sidebarNavigationLink sidebarNavigationLinkActive" 
@@ -31,6 +35,19 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
             )
         }
     }
+
+    const activeStyle = ({ isActive }) => {
+        return {
+        textDecoration: "none",
+        fontWeight: isActive ? "bold" : "normal",
+        color: isActive ? "#007bff" : "#333",
+        padding: "10px",
+        borderRadius: "8px",
+        backgroundColor: isActive ? "#e9ecef" : "transparent",
+        display: "block",
+        }
+    }
+
 
     return (
         <aside className="sidebar">
@@ -81,6 +98,12 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
                             <span>마이페이지</span>
                         </NavLink>
                     </div>
+
+                    <div>
+                        <button type="button" onClick={() => setIsReportOpen(true)}>
+                            AI 학습 리포트
+                        </button>
+                    </div>
                 </nav>
 
                 {/* 타이머 UI 박스 */}
@@ -107,6 +130,10 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
                     <SidebarLogout userInfo={userInfo} isRunning={isRunning} onStopAndSave={onStopAndSave} />
                 </div>
             </div>
+
+            {isReportOpen && (
+                <AiReportModal onClose={() => setIsReportOpen(false)} />
+            )}
         </aside>
     )
 }
