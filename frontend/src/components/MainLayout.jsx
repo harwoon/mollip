@@ -3,6 +3,8 @@ import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
 
 export default function MainLayout() {
+
+    // 새로고침해도 데이터가 안 날아가도록 localStorage에서 초기값을 불러옴.
     const [selectedSubject, setSelectedSubject] = useState(() => {
         const saved = localStorage.getItem("mollip_selectedSubject")
         return saved ? JSON.parse(saved) : null
@@ -15,7 +17,7 @@ export default function MainLayout() {
 
     const [isRunning, setIsRunning] = useState(() => {
         const saved = localStorage.getItem("mollip_isRunning")
-        return saved === "true"
+        return saved ? JSON.parse(saved) : false
     })
 
     const [actualStartTime, setActualStartTime] = useState(() => {
@@ -23,10 +25,12 @@ export default function MainLayout() {
         return saved ? new Date(saved) : null
     })
 
-    const startTimeRef = useRef(0)
+    const expectedTimeRef = useRef(Number(localStorage.getItem("mollip_time")) || 0)
+    
+    // 과목 변경 감지용 Ref
     const prevSubjectRef = useRef(selectedSubject?._id)
 
-    // 로컬스토리지 동기화
+    // 과목 및 상태 로컬스토리지 업데이트
     useEffect(() => {
         if (selectedSubject) {
             localStorage.setItem("mollip_selectedSubject", JSON.stringify(selectedSubject))
@@ -35,9 +39,13 @@ export default function MainLayout() {
         }
     }, [selectedSubject])
 
+    // 타이머가 정지(!isRunning) 상태일 때만 누적 시간 저장.
     useEffect(() => {
-        localStorage.setItem("mollip_time", time)
-    }, [time])
+        if (!isRunning) {
+            localStorage.setItem("mollip_time", time)
+            expectedTimeRef.current = time
+        }
+    }, [isRunning, time])
 
     useEffect(() => {
         localStorage.setItem("mollip_isRunning", JSON.stringify(isRunning))
@@ -51,12 +59,13 @@ export default function MainLayout() {
         }
     }, [actualStartTime])
 
-    // 과목 바뀔 때만 리셋
+    // 과목 바뀔 시 시간 완벽 리셋
     useEffect(() => {
         if (prevSubjectRef.current !== selectedSubject?._id) {
             setTime(0)
             setIsRunning(false)
             setActualStartTime(null)
+            expectedTimeRef.current = 0
             
             localStorage.removeItem("mollip_time")
             localStorage.removeItem("mollip_isRunning")
@@ -66,23 +75,24 @@ export default function MainLayout() {
         }
     }, [selectedSubject?._id])
 
-    // 💡 완벽한 타임스탬프 기반 백그라운드 타이머 엔진
+    // 타임스탬프 기반 타이머 엔진
     useEffect(() => {
         let interval
-        if (isRunning) {
-            const initialTime = time
-            startTimeRef.current = Date.now()
+        if (isRunning && actualStartTime) {
+            const startMs = new Date(actualStartTime).getTime()
+            
+            const baseTicks = expectedTimeRef.current
 
             interval = setInterval(() => {
-                const elapsedMs = Date.now() - startTimeRef.current
-                const elapsedTicks = Math.floor(elapsedMs / 10)
-                setTime(initialTime + elapsedTicks)
+                const diffMs = Date.now() - startMs
+                const ticks = Math.floor(diffMs / 10)
+                setTime(baseTicks + ticks)
             }, 10)
         } else {
             clearInterval(interval)
         }
         return () => clearInterval(interval)
-    }, [isRunning])
+    }, [isRunning, actualStartTime])
 
     return (
         <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
