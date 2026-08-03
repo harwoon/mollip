@@ -420,8 +420,8 @@ export async function withdraw(req, res) {
 
         // 탈퇴 회원의 상세 데이터 삭제
         await Promise.all([
-            // 공부 기록 삭제
-            studyRepository.deleteMany(userId),
+            // 공부 기록 삭제- 260803 수정
+            // studyRepository.deleteMany(userId),
 
             // 등록 과목 삭제
             subjectRepository.deleteMany(userId),
