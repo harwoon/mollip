@@ -45,6 +45,8 @@ export default function LoginForm() {
                 return
             }
 
+            localStorage.setItem("user", JSON.stringify(result.user))
+
             navigate("/home")
         } catch (error) {
             setAlertMessage(
