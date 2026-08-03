@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react"
 // import { getWeeklyReport } from "../api/ai.js"
 
-import AiSummary from "./AiSummary.jsx"
-import AiLastWeek from "./AiLastWeek.jsx"
-import AiThisWeek from "./AiThisWeek.jsx"
-import AiNextWeek from "./AiNextWeek.jsx"
+// import AiSummary from "../"
+// import AiLastWeek from "./AiLastWeek.jsx"
+// import AiThisWeek from "./AiThisWeek.jsx"
+// import AiNextWeek from "./AiNextWeek.jsx"
+import AiSummary from "../features/ai/components/AiSummary.jsx";
+import AiLastWeek from "../features/ai/components/AiLastWeek.jsx";
+import AiThisWeek from "../features/ai/components/AiThisWeek.jsx";
+import AiNextWeek from "../features/ai/components/AiNextWeek.jsx";
 
 import "./AiReportModal.css"
 
