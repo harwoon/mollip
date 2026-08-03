@@ -40,6 +40,10 @@ router.patch(
 // http://127.0.0.1:3000/auth/subject
 router.post("/subject", isAuth, authController.addSubject)
 
+// 과목 순서 저장
+// http://127.0.0.1:3000/auth/subject/order
+router.patch("/subject/order", isAuth, authController.updateSubjectOrder)
+
 // 과목 수정
 // http://127.0.0.1:3000/auth/subject/:subjectId
 router.put("/subject/:id", isAuth, authController.updateSubject)
