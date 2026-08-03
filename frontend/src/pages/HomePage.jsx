@@ -8,6 +8,8 @@ import { getMyInfo } from "../features/auth/api/auth";
 
 import styles from "./HomePage.module.css";
 
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
 // 마이페이지에서 저장한 과목 순서를 홈 화면에도 적용
 function applySavedSubjectOrder(subjectList) {
     const userId = localStorage.getItem("userId") || "unknown"
@@ -85,7 +87,7 @@ export default function HomePage() {
             .toISOString()
             .split("T")[0];
 
-            const subjectRes = await fetch("http://127.0.0.1:3000/auth/subject", {
+            const subjectRes = await fetch(`${API_URL}/auth/subject`, {
             headers: { Authorization: `Bearer ${userToken}` },
             });
 
@@ -110,7 +112,7 @@ export default function HomePage() {
             }
 
             const recordRes = await fetch(
-            `http://127.0.0.1:3000/study/records?type=daily&date=${todayKST}`,
+            `${API_URL}/study/records?type=daily&date=${todayKST}`,
             {
                 headers: { Authorization: `Bearer ${userToken}` },
             },
@@ -158,7 +160,7 @@ export default function HomePage() {
             .toISOString()
             .split("T")[0];
 
-        const response = await fetch("http://127.0.0.1:3000/study/addStudy", {
+        const response = await fetch(`${API_URL}/study/addStudy`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json",
