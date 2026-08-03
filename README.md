@@ -30,6 +30,9 @@ HOST_PORT=###
 
 # mongoDB string값
 DB_HOST=###
+
+# 휴면 그룹 아이디
+DORMANT_GROUP_ID=###
 ```
 
 ```
