@@ -67,7 +67,7 @@ export async function updateProfileImage(imageFile) {
 export async function withdrawMyAccount(confirmationText, withdrawalReason) {
     const token = localStorage.getItem("token")
 
-    const response = await fetch("http://127.0.0.1:3000/auth/withdraw",{
+    const response = await fetch(`${API_URL}/auth/withdraw`,{
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",

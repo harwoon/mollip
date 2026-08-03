@@ -16,7 +16,9 @@ import StudyTrend from "../features/home/components/StudyTrend.jsx"
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
 
-const socket = io("http://127.0.0.1:3000", { autoConnect: false })
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
+const socket = io(API_URL, { autoConnect: false })
 
 export default function AdminHomePage() {
     const [activeUsers, setActiveUsers] = useState([])
