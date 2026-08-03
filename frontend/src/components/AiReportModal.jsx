@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react"
 // import { getWeeklyReport } from "../api/ai.js"
+
+import AiSummary from "./AiSummary.jsx"
+import AiLastWeek from "./AiLastWeek.jsx"
+import AiThisWeek from "./AiThisWeek.jsx"
+import AiNextWeek from "./AiNextWeek.jsx"
+
 import "./AiReportModal.css"
 
 export default function AiReportModal({ onClose }) {
@@ -35,9 +41,12 @@ export default function AiReportModal({ onClose }) {
 
                     {/* 응답 형태 확정 전까지, 우선 원본 그대로 확인용 출력 */}
                     {report && (
-                        <pre style={{ whiteSpace: "pre-wrap", fontSize: "13px" }}>
-                            {JSON.stringify(report, null, 2)}
-                        </pre>
+                        <div>
+                            <AiSummary  />
+                            <AiLastWeek />
+                            <AiThisWeek />
+                            <AiNextWeek />
+                        </div>
                     )}
                 </div>
             </div>
