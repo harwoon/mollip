@@ -14,6 +14,7 @@ export default function SignupForm() {
 
     const [idCheck, setIdCheck] = useState(false)
     const [alertMessage, setAlertMessage] = useState("")
+    const [moveToLoginAfterAlert, setMoveToLoginAfterAlert] = useState(false)
 
     const [profileFile, setProfileFile] = useState(null)
     const [profilePreview, setProfilePreview] = useState("")
@@ -148,14 +149,24 @@ export default function SignupForm() {
                 profileFile
             )
 
-            showAlert("회원가입이 완료되었습니다. 로그인을 진행해주세요.")
+            setMoveToLoginAfterAlert(true)
+            showAlert("회원가입이 완료되었습니다. \n로그인을 진행해주세요.")
 
-            navigate("/")
+            // navigate("/")
         } catch (error) {
             showAlert(
                 "회원가입 실패: " +
                 error.message
             )
+        }
+    }
+
+    const handleAlertConfirm = () => {
+        setAlertMessage("")
+
+        if (moveToLoginAfterAlert) {
+            setMoveToLoginAfterAlert(false)
+            navigate("/")
         }
     }
 
@@ -298,9 +309,8 @@ export default function SignupForm() {
                                 className={
                                     styles.alertCloseButton
                                 }
-                                onClick={() =>
-                                    setAlertMessage("")
-                                }
+                                // onClick={() => setAlertMessage("")}
+                                onClick={handleAlertConfirm}
                                 aria-label="알림 닫기"
                             >
                                 <PiX aria-hidden="true" />
@@ -313,12 +323,8 @@ export default function SignupForm() {
 
                         <button
                             type="button"
-                            className={
-                                styles.alertConfirmButton
-                            }
-                            onClick={() =>
-                                setAlertMessage("")
-                            }
+                            className={styles.alertConfirmButton}
+                            onClick={handleAlertConfirm}
                         >
                             확인
                         </button>
