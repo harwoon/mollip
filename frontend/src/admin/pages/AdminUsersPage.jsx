@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { io } from "socket.io-client"
+import { socket } from "../../../util/socket.js"
 import Topbar from "../components/AdminTopbar.jsx"
 import UsersTable from "../features/users/components/UsersTable.jsx"
 import { TotalUser } from "../features/users/components/TotalUser.jsx"
@@ -9,9 +9,6 @@ import * as XLSX from "xlsx"
 
 import "./AdminUsersPage.css"
 
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
-
-const socket = io(API_URL, { autoConnect: false })
 
 // 정렬 기준별 설정 (백엔드로 보낼 sortBy 값 + 기본 정렬 방향)
 const SORT_OPTIONS = [
@@ -194,7 +191,7 @@ export default function AdminUsersPage() {
                 </div>
             </Topbar>
 
-            <TotalUser/>
+            <TotalUser />
 
             <div className="usersLayout">
                 <UsersTable users={users} activeUserIds={activeUserIds} />
