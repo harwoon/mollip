@@ -24,19 +24,17 @@ export default function MainLayout() {
         return saved ? JSON.parse(saved) : false
     })
 
-    // 타이머 레이아웃의 엔진
     const [actualStartTime, setActualStartTime] = useState(() => {
         const saved = localStorage.getItem("mollip_actualStartTime")
         return saved ? new Date(saved) : null
     })
 
-    const expectedTimeRef = useRef(0)
-    const startTimeRef = useRef(0)
-
+    const expectedTimeRef = useRef(Number(localStorage.getItem("mollip_time")) || 0)
+    
     // 과목 변경 감지용 Ref
     const prevSubjectRef = useRef(selectedSubject?._id)
 
-    // 상태 바뀔 때마다 로컬스토리지 업데이트
+    // 과목 및 상태 로컬스토리지 업데이트
     useEffect(() => {
         if (selectedSubject) {
             localStorage.setItem("mollip_selectedSubject", JSON.stringify(selectedSubject))
@@ -45,9 +43,13 @@ export default function MainLayout() {
         }
     }, [selectedSubject])
 
+    // 타이머가 정지(!isRunning) 상태일 때만 누적 시간 저장.
     useEffect(() => {
-        localStorage.setItem("mollip_time", time)
-    }, [time])
+        if (!isRunning) {
+            localStorage.setItem("mollip_time", time)
+            expectedTimeRef.current = time
+        }
+    }, [isRunning, time])
 
     useEffect(() => {
         localStorage.setItem("mollip_isRunning", JSON.stringify(isRunning))
@@ -61,7 +63,7 @@ export default function MainLayout() {
         }
     }, [actualStartTime])
 
-    // 과목 바뀔 시 시간 리셋 
+    // 과목 바뀔 시 시간 완벽 리셋
     useEffect(() => {
         if (prevSubjectRef.current !== selectedSubject?._id) {
             setTime(0)
@@ -77,22 +79,24 @@ export default function MainLayout() {
         }
     }, [selectedSubject?._id])
 
-    // 타이머 엔진 로직
+    // 타임스탬프 기반 타이머 엔진
     useEffect(() => {
         let interval
-        if (isRunning) {
-            startTimeRef.current = Date.now()
-            expectedTimeRef.current = time
+        if (isRunning && actualStartTime) {
+            const startMs = new Date(actualStartTime).getTime()
+            
+            const baseTicks = expectedTimeRef.current
+
             interval = setInterval(() => {
-                const diffMs = Date.now() - startTimeRef.current
+                const diffMs = Date.now() - startMs
                 const ticks = Math.floor(diffMs / 10)
-                setTime(expectedTimeRef.current + ticks)
+                setTime(baseTicks + ticks)
             }, 10)
         } else {
             clearInterval(interval)
         }
         return () => clearInterval(interval)
-    }, [isRunning])
+    }, [isRunning, actualStartTime])
 
     return (
         <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>

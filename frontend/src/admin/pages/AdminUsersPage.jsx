@@ -6,6 +6,7 @@ import { TotalUser } from "../features/users/components/TotalUser.jsx"
 import Pagination from "../components/Pagination.jsx"
 import { getUsers, getActiveUsers, getUsersExportData } from "../features/users/api/user.js"
 import * as XLSX from "xlsx"
+import { AverageTime } from "../features/users/components/AverageTime.jsx"
 
 import "./AdminUsersPage.css"
 
@@ -191,7 +192,10 @@ export default function AdminUsersPage() {
                 </div>
             </Topbar>
 
-            <TotalUser />
+            <div>
+                <TotalUser />
+                <AverageTime />
+            </div>
 
             <div className="usersLayout">
                 <UsersTable users={users} activeUserIds={activeUserIds} />
