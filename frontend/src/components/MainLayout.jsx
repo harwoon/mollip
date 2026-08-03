@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef } from "react"
 import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
 
+const API_URL =
+    import.meta.env.VITE_LOCAL_API_URL ||
+    "http://127.0.0.1:3000"
+
+    
 export default function MainLayout() {
     const [userInfo, setUserInfo] = useState(() => {
         const savedUser = localStorage.getItem("user") // 로그인할 때 쓴 키 이름("user" 또는 "userInfo")
@@ -98,6 +103,46 @@ export default function MainLayout() {
         return () => clearInterval(interval)
     }, [isRunning, actualStartTime])
 
+    const handleGlobalSave = async (studySeconds) => {
+        if (!selectedSubject) return false
+        
+        const userToken = localStorage.getItem("token")
+        if (!userToken) return false
+
+        try {
+            const kstOffset = new Date().getTimezoneOffset() * 60000
+            const todayString = new Date(Date.now() - kstOffset).toISOString().split("T")[0]
+
+            const response = await fetch(`${API_URL}/study/addStudy`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${userToken}`,
+                },
+                body: JSON.stringify({
+                    studyTitle: selectedSubject.subjectName,
+                    studyDate: todayString,
+                    sumStudyTime: studySeconds,
+                }),
+            })
+
+            if (!response.ok) throw new Error("서버 저장 실패")
+            return true
+        } catch (error) {
+            console.error("전역 타이머 저장 에러:", error)
+            return false
+        }
+    }
+
+    const onStopAndSaveForLogout = async () => {
+        if (isRunning) {
+            const studySecondsToSave = Math.floor(time / 100) // 10ms 단위를 초 단위로 변환
+
+            setIsRunning(false) // 즉시 멈춤
+            await handleGlobalSave(studySecondsToSave)
+        }
+    }
+
     return (
         <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
             <Sidebar
@@ -105,6 +150,7 @@ export default function MainLayout() {
                 time={time}
                 isRunning={isRunning}
                 userInfo={userInfo}
+                onStopAndSave={onStopAndSaveForLogout}
             />
             <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
                 <Outlet context={{

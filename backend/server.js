@@ -14,7 +14,8 @@ import studyRouter from "./router/study.js"
 import statRouter from "./router/statistics.js"
 import todoRouter from "./router/todo.js"
 import groupRouter from "./router/group.js"
-import scheduleRouter from "./router/Schedule.js"
+import aiRouter from "./router/ai.js"
+
 import { startWeeklyGroupJob } from "./jobs/weeklyGroupJob.js"
 import { startStreakJob } from "./jobs/streakJob.js"
 import { startDormantGroupJob } from "./jobs/dormantGroupJob.js"
@@ -59,6 +60,7 @@ app.use("/todo", todoRouter)
 app.use("/admin", adminRouter)
 app.use("/group", groupRouter)
 app.use("/schedule", scheduleRouter)
+app.use('/ai', aiRouter)
 
 io.on('connection', (socket) => {
     console.log('소켓 연결됨:', socket.id)

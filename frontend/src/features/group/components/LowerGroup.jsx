@@ -10,6 +10,9 @@ export default function LowerGroup() {
     const [remainTime, setRemainTime] = useState(0)
     const [progress, setProgress] = useState(0)
 
+    // 실제로 표시할 수 있는 하위 그룹이 있는지 확인
+    const [hasLowerGroup, setHasLowerGroup] = useState(true)
+
     useEffect(() => {
         const fetchGroupData = async () => {
             try {
@@ -18,13 +21,29 @@ export default function LowerGroup() {
                     getWeekStudyTime()
                 ])
 
+                const lowerGroupName = lowerGroup?.groupName || ""
+
+                // 띄어쓰기 차이가 있어도 휴면 그룹으로 판단
+                const normalizedGroupName =
+                    lowerGroupName.replace(/\s/g, "")
+
+                // 하위 그룹이 없거나 휴면 그룹이면
+                // 실제 하위 경쟁 그룹이 없는 것으로 처리
+                if (
+                    !lowerGroupName || normalizedGroupName === "휴면그룹"
+                ) {
+                    setHasLowerGroup(false)
+                    return
+                }
+                setHasLowerGroup(true)
+
                 const lowerGroupSeconds =
                     Number(lowerGroup?.groupTime) || 0
 
                 const currentWeeklySeconds =
                     Number(weeklySecondsData) || 0
 
-                setGroupName(lowerGroup?.groupName || "")
+                setGroupName(lowerGroupName)
                 setGroupTime(lowerGroupSeconds)
 
                 const calculatedRemainSeconds = Math.max(lowerGroupSeconds - currentWeeklySeconds, 0)
@@ -64,6 +83,28 @@ export default function LowerGroup() {
         }
 
         return `${hours}시간 ${remainMinutes}분`
+    }
+
+    if (!hasLowerGroup) {
+        return (
+            <section className={`commonSection ${styles.container}`}>
+                <header className={styles.header}>
+                    <div className={styles.headerLeft}>
+                        <span className={styles.iconBox}>
+                            <FiTrendingDown aria-hidden="true" />
+                        </span>
+
+                        <div className={styles.groupInfo}>
+                            <p className={styles.label}>하위 그룹</p>
+
+                            <h2 className={styles.groupName}>
+                                하위 그룹이 없습니다.
+                            </h2>
+                        </div>
+                    </div>
+                </header>
+            </section>
+        )
     }
 
     return (
