@@ -161,3 +161,84 @@
         height: 340px;
     }
 }
+
+
+
+/* =========================
+     기존 커스텀 알럿
+========================= */
+
+.alertOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    width: 100vw;
+    height: 100vh;
+    padding: var(--space-5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.alertBox {
+    width: 320px;
+    max-width: 100%;
+    padding: var(--space-5) var(--space-6);
+
+    color: var(--color-text);
+    text-align: left;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.alertHeader {
+    margin-bottom: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.alertHeader strong {
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+.alertCloseButton {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-lg);
+
+    border-radius: var(--radius-sm);
+
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.alertCloseButton:hover {
+    color: var(--color-primary-700);
+    background: var(--color-primary-50);
+}
+
+.alertMessage {
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    line-height: 1.6;
+}
