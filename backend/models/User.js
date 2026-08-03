@@ -10,7 +10,13 @@ const userSchema = new mongoose.Schema(
         },
         userPw: {
             type: String,
-            required: true,
+
+            required: function () {
+                return (
+                    this.authProvider ===
+                    "local"
+                )
+            },
         },
         nickname: {
             type: String,
@@ -85,6 +91,20 @@ const userSchema = new mongoose.Schema(
         totalStudyTime: {
             type: Number,
             default: 0
+        },
+        authProvider: {
+            type: String,
+            enum: [
+                "local",
+                "google",
+            ],
+            default: "local",
+        },
+
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true,
         },
 
         // 사용자 설정 과목 순서

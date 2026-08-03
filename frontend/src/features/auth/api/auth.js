@@ -36,13 +36,8 @@ export async function loginUser(userId, userPw) {
     const data = await response.json()
     if (!response.ok) throw new Error(data.message)
 
-    // 백엔드에서 발급받은 JWT 토큰을 브라우저에 저장
-    localStorage.setItem("token", data.token)
-    localStorage.setItem("role", data.user.role)
-    localStorage.setItem("groupId", data.user.groupId?._id ?? data.user.groupId ?? "")
-    localStorage.setItem("userId", data.user._id)
+    saveLoginData(data)
 
-    // 로그인한 사용자 정보가 필요할 수 있으므로 전체 응답 반환
     return data
 }
 
@@ -67,6 +62,71 @@ export async function checkIdUser(userId) {
 
     const data = await response.json()
     if (!response.ok) throw new Error(data.message)
+
+    return data
+}
+
+function saveLoginData(data) {
+    localStorage.setItem(
+        "token",
+        data.token,
+    )
+
+    localStorage.setItem(
+        "role",
+        data.user.role,
+    )
+
+    localStorage.setItem(
+        "groupId",
+        data.user.groupId?._id ??
+        data.user.groupId ??
+        "",
+    )
+
+    localStorage.setItem(
+        "userId",
+        data.user._id,
+    )
+
+    localStorage.setItem(
+        "user",
+        JSON.stringify(
+            data.user,
+        ),
+    )
+}
+// 구글 로그인 함수
+export async function loginGoogleUser(
+    credential,
+) {
+    const response = await fetch(
+        `${API_URL}/auth/google`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json",
+            },
+
+            body: JSON.stringify({
+                credential,
+            }),
+        },
+    )
+
+    const data =
+        await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+                "Google 로그인에 실패했습니다.",
+        )
+    }
+
+    saveLoginData(data)
 
     return data
 }

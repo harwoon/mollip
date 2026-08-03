@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { getWeeklyGroupRanking } from "../api/groupRanking.js"
+import { getProfileImageUrl } from "../../../util/profileImage.js"
 
 import styles from "./GroupRanking.module.css"
 
@@ -120,31 +121,32 @@ export default function GroupRanking() {
                         <h3 className={styles.sectionTitle}>TOP 3</h3>
                         <ol className={styles.topThreeList}>
                             {topThreeRanking.map(
-                                (user, index) => {const isCurrentUser =
-                                    String(user.userId) === String(currentUserId)
+                                (user, index) => {
+                                    const isCurrentUser =
+                                        String(user.userId) === String(currentUserId)
                                     return (
                                         <li
                                             key={user.userId}
-                                            className={`${styles.topThreeItem} ${
-                                                isCurrentUser
-                                                    ? styles.currentUser
-                                                    : ""
-                                            }`}
+                                            className={`${styles.topThreeItem} ${isCurrentUser
+                                                ? styles.currentUser
+                                                : ""
+                                                }`}
                                         >
                                             <strong className={styles.topRank}
                                             >{index + 1}</strong>
 
                                             <img
-                                                className={styles.topProfileImage}
-                                                src={
-                                                    user.profileImg
-                                                        ? `${API_URL}${user.profileImg}`
-                                                        : "/images/noprofile.png"
+                                                className={
+                                                    styles.topProfileImage
                                                 }
+                                                src={getProfileImageUrl(
+                                                    user.profileImg,
+                                                )}
                                                 alt={`${user.nickname} 프로필`}
-                                                onError={(
-                                                    event
-                                                ) => {
+                                                onError={(event) => {
+                                                    event.currentTarget.onerror =
+                                                        null
+
                                                     event.currentTarget.src =
                                                         "/images/noprofile.png"
                                                 }}
@@ -155,7 +157,7 @@ export default function GroupRanking() {
                                                 <span className={styles.nickname}
                                                 >{user.nickname}</span>
                                                 {isCurrentUser && (
-                                                <span className={styles.meBadge}>나</span>
+                                                    <span className={styles.meBadge}>나</span>
                                                 )}
                                             </div>
 
@@ -185,64 +187,64 @@ export default function GroupRanking() {
                                     const isCurrentUser =
                                         String(user.userId) === String(currentUserId)
 
-                                        return (
-                                            <li
-                                                key={user.userId}
-                                                ref={
-                                                    isCurrentUser
-                                                        ? currentUserRef
-                                                        : null
-                                                }
-                                                className={`${styles.rankingItem} ${
-                                                    isCurrentUser
-                                                        ? styles.currentUser
-                                                        : ""
+                                    return (
+                                        <li
+                                            key={user.userId}
+                                            ref={
+                                                isCurrentUser
+                                                    ? currentUserRef
+                                                    : null
+                                            }
+                                            className={`${styles.rankingItem} ${isCurrentUser
+                                                ? styles.currentUser
+                                                : ""
                                                 }`}
-                                            >
-                                                <strong className={styles.rank}>{index + 1}</strong>
+                                        >
+                                            <strong className={styles.rank}>{index + 1}</strong>
 
-                                                <img
-                                                    className={styles.profileImage}
-                                                    src={
-                                                        user.profileImg
-                                                            ? `${API_URL}${user.profileImg}`
-                                                            : "/images/noprofile.png"
+                                            <img
+                                                className={
+                                                    styles.profileImage
+                                                }
+                                                src={getProfileImageUrl(
+                                                    user.profileImg,
+                                                )}
+                                                alt={`${user.nickname} 프로필`}
+                                                onError={(event) => {
+                                                    event.currentTarget.onerror =
+                                                        null
+
+                                                    event.currentTarget.src =
+                                                        "/images/noprofile.png"
+                                                }}
+                                            />
+
+                                            <div className={styles.userInfo}>
+                                                <span className={styles.nickname}>
+                                                    {
+                                                        user.nickname
                                                     }
-                                                    alt={`${user.nickname} 프로필`}
-                                                    onError={(
-                                                        event
-                                                    ) => {
-                                                        event.currentTarget.src =
-                                                            "/images/noprofile.png"
-                                                    }}
-                                                />
-
-                                                <div className={styles.userInfo}>
-                                                    <span className={styles.nickname}>
-                                                        {
-                                                            user.nickname
-                                                        }
-                                                    </span>
-
-                                                    {isCurrentUser && (
-                                                        <span
-                                                            className={
-                                                                styles.meBadge
-                                                            }
-                                                        >
-                                                            나
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <span className={styles.studyTime}>
-                                                    {formatStudyTime(
-                                                        user.totalStudyTime
-                                                    )}
                                                 </span>
-                                            </li>
-                                        )
-                                    }
+
+                                                {isCurrentUser && (
+                                                    <span
+                                                        className={
+                                                            styles.meBadge
+                                                        }
+                                                    >
+                                                        나
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <span className={styles.studyTime}>
+                                                {formatStudyTime(
+                                                    user.totalStudyTime
+                                                )}
+                                            </span>
+                                        </li>
+                                    )
+                                }
                                 )}
                             </ol>
                         </div>

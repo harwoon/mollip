@@ -1,5 +1,6 @@
 import express from "express"
 import * as authController from "../controller/auth.js"
+import * as googleAuthController from "../controller/googleAuth.js"
 import { isAuth } from "../middleware/auth.js"
 import { uploadProfile } from "../middleware/profile_upload.js"
 
@@ -15,6 +16,8 @@ router.post("/signup", authController.signup)
 // 로그인
 // http://127.0.0.1:3000/auth/login
 router.post("/login", authController.login)
+// 구글 로그인
+router.post("/google", googleAuthController.googleLogin,)
 
 // 로그인 유지 체크 + 회원 정보 조회
 router.get("/me", isAuth, authController.me)
