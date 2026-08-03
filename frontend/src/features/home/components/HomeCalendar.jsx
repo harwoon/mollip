@@ -4,8 +4,12 @@ import dayjs from 'dayjs'
 import './HomeCalendar.css'
 import ScheduleModal from "./ScheduleModal.jsx"
 import { getSchedules, addSchedule, updateSchedule, deleteSchedule } from '../api/schedule.js'
+import { createPortal } from 'react-dom'
 
 export default function HomeCalendar() {
+  const [hoveredSchedule, setHoveredSchedule] =
+    useState(null)
+
   const [selectedDate, setSelectedDate] =
     useState(new Date())
 
@@ -220,7 +224,28 @@ export default function HomeCalendar() {
                       }}
                     />
 
-                    <span className="calendar-schedule-title">
+                    <span
+                      className="calendar-schedule-title"
+                      onMouseEnter={(event) => {
+                        const rect =
+                          event.currentTarget.getBoundingClientRect()
+
+                        setHoveredSchedule({
+                          text: `${schedule.allDay
+                            ? ""
+                            : schedule.startTime
+                              ? `${schedule.startTime} `
+                              : ""
+                            }${schedule.title}`,
+
+                          top: rect.bottom + 6,
+                          left: rect.left,
+                        })
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredSchedule(null)
+                      }}
+                    >
                       {schedule.allDay
                         ? ""
                         : schedule.startTime
@@ -287,6 +312,20 @@ export default function HomeCalendar() {
           }}
         />
       )}
+
+      {hoveredSchedule &&
+        createPortal(
+          <div
+            className="calendar-schedule-tooltip"
+            style={{
+              top: hoveredSchedule.top,
+              left: hoveredSchedule.left,
+            }}
+          >
+            {hoveredSchedule.text}
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
