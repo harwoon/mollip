@@ -41,6 +41,9 @@ GOOGLE_CLIENT_ID=###
 ```
 # frontend/.env
 VITE_LOCAL_API_URL=http://127.0.0.1:3000
+
+# 구글 OAuth
+GOOGLE_CLIENT_ID=###
 ```
 
 ```
