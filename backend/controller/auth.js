@@ -114,9 +114,14 @@ export async function signup(req, res) {
     // 비밀번호 해쉬화
     const hashed = bcrypt.hashSync(userPw, config.bcrypt.saltRounds)
 
+    // 로필 이미지 경로 설정
+    const profileImg = req.file
+        ? `/uploads/profile/${req.file.filename}`
+        : "/images/noprofile.png"
+
     // 실제 가입
     const userInsertedId = await authRepository.createUser(
-        { userId, userPw: hashed, nickname, email }
+        { userId, userPw: hashed, nickname, email, profileImg }
     )
 
     const newLog = await AdminLog.create({
