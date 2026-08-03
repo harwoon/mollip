@@ -53,7 +53,7 @@ router.get("/weekly-average-study-time", adminController.getWeeklyAverageStudyTi
 
 // 그룹 관리 =================================================
 // http://127.0.0.1:3000/admin/groups/count
-router.get("/groups/count", groupController.getGroupGount)
+router.get("/groups/count", groupController.getGroupCount)
 
 // 그룹 주간 총 공부시간, 모든 그룹 총 공부시간
 // http://127.0.0.1:3000/admin/groups/weekly-study-time

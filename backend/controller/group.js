@@ -50,7 +50,7 @@ export async function getGroupsColor(req, res) {
 }
 
 // 그룹 개수 조회
-export async function getGroupGount(req, res) {
+export async function getGroupCount(req, res) {
   try {
     const count = await groupRepository.countGroups();
     return res.status(200).json({
