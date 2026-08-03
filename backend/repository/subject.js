@@ -12,7 +12,14 @@ export async function findBySubjectId(subjectId) {
 
 // 유저의 현재 과목 가져오기
 export async function findActiveSubjectsByUser(userId) {
-    return await Subject.find({ user: userId, useYn: 'Y' })
+    return await Subject.find({ 
+        user: userId, 
+        useYn: 'Y' 
+    })
+    // subjectOrder에 없는 과목은 생성 순서대로 뒤에 배치
+    .sort({
+        createdAt: 1
+    })
 }
 
 // 유저의 아이디, 과목명으로 과목 색 가져오기

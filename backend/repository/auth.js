@@ -309,3 +309,53 @@ export async function findActiveUsersWithGroup() {
         .select("_id groupId")
         .lean()
 }
+
+// 과목 순서 전체 교체
+export async function updateSubjectOrder(userId, subjectIds) {
+    return User.findByIdAndUpdate(
+        userId,
+        {
+            // 기존 순서를 전달받은 배열로 교체
+            $set: {
+                subjectOrder: subjectIds
+            }
+        },
+        {
+            // 수정 완료된 User 문서를 반환
+            new: true,
+            // 최대 5개 검증 실행
+            runValidators: true
+        }
+    )
+}
+
+// 새 과목 ID 순서 배열 마지막 추가 : 동일 과목 ID 중복 저장 x
+export async function addSubjectToOrder(userId, subjectId) {
+    return User.findByIdAndUpdate(
+        userId,
+        {
+            // push로 사용하면 동일 과목 ID 중복될 수 있어서 addToset 사용함
+            $addToSet: {subjectOrder: subjectId}
+        },
+        {
+            new: true,
+            runValidators: true
+        }
+    )
+}
+
+// 삭제된 과목 ID 순서배열에서 제거
+export async function removeSubjectFromOrder(userId, subjectId) {
+    return User.findByIdAndUpdate(
+        userId,
+        {
+            $pull: {
+                subjectOrder: subjectId
+            }
+        },
+        {
+            new: true,
+            runValidators: true
+        }
+    )
+}
