@@ -1,19 +1,39 @@
 import "./GroupsTable.css";
 
+function formatNumber(
+  value,
+  maximumFractionDigits = 2,
+) {
+  return new Intl.NumberFormat("ko-KR", {
+    maximumFractionDigits,
+  }).format(Number(value) || 0);
+}
+
 export default function GroupsTable({
-  groups,
+  groups = [],
   selectedGroupId,
   onSelectGroup,
   loading,
 }) {
+  console.log(
+    "GroupsTable이 받은 groups:",
+    groups,
+  );
+
   if (loading) {
     return (
-      <div className="groupsTableMessage">그룹 목록을 불러오는 중입니다.</div>
+      <div className="groupsTableMessage">
+        그룹 통계를 불러오는 중입니다.
+      </div>
     );
   }
 
   if (!groups.length) {
-    return <div className="groupsTableMessage">등록된 그룹이 없습니다.</div>;
+    return (
+      <div className="groupsTableMessage">
+        등록된 그룹이 없습니다.
+      </div>
+    );
   }
 
   return (
@@ -22,62 +42,145 @@ export default function GroupsTable({
         <thead>
           <tr>
             <th>그룹명</th>
-            <th>그룹 조건 시간(h)</th>
+
+            <th>
+              그룹 조건 시간(h)
+            </th>
+
             <th>인원</th>
-            <th>평균 목표 달성률</th>
-            <th>평균 공부 시간(h)</th>
-            <th>평균 접속 학습일</th>
+
+            <th>
+              평균 목표 달성률
+            </th>
+
+            <th>
+              평균 공부 시간(h)
+            </th>
+
+            <th>
+              평균 접속 학습일
+            </th>
           </tr>
         </thead>
 
         <tbody>
           {groups.map((group) => {
             /*
-             * 통계 데이터가 아직 없으면
-             * 새 그룹은 0으로 표시
+             * 그룹 인원
              */
-            const memberCount = group.memberCount ?? group.members?.length ?? 0;
+            const memberCount =
+              Number(group.memberCount) || 0;
 
-            const averageGoalRate = Number(group.averageGoalRate ?? 0);
+            /*
+             * 그룹 평균 목표 달성률
+             */
+            const averageGoalAchievementRate =
+              Number(
+                group.averageGoalAchievementRate,
+              ) || 0;
 
-            const averageStudyTime = Number(group.averageStudyTime ?? 0);
+            /*
+             * 그룹 평균 공부시간
+             */
+            const averageStudyHours =
+              Number(
+                group.averageStudyHours,
+              ) || 0;
 
-            const averageAttendanceDays = Number(
-              group.averageAttendanceDays ?? 0,
+            /*
+             * 그룹 평균 출석일
+             */
+            const averageAttendanceDays =
+              Number(
+                group.averageAttendanceDays,
+              ) || 0;
+
+            /*
+             * 그룹 조건 시간
+             *
+             * groupConditionHours가 있으면 사용하고
+             * 없으면 groupTime을 초에서 시간으로 변환
+             */
+            const groupConditionHours =
+              Number(
+                group.groupConditionHours ??
+                (Number(
+                  group.groupTime,
+                ) || 0) /
+                3600,
+              );
+
+            /*
+             * 진행 바는 0~100 범위로 제한
+             */
+            const progressRate = Math.min(
+              Math.max(
+                averageGoalAchievementRate,
+                0,
+              ),
+              100,
             );
 
-            const progressRate = Math.min(Math.max(averageGoalRate, 0), 100);
-
-            const isSelected = selectedGroupId === group._id;
+            const isSelected =
+              String(selectedGroupId) ===
+              String(group._id);
 
             return (
               <tr
                 key={group._id}
                 className={
-                  isSelected ? "groupsTableRow selected" : "groupsTableRow"
+                  isSelected
+                    ? "groupsTableRow selected"
+                    : "groupsTableRow"
                 }
-                onClick={() => onSelectGroup(group)}
+                onClick={() =>
+                  onSelectGroup(group)
+                }
               >
+                {/* 그룹명 */}
                 <td>
                   <div className="groupNameCell">
                     <span
                       className="groupColorDot"
                       style={{
-                        backgroundColor: group.groupColor,
+                        backgroundColor:
+                          group.groupColor ||
+                          "#cccccc",
                       }}
                     />
 
-                    <strong>{group.groupName}</strong>
+                    <strong>
+                      {group.groupName}
+                    </strong>
                   </div>
                 </td>
 
-                <td>{group.groupTime / 3600 }시간</td>
+                {/* 그룹 조건 시간 */}
+                <td>
+                  {formatNumber(
+                    groupConditionHours,
+                  )}
+                  시간
+                </td>
 
-                <td>{memberCount}명</td>
+                {/* 그룹 인원 */}
+                <td>
+                  {formatNumber(
+                    memberCount,
+                    0,
+                  )}
+                  명
+                </td>
 
+                {/* 평균 목표 달성률 */}
                 <td>
                   <div className="goalRateCell">
-                    <span className="goalRateText">{averageGoalRate}%</span>
+                    <span className="goalRateText">
+                      {formatNumber(
+                        averageGoalAchievementRate,
+                      )}
+                      %
+                    </span>
 
                     <div className="goalRateTrack">
                       <div
@@ -90,9 +193,21 @@ export default function GroupsTable({
                   </div>
                 </td>
 
-                <td>{averageStudyTime}시간</td>
+                {/* 평균 공부시간 */}
+                <td>
+                  {formatNumber(
+                    averageStudyHours,
+                  )}
+                  시간
+                </td>
 
-                <td>{averageAttendanceDays}일</td>
+                {/* 평균 접속 학습일 */}
+                <td>
+                  {formatNumber(
+                    averageAttendanceDays,
+                  )}
+                  일
+                </td>
               </tr>
             );
           })}

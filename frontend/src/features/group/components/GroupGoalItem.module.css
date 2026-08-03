@@ -1,0 +1,109 @@
+.item {
+    padding: 18px 0;
+    border-bottom: 1px solid #eeeaf3;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.titleArea {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.checkBox {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    border: 1.5px solid var(--goal-color);
+    border-radius: 6px;
+
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+
+    background-color: #ffffff;
+}
+
+.checkBox.checked {
+    background-color: var(--goal-color);
+}
+
+.title {
+    overflow: hidden;
+
+    color: #272331;
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.value {
+    flex-shrink: 0;
+
+    color: var(--goal-color);
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.currentValue {
+    font-weight: 800;
+}
+
+.divider {
+    opacity: 0.7;
+}
+
+.progressTrack {
+    height: 6px;
+    margin-top: 12px;
+    margin-left: 38px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+    background-color: #eee8fa;
+}
+
+.progressFill {
+    height: 100%;
+
+    border-radius: inherit;
+    background-color: var(--goal-color);
+
+    transition: width 0.4s ease;
+}
+
+@media (max-width: 600px) {
+    .content {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .value {
+        margin-left: 38px;
+    }
+
+    .progressTrack {
+        margin-left: 38px;
+    }
+}

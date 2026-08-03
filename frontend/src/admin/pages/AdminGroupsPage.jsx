@@ -1,47 +1,78 @@
-import { useEffect, useMemo, useState } from "react";
-
-import Topbar from "../components/AdminTopbar.jsx";
-import GroupsTable from "../features/groups/components/GroupsTable.jsx";
-import GroupForm from "../features/groups/components/GroupForm.jsx";
-import { getGroups } from "../features/groups/api/group.js";
-import "./AdminGroupsPage.css";
+import { useCallback, useEffect, useMemo, useState } from "react"
+import Topbar from "../components/AdminTopbar.jsx"
+import GroupsTable from "../features/groups/components/GroupsTable.jsx"
+import GroupForm from "../features/groups/components/GroupForm.jsx"
+import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
+import "./AdminGroupsPage.css"
 
 export default function AdminGroupsPage() {
   const [groups, setGroups] = useState([]);
+
   const [mode, setMode] = useState(null);
-  const [selectedGroup, setSelectedGroup] = useState(null);
 
-  const [sortField, setSortField] = useState("groupTime");
+  const [selectedGroup, setSelectedGroup] =
+    useState(null);
 
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortField, setSortField] = useState(
+    "groupConditionHours",
+  );
 
-  const [loading, setLoading] = useState(false);
+  const [sortOrder, setSortOrder] =
+    useState("desc");
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [error, setError] = useState("");
 
   /*
-   * 그룹 목록 조회
+   * 그룹별 주간 통계 조회
+   *
+   * GET /admin/groups/statistics
    */
-  async function fetchGroups() {
-    try {
-      setLoading(true);
-      setError("");
+  const loadGroupStatistics =
+    useCallback(async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const data = await getGroups();
+        const data =
+          await fetchAdminGroupStatistics();
 
-      setGroups(Array.isArray(data.groups) ? data.groups : []);
-    } catch (error) {
-      console.error("그룹 목록 조회 실패:", error);
+        console.log(
+          "그룹 통계 API 응답:",
+          data,
+        );
 
-      setError(error.message || "그룹 목록 조회에 실패했습니다.");
-    } finally {
-      setLoading(false);
-    }
-  }
+        const resultGroups =
+          Array.isArray(data.groups)
+            ? data.groups
+            : [];
 
+        setGroups(resultGroups);
+      } catch (error) {
+        console.error(
+          "그룹 통계 조회 실패:",
+          error,
+        );
+
+        setGroups([]);
+
+        setError(
+          error.message ||
+          "그룹 통계 조회에 실패했습니다.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+
+  /*
+   * 화면이 처음 열릴 때 그룹 통계 조회
+   */
   useEffect(() => {
-    fetchGroups();
-  }, []);
+    loadGroupStatistics();
+  }, [loadGroupStatistics]);
 
   /*
    * 정렬된 그룹 목록
@@ -52,16 +83,32 @@ export default function AdminGroupsPage() {
     copiedGroups.sort((first, second) => {
       let result = 0;
 
+      /*
+       * 그룹명은 문자열 정렬
+       */
       if (sortField === "groupName") {
-        result = String(first.groupName || "").localeCompare(
+        result = String(
+          first.groupName || "",
+        ).localeCompare(
           String(second.groupName || ""),
           "ko",
         );
       } else {
-        result = Number(first[sortField] ?? 0) - Number(second[sortField] ?? 0);
+        /*
+         * 나머지는 숫자 정렬
+         */
+        const firstValue =
+          Number(first[sortField]) || 0;
+
+        const secondValue =
+          Number(second[sortField]) || 0;
+
+        result = firstValue - secondValue;
       }
 
-      return sortOrder === "asc" ? result : -result;
+      return sortOrder === "asc"
+        ? result
+        : -result;
     });
 
     return copiedGroups;
@@ -71,7 +118,33 @@ export default function AdminGroupsPage() {
    * 그룹 행 클릭
    */
   function handleSelectGroup(group) {
-    setSelectedGroup(group);
+    /*
+     * 통계 API의 groupTime은 초 단위일 수 있음
+     * GroupForm에는 시간 단위로 전달
+     */
+    const groupTimeHours = Number(
+      group.groupConditionHours ??
+      (Number(group.groupTime) || 0) /
+      3600,
+    );
+
+    const normalizedGroup = {
+      ...group,
+
+      /*
+       * GroupForm에서 입력창에 바로 사용할 값
+       */
+      groupTime: groupTimeHours,
+
+      /*
+       * 그룹 목표가 없을 때 빈 배열 사용
+       */
+      goals: Array.isArray(group.goals)
+        ? group.goals
+        : [],
+    };
+
+    setSelectedGroup(normalizedGroup);
     setMode("edit");
   }
 
@@ -84,13 +157,16 @@ export default function AdminGroupsPage() {
   }
 
   /*
-   * 생성 또는 수정 성공
+   * 그룹 생성 또는 수정 성공
    */
   async function handleFormSuccess() {
     setMode(null);
     setSelectedGroup(null);
 
-    await fetchGroups();
+    /*
+     * 생성·수정 후 최신 통계 다시 조회
+     */
+    await loadGroupStatistics();
   }
 
   /*
@@ -104,39 +180,54 @@ export default function AdminGroupsPage() {
   return (
     <div className="adminGroupsPage">
       <Topbar
-        title="그룹 관리"
-        description="생성된 모든 그룹을 관리하고 조회할 수 있습니다."
-      />
-
-      <section className="groupsPageSection">
-        <div className="groupsToolbar">
-          <div>
-            <h2>그룹 관리하기</h2>
-
-            <p>생성된 모든 그룹을 관리하고 조회할 수 있습니다.</p>
-          </div>
-
-          <div className="groupsToolbarActions">
+        title="그룹 현황"
+        description="생성된 모든 그룹과 이번 주 통계를 관리하고 조회할 수 있습니다."
+      >
+        <div className="groupsToolbarActions">
             <select
               value={sortField}
-              onChange={(e) => setSortField(e.target.value)}
+              onChange={(event) => setSortField(event.target.value)}
             >
-              <option value="groupTime">그룹 조건 시간</option>
+              <option value="groupConditionHours">
+                그룹 조건 시간
+              </option>
 
-              <option value="groupName">그룹명</option>
+              <option value="groupName">
+                그룹명
+              </option>
 
-              <option value="memberCount">인원</option>
+              <option value="memberCount">
+                인원
+              </option>
 
-              <option value="averageGoalRate">평균 목표 달성률</option>
+              <option value="averageGoalAchievementRate">
+                평균 목표 달성률
+              </option>
+
+              <option value="averageStudyHours">
+                평균 공부 시간
+              </option>
+
+              <option value="averageAttendanceDays">
+                평균 접속 학습일
+              </option>
             </select>
 
             <select
               value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
+              onChange={(event) =>
+                setSortOrder(
+                  event.target.value,
+                )
+              }
             >
-              <option value="desc">내림차순</option>
+              <option value="desc">
+                내림차순
+              </option>
 
-              <option value="asc">오름차순</option>
+              <option value="asc">
+                오름차순
+              </option>
             </select>
 
             <button
@@ -147,20 +238,32 @@ export default function AdminGroupsPage() {
               그룹 생성하기
             </button>
           </div>
-        </div>
+      </Topbar>
 
-        {error && <p className="groupsPageError">{error}</p>}
+      <section className="groupsPageSection">
+
+        {error && (
+          <p className="groupsPageError">
+            {error}
+          </p>
+        )}
 
         <div
           className={
-            mode ? "groupsPageContent formOpened" : "groupsPageContent"
+            mode
+              ? "groupsPageContent formOpened"
+              : "groupsPageContent"
           }
         >
           <div className="groupsTablePanel">
             <GroupsTable
               groups={sortedGroups}
-              selectedGroupId={selectedGroup?._id}
-              onSelectGroup={handleSelectGroup}
+              selectedGroupId={
+                selectedGroup?._id
+              }
+              onSelectGroup={
+                handleSelectGroup
+              }
               loading={loading}
             />
           </div>
@@ -170,7 +273,9 @@ export default function AdminGroupsPage() {
               <GroupForm
                 mode={mode}
                 group={selectedGroup}
-                onSuccess={handleFormSuccess}
+                onSuccess={
+                  handleFormSuccess
+                }
                 onCancel={handleCancel}
               />
             </aside>

@@ -2,50 +2,83 @@ import redisClient from "../db/redis.js"
 import User from "../models/User.js"
 import Group from "../models/Group.js"
 import AdminLog from "../models/AdminLog.js"
+import { config } from "../config.mjs"
+
+const dormantGroupId =
+    config.group.dormantId
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 export async function countAllUsers() {
-    return User.countDocuments({ role: 'user' })
-}
+    // 휴면 그룹 ObjectId
+    const dormantGroupId = "6a6c35fa39f4827ac141db88"
 
-// 회원 목록 조회 (검색/필터/정렬/페이지네이션)
-export async function findUsers({ search, groupId, sortBy, sortOrder, skip, limit }) {
-    // DB에 던질 검색 조건 객체를 일반 유저 대상으로 고정
-    const query = { role: "user"}
+    // 각 회원수 Promise.all 비교
+    const[
+        totalUserCount,
+        withdrawnUserCount,
+        dormantUserCount
+    ] = await Promise.all([
+        
+        // 전체 회원수 = 관리자, 탈퇴회원 제외 | 정상회워느 휴면회원 포함
+        User.countDocuments({
+            role: "user",
+            useYn: "Y"
+        }),
+        
+        // 탈퇴 회원수 = UseYn:n | 관리자 제외
+        User.countDocuments({
+            role: "user",
+            useYn: "N"
+        }),
 
-    // 아래에서 조건이 있을 때만 하나씩 채워 넣음
-    if(search) {
-        const regex = new RegExp(search, 'i')
-        query.$or = [
-            { userId: regex },
-            { nickname: regex },
-            { email: regex}
-        ]
+        // 휴면 회원수 = 탈퇴안한 회원 중 groupId 휴면그룹 ID
+        User.countDocuments({
+            role: "user",
+            useYn: "Y",
+            groupId: dormantGroupId
+        })
+    ])
+
+    // 정상 회원수 = 전체회원(정상, 휴면) - 휴면
+    const normalUserCount = totalUserCount - dormantUserCount
+
+    return{
+        // 탈퇴하지 않은 전체 일반 회원 수
+        totalUserCount,
+
+        // 탈퇴한 일반 회원 수
+        withdrawnUserCount,
+
+        // 탈퇴하지 않았고 휴면 그룹이 아닌 회원 수
+        normalUserCount,
+
+        // 탈퇴하지 않았고 휴면 그룹에 속한 회원 수
+        dormantUserCount
     }
-    if(groupId) query.groupId = groupId
-
-    return User.find(query)
-        .select("-userPw")          // 비밀번호 제외 모든 필드 정보 제공
-        .sort({ [sortBy]: sortOrder })
-        .skip(skip)
-        .limit(limit)
 }
 
-// 회원 목록 개수
-export async function countUsers({ search, role, groupId }) {
-    const query = { role: 'user' }
-    
-    if(search) {
+
+// 검색/그룹 필터가 적용된 전체 유저 조회
+// (정렬·페이지네이션은 여기서 하지 않고, 이후 controller에서 계산값까지 합친 뒤 처리함)
+export async function findAllMatchingUsers({ search, groupId }) {
+    const query = { role: "user" }
+
+    if (search) {
         const regex = new RegExp(search, "i")
+
+        // 검색어와 그룹명이 일치하는 그룹들의 ID 조회 (소속 그룹 검색용)
+        const matchedGroups = await Group.find({ groupName: regex }).select("_id")
+        const matchedGroupIds = matchedGroups.map(g => g._id.toString())
+
+        // 닉네임 또는 소속 그룹명 중 하나라도 일치하면 검색 결과에 포함
         query.$or = [
-            { userId: regex },
             { nickname: regex },
-            { email: regex}
+            { groupId: { $in: matchedGroupIds } }
         ]
     }
     if (groupId) query.groupId = groupId
 
-    return User.countDocuments(query)
+    return User.find(query).select("-userPw")
 }
 
 // 회원 상세 목록 조회

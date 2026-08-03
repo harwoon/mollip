@@ -1,0 +1,281 @@
+.form {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 380px;
+    min-height: 0;
+    margin-top: 15px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    overflow-y: auto;
+}
+
+.profileArea {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profilePreview {
+    width: 75px;
+    height: 75px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: 35px;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+}
+
+.profileButton {
+    min-height: 35px;
+    padding: 0 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+    font-weight: 600;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+}
+
+.profileButton:hover {
+    color: var(--color-primary-700);
+    border-color: var(--color-primary-400);
+}
+
+.idRow {
+    width: 100%;
+
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.idRow .input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.input {
+    width: 100%;
+    min-height: 45px;
+    padding: 0 15px;
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+}
+
+.input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary-500) !important;
+    box-shadow: 0 0 0 3px var(--color-focus) !important;
+}
+
+.checkButton {
+    flex: 0 0 90px;
+    min-height: 45px;
+    padding: 0 10px;
+
+    color: var(--color-surface);
+    font-size: var(--font-xs);
+    font-weight: 700;
+
+    background: var(--color-primary-600);
+    border: 1px solid var(--color-primary-600);
+    border-radius: 10px;
+}
+
+.checkButton:hover {
+    background: var(--color-primary-700);
+}
+
+.signupButton {
+    width: 100%;
+    min-height: 45px;
+    padding: 0 20px;
+
+    color: var(--color-surface);
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: var(--color-primary-600);
+    border: 1px solid var(--color-primary-600);
+    border-radius: 10px;
+}
+
+.signupButton:hover {
+    background: var(--color-primary-700);
+}
+
+.loginGuide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.loginGuide a {
+    color: var(--color-primary-700);
+    font-weight: 700;
+}
+
+
+/* =========================
+   회원가입 알림 모달
+========================= */
+
+.alertOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(36, 33, 42, 0.25);
+}
+
+.alertModal {
+    width: min(340px, 100%);
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 15px;
+    box-shadow:
+        0 15px 40px
+        rgba(36, 33, 42, 0.2);
+}
+
+.alertHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.alertHeader strong {
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+.alertCloseButton {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: 16px;
+
+    background: var(--color-page);
+    border-radius: 50%;
+}
+
+.alertText {
+    margin-top: 10px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    line-height: 1.5;
+}
+
+.alertConfirmButton {
+    align-self: flex-end;
+
+    min-width: 80px;
+    min-height: 38px;
+    margin-top: 20px;
+    padding: 0 15px;
+
+    color: var(--color-surface);
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: var(--color-primary-600);
+    border-radius: 10px;
+}
+
+.alertConfirmButton:hover {
+    background: var(--color-primary-700);
+}
+
+@media (max-height: 750px) {
+    .profilePreview {
+        width: 60px;
+        height: 60px;
+    }
+
+    .profileButton {
+        min-height: 30px;
+    }
+
+    .input,
+    .checkButton,
+    .signupButton {
+        min-height: 40px;
+    }
+}
+
+.profileInput {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+    border: 0;
+}
+
+.profileImage {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+}

@@ -1,8 +1,70 @@
 import User from "../models/User.js";
+import { config } from "../config.mjs"
+
+
+// 휴면 회원 그룹이동
+export async function assignDormantUsers(
+    cutoffDateString,
+    cutoffCreatedAt,
+) {
+    return User.updateMany(
+        {
+            // 일반 회원만
+            role: "user",
+
+            // 탈퇴하지 않은 회원만
+            useYn: "Y",
+
+            // 이미 휴면 그룹인 회원은 제외
+            groupId: {
+                $ne: config.group.dormantId,
+            },
+
+            $or: [
+                {
+                    /*
+                     * 한 번이라도 공부한 회원
+                     *
+                     * cutoffDateString보다 이전에
+                     * 마지막으로 공부한 회원
+                     */
+                    lastStudyDate: {
+                        $ne: "",
+                        $lte: cutoffDateString,
+                    },
+                },
+                {
+                    /*
+                     * 가입 후 한 번도 공부하지 않은 회원
+                     *
+                     * 가입한 지 30일이 지난 경우에만
+                     * 휴면 처리
+                     */
+                    lastStudyDate: {
+                        $in: ["", null],
+                    },
+
+                    createdAt: {
+                        $lt: cutoffCreatedAt,
+                    },
+                },
+            ],
+        },
+        {
+            $set: {
+                groupId:
+                    config.group.dormantId,
+            },
+        },
+    )
+}
 
 // id 중복확인 및 단일 유저 조회
 export async function findByUserid(userId) {
-    return User.findOne({ userId });
+    return User.findOne({ 
+        userId,
+        useYn: "Y",
+    });
 }
 
 // 회원가입
@@ -52,16 +114,40 @@ export async function updateStreak(
 // 주간 총 공부시간 바탕으로 그룹 나누기위한 유저 가져오는 함수
 export async function getAllUsers() {
     return User.find({
-        // 탈퇴한 사용자 제외
         useYn: "Y",
 
-        // 관리자는 그룹 배정 대상에서 제외
         role: {
-            $ne: "admin"
-        }
-    }).select("_id groupId");
-}
+            $ne: "admin",
+        },
 
+        // 휴면 회원은 주간 그룹 배정에서 제외
+        groupId: {
+            $ne: config.group.dormantId,
+        },
+    }).select("_id groupId")
+}
+// 공부시간 생기면 휴면 그룹 해제하기
+export async function reactivateDormantUser(
+    userId,
+    groupId,
+) {
+    return User.updateOne(
+        {
+            _id: userId,
+            role: "user",
+            useYn: "Y",
+
+            // 실제로 휴면 그룹일 때만 변경
+            groupId:
+                config.group.dormantId,
+        },
+        {
+            $set: {
+                groupId: String(groupId),
+            },
+        },
+    )
+}
 // 주간 유저 랭킹을 위한 함수
 export async function getUserGroup(userId) {
     return User.findOne({
@@ -154,29 +240,72 @@ export async function findGroupByUserId(userId) {
 
 // 회원 탈퇴 처리 : User 문서는 삭제하지 않고 탈퇴 상태로 수정
 export async function withdrawUser(userId, withdrawalReason, totalStudyTime) {
-    return await User.findOneAndUpdate(
-        {
-            // 현재 이용 중인 사용자만 탈퇴 처리 (탈퇴사용자가 탈퇴가 아님)
-            _id: userId,
-            useYn: "Y"
-        },
-        {
-            $set: {
-                useYn: "N",
-                withdrawalReason,
-                withdrawnAt: new Date(),
-                totalStudyTime,
-                groupId: null,
+    // 현재 이용 중인 사용자 조회
+    const user = await User.findOne({
+        _id: userId,
+        useYn: "Y"
+    })
 
-                // 연속 학습 정보 초기화
-                currentStreak: 0,
-                maxStreak: 0,
-                lastStudyDate: ""
-            }
+    if (!user) {
+        return null
+    }
+
+    // 탈퇴 전 아이디, 이메일 보관
+    const originalUserId = user.userId
+    const originalEmail = user.email
+    const uniqueSuffix = user._id.toString()
+
+    user.withdrawnUserId = originalUserId
+    user.withdrawnEmail = originalEmail
+
+    // 기존 아이디 변경 | 동일 아이디 재가입할 수 있도록 unique 인덱스 비움
+    user.userId = `withdrawn_${originalUserId}_${uniqueSuffix}`
+
+    // 기존 이메일 변경 | 동일 이메일 재가입할 수 있도록 unique 인덱스 비움
+    const atIndex = originalEmail.lastIndexOf("@")
+    // 정상적인 이메일 형식인 경우
+    if (atIndex !== -1) {
+        // 이메일의 아이디(local)와 도메인(domain) 분리
+        const emailLocal = originalEmail.slice(0, atIndex)
+        const emailDomain = originalEmail.slice(atIndex + 1)
+
+        // 이메일 형식을 유지하면서 중복되지 않는 값으로 변경
+        user.email = `${emailLocal}+withdrawn_${uniqueSuffix}@${emailDomain}`
+    } else {
+        // 기존 이메일 형식이 비정상인 경우 방어 처리
+        user.email = `withdrawn_${uniqueSuffix}@withdrawn.local`
+    }
+
+    // 탈퇴 정보 저장
+    user.useYn = "N"
+    user.withdrawalReason = withdrawalReason
+    user.withdrawnAt = new Date()
+    user.totalStudyTime = totalStudyTime
+    user.groupId = null
+
+    // 연속 학습 정보 초기화
+    user.currentStreak = 0
+    user.maxStreak = 0
+    user.lastStudyDate = ""
+
+    return await user.save()
+}
+
+// 그룹에 배정된 활성 일반 회원 현황
+export async function findActiveUsersWithGroup() {
+    return User.find({
+        useYn: "Y",
+
+        // 관리자는 그룹 인원에서 제외
+        role: {
+            $ne: "admin"
         },
-        {
-            // 수정된 User 문서 반환
-            new: true
+
+        // 그룹이 배정된 사용자만 조회
+        groupId: {
+            $nin: [null, ""]
         }
-    )
+    })
+        .select("_id groupId")
+        .lean()
 }

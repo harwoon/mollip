@@ -1,85 +1,159 @@
+import styles from "./GroupGoalItem.module.css"
+
 const GOAL_LABELS = {
-  MIN_STUDY_TIME: "주간 최소 공부시간",
-  CHALLENGE_STUDY_TIME: "주간 도전 공부시간",
-  TODO_COMPLETION_RATE: "개인 Todo 학습률",
-  ATTENDANCE_DAYS: "주간 출석일",
-};
+    MIN_STUDY_TIME: "주간 최소 공부시간",
+    CHALLENGE_STUDY_TIME: "주간 도전 공부시간",
+    TODO_COMPLETION_RATE: "개인 Todo 학습률",
+    ATTENDANCE_DAYS: "주간 출석일"
+}
 
-/*
- * 목표 단위에 맞게 숫자 표시
- */
-function formatGoalValue(value, unit) {
-  if (unit === "HOUR") {
-    return `${value}시간`;
-  }
+function formatNumber(value) {
+    const numberValue = Number(value) || 0
 
-  if (unit === "PERCENT") {
-    return `${value}%`;
-  }
+    if (Number.isInteger(numberValue)) {
+        return String(numberValue)
+    }
 
-  if (unit === "DAY") {
-    return `${value}일`;
-  }
-
-  return value;
+    return numberValue
+        .toFixed(2)
+        .replace(/\.?0+$/, "")
 }
 
 /*
- * 목표 제목 만들기
+ * 시간(float)을 "0시간 00분" 형식으로 변환
+ * 예)
+ * 0.18 -> 0시간 11분
+ * 1    -> 1시간 00분
+ * 2.5  -> 2시간 30분
  */
-function getGoalTitle(goal) {
-  const label = GOAL_LABELS[goal.goalType] || "그룹 목표";
+function formatHourMinute(hourValue) {
+    const safeHourValue = Math.max(Number(hourValue) || 0, 0)
 
-  if (goal.goalType === "MIN_STUDY_TIME") {
-    return `${label} ${goal.targetValue}시간 달성`;
-  }
+    const totalMinutes = Math.round(safeHourValue * 60)
 
-  if (goal.goalType === "CHALLENGE_STUDY_TIME") {
-    return `${label} ${goal.targetValue}시간 달성`;
-  }
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
 
-  if (goal.goalType === "TODO_COMPLETION_RATE") {
-    return `${label} ${goal.targetValue}% 이상 달성`;
-  }
-
-  if (goal.goalType === "ATTENDANCE_DAYS") {
-    return `${label} ${goal.targetValue}일 이상 달성`;
-  }
-
-  return label;
+    return `${hours}시간 ${String(minutes).padStart(2, "0")}분`
 }
 
-export default function GroupGoalItem({ goal }) {
-  const { currentValue, targetValue, unit, achievementRate, completed } = goal;
+// 현재값 표시
+function formatCurrentValue(value, unit) {
+    switch (unit) {
+        case "HOUR":
+            return formatHourMinute(value)
 
-  return (
-    <div className="groupGoalItem">
-      <div className="groupGoalItemTop">
-        <div className="groupGoalTitleArea">
-          <span
-            className={completed ? "goalCheckbox completed" : "goalCheckbox"}
-          >
-            {completed ? "✓" : ""}
-          </span>
+        case "PERCENT":
+            return `${formatNumber(value)}%`
 
-          <span className="groupGoalTitle">{getGoalTitle(goal)}</span>
-        </div>
+        case "DAY":
+            return `${formatNumber(value)}일`
 
-        <span className="groupGoalValue">
-          {formatGoalValue(currentValue, unit)}
-          {" / "}
-          {formatGoalValue(targetValue, unit)}
-        </span>
-      </div>
+        default:
+            return formatNumber(value)
+    }
+}
 
-      <div className="groupGoalProgressTrack">
-        <div
-          className="groupGoalProgressBar"
-          style={{
-            width: `${achievementRate}%`,
-          }}
-        />
-      </div>
-    </div>
-  );
+// 목표값 표시
+function formatTargetValue(value, unit) {
+    switch (unit) {
+        case "HOUR":
+            return `${formatNumber(value)}시간`
+
+        case "PERCENT":
+            return `${formatNumber(value)}%`
+
+        case "DAY":
+            return `${formatNumber(value)}일`
+
+        default:
+            return formatNumber(value)
+    }
+}
+
+
+export default function GroupGoalItem({
+    goal,
+    color = "#dd6262"
+}) {
+    const safeProgressRate = Math.min(
+        Math.max(Number(goal.progressRate) || 0, 0),
+        100
+    )
+
+    const goalTitle =
+        GOAL_LABELS[goal.goalType] || goal.goalType
+
+    return (
+        <article
+            className={styles.item}
+            style={{
+                "--goal-color": color
+            }}
+        >
+            <div className={styles.content}>
+                <div className={styles.titleArea}>
+                    <span
+                        className={`
+                            ${styles.checkBox}
+                            ${goal.isAchieved
+                                ? styles.checked
+                                : ""
+                            }
+                        `}
+                        aria-label={
+                            goal.isAchieved
+                                ? "목표 달성"
+                                : "목표 미달성"
+                        }
+                    >
+                        {goal.isAchieved && "✓"}
+                    </span>
+
+                    <span
+                        className={styles.title}
+                        title={goalTitle}
+                    >
+                        {goalTitle}
+                    </span>
+                </div>
+
+                <strong className={styles.value}>
+                    <span className={styles.currentValue}>
+                        {formatCurrentValue(
+                            goal.currentValue,
+                            goal.unit
+                        )}
+                    </span>
+
+                    <span className={styles.divider}>
+                        {" / "}
+                    </span>
+
+                    <span>
+                        {formatTargetValue(
+                            goal.targetValue,
+                            goal.unit
+                        )}
+                    </span>
+                </strong>
+            </div>
+
+            <div
+                className={styles.progressTrack}
+                role="progressbar"
+                aria-label={`${goalTitle} 진행률`}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={safeProgressRate}
+            >
+                <div
+                    className={styles.progressFill}
+                    style={{
+                        width: `${safeProgressRate}%`
+                    }}
+                />
+            </div>
+        </article>
+    )
 }

@@ -3,6 +3,9 @@ import dayjs from "dayjs"
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { getWeeklyStudyRecords } from "../api/weekly"
 
+import styles from "./WeeklyStudyTimeChart.module.css"
+import { getChartTheme } from "../../../../util/chartTheme.js"
+
 const WEEK_DAYS = ["월", "화", "수", "목", "금", "토", "일"]
 
 function makeWeeklyChartData(records, selectedDate) {
@@ -44,31 +47,19 @@ function CustomTooltip({ active, payload }) {
   const minutes = totalMinutes % 60
 
   return (
-    <div
-      style={{
-        padding: "12px",
-        backgroundColor: "#fff",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-      }}
-    >
-      <p style={{ margin: "0 0 5px", color: "#8a6bc7", fontWeight: "bold" }}>
-        {name}요일
-      </p>
-
-      <p style={{ margin: "0 0 5px", color: "#888", fontSize: "12px" }}>
-        {dayjs(date).format("YYYY.MM.DD")}
-      </p>
-
-      <p style={{ margin: 0, color: "#333" }}>
-        {hours}시간 {minutes}분
-      </p>
+    <div className={styles.tooltip}>
+      <p className={styles.tooltipTitle}>{name}요일</p>
+      <p className={styles.tooltipDate}>{dayjs(date).format("YYYY.MM.DD")}</p>
+      <p className={styles.tooltipTime}>{hours}시간 {minutes}분</p>
     </div>
   )
 }
 
 export default function WeeklyStudyTimeChart({ selectedDate }) {
   const [chartData, setChartData] = useState([])
+
+  // 차트 변수
+  const chartTheme = getChartTheme()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,63 +79,72 @@ export default function WeeklyStudyTimeChart({ selectedDate }) {
   }, [selectedDate])
 
   return (
-    <section
-      style={{
-        width: "100%",
-        padding: "20px",
-        boxSizing: "border-box",
-        backgroundColor: "#fcfbf9",
-        borderRadius: "20px",
-      }}
-    >
-      <h3 style={{ margin: "0 0 20px", color: "#333", fontSize: "1.2rem" }}>
-        주간 총 공부 시간
-      </h3>
+    <section className={`commonSection ${styles.container}`}>
+      <h3 className={styles.title}>주간 총 공부 시간</h3>
 
       {chartData.length > 0 ? (
-        <div style={{ width: "100%", height: "250px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={chartData}
-              margin={{ top: 20, right: 20, left: -20, bottom: 0 }}
+        <div className={styles.chartArea}>
+          <ResponsiveContainer width="100%"height="100%">
+            <LineChart data={chartData}
+              margin={{
+                top: 20,
+                right: 20,
+                left: -20,
+                bottom: 0
+              }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ddd" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke={chartTheme.colors.grid}
+              />
 
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#555", fontSize: 12, fontWeight: "bold" }}
+                tick={{
+                  fill: chartTheme.colors.axisStrong,
+                  fontSize: chartTheme.fontSizes.md,
+                  fontWeight: 700
+                }}
                 dy={10}
               />
 
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#888", fontSize: 12 }}
+                tick={{
+                  fill: chartTheme.colors.axis,
+                  fontSize: chartTheme.fontSizes.md
+                }}
                 tickFormatter={(value) => `${value}H`}
               />
 
               <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ stroke: "#d9d1ec", strokeDasharray: "3 3" }}
+                cursor={{
+                  stroke: chartTheme.colors.primarySoft,
+                  strokeDasharray: "3 3"
+                }}
               />
 
               <Line
                 type="linear"
                 dataKey="hours"
-                stroke="#8a6bc7"
-                strokeWidth={2}
+                stroke={chartTheme.colors.primary}
+                strokeWidth={chartTheme.sizes.lineWidth}
                 dot={false}
-                activeDot={{ r: 5, fill: "#8a6bc7" }}
+                activeDot={{
+                  r: chartTheme.sizes.dotRadius,
+                  fill: chartTheme.colors.primary
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <p style={{ marginTop: "40px", color: "#aaa", textAlign: "center" }}>
-          공부 기록이 없습니다.
-        </p>
+        <p className={styles.emptyMessage}>공부 기록이 없습니다.</p>
       )}
     </section>
   )

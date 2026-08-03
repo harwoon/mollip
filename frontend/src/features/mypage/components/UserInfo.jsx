@@ -263,8 +263,8 @@ export default function UserInfo(){
     }
 
     return(
-        <section className={styles.USerInfo}>
-            <div className={styles.USerInfoHeader}>
+        <section className={`commonSection ${styles.userInfo}`}>
+            <div className={styles.userInfoHeader}>
                 <div>
                     <h2>내 정보 수정</h2>
                     <p>내 정보를 관리하고 수정할 수 있습니다.</p>

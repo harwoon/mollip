@@ -7,6 +7,20 @@
     border-radius: 12px;
     padding: 16px 20px;
     flex: 1;
+
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.summaryCard:hover {
+    background-color: var(--color-primary-400);   /* 메인 컬러 */
+    border-color: var(--color-primary-400);
+}
+
+.summaryCard:hover .summaryCardLabel,
+.summaryCard:hover .summaryCardValue,
+.summaryCard:hover .summaryCardUnit,
+.summaryCard:hover .summaryCardDiff {
+    color: #ffffff;   /* 배경이 진해지니 글씨는 흰색으로 */
 }
 
 .summaryCardIcon {
@@ -17,9 +31,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #7c5cfc;
+    color: var(--color-primary-400);
     font-size: 20px;
     flex-shrink: 0;
+}
+
+.summaryCard:hover .summaryCardIcon {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .summaryCardLabel {
@@ -43,6 +62,6 @@
 
 .summaryCardDiff {
     font-size: 12px;
-    color: #7c5cfc;
+    color: var(--color-primary-400);
     margin: 4px 0 0 0;
 }

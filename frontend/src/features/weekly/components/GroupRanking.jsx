@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { getWeeklyGroupRanking } from "../api/groupRanking.js"
 
+import styles from "./GroupRanking.module.css"
+
 
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
@@ -55,12 +57,12 @@ function formatStudyTime(rawSeconds) {
 
     if (loading) {
         return (
-            <p>주간 랭킹을 불러오는 중...</p>
+            <p className={styles.stateMessage}>주간 랭킹을 불러오는 중...</p>
         )
     }
 
     if (error) {
-        return <p>{error}</p>
+        return <p className={`${styles.stateMessage} ${styles.errorMessage}`}>{error}</p>
     }
 
 
@@ -107,54 +109,48 @@ function formatStudyTime(rawSeconds) {
                 endIndex,
             )
 
-   
-
-
     return (
-        <section >
-
-
+        <section className={styles.rankingContainer}>
             {ranking.length === 0 ? (
-                <p>
-                    표시할 랭킹이 없습니다.
-                </p>
+                <p className={styles.stateMessage}>표시할 랭킹이 없습니다.</p>
             ) : (
-                <ol >
-                    {visibleRanking.map((user, index) => {
-                        const imageUrl = user.profileImg
+                <ol className={styles.rankingList}>
+                    {visibleRanking.map(
+                        (user, index) => {const imageUrl = user.profileImg
                             ? `${API_URL}${user.profileImg}`
                             : "/images/noprofile.png"
 
-                        return (
-                            <li key={user.userId}>
-                                <strong>
-                                    {startIndex + index + 1}위
-                                </strong>
+                            const isCurrentUser = String(user.userId) === String(currentUserId)
 
-                                <img
-                                    src={imageUrl}
-                                    alt={`${user.nickname} 프로필`}
-                                    onError={(event) => {
-                                        console.error(
-                                            "이미지 로드 실패 주소:",
-                                            event.currentTarget.src,
-                                        )
-                                    }}
-                                />
+                            return (
+                                <li key={user.userId} 
+                                    className={`${styles.rankingItem} ${isCurrentUser ? styles.currentUser : ""}`}
+                                >
+                                    <strong className={styles.rank}>
+                                        {startIndex + index +1}
+                                    </strong>
 
-                                <span>{user.nickname}</span>
+                                    <img 
+                                        className={styles.profileImage}
+                                        src={imageUrl}
+                                        alt={`${user.nickname} 프로필`}
+                                        onError={(event) => {
+                                            console.error("이미지 로드 실패 주소:",
+                                                event.currentTarget.src
+                                            )
+                                        }}
+                                    />
 
-                                <span>
-                                    {formatStudyTime(
-                                        user.totalStudyTime,
-                                    )}
-                                </span>
-                            </li>
-                        )
-                    })}
+                                    <span className={styles.nickname}>{user.nickname}</span>
+                                    <span className={styles.studyTime}>
+                                        {formatStudyTime(user.totalStudyTime)}
+                                    </span>
+                                </li>
+                            )
+                        }
+                    )}
                 </ol>
-            )
-            }
-        </section >
+            )}
+        </section>
     )
 }

@@ -1,31 +1,74 @@
 import SummaryCard from "./SummaryCard.jsx"
-import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine } from "react-icons/ri"
+import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine, RiTimeLine } from "react-icons/ri"
+import { HiOutlineFire } from "react-icons/hi"
 
 import "./SummaryRow.css"
+
+// 초 단위를 시간과 분으로 변경
+function formatStudyTime(totalSeconds) {
+    const seconds =
+        Number(totalSeconds) || 0
+
+    const hours = Math.floor(
+        seconds / 3600,
+    )
+
+    const minutes = Math.floor(
+        (seconds % 3600) / 60,
+    )
+
+    if (hours === 0) {
+        return `${minutes}분`
+    }
+
+    if (minutes === 0) {
+        return `${hours.toLocaleString()}시간`
+    }
+
+    return `${hours.toLocaleString()}시간 ${minutes}분`
+}
 
 export default function SummaryRow({ summary }) {
     return (
         <div className="summaryRow">
             <SummaryCard
-                icon={<RiGroupLine/>}
+                icon={<RiUserSmileLine />}
+                label="전체 사용자 수"
+                value={summary.totalUserCount}
+                unit="명"
+                diff={summary}
+            />
+            <SummaryCard
+                icon={<RiGroupLine />}
                 label="운영중인 그룹 수"
                 value={summary.groupCount}
                 unit="개"
-                diff={summary.groupCountDiff}
+                diff={summary}
             />
             <SummaryCard
-                icon={<RiUserSmileLine/>}
-                label="전체 사용자 수"
-                value={summary.userCount}
+                icon={<HiOutlineFire />}
+                label="현재 공부 중 인원"
+                value={summary.studyingCount}
                 unit="명"
-                diff={summary.userCountDiff}
+                diff={summary}
+            />
+            <SummaryCard
+                icon={<RiTimeLine />}
+                label="이번 주 이용자 총 공부시간"
+                value={formatStudyTime(
+                    summary.weeklyTotalTime,
+                )}
+                unit=""
+                diff={
+                    summary.weeklyTotalTimeDiff
+                }
             />
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}
-                label="이번 주 목표 달성률"
+                label="이번 주 todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
-                diff={summary.avgGoalRateDiff}
+                diff={summary}
             />
         </div>
     )

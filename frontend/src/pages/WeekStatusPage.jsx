@@ -8,6 +8,8 @@ import GroupWeeklyStudyChart from "../features/weekly/components/GroupWeeklyStud
 import GroupRanking from "../features/weekly/components/GroupRanking.jsx";
 import GroupTodoAchievementChart from "../features/weekly/components/GroupTodoAchievementChart.jsx";
 
+import styles from "./WeekStatusPage.module.css";
+
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7";
 
 export default function WeekStatusPage() {
@@ -18,35 +20,45 @@ export default function WeekStatusPage() {
     const hasGroup = groupId && groupId !== DEFAULT_GROUP_ID;
 
     return (
-        <main className="weekStatusPage">
+        <div className="app-page app-page--fixed">
+        <main className={`app-page__inner ${styles.page}`}>
             {/* 개인 통계 */}
-            <section className="personalStatistics">
-                <h2>개인 통계</h2>
-                <div className="statisticsGrid">
-                    <WeeklyStudyTimeChart selectedDate={selectedDate} />
-                    <SubjectStudyTimeChart selectedDate={selectedDate} />
-                    <GoalAchievementChart selectedDate={selectedDate} />
-                </div>
+            <section className={styles.statisticsSection}>
+            <h2 className={styles.sectionTitle}>개인 통계</h2>
+
+            <div className={styles.statisticsPanel}>
+                <WeeklyStudyTimeChart selectedDate={selectedDate} />
+
+                <SubjectStudyTimeChart selectedDate={selectedDate} />
+
+                <GoalAchievementChart selectedDate={selectedDate} />
+            </div>
             </section>
+
             {/* 휴면 그룹이 아닐 때만 그룹 영역 전체 표시 */}
             {hasGroup && (
-                <>
-                    {/* 그룹 통계 */}
-                    <section className="groupStatistics">
-                        <h2>그룹 통계</h2>
-                        <div className="statisticsGrid">
-                            <GroupStreakChart selectedDate={selectedDate} />
-                            <GroupWeeklyStudyChart selectedDate={selectedDate} />
-                            <GroupTodoAchievementChart selectedDate={selectedDate} />
-                        </div>
-                    </section>
-                </>
+            <section className={styles.statisticsSection}>
+                <h2 className={styles.sectionTitle}>그룹 통계</h2>
+
+                <div className={styles.statisticsPanel}>
+                <GroupWeeklyStudyChart selectedDate={selectedDate} />
+
+                <GroupStreakChart selectedDate={selectedDate} />
+
+                <GroupTodoAchievementChart selectedDate={selectedDate} />
+                </div>
+            </section>
             )}
+
             {/* 그룹 내 랭킹 */}
-            <section className="groupRanking">
-                <h2>그룹 내 랭킹 순위</h2>
+            <section className={styles.rankingSection}>
+            <h2 className={styles.sectionTitle}>그룹 내 랭킹 순위</h2>
+
+            <div className={styles.rankingPanel}>
                 <GroupRanking selectedDate={selectedDate} />
+            </div>
             </section>
         </main>
-    );
+        </div>
+    )
 }

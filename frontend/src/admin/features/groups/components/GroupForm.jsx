@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react"
-import { HexColorPicker } from "react-colorful"
+import { useEffect, useState } from "react";
+import { HexColorPicker } from "react-colorful";
+
 import {
     createGroup,
-    updateGroup
-} from "../api/group"
-import "./GroupForm.css"
+    updateGroup,
+} from "../api/group.js";
+
+import "./GroupForm.css";
 
 /*
  * 그룹 goals 배열에서
@@ -13,87 +15,129 @@ import "./GroupForm.css"
 function getGoalTarget(
     goals,
     goalType,
-    fallbackValue
+    fallbackValue,
 ) {
     const goal = goals?.find(
-        (goal) => goal.goalType === goalType
-    )
+        (goal) => goal.goalType === goalType,
+    );
 
-    return goal?.targetValue ?? fallbackValue
+    return goal?.targetValue ?? fallbackValue;
+}
+
+/*
+ * 그룹 조건 시간을 시간 단위로 반환
+ *
+ * 통계 API:
+ * groupConditionHours = 시간
+ * groupTime = 초
+ */
+function getGroupTimeHours(group) {
+    /*
+     * 통계 API가 내려준 시간 단위 값이 있으면 우선 사용
+     */
+    if (
+        group?.groupConditionHours !== undefined &&
+        group?.groupConditionHours !== null
+    ) {
+        return (
+            Number(group.groupConditionHours) || 0
+        );
+    }
+
+    /*
+     * groupConditionHours가 없다면
+     * groupTime을 초에서 시간으로 변환
+     */
+    const groupTimeSeconds =
+        Number(group?.groupTime) || 0;
+
+    return groupTimeSeconds / 3600;
 }
 
 export default function GroupForm({
     mode,
     group,
     onSuccess,
-    onCancel
+    onCancel,
 }) {
     const [groupName, setGroupName] =
-        useState("")
+        useState("");
 
     const [groupColor, setGroupColor] =
-        useState("#FFFFFF")
+        useState("#FFFFFF");
 
     const [groupTime, setGroupTime] =
-        useState("")
+        useState("");
 
     /*
      * 목표 4개
      */
-    const [minStudyTime, setMinStudyTime] =
-        useState("")
+    const [
+        minStudyTime,
+        setMinStudyTime,
+    ] = useState("");
 
     const [
         challengeStudyTime,
-        setChallengeStudyTime
-    ] = useState("")
+        setChallengeStudyTime,
+    ] = useState("");
 
     const [
         todoCompletionRate,
-        setTodoCompletionRate
-    ] = useState("50")
+        setTodoCompletionRate,
+    ] = useState("50");
 
     const [
         attendanceDays,
-        setAttendanceDays
-    ] = useState("3")
+        setAttendanceDays,
+    ] = useState("3");
 
     const [showPicker, setShowPicker] =
-        useState(false)
+        useState(false);
 
     const [error, setError] =
-        useState("")
+        useState("");
 
     /*
-     * 수정 모드에서는 기존 그룹과
-     * 기존 목표값을 입력창에 넣기
+     * 수정 모드:
+     * 기존 그룹 정보와 목표값을 입력창에 넣음
+     *
+     * 생성 모드:
+     * 기본값으로 초기화
      */
     useEffect(() => {
         if (mode === "edit" && group) {
+            /*
+             * 서버의 초 단위 값을
+             * 화면에서 사용할 시간 단위로 변환
+             */
             const currentGroupTime =
-                Number(group.groupTime ?? 0)
+                getGroupTimeHours(group);
 
             setGroupName(
-                group.groupName || ""
-            )
+                group.groupName || "",
+            );
 
             setGroupColor(
-                group.groupColor || "#FFFFFF"
-            )
+                group.groupColor || "#FFFFFF",
+            );
 
+            /*
+             * 입력창에는 시간 단위 표시
+             */
             setGroupTime(
-                String(group.groupTime ?? "")
-            )
+                String(currentGroupTime),
+            );
 
             setMinStudyTime(
                 String(
                     getGoalTarget(
                         group.goals,
                         "MIN_STUDY_TIME",
-                        currentGroupTime + 1
-                    )
-                )
-            )
+                        currentGroupTime + 1,
+                    ),
+                ),
+            );
 
             setChallengeStudyTime(
                 String(
@@ -102,91 +146,97 @@ export default function GroupForm({
                         "CHALLENGE_STUDY_TIME",
                         Math.min(
                             currentGroupTime + 10,
-                            168
-                        )
-                    )
-                )
-            )
+                            168,
+                        ),
+                    ),
+                ),
+            );
 
             setTodoCompletionRate(
                 String(
                     getGoalTarget(
                         group.goals,
                         "TODO_COMPLETION_RATE",
-                        50
-                    )
-                )
-            )
+                        50,
+                    ),
+                ),
+            );
 
             setAttendanceDays(
                 String(
                     getGoalTarget(
                         group.goals,
                         "ATTENDANCE_DAYS",
-                        3
-                    )
-                )
-            )
+                        3,
+                    ),
+                ),
+            );
         } else {
             /*
              * 생성 모드 기본값
              */
-            setGroupName("")
-            setGroupColor("#FFFFFF")
-            setGroupTime("")
-            setMinStudyTime("")
-            setChallengeStudyTime("")
-            setTodoCompletionRate("50")
-            setAttendanceDays("3")
+            setGroupName("");
+            setGroupColor("#FFFFFF");
+            setGroupTime("");
+
+            setMinStudyTime("");
+            setChallengeStudyTime("");
+
+            setTodoCompletionRate("50");
+            setAttendanceDays("3");
         }
 
-        setShowPicker(false)
-        setError("")
-    }, [mode, group])
+        setShowPicker(false);
+        setError("");
+    }, [mode, group]);
 
     /*
      * 그룹 조건 시간이 변경되면
      * 기본 목표 시간을 자동 계산
      *
-     * 30시간
-     * → 최소 목표 31시간
-     * → 도전 목표 40시간
+     * 예:
+     * 그룹 조건 30시간
+     * 최소 목표 31시간
+     * 도전 목표 40시간
      */
-    const handleGroupTimeChange = (e) => {
-        const value = e.target.value
+    function handleGroupTimeChange(event) {
+        const value = event.target.value;
 
-        setGroupTime(value)
+        setGroupTime(value);
 
         if (value === "") {
-            setMinStudyTime("")
-            setChallengeStudyTime("")
-            return
+            setMinStudyTime("");
+            setChallengeStudyTime("");
+            return;
         }
 
-        const time = Number(value)
+        const time = Number(value);
 
         if (Number.isNaN(time)) {
-            return
+            return;
         }
 
         setMinStudyTime(
-            String(time + 1)
-        )
+            String(time + 1),
+        );
 
         setChallengeStudyTime(
             String(
-                Math.min(time + 10, 168)
-            )
-        )
+                Math.min(time + 10, 168),
+            ),
+        );
     }
 
     /*
      * 그룹 생성 또는 수정
      */
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        setError("")
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setError("");
 
+        /*
+         * 빈 값 검사
+         */
         if (
             !groupName.trim() ||
             !groupColor.trim() ||
@@ -197,25 +247,26 @@ export default function GroupForm({
             attendanceDays === ""
         ) {
             setError(
-                "그룹 정보와 목표를 모두 입력해주세요."
-            )
-            return
+                "그룹 정보와 목표를 모두 입력해주세요.",
+            );
+
+            return;
         }
 
         const time =
-            Number(groupTime)
+            Number(groupTime);
 
         const minStudy =
-            Number(minStudyTime)
+            Number(minStudyTime);
 
         const challengeStudy =
-            Number(challengeStudyTime)
+            Number(challengeStudyTime);
 
         const todoRate =
-            Number(todoCompletionRate)
+            Number(todoCompletionRate);
 
         const attendance =
-            Number(attendanceDays)
+            Number(attendanceDays);
 
         /*
          * 숫자 검사
@@ -228,9 +279,10 @@ export default function GroupForm({
             Number.isNaN(attendance)
         ) {
             setError(
-                "시간과 목표값은 숫자로 입력해주세요."
-            )
-            return
+                "시간과 목표값은 숫자로 입력해주세요.",
+            );
+
+            return;
         }
 
         /*
@@ -238,9 +290,10 @@ export default function GroupForm({
          */
         if (time < 0 || time >= 168) {
             setError(
-                "그룹 조건 시간은 0 이상 168시간 미만이어야 합니다."
-            )
-            return
+                "그룹 조건 시간은 0 이상 168시간 미만이어야 합니다.",
+            );
+
+            return;
         }
 
         /*
@@ -251,9 +304,10 @@ export default function GroupForm({
             minStudy > 168
         ) {
             setError(
-                "최소 공부시간 목표는 그룹 조건 시간보다 높고 168시간 이하여야 합니다."
-            )
-            return
+                "최소 공부시간 목표는 그룹 조건 시간보다 높고 168시간 이하여야 합니다.",
+            );
+
+            return;
         }
 
         /*
@@ -264,9 +318,10 @@ export default function GroupForm({
             challengeStudy > 168
         ) {
             setError(
-                "도전 공부시간 목표는 최소 공부시간 목표보다 높고 168시간 이하여야 합니다."
-            )
-            return
+                "도전 공부시간 목표는 최소 공부시간 목표보다 높고 168시간 이하여야 합니다.",
+            );
+
+            return;
         }
 
         /*
@@ -277,9 +332,10 @@ export default function GroupForm({
             todoRate > 100
         ) {
             setError(
-                "Todo 달성률 목표는 0% 이상 100% 이하여야 합니다."
-            )
-            return
+                "Todo 달성률 목표는 0% 이상 100% 이하여야 합니다.",
+            );
+
+            return;
         }
 
         /*
@@ -291,59 +347,75 @@ export default function GroupForm({
             attendance > 7
         ) {
             setError(
-                "출석일 목표는 1일 이상 7일 이하의 정수여야 합니다."
-            )
-            return
+                "출석일 목표는 1일 이상 7일 이하의 정수여야 합니다.",
+            );
+
+            return;
         }
 
         /*
          * 백엔드에 전달할 데이터
+         *
+         * groupTime은 시간 단위로 전달
+         * 백엔드에서 초로 변환해서 저장
          */
         const groupData = {
-            groupName: groupName.trim(),
-            groupColor: groupColor.trim(),
-            groupTime: time,
-            minStudyTime: minStudy,
+            groupName:
+                groupName.trim(),
+
+            groupColor:
+                groupColor.trim(),
+
+            groupTime:
+                time,
+
+            minStudyTime:
+                minStudy,
+
             challengeStudyTime:
                 challengeStudy,
+
             todoCompletionRate:
                 todoRate,
+
             attendanceDays:
-                attendance
-        }
+                attendance,
+        };
 
         try {
             if (mode === "edit") {
                 await updateGroup(
                     group._id,
-                    groupData
-                )
+                    groupData,
+                );
 
                 alert(
-                    "그룹이 수정되었습니다."
-                )
+                    "그룹이 수정되었습니다.",
+                );
             } else {
-                await createGroup(groupData)
+                await createGroup(
+                    groupData,
+                );
 
                 alert(
-                    "그룹이 생성되었습니다."
-                )
+                    "그룹이 생성되었습니다.",
+                );
             }
 
-            onSuccess()
+            await onSuccess();
         } catch (error) {
             console.error(
                 "그룹 저장 오류:",
-                error
-            )
+                error,
+            );
 
             const message =
                 error.response?.data?.message ||
                 error.message ||
-                "그룹 저장에 실패했습니다."
+                "그룹 저장에 실패했습니다.";
 
-            setError(message)
-            alert(message)
+            setError(message);
+            alert(message);
         }
     }
 
@@ -368,9 +440,9 @@ export default function GroupForm({
                     type="text"
                     value={groupName}
                     placeholder="그룹명을 입력하세요."
-                    onChange={(e) =>
+                    onChange={(event) =>
                         setGroupName(
-                            e.target.value
+                            event.target.value,
                         )
                     }
                 />
@@ -387,27 +459,23 @@ export default function GroupForm({
                         className="colorSwatch"
                         style={{
                             backgroundColor:
-                                groupColor
+                                groupColor,
                         }}
                         onClick={() =>
                             setShowPicker(
-                                (prev) => !prev
+                                (previous) => !previous,
                             )
                         }
                     />
 
-                    <span>
-                        {groupColor}
-                    </span>
+                    <span>{groupColor}</span>
                 </div>
 
                 {showPicker && (
                     <div className="colorPickerPopover">
                         <HexColorPicker
                             color={groupColor}
-                            onChange={
-                                setGroupColor
-                            }
+                            onChange={setGroupColor}
                         />
                     </div>
                 )}
@@ -423,6 +491,7 @@ export default function GroupForm({
                     type="number"
                     min="0"
                     max="167"
+                    step="1"
                     value={groupTime}
                     placeholder="그룹 조건 시간을 입력하세요."
                     onChange={
@@ -437,9 +506,7 @@ export default function GroupForm({
             </div>
 
             <section className="groupGoalSection">
-                <h3>
-                    그룹 목표 설정
-                </h3>
+                <h3>그룹 목표 설정</h3>
 
                 <div className="groupGoalGrid">
                     <div className="groupFormField">
@@ -453,12 +520,10 @@ export default function GroupForm({
                                 type="number"
                                 min="0"
                                 max="168"
-                                value={
-                                    minStudyTime
-                                }
-                                onChange={(e) =>
+                                value={minStudyTime}
+                                onChange={(event) =>
                                     setMinStudyTime(
-                                        e.target.value
+                                        event.target.value,
                                     )
                                 }
                             />
@@ -486,9 +551,9 @@ export default function GroupForm({
                                 value={
                                     challengeStudyTime
                                 }
-                                onChange={(e) =>
+                                onChange={(event) =>
                                     setChallengeStudyTime(
-                                        e.target.value
+                                        event.target.value,
                                     )
                                 }
                             />
@@ -516,9 +581,9 @@ export default function GroupForm({
                                 value={
                                     todoCompletionRate
                                 }
-                                onChange={(e) =>
+                                onChange={(event) =>
                                     setTodoCompletionRate(
-                                        e.target.value
+                                        event.target.value,
                                     )
                                 }
                             />
@@ -542,9 +607,9 @@ export default function GroupForm({
                                 value={
                                     attendanceDays
                                 }
-                                onChange={(e) =>
+                                onChange={(event) =>
                                     setAttendanceDays(
-                                        e.target.value
+                                        event.target.value,
                                     )
                                 }
                             />
@@ -576,5 +641,5 @@ export default function GroupForm({
                 </button>
             </div>
         </form>
-    )
+    );
 }

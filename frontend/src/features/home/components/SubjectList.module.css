@@ -17,7 +17,7 @@
   transition: all 0.2s ease;
 }
 
-/* 🚨 마우스를 올리거나 클릭했을 때(활성화)의 디자인 */
+/* 마우스를 올리거나 클릭했을 때(활성화)의 디자인 */
 .subjectItem:hover {
   border-color: #A084E8;
 }
@@ -49,4 +49,25 @@
   font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 1px;
+}
+
+.subjectList {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding-right: var(--space-2);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-300) transparent;
+}
+
+.subjectItem {
+  flex: 0 0 auto;
 }

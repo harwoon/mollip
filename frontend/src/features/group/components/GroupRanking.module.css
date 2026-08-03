@@ -1,102 +1,556 @@
 .rankingCard {
     width: 100%;
-}
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-5);
 
-.topThreeSection {
-    margin-bottom: 32px;
-}
-
-.topThreeList {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    padding: 0;
-    list-style: none;
-}
-
-.topThreeItem {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 20px;
-    border: 1px solid #dddddd;
-    border-radius: 12px;
+
+    background: var(--color-surface);
+    overflow: hidden;
 }
 
-.topRank {
-    font-size: 20px;
+
+/* =========================
+   상단 제목
+========================= */
+
+.header {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-4);
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
 }
 
-.topProfileImage {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.allRankingSection {
-    width: 100%;
-}
-
-.rankingScrollContainer {
-    max-height: 320px;
-    overflow-y: auto;
-    border: 1px solid #dddddd;
-    border-radius: 12px;
-    scroll-behavior: smooth;
-}
-
-.rankingList {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.rankingItem {
-    display: grid;
-    grid-template-columns: 60px 48px 1fr 80px;
-    align-items: center;
-    gap: 12px;
-    min-height: 72px;
-    padding: 10px 16px;
-    border-bottom: 1px solid #eeeeee;
-}
-
-.rankingItem:last-child {
-    border-bottom: none;
-}
-
-.currentUser {
-    background-color: #fff7d6;
+.title {
+    color: var(--color-text);
+    font-size: var(--font-xl);
     font-weight: 700;
 }
 
+.description {
+    margin-top: var(--space-1);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.memberCount {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 0 var(--space-3);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    font-weight: 700;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: 999px;
+}
+
+
+/* =========================
+   내부 전체 구조
+========================= */
+
+.content {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-5);
+
+    overflow: hidden;
+}
+
+.topThreeSection {
+    flex: 0 0 42%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.allRankingSection {
+    flex: 1 1 58%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.sectionTitle {
+    flex: 0 0 auto;
+    margin-bottom: var(--space-3);
+
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+
+/* =========================
+   TOP 3
+========================= */
+
+.topThreeList {
+    position: relative;
+
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 35px 10px 15px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 15px;
+
+    overflow: hidden;
+}
+
+.topThreeItem {
+    position: relative;
+
+    flex: 0 1 30%;
+    min-width: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 5px;
+
+    color: var(--color-text);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+
+    box-shadow: none;
+
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+}
+
+/* 1등 */
+.topThreeItem:nth-child(1) {
+    order: 2;
+
+    flex-basis: 36%;
+    align-self: flex-start;
+
+    padding-top: 25px;
+}
+
+/* 2등 */
+.topThreeItem:nth-child(2) {
+    order: 1;
+
+    padding-bottom: 5px;
+}
+
+/* 3등 */
+.topThreeItem:nth-child(3) {
+    order: 3;
+
+    padding-bottom: 5px;
+}
+
+.topThreeItem:hover {
+    background: transparent;
+    border-color: transparent;
+
+    transform: translateY(-3px);
+}
+
+/* 순위 원형 배지 */
+.topRank {
+    position: absolute;
+    top: auto;
+    bottom: 45px;
+    left: 50%;
+    z-index: 3;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-surface);
+    font-size: var(--font-sm);
+    font-weight: 800;
+
+    background: var(--color-primary-600);
+    border: 0;
+    border-radius: 50%;
+
+    transform: translateX(-50%);
+}
+
+/* 1등 왕관 */
+.topThreeItem:nth-child(1)::before {
+    content: "♛";
+
+    position: absolute;
+    top: 0;
+    left: 50%;
+
+    color: var(--color-primary-600);
+    font-size: 32px;
+    line-height: 1;
+
+    transform: translateX(-50%);
+}
+
+/* 1등 프로필 */
+.topThreeItem:nth-child(1) .topProfileImage {
+    flex-basis: 95px;
+    width: 95px;
+    height: 95px;
+
+    border-width: 3px;
+}
+
+/* 2등, 3등 프로필 */
+.topThreeItem:nth-child(2) .topProfileImage,
+.topThreeItem:nth-child(3) .topProfileImage {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+}
+
+.topProfileImage {
+    flex: 0 0 auto;
+
+    object-fit: cover;
+
+    background: var(--color-primary-50);
+    border: 2px solid var(--color-primary-400);
+    border-radius: 50%;
+}
+
+/* 이름 */
+.topUserInfo {
+    width: 100%;
+    min-width: 0;
+    margin-top: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.topThreeItem .nickname {
+    max-width: 100%;
+
+    color: var(--color-primary-700);
+    font-size: var(--font-sm);
+    font-weight: 700;
+    text-align: center;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 공부 시간 */
+.topThreeItem .studyTime {
+    color: var(--color-primary-600);
+    font-size: var(--font-sm);
+    font-weight: 700;
+}
+
+/* 현재 사용자 */
+.topThreeItem.currentUser {
+    color: var(--color-text);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.topThreeItem.currentUser:hover {
+    background: transparent;
+    border: 0;
+}
+
+.topThreeItem.currentUser .nickname,
+.topThreeItem.currentUser .studyTime {
+    color: var(--color-primary-700);
+}
+
+
+/* =========================
+   전체 랭킹
+========================= */
+
+.rankingScrollContainer {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    padding-right: var(--space-2);
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color:
+        var(--color-primary-300)
+        transparent;
+}
+
+.rankingScrollContainer::-webkit-scrollbar {
+    width: 5px;
+}
+
+.rankingScrollContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.rankingScrollContainer::-webkit-scrollbar-thumb {
+    background: var(--color-primary-300);
+    border-radius: 999px;
+}
+
+.rankingList {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.rankingItem {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: var(--space-2) var(--space-3);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.rankingItem:hover {
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+}
+
 .rank {
+    flex: 0 0 34px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 700;
     text-align: center;
 }
 
 .profileImage {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+
     object-fit: cover;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+}
+
+.userInfo {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 }
 
 .nickname {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    min-width: 0;
+
+    color: inherit;
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .studyTime {
-    text-align: right;
+    flex: 0 0 auto;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* =========================
+   현재 사용자
+========================= */
+
+.currentUser {
+    color: var(--color-text);
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+    box-shadow:
+        inset 4px 0 0
+        var(--color-primary-500);
+}
+
+.currentUser:hover {
+    background: var(--color-primary-100);
+    border-color: var(--color-primary-400);
+}
+
+.currentUser .rank,
+.currentUser .nickname,
+.currentUser .studyTime {
+    color: var(--color-primary-700);
+    font-weight: 700;
 }
 
 .meBadge {
-    padding: 2px 6px;
-    border-radius: 10px;
-    background-color: #333333;
-    color: white;
-    font-size: 11px;
+    flex: 0 0 auto;
+    min-height: 20px;
+    padding: 0 var(--space-2);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-surface);
+    font-size: 10px;
+    font-weight: 700;
+
+    background: var(--color-primary-600);
+    border-radius: 999px;
+}
+
+
+/* =========================
+   상태 메시지
+========================= */
+
+.stateContainer {
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    text-align: center;
+}
+
+.emptyMessage {
+    flex: 1 1 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    text-align: center;
+}
+
+.errorMessage {
+    color: var(--color-danger);
+}
+
+
+/* =========================
+   좁은 화면
+========================= */
+
+@media (max-width: 1350px) {
+    .content {
+        gap: var(--space-4);
+    }
+
+    .topThreeSection {
+        flex-basis: 46%;
+    }
+
+    .allRankingSection {
+        flex-basis: 54%;
+    }
+
+    .topThreeItem {
+        padding: var(--space-3);
+    }
+
+    .topProfileImage {
+        flex-basis: 56px;
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .content {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .topThreeSection,
+    .allRankingSection {
+        flex: none;
+        width: 100%;
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 650px) {
+    .topThreeList {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .topThreeItem {
+        flex: 0 0 auto;
+        min-height: 130px;
+    }
 }

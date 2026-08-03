@@ -9,7 +9,7 @@ function authHeaders() {
 }
 
 // 회원 목록 조회 (검색/필터/정렬/페이지네이션)
-export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit } = {}) {
+export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit, status } = {}) {
     // URLSearchParams: 값이 있는 파라미터만 골라서 쿼리스트링으로 자동 조립
     const params = new URLSearchParams()
 
@@ -19,6 +19,7 @@ export async function getUsers({ search, groupId, sortBy, sortOrder, page, limit
     if (sortOrder) params.append("sortOrder", sortOrder)
     if (page) params.append("page", page)
     if (limit) params.append("limit", limit)
+    if (status) params.append("status", status)
 
     const response = await fetch(`${API_URL}/admin/users?${params.toString()}`, {
         method: "GET",
@@ -58,4 +59,49 @@ export async function getActiveUsers() {
     const data = await response.json()
     if (!response.ok) throw new Error(data.message)
     return data
+}
+
+// 엑셀 다운로드용 전체 회원 목록 조회 (페이지네이션 없음)
+export async function getUsersExportData({ search, groupId, status, sortBy, sortOrder } = {}) {
+    const params = new URLSearchParams()
+
+    if (search) params.append("search", search)
+    if (groupId) params.append("groupId", groupId)
+    if (sortBy) params.append("sortBy", sortBy)
+    if (sortOrder) params.append("sortOrder", sortOrder)
+    if (status) params.append("status", status)
+
+    const response = await fetch(`${API_URL}/admin/users/export?${params.toString()}`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+        throw new Error(data.message || "엑셀 데이터를 불러오지 못했습니다.")
+    }
+
+    return data
+}
+
+// 전체 회원 수
+// http://127.0.0.1:3000/admin/users/count
+export async function getUsersCount() {
+    const token = localStorage.getItem('token')
+
+    const response = await fetch(`${API_URL}/admin/users/count`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "전체 회원 수를 불러오지 못했습니다.")
+    }
+
+    const { normalUserCount, dormantUserCount } = data
+
+
+    return { normalUserCount, dormantUserCount }
 }

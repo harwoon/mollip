@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 
 import { getMonthlyStudyRecords } from "../api/study"
 import "react-calendar/dist/Calendar.css"
-import "./HitCalendar.css"
+import styles from "./HitCalendar.module.css"
 
 
 export default function HitCalendar({
@@ -184,7 +184,7 @@ export default function HitCalendar({
 
         return (
             <span
-                className="heat-tooltip"
+                className={styles.tooltip}
                 data-tooltip={`${dateKey} / ${formatStudyTime(studyMinutes)}`}
             />
         )
@@ -213,99 +213,50 @@ export default function HitCalendar({
 
 
     return (
-        <section className="heat-calendar-section">
-            <h2 className="heat-calendar-title">
-                일일 집중 시간 히트맵
-            </h2>
+        <section className={`commonSection ${styles.container}`}>
+            <h2 className={styles.title}>일일 집중 시간 히트맵</h2>
 
-            <div className="heat-calendar-card">
+            <div className={styles.calendarCard}>
                 {loading && (
-                    <p className="heat-calendar-message">
-                        공부 기록을 불러오는 중입니다.
-                    </p>
+                    <p className={styles.message}>공부 기록을 불러오는 중입니다.</p>
                 )}
 
                 {error && (
-                    <p className="heat-calendar-error">
-                        {error}
-                    </p>
+                    <p className={styles.error}>{error}</p>
                 )}
 
                 <Calendar
-                    // 현재 선택된 날짜
+                    className={`app-calendar ${styles.calendar}`}
                     value={selectedDate}
-
-                    // 선택된 날짜가 포함된 월을 화면에 표시
                     activeStartDate={
                         dayjs(selectedDate)
                             .startOf("month")
                             .toDate()
                     }
-
-                    // 날짜 선택
                     onChange={onChangeDate}
-
-                    // 이전 달·다음 달 이동
-                    onActiveStartDateChange={
-                        handleMonthChange
-                    }
-
-                    // 날짜별 색상 클래스
+                    onActiveStartDateChange={handleMonthChange}
                     tileClassName={getTileClassName}
-
-                    // 날짜별 툴팁
                     tileContent={getTileContent}
-
-                    // 날짜에 일 숫자만 표시
                     formatDay={(locale, date) =>
                         dayjs(date).format("D")
                     }
-
-                    // 달력 상단 제목
                     formatMonthYear={(locale, date) =>
                         dayjs(date).format("YYYY년 M월")
                     }
-
-                    // 월요일부터 시작
                     calendarType="gregory"
-
-                    // 연도 단위 이동 버튼 제거
                     next2Label={null}
                     prev2Label={null}
-
-                    // 이전 달·다음 달 날짜 숨김
                     showNeighboringMonth={false}
-
-                    // 월간 달력만 사용
                     minDetail="month"
                     maxDetail="month"
                 />
 
-                <div className="heat-calendar-legend">
-                    <Legend
-                        className="heat-level-0"
-                        label="0시간"
-                    />
-
-                    <Legend
-                        className="heat-level-1"
-                        label="1시간 미만"
-                    />
-
-                    <Legend
-                        className="heat-level-2"
-                        label="1~3시간"
-                    />
-
-                    <Legend
-                        className="heat-level-3"
-                        label="3~5시간"
-                    />
-
-                    <Legend
-                        className="heat-level-4"
-                        label="5시간 이상"
-                    />
+                <div className={styles.legend}>
+                    <Legend className="heat-level-0" label="0시간"/>
+                    <Legend className="heat-level-1" label="1시간 미만"/>
+                    <Legend className="heat-level-2" label="1~3시간"/>
+                    <Legend className="heat-level-3" label="3~5시간"/>
+                    <Legend className="heat-level-4" label="5시간 이상"/>
                 </div>
             </div>
         </section>
@@ -315,11 +266,8 @@ export default function HitCalendar({
 // 히트맵 색상 범례
 function Legend({ className, label }) {
     return (
-        <div className="heat-legend-item">
-            <span
-                className={`heat-legend-color ${className}`}
-            />
-
+        <div className={styles.legendItem}>
+            <span className={`${styles.legendColor} ${className}`}/>
             <span>{label}</span>
         </div>
     )

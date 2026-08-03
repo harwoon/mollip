@@ -1,0 +1,47 @@
+.tabSelector {
+    padding: var(--space-1);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-md);
+}
+
+.tabButton {
+    min-width: 55px;
+    min-height: 35px;
+    padding: 0 var(--space-3);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    background: transparent;
+    border-radius: var(--radius-sm);
+
+    transition:
+        color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.tabButton:hover {
+    color: var(--color-primary-700);
+    background: var(--color-primary-100);
+}
+
+.active {
+    color: var(--color-surface);
+    background: var(--color-primary-600);
+}
+
+.active:hover {
+    color: var(--color-surface);
+    background: var(--color-primary-700);
+}

@@ -1,49 +1,52 @@
 import { NavLink } from "react-router-dom"
-
+import {FiBarChart2, FiBookOpen, FiHome} from "react-icons/fi"
 import "../../components/Sidebar.css"
 import SidebarUserInfo from "../../components/SidebarUserInfo.jsx"
+import SidebarLogout from "../../components/SidebarLogout.jsx"
 
 export default function AdminSidebar() {
-    const activeStyle = ({ isActive }) => {
-        return {
-        textDecoration: "none",
-        fontWeight: isActive ? "bold" : "normal",
-        color: isActive ? "#7c5cc4" : "#333",
-        padding: "10px",
-        borderRadius: "8px",
-        backgroundColor: isActive ? "#e9ecef" : "transparent",
-        display: "block",
-        }
+    // 현재 주소와 NavLink의 주소가 일치하면
+    // sidebarNavigationLinkActive 클래스를 함께 적용
+    const getNavClassName = ({ isActive }) => {
+        return isActive
+            ? "sidebarNavigationLink sidebarNavigationLinkActive"
+            : "sidebarNavigationLink"
     }
 
     return (
-        <aside style={{ 
-        width: "250px", 
-        height: "100%", 
-        backgroundColor: "#f8f9fa", 
-        padding: "20px",
-        borderRight: "1px solid #ddd"
-        }}>
-            <div className="sidebarLogo">
-                <img src="/images/logo.png" alt="Mollip" />
+        <aside className="sidebar">
+            <div className="sidebarTop">
+                <div className="sidebarLogo">
+                    <img
+                        src="/images/logo.png"
+                        alt="Mollip"
+                    />
+                </div>
+
+                <div className="sidebarUser">
+                    <SidebarUserInfo />
+                </div>
+
+                <nav className="sidebarNavigation">
+                    <div className="sidebarNavigationGroup">
+                        <NavLink to="/admin/home" className={getNavClassName}>
+                            <FiHome className="sidebarNavigationIcon"/>
+                            <span>대시보드</span>
+                        </NavLink>
+
+                        <NavLink to="/admin/users" className={getNavClassName}>
+                            <FiBookOpen className="sidebarNavigationIcon"/>
+                            <span>회원 현황</span>
+                        </NavLink>
+
+                        <NavLink to="/admin/groups" className={getNavClassName}>
+                            <FiBarChart2 className="sidebarNavigationIcon"/>
+                            <span>그룹 현황</span>
+                        </NavLink>
+                    </div>
+                </nav>
             </div>
-            <SidebarUserInfo /> {/* 확인하기 */}
-
-            <nav className="sidebarNavigation">
-                <p>DASHBOARD</p>
-                <NavLink to="/admin/home" style={activeStyle}>
-                    홈
-                </NavLink>
-
-                <NavLink to="/admin/users" style={activeStyle}>
-                    회원 조회
-                </NavLink>
-
-                <NavLink to="/admin/groups" style={activeStyle}>
-                    그룹 관리
-                </NavLink>
-            </nav>
-            
+            <SidebarLogout />
         </aside>
     )
 }

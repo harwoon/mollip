@@ -2,6 +2,7 @@ import express from "express"
 import * as studyRepository from "../repository/study.js"
 import * as authRepository from "../repository/auth.js"
 import { getWeekRange, getYesterday } from "../util/date.js"
+import { reactivateIfDormant } from "../service/dormantGroupService.js"
 
 // 공부 기록 추가
 export async function addStudy(req, res) {
@@ -46,6 +47,10 @@ export async function addStudy(req, res) {
         if (streakUpdated) {
             await authRepository.updateStreak(userId, currentStreak, maxStreak, lastStudyDate);
         }
+        await reactivateIfDormant(
+            userId,
+            req.user.groupId,
+        )
 
         return res.status(201).json({
             message: "공부 기록이 성공적으로 추가되었습니다.",
@@ -69,10 +74,10 @@ export async function getRecords(req, res) {
         let sortOption = {}
 
         if (sort === "time") {
-            sortOption = { sumStudyTime: -1 } 
+            sortOption = { sumStudyTime: -1 }
         }
 
-        const limitOption = limit ? parseInt(limit) : 0 
+        const limitOption = limit ? parseInt(limit) : 0
 
         if (type === "daily") {
             studies = await studyRepository.getDailyByUserIdAndDate(userId, date, sortOption, limitOption)

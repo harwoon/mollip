@@ -1,0 +1,76 @@
+.container {
+    height: 100%;
+    min-height: 0;
+    padding: var(--space-5);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+.header {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.title {
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 700;
+}
+
+.description {
+    margin-top: var(--space-1);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.totalTime {
+    flex-shrink: 0;
+
+    color: var(--color-primary-700);
+    font-size: var(--font-lg);
+    font-weight: 800;
+}
+
+.chartArea {
+    position: relative;
+
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+}
+
+.emptyState {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    text-align: center;
+
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.emptyState span {
+    font-size: var(--font-xs);
+}
+
+.emptyState strong {
+    margin-top: var(--space-1);
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+}

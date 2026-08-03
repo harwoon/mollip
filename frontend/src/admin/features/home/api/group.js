@@ -19,3 +19,16 @@ export async function getGroupCount() {
 
     return data
 }
+export async function getGroupStudyTime() {
+    const response = await fetch(`${API_URL}/admin/groups/weekly-study-time`, {
+        method: "GET",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+    if(!response.ok) {
+        throw new Error(data.message || "그룹 목록을 불러오지 못했습니다.")
+    }
+
+    return data
+}

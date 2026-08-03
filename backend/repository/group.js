@@ -1,4 +1,5 @@
 import Group from "../models/Group.js";
+import { config } from "../config.mjs"
 // import User from "../models/User.js"
 // import Study from "../models/Study.js"
 // import mongoose from "mongoose"
@@ -48,9 +49,24 @@ export async function findGroupByStudyTime(weeklyStudyTime) {
 }
 
 export async function getGroupsByTimeDesc() {
-  return Group.find().sort({
-    groupTime: -1,
-  });
+    return Group.find({
+        // 휴면 그룹은 공부시간 기반 그룹이 아님
+        _id: {
+            $ne: config.group.dormantId,
+        },
+    }).sort({
+        groupTime: -1,
+    })
+}
+// 다시 공부하면 휴면 그룹 해제하기
+export async function getLowestRegularGroup() {
+    return Group.findOne({
+        _id: {
+            $ne: config.group.dormantId,
+        },
+    }).sort({
+        groupTime: 1,
+    })
 }
 
 // 그룹 수정

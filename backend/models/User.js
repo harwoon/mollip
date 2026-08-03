@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
         userId: {
             type: String,
             required: true,
-            unique: true,
+            unique: true
         },
         userPw: {
             type: String,
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
 
         groupId: {
             type: String,
-            default: 'Unranked',
+            default: '6a6c309cb5f65e32d4078d00',
         },
         lastStudyDate: {
             type: String,
@@ -55,6 +55,18 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["Y", "N"],
             default: "Y"
+        },
+
+        // 탈퇴 전 아이디 - 탈퇴시 보관용
+        withdrawnUserId: {
+            type: String,
+            default: null
+        },
+
+        // 탈퇴 전 이메일 - 탈퇴시 보관용
+        withdrawnEmail: {
+            type: String,
+            default: null
         },
 
         // 탈퇴사유
