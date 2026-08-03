@@ -13,6 +13,9 @@ router.use(isAuth, isAdmin)
 router.get("/study-time-trend", adminController.getStudyTimeTrend)
 
 // 관리자 홈 전체 회원의 이번 주 총 공부시간
+// 이번 주에 실제 공부한 회원 수
+// 이번 주 전체 회원 공부시간 합계 (분)
+// 이번 주 공부한 회원 기준 평균 공부시간 (분)
 // http://localhost:3000/admin/weekly-total-study-time
 router.get("/weekly-total-study-time", adminController.getWeeklyTotalStudyTime)
 
