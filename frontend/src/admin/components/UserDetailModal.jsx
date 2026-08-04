@@ -1,5 +1,6 @@
 import React from "react"
 import "./UserDetailModal.css"
+import SubjectRecord from "../features/user/components/SubjectRecord"
 
 export default function UserDetailModal({ user, onClose }) {
     // 유저 정보가 없으면 아무것도 렌더링하지 않음
@@ -42,6 +43,7 @@ export default function UserDetailModal({ user, onClose }) {
                     </ul>
                 </div>
             </div>
+            <div><SubjectRecord type={"daily"} date={"2026-08-04"}/></div>
         </div>
     )
 }
