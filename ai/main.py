@@ -44,7 +44,10 @@ async def generate_weekly_report(data: WeeklyStudyData):
 
         [출력 JSON 구조]
         {
-          "diagnosis": "최근 학습 패턴에 대한 1~2줄의 짧고 명확한 총평",
+          "diagnosis": {
+            "summary": "최근 학습 패턴에 대한 1~2줄의 짧고 명확한 총평",
+            "immersionScore": "총 공부시간, Todo 달성률, 요일별 학습 규칙성 등을 종합하여 0~100 사이의 숫자로 도출한 지난 주 몰입도 (정수만 입력, 예: 85)"
+          },
           "patterns": [
             {
               "title": "발견된 패턴 요약 (예: 주말에 학습이 몰리는 경향이 있어요.)",
@@ -58,6 +61,8 @@ async def generate_weekly_report(data: WeeklyStudyData):
               "duration": "예상 소요 시간 (예: 40분)",
               "effect": "예상 효과 (예: 이해도 향상 및 복습 완료율 증가)"
             }
+            // 반드시 5개의 추천 항목(객체)을 생성하세요.
+            // task에 요일이나 시간에 관한 내용을 넣지 마세요.
           ],
           "expectedChanges": [
             {

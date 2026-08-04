@@ -2,6 +2,7 @@ import User from "../models/User.js"
 import Subject from "../models/Subject.js"
 import Study from "../models/Study.js"
 import Todo from "../models/Todo.js"
+import AiReport from "../models/AiReport.js"
 import { formatDate } from "../util/date.js"
 
 export async function getWeeklyAiReport(req, res) {
@@ -14,8 +15,8 @@ export async function getWeeklyAiReport(req, res) {
 
         // 저번주 월요일
         const lastWeekStart = new Date(today)
-        lastWeekStart.setDate(today.getDate() - dayOfWeek - 6) 
-        
+        lastWeekStart.setDate(today.getDate() - dayOfWeek - 6)
+
         // 저번주 일요일
         const lastWeekEnd = new Date(today)
         lastWeekEnd.setDate(today.getDate() - dayOfWeek)
@@ -23,6 +24,19 @@ export async function getWeeklyAiReport(req, res) {
         // 문자열 변환 ("2026-07-27" ~ "2026-08-02")
         const startDateStr = formatDate(lastWeekStart)
         const endDateStr = formatDate(lastWeekEnd)
+
+        const existingReport = await AiReport.findOne({
+            user: userId,
+            startDate: startDateStr,
+            endDate: endDateStr
+        })
+
+        if (existingReport) {
+            return res.status(200).json({
+                message: "저장된 AI 코칭 리포트를 불러왔습니다.",
+                report: existingReport.reportData
+            })
+        }
 
         // DB 데이터 동시 조회 (문자열 형태의 날짜로 쿼리)
         const [userInfo, activeSubjects, weeklyStudies, weeklyTodos] = await Promise.all([
@@ -38,7 +52,7 @@ export async function getWeeklyAiReport(req, res) {
         // - 투두리스트 달성률 및 실패한 항목 계산
         let totalTodos = 0
         let completedTodos = 0
-        const missedTodos = [] 
+        const missedTodos = []
 
         weeklyTodos.forEach(dailyDoc => {
             if (dailyDoc.todo && Array.isArray(dailyDoc.todo)) {
@@ -47,7 +61,7 @@ export async function getWeeklyAiReport(req, res) {
                     if (item.state === true) {
                         completedTodos += 1
                     } else {
-                        missedTodos.push(item.todo) 
+                        missedTodos.push(item.todo)
                     }
                 })
             }
@@ -75,7 +89,7 @@ export async function getWeeklyAiReport(req, res) {
         // 실제 DB에서 가져온 공부 기록을 해당하는 날짜 넣기
         weeklyStudies.forEach(record => {
             const dStr = record.studyDate // 예: "2026-08-01"
-            
+
             if (dailyRecordsMap[dStr]) {
                 totalStudySeconds += (record.sumStudyTime || 0)
 
@@ -105,7 +119,7 @@ export async function getWeeklyAiReport(req, res) {
         })
 
         const dailyRecords = Object.values(dailyRecordsMap)
-        
+
         // 주간 총 공부 시간 계산
         const totalStudyHours = Math.floor(totalStudySeconds / 3600)
 
@@ -120,12 +134,12 @@ export async function getWeeklyAiReport(req, res) {
         }
 
         // fastAPI 포트는 8000
-        const fastApiResponse = await fetch("http://127.0.0.1:8000/ai/weekly-report", { 
+        const fastApiResponse = await fetch("http://127.0.0.1:8000/ai/weekly-report", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(userStats) 
+            body: JSON.stringify(userStats)
         })
 
         if (!fastApiResponse.ok) {
@@ -133,6 +147,13 @@ export async function getWeeklyAiReport(req, res) {
         }
 
         const fastApiData = await fastApiResponse.json()
+
+        await AiReport.create({
+            user: userId,
+            startDate: startDateStr,
+            endDate: endDateStr,
+            reportData: fastApiData.report
+        })
 
         return res.status(200).json({
             message: "AI 코칭 리포트 생성 성공",
