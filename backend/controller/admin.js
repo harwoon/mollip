@@ -841,101 +841,101 @@ export async function getWeeklyAverageStudyTime(req, res) {
     }
 }
 
-// 관리자 홈 전체 회원의 이번 주 총 공부시간 조회
-export async function getWeeklyTotalStudyTime(
-  req,
-  res,
-) {
-  try {
-    // 한국 날짜 기준 오늘
-    const today = getKstToday()
+// 관리자 홈 전체 회원의 이번 주 총 공부시간 조회 adminDashboard에서 사용
+// export async function getWeeklyTotalStudyTime(
+//   req,
+//   res,
+// ) {
+//   try {
+//     // 한국 날짜 기준 오늘
+//     const today = getKstToday()
 
-    // 이번 주 월요일 확인
-    const {
-      startDate: currentStartDate,
-    } = getWeekRange(today)
+//     // 이번 주 월요일 확인
+//     const {
+//       startDate: currentStartDate,
+//     } = getWeekRange(today)
 
-    // 이번 주는 월요일부터 오늘까지
-    const currentEndDate = today
+//     // 이번 주는 월요일부터 오늘까지
+//     const currentEndDate = today
 
-    // 지난주는 지난주 월요일부터 일요일까지
-    const previousStartDate =
-      addDays(currentStartDate, -7)
+//     // 지난주는 지난주 월요일부터 일요일까지
+//     const previousStartDate =
+//       addDays(currentStartDate, -7)
 
-    const previousEndDate =
-      addDays(currentStartDate, -1)
+//     const previousEndDate =
+//       addDays(currentStartDate, -1)
 
-    const [
-      currentSummary,
-      previousSummary,
-    ] = await Promise.all([
-      // 이번 주 월요일 ~ 오늘
-      studyRepository
-        .getWeeklyStudyTimeSummary(
-          currentStartDate,
-          currentEndDate,
-        ),
+//     const [
+//       currentSummary,
+//       previousSummary,
+//     ] = await Promise.all([
+//       // 이번 주 월요일 ~ 오늘
+//       studyRepository
+//         .getWeeklyStudyTimeSummary(
+//           currentStartDate,
+//           currentEndDate,
+//         ),
 
-      // 지난주 월요일 ~ 지난주 일요일
-      studyRepository
-        .getWeeklyStudyTimeSummary(
-          previousStartDate,
-          previousEndDate,
-        ),
-    ])
+//       // 지난주 월요일 ~ 지난주 일요일
+//       studyRepository
+//         .getWeeklyStudyTimeSummary(
+//           previousStartDate,
+//           previousEndDate,
+//         ),
+//     ])
 
-    const currentWeeklyStudyTime =
-      Number(
-        currentSummary
-          .currentWeeklyStudyTime,
-      ) || 0
+//     const currentWeeklyStudyTime =
+//       Number(
+//         currentSummary
+//           .currentWeeklyStudyTime,
+//       ) || 0
 
-    const previousWeeklyStudyTime =
-      Number(
-        previousSummary
-          .currentWeeklyStudyTime,
-      ) || 0
+//     const previousWeeklyStudyTime =
+//       Number(
+//         previousSummary
+//           .currentWeeklyStudyTime,
+//       ) || 0
 
-    const weeklyStudyTimeDiff =
-      currentWeeklyStudyTime -
-      previousWeeklyStudyTime
+//     const weeklyStudyTimeDiff =
+//       currentWeeklyStudyTime -
+//       previousWeeklyStudyTime
 
-    return res.status(200).json({
-      message:
-        "주간 총 공부시간 비교 조회 성공",
+//     return res.status(200).json({
+//       message:
+//         "주간 총 공부시간 비교 조회 성공",
 
-      currentStartDate,
-      currentEndDate,
+//       currentStartDate,
+//       currentEndDate,
 
-      previousStartDate,
-      previousEndDate,
+//       previousStartDate,
+//       previousEndDate,
 
-      currentWeeklyStudyTime,
-      previousWeeklyStudyTime,
-      weeklyStudyTimeDiff,
+//       currentWeeklyStudyTime,
+//       previousWeeklyStudyTime,
+//       weeklyStudyTimeDiff,
 
-      // 기존 응답값을 사용하는 곳이 있을 수 있어 유지
-      withdrawnWeeklyStudyTime:
-        Number(
-          currentSummary
-            .withdrawnWeeklyStudyTime,
-        ) || 0,
+//       // 기존 응답값을 사용하는 곳이 있을 수 있어 유지
+//       withdrawnWeeklyStudyTime:
+//         Number(
+//           currentSummary
+//             .withdrawnWeeklyStudyTime,
+//         ) || 0,
 
-      totalWeeklyStudyTime:
-        Number(
-          currentSummary
-            .totalWeeklyStudyTime,
-        ) || 0,
-    })
-  } catch (error) {
-    console.error(
-      "주간 총 공부시간 조회 실패:",
-      error,
-    )
+//       totalWeeklyStudyTime:
+//         Number(
+//           currentSummary
+//             .totalWeeklyStudyTime,
+//         ) || 0,
+//     })
+//   } catch (error) {
+//     console.error(
+//       "주간 총 공부시간 조회 실패:",
+//       error,
+//     )
 
-    return res.status(500).json({
-      message:
-        "주간 총 공부시간 조회에 실패했습니다.",
-    })
-  }
-}
+//     return res.status(500).json({
+//       message:
+//         "주간 총 공부시간 조회에 실패했습니다.",
+//     })
+//   }
+// }
