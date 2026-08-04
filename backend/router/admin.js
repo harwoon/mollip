@@ -92,7 +92,12 @@ router.patch("/groups/:id", groupController.updateGroup)
 router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 
 // ====================== 관리회원현황
+// 대상 조회
 // http://127.0.0.1:3000/admin/member-status
 router.get("/member-status", adminMemberStatusController.getMemberStatus)
+
+// 관리회원현황 메일 발송
+// http://127.0.0.1:3000/admin/member-status/send-mail
+router.post("/member-status/send-mail", adminMemberStatusController.sendMemberStatusMail)
 
 export default router

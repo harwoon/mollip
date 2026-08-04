@@ -4,8 +4,8 @@
 // 휴면 회원: 그룹 ID가 DORMANT_GROUP_ID
 import mongoose from "mongoose"
 import User from "../models/User.js"
-// import transporter from "../util/mailer.js"
-// import { getMemberStatusMailTemplate } from "../util/memberStatusMailTemplates.js"
+import transporter from "../util/mailer.js"
+import { getMemberStatusMailTemplate } from "../util/memberStatusMailTemplates.js"
 
 // 하루를 밀리초로 변환
 const DAY_MS = 1000 * 60 * 60 * 24
@@ -163,6 +163,169 @@ export async function getMemberStatusUsers() {
             inactive14: result.inactive14.length,
             dormant: result.dormant.length
         }
+    }
+}
+
+// 선택한 회원들에게 상태별 메일 발송
+export async function sendMemberStatusMails({type, userIds}) {
+    // 허용된 메일 유형인지 확인
+    if (!MAIL_TYPES.includes(type)) {
+        const error = new Error("올바르지 않은 메일 유형입니다.")
+
+        error.status = 400
+        throw error
+    }
+
+    // 회원 ID 목록이 배열인지 확인
+    if (!Array.isArray(userIds)) {
+        const error = new Error("회원 ID 목록이 올바르지 않습니다.")
+
+        error.status = 400
+        throw error
+    }
+
+    // 선택한 회원이 없는 경우
+    if (userIds.length === 0) {
+        const error = new Error("메일을 발송할 회원을 선택해주세요.")
+
+        error.status = 400
+        throw error
+    }
+
+    // 중복 회원 ID 제거
+    const uniqueUserIds = [
+        ...new Set(userIds)
+    ]
+
+    // MongoDB ObjectId 형식 확인
+    const hasInvalidId = uniqueUserIds.some(
+        (userId) => !mongoose.Types.ObjectId.isValid(
+            userId
+        )
+    )
+
+    if (hasInvalidId) {
+        const error = new Error(
+            "올바르지 않은 회원 ID가 포함되어 있습니다."
+        )
+
+        error.status = 400
+        throw error
+    }
+
+    const dormantGroupId =
+        process.env.DORMANT_GROUP_ID
+
+    if (!dormantGroupId) {
+        throw new Error(
+            "DORMANT_GROUP_ID 환경변수가 설정되지 않았습니다."
+        )
+    }
+
+    // 선택한 정상 회원 정보 조회
+    const users = await User.find({
+        _id: {
+            $in: uniqueUserIds
+        },
+        role: "user",
+        useYn: "Y"
+    })
+        .select(
+            "_id nickname email groupId lastStudyDate"
+        )
+        .lean()
+
+    // 메일 발송 시점에도 해당 유형인지 다시 확인
+    const validUsers = users.filter(
+        (user) =>
+            getUserStatusType(
+                user,
+                dormantGroupId
+            ) === type
+    )
+
+    if (validUsers.length === 0) {
+        const error = new Error(
+            "현재 해당 상태에 속하는 회원이 없습니다."
+        )
+
+        error.status = 400
+        throw error
+    }
+
+    // 회원별 메일 발송
+    const mailRequests =
+        validUsers.map(async (user) => {
+            // 이메일이 없는 회원 방어
+            if (!user.email) {
+                throw new Error(
+                    `${user.nickname} 회원의 이메일이 없습니다.`
+                )
+            }
+
+            // 회원 상태에 맞는 메일 양식 생성
+            const template =
+                getMemberStatusMailTemplate(
+                    type,
+                    user.nickname
+                )
+
+            // 실제 메일 발송
+            await transporter.sendMail({
+                from: {
+                    name:
+                        process.env.MAIL_FROM_NAME || "Mollip",
+
+                    address:
+                        process.env
+                            .MAIL_FROM_ADDRESS || process.env.MAIL_USER
+                },
+
+                to: user.email,
+                subject: template.subject,
+                html: template.html
+            })
+
+            return {
+                userId: user._id.toString(),
+                nickname: user.nickname
+            }
+        })
+
+    // 일부 회원 발송 실패 시에도 나머지는 계속 처리
+    const results = await Promise.allSettled(mailRequests)
+
+    const successes = []
+    const failures = []
+
+    results.forEach((result, index) => {
+        const user = validUsers[index]
+
+        if (result.status === "fulfilled") {
+            successes.push({
+                userId: user._id.toString(),
+                nickname: user.nickname
+            })
+
+            return
+        }
+
+        failures.push({
+            userId: user._id.toString(),
+            nickname: user.nickname,
+            reason:
+                result.reason?.message || "메일 발송 실패"
+        })
+    })
+
+    // 발송 결과 반환
+    return {
+        requestedCount: uniqueUserIds.length,
+        validCount: validUsers.length,
+        successCount: successes.length,
+        failureCount: failures.length,
+        successes,
+        failures
     }
 }
 
