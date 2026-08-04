@@ -17,10 +17,10 @@ export default function TotalStudy({ selectedDate, type }) {
         // API 요청
         const data = await getStudyRecord(type, formattedDate);
 
-        const totalMinutes = data || 0;
+        const totalSeconds = data || 0;
 
-        setHour(Math.floor(totalMinutes / 3600));
-        setMin(Math.floor((totalMinutes % 3600) / 60));
+        setHour(Math.floor(totalSeconds / 3600));
+        setMin(Math.floor((totalSeconds % 3600) / 60));
       } catch (error) {
         console.error("공부 시간을 가져오는데 실패했습니다:", error);
       }

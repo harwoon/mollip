@@ -21,7 +21,8 @@ router.get("/streak",isAuth, statController.getStreak)
 // http://127.0.0.1:3000/statistics/week?date=2026-07-29
 router.get("/week",isAuth , statController.getWeeklyCompareStats)
 
-
+// 과목별 공부시간 요약 및 이전 기간 비교
+router.get("/subject-summary", isAuth, statController.getSubjectSummary)
 
 // 주간 개인 및 그룹 Todo 달성률 비교
 // http://127.0.0.1:3000/statistics/todo-week?date=2026-07-30

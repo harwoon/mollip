@@ -548,13 +548,13 @@ export async function getWeeklyStudyTimeSummary(startDate, endDate) {
             useYn: "N"
         }).select("_id")
     ])
-    
+
     // 회원 문서에서 MongoDB ObjectId만 배열로 추출
     const currentUserIds = currentUsers.map(user => user._id)
     const withdrawnUserIds = withdrawnUsers.map(user => user._id)
 
 
-    
+
 
     // 현재 회원의 이번 주 총 공부시간 조회
     //
@@ -649,4 +649,75 @@ export async function getWeeklyStudyTimeSummary(startDate, endDate) {
         // 현재 회원과 탈퇴 회원 전체의 이번 주 총 공부시간
         totalWeeklyStudyTime
     }
+}
+
+// 기간별 과목 공부시간 집계
+export async function getSubjectStudySummaryByRange(
+    userId,
+    startDate,
+    endDate,
+) {
+    return Study.aggregate([
+        {
+            $match: {
+                user:
+                    new mongoose.Types.ObjectId(
+                        String(userId),
+                    ),
+                studyDate: {
+                    $gte: startDate,
+                    $lte: endDate,
+                },
+                sumStudyTime: {
+                    $gt: 0,
+                },
+            },
+        },
+        {
+            // 과목명의 앞뒤 공백 제거
+            $set: {
+                normalizedTitle: {
+                    $trim: {
+                        input: {
+                            $ifNull: [
+                                "$studyTitle",
+                                "",
+                            ],
+                        },
+                    },
+                },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    $cond: [
+                        {
+                            $eq: [
+                                "$normalizedTitle",
+                                "",
+                            ],
+                        },
+                        "기타",
+                        "$normalizedTitle",
+                    ],
+                },
+                sumStudyTime: {
+                    $sum: "$sumStudyTime",
+                },
+            },
+        },
+        {
+            $sort: {
+                sumStudyTime: -1,
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                studyTitle: "$_id",
+                sumStudyTime: 1,
+            },
+        },
+    ])
 }
