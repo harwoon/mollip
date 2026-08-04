@@ -157,7 +157,8 @@ export default function MainLayout() {
                     selectedSubject, setSelectedSubject,
                     time, setTime,
                     isRunning, setIsRunning,
-                    actualStartTime, setActualStartTime
+                    actualStartTime, setActualStartTime,
+                    handleGlobalSave
                 }} />
             </main>
         </div>
