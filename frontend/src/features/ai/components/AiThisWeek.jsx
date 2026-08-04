@@ -7,6 +7,28 @@
 
 export default function AiThisWeek({ recommendations = [], onAddTodo }) {
     return (
-        <div>AiThisWeek</div>
+        <section>
+            <div className="aiReportHeader">
+                <h3>이번주 Todo 추천</h3>
+            </div>
+
+            {recommendations.length === 0 ? (
+                <p className="aiReportError">
+                    추천할 Todo내용이 없습니다.
+                </p>
+            ) : (
+                <ul>
+                    {recommendations.map((recommend, index) => (
+                        <li key={`${recommend.day}-${index}`}>
+                            <p>
+                                <span>{recommend.task}</span>
+                                <span>({recommend.duration})</span>
+                            </p>
+                            <p>{recommend.effect}</p>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
     )
 }
