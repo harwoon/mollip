@@ -4,8 +4,8 @@
 // 휴면 회원: 그룹 ID가 DORMANT_GROUP_ID
 import mongoose from "mongoose"
 import User from "../models/User.js"
-import transporter from "../util/mailer.js"
-import { getMemberStatusMailTemplate } from "../util/memberStatusMailTemplates.js"
+// import transporter from "../util/mailer.js"
+// import { getMemberStatusMailTemplate } from "../util/memberStatusMailTemplates.js"
 
 // 하루를 밀리초로 변환
 const DAY_MS = 1000 * 60 * 60 * 24
