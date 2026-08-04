@@ -329,3 +329,124 @@ export async function sendMemberStatusMails({type, userIds}) {
     }
 }
 
+// 7일 / 14일 / 휴면 회원을 한 번에 메일 발송
+export async function sendAllMemberStatusMails({
+    groups
+}) {
+    // 요청 데이터 형식 확인
+    if (
+        !groups ||
+        typeof groups !== "object"
+    ) {
+        const error = new Error(
+            "회원 그룹 정보가 올바르지 않습니다."
+        )
+
+        error.status = 400
+        throw error
+    }
+
+    // 타입별 선택 회원 목록
+    const inactive7 =
+        Array.isArray(groups.inactive7)
+            ? groups.inactive7
+            : []
+
+    const inactive14 =
+        Array.isArray(groups.inactive14)
+            ? groups.inactive14
+            : []
+
+    const dormant =
+        Array.isArray(groups.dormant)
+            ? groups.dormant
+            : []
+
+    // 전체 선택 회원 수
+    const totalRequestedCount =
+        inactive7.length +
+        inactive14.length +
+        dormant.length
+
+    // 아무도 선택하지 않은 경우
+    if (totalRequestedCount === 0) {
+        const error = new Error(
+            "메일을 발송할 회원을 선택해주세요."
+        )
+
+        error.status = 400
+        throw error
+    }
+
+    // 선택된 타입만 발송 작업에 추가
+    const mailTasks = []
+
+    if (inactive7.length > 0) {
+        mailTasks.push(
+            sendMemberStatusMails({
+                type: "inactive7",
+                userIds: inactive7
+            })
+        )
+    }
+
+    if (inactive14.length > 0) {
+        mailTasks.push(
+            sendMemberStatusMails({
+                type: "inactive14",
+                userIds: inactive14
+            })
+        )
+    }
+
+    if (dormant.length > 0) {
+        mailTasks.push(
+            sendMemberStatusMails({
+                type: "dormant",
+                userIds: dormant
+            })
+        )
+    }
+
+    // 타입별 메일을 동시에 발송
+    const results =
+        await Promise.all(mailTasks)
+
+    // 전체 성공 목록 합치기
+    const successes =
+        results.flatMap(
+            (result) =>
+                result.successes
+        )
+
+    // 전체 실패 목록 합치기
+    const failures =
+        results.flatMap(
+            (result) =>
+                result.failures
+        )
+
+    // 전체 유효 회원 수 계산
+    const validCount =
+        results.reduce(
+            (sum, result) =>
+                sum + result.validCount,
+            0
+        )
+
+    return {
+        requestedCount:
+            totalRequestedCount,
+
+        validCount,
+
+        successCount:
+            successes.length,
+
+        failureCount:
+            failures.length,
+
+        successes,
+        failures
+    }
+}

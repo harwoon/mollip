@@ -42,7 +42,7 @@ export async function getTotal(req, res) {
 
 export async function getRatio(req, res) {
     const { type, date } = req.query
-    const userId = req.user._id
+    const userId = req.query.userId || req.user._id
 
     try {
         let studies = []

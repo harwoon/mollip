@@ -96,8 +96,9 @@ router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 // http://127.0.0.1:3000/admin/member-status
 router.get("/member-status", adminMemberStatusController.getMemberStatus)
 
-// 관리회원현황 메일 발송
-// http://127.0.0.1:3000/admin/member-status/send-mail
-router.post("/member-status/send-mail", adminMemberStatusController.sendMemberStatusMail)
+// 타입별 선택 회원 전체 메일 발송
+// http://localhost:3000/admin/member-status/send-all-mail
+router.post("/member-status/send-all-mail", adminMemberStatusController.sendAllMemberStatusMail)
+
 
 export default router

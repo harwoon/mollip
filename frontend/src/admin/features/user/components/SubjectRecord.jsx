@@ -1,42 +1,65 @@
 import React, { useState, useEffect } from "react"
-import { getSubjectRecord } from "../../../../features/record/api/study.js"
+import { getSubjectRecord } from "../api/user.js"
 
-export default function SubjectRecord({type,date}){
+export default function SubjectRecord({ type, date, userId }) {
     const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true)
 
-    useEffect(()=>{
+    useEffect(() => {
         const fetchSubjectData = async () => {
+            setLoading(true)
             try {
-                const record = await getSubjectRecord(type,date)
+                const record = await getSubjectRecord(type, date, userId)
                 setData(record.subjects || [])
-                
+                console.log(record.subjects)
+
             } catch (error) {
                 console.error("과목 공부 조회 실패:", error)
+                setData([])
+            } finally {
+                setLoading(false)
             }
         }
 
         fetchSubjectData()
-    },[type,date])
+    }, [type, date, userId])
+
+    if (loading) {
+        return <div style={{ padding: "20px 0", color: "#666" }}>데이터를 불러오는 중입니다...</div>
+    }
+
+    if (data.length === 0) {
+        return <div style={{ padding: "20px 0", color: "#666" }}>해당 기간의 과목별 공부 기록이 없습니다.</div>
+    }
 
     return (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px 0" }}>
             {data.map((subject, index) => {
                 const ratio = Math.round(subject.ratio)
                 const hours = (subject.sumStudyTime / 3600).toFixed(1)
 
                 return (
-                    <div key={index} >
-                        <div/>
-                        
-                        <span>
+                    <div key={index} style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
+                        <div style={{
+                            width: "12px",
+                            height: "12px",
+                            backgroundColor: subject.subjectColor || "#ccc", // 색상이 없을 때 기본값(회색) 처리
+                            borderRadius: "2px",
+                            marginRight: "12px"
+                        }} />
+
+                        {/* 과목명 */}
+                        <span style={{ width: "120px", fontWeight: "500", color: "#333" }}>
                             {subject.studyTitle}
                         </span>
-                        
-                        <span>
+
+                        {/* 비율 (%) */}
+                        <span style={{ width: "40px", textAlign: "right", marginRight: "8px", color: "#555" }}>
                             {ratio}%
                         </span>
-                        
-                        <span>
+
+                        {/* 공부 시간 */}
+                        <span style={{ color: "#888" }}>
                             ({hours}시간)
                         </span>
                     </div>

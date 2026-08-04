@@ -1,10 +1,15 @@
-import React from "react"
+import React, { useState } from "react"
 import "./UserDetailModal.css"
 
 import UserDetailInfo from "../features/user/components/UserDetailInfo"
 import SubjectRecord from "../features/user/components/SubjectRecord"
 
 export default function UserDetailModal({ user, onClose }) {
+    const [type, setType] = useState("daily")
+
+    const today = new Date().toISOString().split("T")[0]
+    const [selectedDate, setSelectedDate] = useState(today)
+
     if (!user) return null
 
     return (
@@ -26,7 +31,7 @@ export default function UserDetailModal({ user, onClose }) {
         >
             {/* 모달 내용 박스*/}
             <div
-                onClick={(e) => e.stopPropagation()} 
+                onClick={(e) => e.stopPropagation()}
                 style={{
                     backgroundColor: "#fff",
                     padding: "30px",
@@ -46,14 +51,50 @@ export default function UserDetailModal({ user, onClose }) {
                     <button type="button" onClick={onClose} style={{ cursor: "pointer", padding: "5px 10px" }}>✕ 닫기</button>
                 </div>
 
+                {/* 일간/주간/월간 버튼 */}
+                <div style={{ display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "5px" }}>
+                        <button
+                            type="button"
+                            onClick={() => setType("daily")}
+                            style={{ fontWeight: type === "daily" ? "bold" : "normal" }}
+                        >
+                            일간
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setType("weekly")}
+                            style={{ fontWeight: type === "weekly" ? "bold" : "normal" }}
+                        >
+                            주간
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setType("monthly")}
+                            style={{ fontWeight: type === "monthly" ? "bold" : "normal" }}
+                        >
+                            월간
+                        </button>
+                    </div>
+
+                    {/* 날짜 기간 선택 */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <label htmlFor="date-picker" style={{ fontSize: "14px", color: "#555" }}>기준일 선택:</label>
+                        <input
+                            id="date-picker"
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            style={{ padding: "5px", borderRadius: "5px", border: "1px solid #ccc" }}
+                        />
+                    </div>
+                </div>
 
                 {/* 유저 정보 컴포넌트 렌더링 */}
                 <UserDetailInfo user={user} />
-                
+
                 {/* 차트 컴포넌트 렌더링 */}
-                <div>
-                    <SubjectRecord type={"daily"} date={"2026-08-04"} />
-                </div>
+                <SubjectRecord type={type} date={selectedDate} userId={user._id} />
 
             </div>
         </div>
