@@ -1,11 +1,83 @@
-// 성욱
+// 승아 - todo
 // recommendations.day: 요일
 // recommendations.task: 추천 Todo 내용
 // recommendations.duration: 소요시간
 // recommendations.effect: 예상 효과
 // task랑 duration만 사용
+import { useState } from "react"
 
-export default function AiThisWeek({ recommendations = [], onAddTodo }) {
+export default function AiThisWeek({ 
+    recommendations = [], 
+    // 오늘 홈 Todo 목록: 다음 날에는 같은 Todo를 다시 추가할 수 있음
+    todayTodos = [],
+    // AI 추천 Todo 홈 추가
+    onAddTodo,
+    // 이미 추가된 AI 추천 Todo 홈에서 제거
+    onRemoveTodo
+}) {
+    const [processingIndex, setProcessingIndex] = useState(null)
+
+    // 오늘 홈 Todo에서 추천 Todo와 같은 항목 찾기
+    const findTodayTodo = (task) => {
+        const normalizedTask = task?.trim()
+
+        return todayTodos.find(
+            (todo) =>
+                todo.todo?.trim() === normalizedTask
+        )
+    }
+
+    // 오늘 홈 Todo에 추가되어 있는지 확인
+    const isTodoAdded = (task) => {
+        return Boolean(findTodayTodo(task))
+    }
+
+    // 홈에서 실제 완료한 Todo인지 확인
+    const isTodoCompleted = (task) => {
+        const matchedTodo = findTodayTodo(task)
+
+        return matchedTodo?.state === true
+    }
+
+    // Todo 추가 버튼, 추가됨 버튼
+    const handleTodoButton = async (recommend, index) => {
+        const added = isTodoAdded(recommend.task)
+
+        try {
+            setProcessingIndex(index)
+
+            // 오늘 이미 추가된 Todo = 홈에서 제거할지 확인
+            if (added) {
+                const shouldRemove = window.confirm(
+                    `"${recommend.task}" Todo는 이미 추가되어 있습니다.\n홈 Todo에서 제거하시겠습니까?`
+                )
+
+                if (!shouldRemove) return
+
+                if (!onRemoveTodo) {
+                    console.error("onRemoveTodo가 전달되지 않았습니다.")
+                    return
+                }
+
+                await onRemoveTodo(recommend.task)
+                return
+            }
+
+            // 오늘 아직 추가되지 않은 Todo 홈에 추가
+            if (!onAddTodo) {
+                console.error("onAddTodo가 전달되지 않았습니다.")
+                return
+            }
+            await onAddTodo(recommend.task)
+
+        } catch (error) {
+            console.error("AI 추천 Todo 처리 실패:", error)
+            alert(error.message || "Todo를 처리하지 못했습니다.")
+        } finally {
+            setProcessingIndex(null)
+        }
+    }
+
     return (
         <section>
             <div className="aiReportHeader">
@@ -14,19 +86,54 @@ export default function AiThisWeek({ recommendations = [], onAddTodo }) {
 
             {recommendations.length === 0 ? (
                 <p className="aiReportError">
-                    추천할 Todo내용이 없습니다.
+                    추천할 Todo 내용이 없습니다.
                 </p>
             ) : (
-                <ul>
-                    {recommendations.map((recommend, index) => (
-                        <li key={`${recommend.day}-${index}`}>
-                            <p>
-                                <span>{recommend.task}</span>
-                                <span>({recommend.duration})</span>
-                            </p>
-                            <p>{recommend.effect}</p>
-                        </li>
-                    ))}
+                <ul className="aiRecommendationList">
+                    {recommendations.map((recommend, index) => {
+                        // 오늘 홈 Todo에 추가된 상태
+                        const added = isTodoAdded(recommend.task)
+
+                        // 홈에서 체크하여 실제 완료한 상태
+                        const completed = isTodoCompleted(recommend.task)
+
+                        const processing = processingIndex === index
+
+                        return (
+                            <li
+                                key={`${recommend.day}-${index}`}
+                                className={`aiRecommendationItem ${
+                                    added ? "aiRecommendationItemAdded" : ""
+                                }`}
+                            >
+                                <div className="aiRecommendationContent">
+                                    <p
+                                        className={
+                                            completed
+                                                ? "aiRecommendationTaskCompleted"
+                                                : ""
+                                        }
+                                    >
+                                        <span>{recommend.task}</span>
+                                        <span className="aiRecommendationDuration">
+                                            ({recommend.duration})
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => handleTodoButton(recommend, index)}
+                                    disabled={processing}
+                                    className={`aiRecommendationButton ${
+                                        added ? "aiRecommendationButtonAdded" : ""
+                                    }`}
+                                >
+                                    {processing ? "처리 중..." : added ? "추가됨" : "Todo 추가"}
+                                </button>
+                            </li>
+                        )
+                    })}
                 </ul>
             )}
         </section>

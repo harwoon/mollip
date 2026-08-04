@@ -73,6 +73,7 @@ function applySavedSubjectOrder(subjectList) {
   }
 }
 
+// todoRefreshKey = Ai todo
 export default function HomePage() {
   const {
     selectedSubject,
@@ -83,7 +84,11 @@ export default function HomePage() {
     setIsRunning,
     actualStartTime,
     setActualStartTime,
-    handleGlobalSave
+    handleGlobalSave,
+    // AI Todo 추가/제거 후 홈 Todo 목록 재조회 값
+    todoRefreshKey,
+    // 홈 Todo 추가/삭제 후 AI 추천 목록 동기화 함수
+    handleTodoListChanged
   } = useOutletContext()
 
   const [subjects, setSubjects] =
@@ -416,7 +421,13 @@ export default function HomePage() {
               <section
                 className={`commonSection ${styles.todoSection}`}
               >
-                <TodoList />
+                {/* AI todo도 받도록 수정 */}
+                <TodoList
+                  refreshKey={todoRefreshKey}
+
+                  // 홈 Todo 변경 시 AI 추천 목록 동기화
+                  onTodoListChanged={handleTodoListChanged}
+                />
               </section>
 
               <section

@@ -14,7 +14,8 @@
 .aiReportBox {
     background-color: #fff;
     border-radius: 16px;
-    width: 480px;
+    height: 80%;
+    width: 80%;
     max-width: 90%;
     max-height: 80vh;
     overflow-y: auto;
@@ -38,4 +39,85 @@
 
 .aiReportError {
     color: #e5484d;
+}
+
+/* AI 추천 Todo 목록 */
+.aiRecommendationList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* AI 추천 Todo 한 줄 */
+.aiRecommendationItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid #ece8f5;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+/* 홈에 이미 추가된 AI Todo */
+.aiRecommendationItemAdded {
+    background-color: #f7f5fb;
+}
+
+.aiRecommendationContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.aiRecommendationContent p {
+    margin: 0;
+}
+
+/* 홈에서 실제 완료한 AI 추천 Todo */
+.aiRecommendationTaskCompleted {
+    color: #999999;
+    text-decoration: line-through;
+}
+
+.aiRecommendationDuration {
+    margin-left: 5px;
+    color: #777777;
+    font-size: 13px;
+}
+
+/* AI Todo 추가 버튼 */
+.aiRecommendationButton {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #7c5cc4;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.aiRecommendationButton:hover:not(:disabled) {
+    background-color: #6848b2;
+}
+
+.aiRecommendationButton:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* 이미 추가된 Todo 버튼 */
+.aiRecommendationButtonAdded {
+    border: 1px solid #d7d0e7;
+    background-color: #ffffff;
+    color: #777777;
+}
+
+.aiRecommendationButtonAdded:hover:not(:disabled) {
+    border-color: #c5badc;
+    background-color: #f3f0f8;
+    color: #555555;
 }
