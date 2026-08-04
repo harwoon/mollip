@@ -11,7 +11,20 @@ import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icon
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
-export default function Sidebar({ selectedSubject, time, isRunning, userInfo, onStopAndSave }) {
+// onAddTodo = AI todo
+export default function Sidebar({ 
+    selectedSubject, 
+    time, 
+    isRunning, 
+    userInfo, 
+    onStopAndSave, 
+    // AI Todo 추가 여부를 표시하기 위한 오늘 Todo 목록
+    todayTodos = [],
+    // AI 추천 Todo 추가 함수
+    onAddTodo,
+    // AI 추천 Todo 제거 함수
+    onRemoveTodo
+}) {
     const [isReportOpen, setIsReportOpen] = useState(false)
     
     const getNavClassName = ({ isActive }) => {
@@ -131,8 +144,16 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
                 </div>
             </div>
 
+            {/* onAddTodo = AI todo */}
             {isReportOpen && (
-                <AiReportModal onClose={() => setIsReportOpen(false)} />
+                <AiReportModal
+                    onClose={() => setIsReportOpen(false)}
+
+                    // AI Todo
+                    todayTodos={todayTodos}
+                    onAddTodo={onAddTodo}
+                    onRemoveTodo={onRemoveTodo}
+                />
             )}
         </aside>
     )
