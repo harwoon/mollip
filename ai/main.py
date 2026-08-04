@@ -2,6 +2,7 @@ import os
 import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import List
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -13,12 +14,23 @@ app = FastAPI()
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # Express에서 넘어올 데이터 형식 정의
+class SessionRecord(BaseModel):
+    subjectName: str          # 과목명
+    #time: str          # 공부한 시간대 (예: "09:00~10:30" 또는 "오전")
+    hours: float       # 해당 세션의 공부 시간
+
+class DailyRecord(BaseModel):
+    day: str
+    dailyTotalHours: float       # 하루 총 공부 시간 (Node.js가 계산)
+    sessions: List[SessionRecord]
+
 class WeeklyStudyData(BaseModel):
     userName: str
     totalStudyHours: int
     achievementRate: int
     topSubjects: list[str]
     missedTodos: list[str]
+    dailyRecords: List[DailyRecord]
 
 # 2. 리포트 생성 API 엔드포인트
 @app.post("/ai/weekly-report")
@@ -57,19 +69,36 @@ async def generate_weekly_report(data: WeeklyStudyData):
           ]
         }
         """
+
+        # 일별 데이터를 문자열 리스트로 변환
+        daily_records_list = []
+        for record in data.dailyRecords:
+            if not record.sessions:
+                session_detail = "공부 안 함"
+            else:
+                # 예: "React(1.0시간)""
+                session_detail = ", ".join([f"{sess.subjectName}({sess.hours}시간)" for sess in record.sessions])
+            
+            # Node.js가 계산해준 일일 총시간을 맨 앞에 둬서 AI가 덧셈을 안 해도 되게 만듭니다.
+            daily_records_list.append(f"- {record.day} (총 {record.dailyTotalHours}시간): {session_detail}")
         
-        # missedTodos가 비어있을 경우 예외 처리
+        daily_records_str = "\n".join(daily_records_list)
+
         missed_todos_str = ', '.join(data.missedTodos) if data.missedTodos else '없음 (모두 달성!)'
 
+        # user_prompt에 일별 기록 주입
         user_prompt = f"""
         [사용자 이름]: {data.userName}
         [이번 주 총 공부시간]: {data.totalStudyHours}시간
         [Todo 달성률]: {data.achievementRate}%
-        [주로 공부한 과목]: {', '.join(data.topSubjects)}
+        [주요 공부 과목]: {', '.join(data.topSubjects)}
+        
+        [일별 공부 기록]
+        {daily_records_str}
+
         [완료하지 못한(실패한) Todo 목록]: {missed_todos_str}
         
-        위 데이터를 분석하여, 사용자가 실패한 Todo를 다음 주 추천 계획에 적절히 배치하고,
-        달성률과 공부 시간을 반영하여 정확한 JSON 리포트를 작성해 주세요.
+        위 데이터를 바탕으로 사용자의 요일별 학습 패턴을 분석하고, 실패한 Todo와 공백 요일을 고려하여 다음 주 추천 계획을 포함한 JSON 리포트를 작성해 주세요.
         """
 
         # OpenAI API 호출
