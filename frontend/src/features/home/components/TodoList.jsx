@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 import { addTodo, deleteTodo, getTodoList, updateTodoState } from "../api/todo";
 import TodoModal from "./TodoModal";
 
-import {PiPlusCircle, PiCheck, PiTrash, PiPlus} from "react-icons/pi"
+import { PiPlusCircle, PiCheck, PiTrash } from "react-icons/pi";
 import styles from "./TodoList.module.css";
 
-export default function TodoList() {
+export default function TodoList({
+  // AI Todo 추가/제거 후 홈 목록을 다시 조회하기 위한 값
+  refreshKey = 0,
+  // 홈에서 Todo 추가/삭제 시 AI 추천 목록도 동기화하는 함수
+  onTodoListChanged,
+}) {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,7 +19,11 @@ export default function TodoList() {
   useEffect(() => {
     const fetchTodoList = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const data = await getTodoList();
+
         setTodos(Array.isArray(data?.todo) ? data.todo : []);
       } catch (error) {
         console.error("Todo 조회 실패:", error);
@@ -25,23 +34,33 @@ export default function TodoList() {
     };
 
     fetchTodoList();
-  }, []);
+  }, [refreshKey]);
 
+  // 홈 Todo 완료/미완료 상태 변경
   const handleChange = async (selectedTodo) => {
-    const nextState = !selectedTodo.state;
+    const nextState = !selectedTodo.state
 
     try {
-      await updateTodoState(selectedTodo._id, nextState);
+      await updateTodoState(selectedTodo._id, nextState)
 
       setTodos((prevTodos) =>
         prevTodos.map((todo) =>
-          todo._id === selectedTodo._id ? { ...todo, state: nextState } : todo,
+          todo._id === selectedTodo._id
+            ? {
+                ...todo,
+                state: nextState,
+              }
+            : todo,
         ),
-      );
+      )
+
+      // 홈에서 완료 상태를 변경하면
+      // AI 추천 Todo 완료 표시도 동기화
+      await onTodoListChanged?.()
     } catch (error) {
-      console.error("Todo 상태 변경 실패:", error);
+      console.error("Todo 상태 변경 실패:", error)
     }
-  };
+  }
 
   const handleAddTodo = async (todoText) => {
     try {
@@ -50,6 +69,10 @@ export default function TodoList() {
       setTodos(
         Array.isArray(result?.todoList?.todo) ? result.todoList.todo : [],
       );
+
+      // 홈에서 Todo 추가 시 AI 추천 목록도 동기화
+      await onTodoListChanged?.();
+
       setIsOpen(false);
     } catch (error) {
       console.error("Todo 추가 실패:", error);
@@ -61,6 +84,9 @@ export default function TodoList() {
     try {
       await deleteTodo(todoId);
       setTodos((prevTodos) => prevTodos.filter((todo) => todo._id !== todoId));
+
+      // 홈에서 Todo 삭제 시 AI 추천 목록도 다시 추가 가능하도록 동기화
+      await onTodoListChanged?.();
     } catch (error) {
       console.error("Todo 삭제 실패:", error);
     }
@@ -147,5 +173,5 @@ export default function TodoList() {
         <TodoModal onAdd={handleAddTodo} onClose={() => setIsOpen(false)} />
       )}
     </div>
-  )
+  );
 }

@@ -42,7 +42,7 @@ export async function getTotal(req, res) {
 
 export async function getRatio(req, res) {
     const { type, date } = req.query
-    const userId = req.user._id
+    const userId = req.query.userId || req.user._id
 
     try {
         let studies = []
@@ -219,6 +219,63 @@ export async function getWeeklyTodoCompare(req, res) {
 
         return res.status(500).json({
             message: "주간 Todo 달성률을 불러오지 못했습니다."
+        })
+    }
+}
+
+// 과목별 공부시간 
+export async function getSubjectSummary(
+    req,
+    res,
+) {
+    const userId = req.user._id
+    const { type, date } = req.query
+
+    if (!type || !date) {
+        return res.status(400).json({
+            message:
+                "type과 date를 입력해주세요.",
+        })
+    }
+
+    try {
+        const result =
+            await statisticsService
+                .getSubjectStudySummary(
+                    userId,
+                    type,
+                    date,
+                )
+
+        return res
+            .status(200)
+            .json(result)
+
+    } catch (error) {
+        console.error(
+            "과목별 공부시간 요약 조회 실패:",
+            error,
+        )
+
+        const validationMessages = [
+            "date는 YYYY-MM-DD 형식이어야 합니다.",
+            "올바른 날짜를 입력해주세요.",
+            "type은 daily, weekly, monthly 중 하나여야 합니다.",
+        ]
+
+        if (
+            validationMessages.includes(
+                error.message,
+            )
+        ) {
+            return res.status(400).json({
+                message: error.message,
+            })
+        }
+
+        return res.status(500).json({
+            message:
+                "과목별 공부시간을 불러오지 못했습니다.",
         })
     }
 }

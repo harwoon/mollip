@@ -12,7 +12,7 @@
 - MongoDB 
 - Redis 다운로드
 
-1. backend와 frontend 각각 환경 변수 설정
+1. backend, frontend, ai 폴더 각각 환경 변수 설정
 ```
 # backend/.env
 
@@ -33,11 +33,22 @@ DB_HOST=###
 
 # 휴면 그룹 아이디
 DORMANT_GROUP_ID=###
+
+# 구글 OAuth
+GOOGLE_CLIENT_ID=###
 ```
 
 ```
 # frontend/.env
 VITE_LOCAL_API_URL=http://127.0.0.1:3000
+
+# 구글 OAuth
+GOOGLE_CLIENT_ID=###
+```
+
+```
+# ai/.env
+OPENAI_API_KEY=###
 ```
 
 2. backend 실행
@@ -54,6 +65,11 @@ npm install
 npm run dev
 ```
 
+4. ai 실행
+```
+cd ai
+pip install fastapi uvicorn openai pydantic python-dotenv
+uvicorn main:app --reload
 ---
 
 ## 2. 주요 기능
@@ -91,7 +107,12 @@ npm run dev
 
 ---
 
-## 4. 팀명 및 팀원
+## 4. 라이브러리
+
+
+---
+
+## 5. 팀명 및 팀원
 
 ### TEAM_DACACHI
 

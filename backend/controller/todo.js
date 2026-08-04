@@ -231,7 +231,7 @@ export async function getRecords(req, res) {
 // 일간,주간,월간 목표 달성률
 export async function getAchievement(req, res) {
     const {type, date} = req.query
-    const userId = req.user._id
+    const userId = req.query.userId || req.user._id
 
     if(!type || !date){
         return res.status(400).json({

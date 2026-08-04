@@ -1,15 +1,32 @@
+import { useState } from "react"
 import { NavLink } from "react-router-dom"
 
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
 import SidebarLogout from "./SidebarLogout"
+import AiReportModal from "./AiReportModal.jsx"
 
 import "./Sidebar.css"
 import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
-export default function Sidebar({ selectedSubject, time, isRunning, userInfo, onStopAndSave }) {
+// onAddTodo = AI todo
+export default function Sidebar({ 
+    selectedSubject, 
+    time, 
+    isRunning, 
+    userInfo, 
+    onStopAndSave, 
+    // AI Todo 추가 여부를 표시하기 위한 오늘 Todo 목록
+    todayTodos = [],
+    // AI 추천 Todo 추가 함수
+    onAddTodo,
+    // AI 추천 Todo 제거 함수
+    onRemoveTodo
+}) {
+    const [isReportOpen, setIsReportOpen] = useState(false)
+    
     const getNavClassName = ({ isActive }) => {
         return isActive 
             ? "sidebarNavigationLink sidebarNavigationLinkActive" 
@@ -31,6 +48,19 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
             )
         }
     }
+
+    const activeStyle = ({ isActive }) => {
+        return {
+        textDecoration: "none",
+        fontWeight: isActive ? "bold" : "normal",
+        color: isActive ? "#007bff" : "#333",
+        padding: "10px",
+        borderRadius: "8px",
+        backgroundColor: isActive ? "#e9ecef" : "transparent",
+        display: "block",
+        }
+    }
+
 
     return (
         <aside className="sidebar">
@@ -81,6 +111,12 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
                             <span>마이페이지</span>
                         </NavLink>
                     </div>
+
+                    <div>
+                        <button type="button" onClick={() => setIsReportOpen(true)}>
+                            AI 학습 리포트
+                        </button>
+                    </div>
                 </nav>
 
                 {/* 타이머 UI 박스 */}
@@ -107,6 +143,18 @@ export default function Sidebar({ selectedSubject, time, isRunning, userInfo, on
                     <SidebarLogout userInfo={userInfo} isRunning={isRunning} onStopAndSave={onStopAndSave} />
                 </div>
             </div>
+
+            {/* onAddTodo = AI todo */}
+            {isReportOpen && (
+                <AiReportModal
+                    onClose={() => setIsReportOpen(false)}
+
+                    // AI Todo
+                    todayTodos={todayTodos}
+                    onAddTodo={onAddTodo}
+                    onRemoveTodo={onRemoveTodo}
+                />
+            )}
         </aside>
     )
 }

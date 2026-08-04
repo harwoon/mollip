@@ -138,3 +138,106 @@ export function getWeekOfMonth(dateString) {
     // (현재 일자 + 1일의 요일 보정치) / 7 을 올림 처리
     return Math.ceil((date.getDate() + (firstDay - 1)) / 7)
 }
+
+// 일간·주간·월간 현재 기간과 이전 기간 계산
+export function getStudyPeriodRanges(
+    type,
+    dateString,
+) {
+    const datePattern =
+        /^\d{4}-\d{2}-\d{2}$/
+
+    if (!datePattern.test(dateString)) {
+        throw new Error(
+            "date는 YYYY-MM-DD 형식이어야 합니다.",
+        )
+    }
+
+    const targetDate =
+        parseDate(dateString)
+
+    // 2026-02-31처럼 실제로 존재하지 않는 날짜 방지
+    if (
+        Number.isNaN(targetDate.getTime()) ||
+        formatDate(targetDate) !== dateString
+    ) {
+        throw new Error(
+            "올바른 날짜를 입력해주세요.",
+        )
+    }
+
+    if (type === "daily") {
+        return {
+            currentRange: {
+                startDate: dateString,
+                endDate: dateString,
+            },
+            previousRange: {
+                startDate:
+                    addDays(dateString, -1),
+                endDate:
+                    addDays(dateString, -1),
+            },
+        }
+    }
+
+    if (type === "weekly") {
+        const currentRange =
+            getWeekRange(dateString)
+
+        return {
+            currentRange,
+            previousRange: {
+                startDate:
+                    addDays(
+                        currentRange.startDate,
+                        -7,
+                    ),
+                endDate:
+                    addDays(
+                        currentRange.endDate,
+                        -7,
+                    ),
+            },
+        }
+    }
+
+    if (type === "monthly") {
+        const year =
+            targetDate.getFullYear()
+
+        const month =
+            targetDate.getMonth()
+
+        const currentStart =
+            new Date(year, month, 1)
+
+        const currentEnd =
+            new Date(year, month + 1, 0)
+
+        const previousStart =
+            new Date(year, month - 1, 1)
+
+        const previousEnd =
+            new Date(year, month, 0)
+
+        return {
+            currentRange: {
+                startDate:
+                    formatDate(currentStart),
+                endDate:
+                    formatDate(currentEnd),
+            },
+            previousRange: {
+                startDate:
+                    formatDate(previousStart),
+                endDate:
+                    formatDate(previousEnd),
+            },
+        }
+    }
+
+    throw new Error(
+        "type은 daily, weekly, monthly 중 하나여야 합니다.",
+    )
+}

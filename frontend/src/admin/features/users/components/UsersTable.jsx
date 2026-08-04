@@ -8,7 +8,7 @@ function getProfileImageUrl(profileImg) {
         : "/images/noprofile.png"
 }
 
-export default function UsersTable({ users, activeUserIds }) {
+export default function UsersTable({ users, activeUserIds, onSelectUser }) {
     if (!users.length) {
         return <div className="usersTableMessage">조건에 맞는 회원이 없습니다.</div>
     }
@@ -37,7 +37,7 @@ export default function UsersTable({ users, activeUserIds }) {
                         const progressRate = Math.min(Math.max(achievementRate, 0), 100)
 
                         return (
-                            <tr key={user._id} className="usersTableRow">
+                            <tr key={user._id} className="usersTableRow" onClick={() => onSelectUser(user)} style={{ cursor: "pointer" }}>
                                 <td>
                                     <img
                                         src={getProfileImageUrl(user.profileImg)}
