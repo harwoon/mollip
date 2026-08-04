@@ -130,7 +130,8 @@ export async function getWeeklyAiReport(req, res) {
             achievementRate: achievementRate,
             topSubjects: topSubjects,
             missedTodos: missedTodos,
-            dailyRecords: dailyRecords
+            dailyRecords: dailyRecords,
+            currentStreak: userInfo.currentStreak || 0
         }
 
         // fastAPI 포트는 8000
