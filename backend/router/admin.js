@@ -5,6 +5,7 @@ import * as adminGroupStatsController from "../controller/adminGroupStats.js"  /
 import * as adminDashboardController from "../controller/adminDashboard.js"  // 홈 대시보드 지표(추이, 로그 등) 컨트롤러
 import * as groupController from "../controller/group.js"  // 그룹 CRUD (생성/수정/목록) — 일반 유저용 router/group.js와 공유하는 컨트롤러
 import * as adminMemberStatusController from "../controller/adminMemberStatus.js" // 관리회원현황 컨트롤러
+import * as statController from "../controller/statistics.js"
 
 const router = express.Router()
 
@@ -94,5 +95,11 @@ router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
 // ====================== 관리회원현황
 // http://127.0.0.1:3000/admin/member-status
 router.get("/member-status", adminMemberStatusController.getMemberStatus)
+
+// ====================== 유저 상세
+// 일간/주간/월간 과목 비율 조회
+//http://127.0.0.1:3000/admin/ratio?type=daily&date=2026-07-26&userid=6a6fdd0ea7b6baa85e4d088d
+router.get("/ratio", isAuth, statController.getRatio)
+
 
 export default router
