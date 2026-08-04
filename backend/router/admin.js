@@ -4,6 +4,7 @@ import * as adminUserController from "../controller/adminUser.js"  // 회원 조
 import * as adminGroupStatsController from "../controller/adminGroupStats.js"  // 그룹 통계(달성률, 공부시간 등 집계) 컨트롤러
 import * as adminDashboardController from "../controller/adminDashboard.js"  // 홈 대시보드 지표(추이, 로그 등) 컨트롤러
 import * as groupController from "../controller/group.js"  // 그룹 CRUD (생성/수정/목록) — 일반 유저용 router/group.js와 공유하는 컨트롤러
+import * as adminMemberStatusController from "../controller/adminMemberStatus.js" // 관리회원현황 컨트롤러
 
 const router = express.Router()
 
@@ -89,5 +90,9 @@ router.patch("/groups/:id", groupController.updateGroup)
 // 그룹 ID 자동 부여
 // http://127.0.0.1:3000/admin/assign-weekly
 router.post("/assign-weekly", groupController.runWeeklyGroupAssignment)
+
+// ====================== 관리회원현황
+// http://127.0.0.1:3000/admin/member-status
+router.get("/member-status", adminMemberStatusController.getMemberStatus)
 
 export default router
