@@ -1,10 +1,24 @@
 import React from "react"
+import "./UserDetailModal.css"
 
 export default function UserDetailModal({ user, onClose }) {
     // 유저 정보가 없으면 아무것도 렌더링하지 않음
     if (!user) return null
 
     return (
+        <>
+        <div className="userDetailOverlay" onClick={onClose}>
+            <div className="userDetailBox" onClick={(e) => e.stopPropagation()}>
+                <div className="userDetailHeader">
+                    <strong>회원 상세 정보</strong>
+                    <button type="button" onClick={onClose}>✕</button>
+                </div>
+
+                <div className="userDetailBody">
+                    <p>user: {JSON.stringify(user)}</p>
+                </div>
+            </div>
+        </div>
         <div>
             <h2>회원 상세</h2>
             
@@ -36,5 +50,6 @@ export default function UserDetailModal({ user, onClose }) {
 
             <button type="button" onClick={onClose}>닫기</button>
         </div>
-    );
+        </>
+    )
 }
