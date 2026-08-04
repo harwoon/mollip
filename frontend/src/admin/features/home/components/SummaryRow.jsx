@@ -28,6 +28,30 @@ function formatStudyTime(totalSeconds) {
     return `${hours.toLocaleString()}시간 ${minutes}분`
 }
 
+function formatStudyTimeDiff(
+    diffSeconds,
+) {
+    const diff =
+        Number(diffSeconds) || 0
+
+    if (diff === 0) {
+        return "지난주 전체와 동일"
+    }
+
+    const sign =
+        diff > 0 ? "+" : "-"
+
+    const timeText =
+        formatStudyTime(
+            Math.abs(diff),
+        )
+
+    return (
+        `${sign}${timeText} ` +
+        `(전주 대비)`
+    )
+}
+
 export default function SummaryRow({ summary }) {
     return (
         <div className="summaryRow">
@@ -36,22 +60,25 @@ export default function SummaryRow({ summary }) {
                 label="전체 사용자 수"
                 value={summary.totalUserCount}
                 unit="명"
-                diff={summary}
+                diff={summary.userCountDiff}
             />
+
             <SummaryCard
                 icon={<RiGroupLine />}
                 label="운영중인 그룹 수"
                 value={summary.groupCount}
                 unit="개"
-                diff={summary}
+                diff={summary.groupCountDiff}
             />
+
             <SummaryCard
                 icon={<HiOutlineFire />}
                 label="현재 공부 중 인원"
                 value={summary.studyingCount}
                 unit="명"
-                diff={summary}
+                diff={summary.studyingCountNote}
             />
+
             <SummaryCard
                 icon={<RiTimeLine />}
                 label="이번 주 이용자 총 공부시간"
@@ -59,16 +86,17 @@ export default function SummaryRow({ summary }) {
                     summary.weeklyTotalTime,
                 )}
                 unit=""
-                diff={
-                    summary.weeklyTotalTimeDiff
-                }
+                diff={formatStudyTimeDiff(
+                    summary.weeklyTotalTimeDiff,
+                )}
             />
+
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}
                 label="이번 주 todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
-                diff={summary}
+                diff={summary.avgGoalRateDiff}
             />
         </div>
     )

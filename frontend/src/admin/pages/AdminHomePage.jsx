@@ -140,7 +140,14 @@ export default function AdminHomePage() {
                     dormantUserCount: userData.dormantUserCount || 0,
 
                     // 이번 주 총 공부시간
-                    weeklyTotalTime: totalTimeData || 0,
+                    weeklyTotalTime:
+                        totalTimeData
+                            .currentWeeklyStudyTime,
+
+                    // 이번주 와 저번주 공부시간 차이        
+                    weeklyTotalTimeDiff:
+                        totalTimeData
+                            .weeklyStudyTimeDiff,
 
                     // 이번 주 전체 Todo 달성률
                     avgGoalRate: todoAchievementData.achievement?.achievementRate || 0

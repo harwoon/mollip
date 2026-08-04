@@ -9,7 +9,7 @@ import { calculateStudyStatistics } from "../util/ratio.js"
 import Study from '../models/Study.js'
 import mongoose from 'mongoose'
 import * as adminGroupStatisticsService from "../service/adminGroupStatisticsService.js"
-import { getWeekOfMonth } from "../util/date.js"
+import { getWeekOfMonth,addDays,getKstToday } from "../util/date.js"
 import { getWeekRange, getInclusiveDayCount, getPreviousPeriod, parseDate } from "../util/date.js"
 
 
@@ -842,32 +842,100 @@ export async function getWeeklyAverageStudyTime(req, res) {
 }
 
 // 관리자 홈 전체 회원의 이번 주 총 공부시간 조회
-export async function getWeeklyTotalStudyTime(req, res) {
-    try {
-        // 오늘 날짜를 기준 이번주 계산
-        const { startDate, endDate } = getWeekRange(new Date())
+export async function getWeeklyTotalStudyTime(
+  req,
+  res,
+) {
+  try {
+    // 한국 날짜 기준 오늘
+    const today = getKstToday()
 
-        // 관리자, 탈퇴회원 제외한 주간 총 공부시간
-        const summary = await studyRepository.getWeeklyStudyTimeSummary(
-                startDate,
-                endDate
-            )
+    // 이번 주 월요일 확인
+    const {
+      startDate: currentStartDate,
+    } = getWeekRange(today)
 
-        return res.status(200).json({
-            message: "전체 회원의 이번 주 총 공부시간을 성공적으로 불러왔습니다.",
-            startDate,
-            endDate,
-            // 정상 회원 + 휴면 회원 이번주 총 공부시간
-            currentWeeklyStudyTime: summary.currentWeeklyStudyTime,
-            // 탈퇴한 회원 이번주 총 공부시간
-            withdrawnWeeklyStudyTime: summary.withdrawnWeeklyStudyTime,
-            // 현재회원, 탈토회원 포함한 이번주 총 공부시간
-            totalWeeklyStudyTime: summary.totalWeeklyStudyTime
-        })
-    } catch (error) {
-        console.error("전체 회원 주간 총 공부시간 조회 실패:", error)
-        return res.status(500).json({
-            message: "전체 회원의 이번 주 총 공부시간을 불러오지 못했습니다."
-        })
-    }
+    // 이번 주는 월요일부터 오늘까지
+    const currentEndDate = today
+
+    // 지난주는 지난주 월요일부터 일요일까지
+    const previousStartDate =
+      addDays(currentStartDate, -7)
+
+    const previousEndDate =
+      addDays(currentStartDate, -1)
+
+    const [
+      currentSummary,
+      previousSummary,
+    ] = await Promise.all([
+      // 이번 주 월요일 ~ 오늘
+      studyRepository
+        .getWeeklyStudyTimeSummary(
+          currentStartDate,
+          currentEndDate,
+        ),
+
+      // 지난주 월요일 ~ 지난주 일요일
+      studyRepository
+        .getWeeklyStudyTimeSummary(
+          previousStartDate,
+          previousEndDate,
+        ),
+    ])
+
+    const currentWeeklyStudyTime =
+      Number(
+        currentSummary
+          .currentWeeklyStudyTime,
+      ) || 0
+
+    const previousWeeklyStudyTime =
+      Number(
+        previousSummary
+          .currentWeeklyStudyTime,
+      ) || 0
+
+    const weeklyStudyTimeDiff =
+      currentWeeklyStudyTime -
+      previousWeeklyStudyTime
+
+    return res.status(200).json({
+      message:
+        "주간 총 공부시간 비교 조회 성공",
+
+      currentStartDate,
+      currentEndDate,
+
+      previousStartDate,
+      previousEndDate,
+
+      currentWeeklyStudyTime,
+      previousWeeklyStudyTime,
+      weeklyStudyTimeDiff,
+
+      // 기존 응답값을 사용하는 곳이 있을 수 있어 유지
+      withdrawnWeeklyStudyTime:
+        Number(
+          currentSummary
+            .withdrawnWeeklyStudyTime,
+        ) || 0,
+
+      totalWeeklyStudyTime:
+        Number(
+          currentSummary
+            .totalWeeklyStudyTime,
+        ) || 0,
+    })
+  } catch (error) {
+    console.error(
+      "주간 총 공부시간 조회 실패:",
+      error,
+    )
+
+    return res.status(500).json({
+      message:
+        "주간 총 공부시간 조회에 실패했습니다.",
+    })
+  }
 }

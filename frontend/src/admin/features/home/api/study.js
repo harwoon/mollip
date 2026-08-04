@@ -19,14 +19,14 @@ export async function getStudyTrend(type, start, end) {
         throw new Error(data.message || "학습 시간 추이 데이터를 불러오지 못했습니다.")
     }
 
-    const {trend, currentPeriod, previousPeriod, comparison} = data
+    const { trend, currentPeriod, previousPeriod, comparison } = data
 
-    return  {trend, currentPeriod, previousPeriod, comparison}
+    return { trend, currentPeriod, previousPeriod, comparison }
 }
 
 // 전체 유저 이번 주 공부시간
 // http://localhost:3000/admin/weekly-total-study-time
-export async function getTotalTime(){
+export async function getTotalTime() {
 
     const token = localStorage.getItem("token")
 
@@ -43,5 +43,20 @@ export async function getTotalTime(){
         throw new Error(data.message || "이번주 총 공부시간 데이터를 불러오지 못했습니다.")
     }
 
-    return data.currentWeeklyStudyTime
+    return {
+        currentWeeklyStudyTime:
+            Number(
+                data.currentWeeklyStudyTime,
+            ) || 0,
+
+        previousWeeklyStudyTime:
+            Number(
+                data.previousWeeklyStudyTime,
+            ) || 0,
+
+        weeklyStudyTimeDiff:
+            Number(
+                data.weeklyStudyTimeDiff,
+            ) || 0,
+    }
 }
