@@ -81,9 +81,20 @@ export async function getWeeklyAiReport(req, res) {
 
                 const sessionHours = Number(((record.sumStudyTime || 0) / 3600).toFixed(2))
 
+                let kstStartTime = "시간 모름"
+                if (record.createdAt) {
+                    kstStartTime = new Date(record.createdAt).toLocaleString("ko-KR", {
+                        timeZone: "Asia/Seoul",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    })
+                }
+
                 dailyRecordsMap[dStr].dailyTotalHours += sessionHours
                 dailyRecordsMap[dStr].sessions.push({
                     subjectName: record.studyTitle,
+                    startTime: kstStartTime,
                     hours: sessionHours
                 })
             }
