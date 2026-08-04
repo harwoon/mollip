@@ -8,55 +8,85 @@ const dormantGroupId =
     config.group.dormantId
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
+// 전체 사용자 수 조회
 export async function countAllUsers() {
-    // 휴면 그룹 ObjectId
-    const dormantGroupId = "6a6c35fa39f4827ac141db88"
+    // 현재 시점으로부터 정확히 7일 전
+    const oneWeekAgo = new Date()
 
-    // 각 회원수 Promise.all 비교
-    const[
+    oneWeekAgo.setDate(
+        oneWeekAgo.getDate() - 7,
+    )
+
+    const dormantGroupId =
+        "6a6c35fa39f4827ac141db88"
+
+    const [
         totalUserCount,
         withdrawnUserCount,
-        dormantUserCount
+        dormantUserCount,
+        previousTotalUserCount,
     ] = await Promise.all([
-        
-        // 전체 회원수 = 관리자, 탈퇴회원 제외 | 정상회워느 휴면회원 포함
-        User.countDocuments({
-            role: "user",
-            useYn: "Y"
-        }),
-        
-        // 탈퇴 회원수 = UseYn:n | 관리자 제외
-        User.countDocuments({
-            role: "user",
-            useYn: "N"
-        }),
-
-        // 휴면 회원수 = 탈퇴안한 회원 중 groupId 휴면그룹 ID
+        // 현재 탈퇴하지 않은 전체 일반 회원 수
         User.countDocuments({
             role: "user",
             useYn: "Y",
-            groupId: dormantGroupId
-        })
+        }),
+
+        // 현재 탈퇴 회원 수
+        User.countDocuments({
+            role: "user",
+            useYn: "N",
+        }),
+
+        // 현재 휴면 회원 수
+        User.countDocuments({
+            role: "user",
+            useYn: "Y",
+            groupId: dormantGroupId,
+        }),
+
+        // 7일 전 당시 존재했던 사용자 수
+        User.countDocuments({
+            role: "user",
+
+            // 7일 전에 이미 가입한 사용자
+            createdAt: {
+                $lte: oneWeekAgo,
+            },
+
+            // 아직 탈퇴하지 않았거나
+            // 7일 전 이후에 탈퇴한 사용자
+            $or: [
+                {
+                    withdrawnAt: null,
+                },
+                {
+                    withdrawnAt: {
+                        $gt: oneWeekAgo,
+                    },
+                },
+            ],
+        }),
     ])
 
-    // 정상 회원수 = 전체회원(정상, 휴면) - 휴면
-    const normalUserCount = totalUserCount - dormantUserCount
+    const normalUserCount =
+        totalUserCount - dormantUserCount
 
-    return{
-        // 탈퇴하지 않은 전체 일반 회원 수
+    // 현재 사용자 수 - 7일 전 사용자 수
+    const userCountDiff =
+        totalUserCount -
+        previousTotalUserCount
+
+    return {
         totalUserCount,
+        previousTotalUserCount,
+        userCountDiff,
 
-        // 탈퇴한 일반 회원 수
         withdrawnUserCount,
-
-        // 탈퇴하지 않았고 휴면 그룹이 아닌 회원 수
         normalUserCount,
-
-        // 탈퇴하지 않았고 휴면 그룹에 속한 회원 수
-        dormantUserCount
+        dormantUserCount,
     }
 }
-
 
 // 검색/그룹 필터가 적용된 전체 유저 조회
 // (정렬·페이지네이션은 여기서 하지 않고, 이후 controller에서 계산값까지 합친 뒤 처리함)

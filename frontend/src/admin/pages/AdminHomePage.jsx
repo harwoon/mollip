@@ -22,10 +22,10 @@ export default function AdminHomePage() {
 
     const [summary, setSummary] = useState({
         groupCount: 0,
-        groupCountDiff: "수정 필요",
+        groupCountDiff: 0,
 
-        totalUserCount: 0, // 탈퇴회원, 관리자 제외한 일반 회원 수
-        userCountDiff: "수정 필요",
+        totalUserCount: 0,
+        userCountDiff: 0,
 
         studyingCount: 0,
         studyingCountNote: "수정 필요",
@@ -125,19 +125,46 @@ export default function AdminHomePage() {
                 setSummary(prev => ({
                     ...prev,
                     // 운영 중인 그룹 수
-                    groupCount: groupData.count || 0,
+                    groupCount:
+                        Number(groupData.count) || 0,
 
-                    // 탈퇴 회원을 제외한 전체 회원 수
-                    totalUserCount: userData.totalUserCount || 0,
+                    // 그룹 수 전주 대비 증감
+                    groupCountDiff:
+                        Number(
+                            groupData.groupCountDiff,
+                        ) || 0,
+
+                    // 전체 사용자 수
+                    totalUserCount:
+                        Number(
+                            userData.totalUserCount,
+                        ) || 0,
+
+                    // 사용자 수 전주 대비 증감
+                    userCountDiff:
+                        Number(
+                            userData.userCountDiff,
+                        ) || 0,
+
 
                     // 탈퇴 회원 수
-                    withdrawnUserCount: userData.withdrawnUserCount || 0,
+                    withdrawnUserCount:
+                        Number(
+                            userData.withdrawnUserCount,
+                        ) || 0,
 
                     // 휴면 회원을 제외한 정상 회원 수
-                    normalUserCount: userData.normalUserCount || 0,
+                    normalUserCount:
+                        Number(
+                            userData.normalUserCount,
+                        ) || 0,
+
 
                     // 휴면 그룹 소속 회원 수
-                    dormantUserCount: userData.dormantUserCount || 0,
+                    dormantUserCount:
+                        Number(
+                            userData.dormantUserCount,
+                        ) || 0,
 
                     // 이번 주 총 공부시간
                     weeklyTotalTime:

@@ -51,18 +51,27 @@ export async function getGroupsColor(req, res) {
 
 // 그룹 개수 조회
 export async function getGroupCount(req, res) {
-  try {
-    const count = await groupRepository.countGroups();
-    return res.status(200).json({
-      message: "그룹 수를 성공적으로 불러왔습니다.",
-      count,
-    });
-  } catch (error) {
-    console.error("그룹 수 조회 오류: ", error);
-    return res.status(500).json({
-      message: "그룹 수 조회 중 오류가 발생했습니다.",
-    });
-  }
+    try {
+        const groupCountSummary =
+            await groupRepository.countGroups()
+
+        return res.status(200).json({
+            message:
+                "그룹 수를 성공적으로 불러왔습니다.",
+
+            ...groupCountSummary,
+        })
+    } catch (error) {
+        console.error(
+            "그룹 수 조회 오류: ",
+            error,
+        )
+
+        return res.status(500).json({
+            message:
+                "그룹 수 조회 중 오류가 발생했습니다.",
+        })
+    }
 }
 
 // 자신 그룹 조회

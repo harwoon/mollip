@@ -4,6 +4,19 @@ import { HiOutlineFire } from "react-icons/hi"
 
 import "./SummaryRow.css"
 
+
+function formatWeekDiff(
+    difference,
+    unit,
+) {
+    const value =
+        Number(difference) || 0
+
+    const sign =
+        value > 0 ? "+" : ""
+
+    return `${sign}${value}${unit} (전주 대비)`
+}
 // 초 단위를 시간과 분으로 변경
 function formatStudyTime(totalSeconds) {
     const seconds =
@@ -58,9 +71,14 @@ export default function SummaryRow({ summary }) {
             <SummaryCard
                 icon={<RiUserSmileLine />}
                 label="전체 사용자 수"
-                value={summary.totalUserCount}
+                value={
+                    summary.totalUserCount
+                }
                 unit="명"
-                diff={summary.userCountDiff}
+                diff={formatWeekDiff(
+                    summary.userCountDiff,
+                    "명",
+                )}
             />
 
             <SummaryCard
@@ -68,7 +86,10 @@ export default function SummaryRow({ summary }) {
                 label="운영중인 그룹 수"
                 value={summary.groupCount}
                 unit="개"
-                diff={summary.groupCountDiff}
+                diff={formatWeekDiff(
+                    summary.groupCountDiff,
+                    "개",
+                )}
             />
 
             <SummaryCard

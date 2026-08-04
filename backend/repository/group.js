@@ -9,9 +9,37 @@ export async function findAllGroups() {
   return Group.find().sort({ createdAt: -1 });
 }
 
-// 그룹 전체 개수 조회
+// 그룹 전체 개수 및 전주 대비 조회
 export async function countGroups() {
-  return Group.countDocuments();
+    const oneWeekAgo = new Date()
+
+    oneWeekAgo.setDate(
+        oneWeekAgo.getDate() - 7,
+    )
+
+    const [
+        count,
+        previousCount,
+    ] = await Promise.all([
+        // 현재 전체 그룹 수
+        Group.countDocuments(),
+
+        // 7일 전에 이미 만들어져 있던 그룹 수
+        Group.countDocuments({
+            createdAt: {
+                $lte: oneWeekAgo,
+            },
+        }),
+    ])
+
+    const groupCountDiff =
+        count - previousCount
+
+    return {
+        count,
+        previousCount,
+        groupCountDiff,
+    }
 }
 
 // 그룹 생성
