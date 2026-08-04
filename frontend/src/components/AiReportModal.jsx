@@ -8,7 +8,14 @@ import AiNextWeek from "../features/ai/components/AiNextWeek.jsx";
 
 import "./AiReportModal.css"
 
-export default function AiReportModal({ onClose, onAddTodo }) {
+export default function AiReportModal({
+    onClose,
+
+    // AI Todo
+    todayTodos = [],
+    onAddTodo,
+    onRemoveTodo
+}) {
     const [report, setReport] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
@@ -64,7 +71,14 @@ export default function AiReportModal({ onClose, onAddTodo }) {
                         <div>
                             <AiSummary diagnosis={report.diagnosis} />
                             <AiLastWeek patterns={report.patterns} />
-                            <AiThisWeek recommendations={report.recommendations} onAddTodo={onAddTodo} />
+                            <AiThisWeek
+                                recommendations={report.recommendations}
+
+                                // AI Todo
+                                todayTodos={todayTodos}
+                                onAddTodo={onAddTodo}
+                                onRemoveTodo={onRemoveTodo}
+                            />
                             <AiNextWeek expectedChanges={report.expectedChanges} />
                         </div>
                     )}

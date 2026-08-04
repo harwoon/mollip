@@ -1,261 +1,325 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { getSubjectRecord } from "../api/study.js";
+import { getSubjectStudySummary } from "../api/study.js";
 import dayjs from "dayjs";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 import styles from "./TotalSubject.module.css";
 
-export default function TotalSubject({ selectedDate, type }) {
-  const [hour, setHour] = useState(0);
-  const [min, setMin] = useState(0);
-  const [subjects, setSubjects] = useState([]);
+function formatStudyTime(seconds) {
+  const safeSeconds =
+    Number(seconds) || 0
 
-  useEffect(() => {
-    const fetchStudyTime = async () => {
-      try {
-        const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+  const totalMinutes =
+    Math.floor(safeSeconds / 60)
 
-        // API 요청
-        const data = await getSubjectRecord(type, formattedDate);
+  const hours =
+    Math.floor(totalMinutes / 60)
 
-        // 1. DB에서 넘어온 데이터는 '초(Seconds)' 입니다. (예: 196초)
-        const totalSeconds = data.totalStudyTime || 0;
+  const minutes =
+    totalMinutes % 60
 
-        // 2. 초를 60으로 나눠서 '분' 단위로 완전히 내림 처리합니다. (예: 196 / 60 = 3분)
-        const totalMinutes = Math.floor(totalSeconds / 60);
+  return `${hours}시간 ${minutes}분`
+}
 
-        // 3. 계산된 '분'을 시간과 분으로 쪼갭니다.
-        setHour(Math.floor(totalMinutes / 60));
-        setMin(totalMinutes % 60);
+function getComparisonText(
+  type,
+  comparison,
+) {
+  if (!comparison) {
+    return ""
+  }
 
-        setSubjects(data.subjects || []);
-      } catch (error) {
-        console.error("과목공부 시간을 가져오는데 실패했습니다:", error);
-        setHour(0);
-        setMin(0);
-        setSubjects([]);
-      }
-    };
+  const previousPeriodMap = {
+    daily: "어제",
+    weekly: "지난주",
+    monthly: "지난달",
+  }
 
-    fetchStudyTime();
-  }, [selectedDate, type]);
+  const previousPeriod =
+    previousPeriodMap[type] ||
+    "이전 기간"
 
-  const hasSubjectData = subjects.length > 0;
+  const {
+    currentSubject,
+    previousSubject,
+    difference,
+    status,
+  } = comparison
 
-  const chartData = useMemo(() => {
-    if (hasSubjectData) {
-      return subjects;
-    }
-    return [
-      {
-        studyTitle: "공부 기록 없음",
-        ratio: 100,
-        subjectColor: "#ece8f7",
-      },
-    ];
-  }, [subjects, hasSubjectData]);
+  if (status === "same") {
+    return (
+      `${currentSubject}을 가장 많이 공부했고, ` +
+      `${previousPeriod}의 ${previousSubject}과 ` +
+      `같은 비율로 공부했어요`
+    )
+  }
+
+  if (status === "up") {
+    return (
+      `${currentSubject}을 가장 많이 공부했고, ` +
+      `${previousPeriod}의 ${previousSubject}보다 ` +
+      `${difference}% 높게 공부했어요 ▲`
+    )
+  }
 
   return (
-    <section className={`commonSection ${styles.container}`}>
+    `${currentSubject}을 가장 많이 공부했고, ` +
+    `${previousPeriod}의 ${previousSubject}보다 ` +
+    `${difference}% 낮게 공부했어요 ▼`
+  )
+}
+
+function SubjectTooltip({
+  active,
+  payload,
+}) {
+  if (
+    !active ||
+    !payload ||
+    payload.length === 0
+  ) {
+    return null
+  }
+
+  const subject =
+    payload[0].payload
+
+  return (
+    <div className={styles.tooltip}>
+      <strong>
+        {subject.studyTitle}
+      </strong>
+
+      <span>
+        {formatStudyTime(
+          subject.sumStudyTime,
+        )}
+      </span>
+
+      <span>
+        {subject.ratio}%
+      </span>
+    </div>
+  )
+}
+
+export default function TotalSubject({
+  selectedDate,
+  type,
+}) {
+  const [summary, setSummary] =
+    useState({
+      totalStudyTime: 0,
+      comparison: {
+        status: "same",
+        rate: 0,
+      },
+      subjects: [],
+    })
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const [error, setError] =
+    useState("")
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchSummary() {
+      try {
+        setLoading(true)
+        setError("")
+
+        const formattedDate =
+          dayjs(selectedDate)
+            .format("YYYY-MM-DD")
+
+        const data =
+          await getSubjectStudySummary(
+            type,
+            formattedDate,
+          )
+
+        if (!cancelled) {
+          setSummary(data)
+        }
+      } catch (error) {
+        console.error(
+          "과목별 공부시간 조회 실패:",
+          error,
+        )
+
+        if (!cancelled) {
+          setError(error.message)
+
+          setSummary({
+            totalStudyTime: 0,
+            comparison: {
+              status: "same",
+              rate: 0,
+            },
+            subjects: [],
+          })
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchSummary()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    selectedDate,
+    type,
+  ])
+
+  const hasData =
+    summary.subjects.length > 0
+
+  const chartData =
+    useMemo(() => {
+      if (hasData) {
+        return summary.subjects
+      }
+
+      return [
+        {
+          studyTitle:
+            "공부 기록 없음",
+          sumStudyTime: 1,
+          ratio: 0,
+          subjectColor:
+            "#E4DCEF",
+        },
+      ]
+    }, [
+      summary.subjects,
+      hasData,
+    ])
+
+  const comparisonClassName = [
+    styles.comparison,
+    styles[
+    summary.comparison.status
+    ],
+  ].join(" ")
+
+  return (
+    <section
+      className={`commonSection ${styles.container}`}
+    >
       <div className={styles.header}>
         <div>
-          <h3 className={styles.title}>과목별 공부시간</h3>
+          <h3 className={styles.title}>
+            과목별 공부시간
+          </h3>
 
-          <p className={styles.description}>과목별 학습 비중</p>
+          {loading && (
+            <p className={styles.description}>
+              공부시간을 불러오는 중입니다.
+            </p>
+          )}
+
+          {error && (
+            <p className={styles.description}>
+              과목별 공부시간을 불러오지 못했습니다.
+            </p>
+          )}
         </div>
 
         <strong className={styles.totalTime}>
-          {String(hour).padStart(2, "0")}시간 {String(min).padStart(2, "0")}분
+          {loading
+            ? "-"
+            : formatStudyTime(
+              summary.totalStudyTime,
+            )}
         </strong>
       </div>
 
       <div className={styles.chartArea}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey="ratio"
-              nameKey="studyTitle"
-              cx="50%"
-              cy="50%"
-              innerRadius={50}
-              outerRadius={70}
-              stroke="none"
-              isAnimationActive={true}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.subjectColor} />
-              ))}
-            </Pie>
+        {!loading && !error && hasData ? (
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="sumStudyTime"
+                nameKey="studyTitle"
+                cx="50%"
+                cy="50%"
+                innerRadius="52%"
+                outerRadius="82%"
+                stroke="none"
+                isAnimationActive
+              >
+                {chartData.map(
+                  (subject, index) => (
+                    <Cell
+                      key={
+                        `${subject.studyTitle}-${index}`
+                      }
+                      fill={
+                        subject.subjectColor
+                      }
+                    />
+                  ),
+                )}
+              </Pie>
 
-            {hasSubjectData && (
-              <Tooltip formatter={(value, name) => [`${value}%`, name]} />
-            )}
-          </PieChart>
-        </ResponsiveContainer>
+              <Tooltip
+                content={<SubjectTooltip />}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          !loading && (
+            <div className={styles.emptyState}>
+              <span>
+                {error
+                  ? "조회 실패"
+                  : "공부 기록이 없습니다."}
+              </span>
 
-        {!hasSubjectData && (
-          <div className={styles.emptyState}>
-            <span>공부 기록</span>
-            <strong>없음</strong>
-          </div>
+              <strong>
+                {error
+                  ? "잠시 후 다시 시도해주세요."
+                  : "공부를 시작해보세요!"}
+              </strong>
+            </div>
+          )
         )}
       </div>
+
+      {/* 차트 아래 비교 문구 */}
+      {!loading &&
+        !error &&
+        hasData &&
+        summary.topSubjectComparison && (
+          <p className={styles.description}>
+            {getComparisonText(
+              type,
+              summary.topSubjectComparison,
+            )}
+          </p>
+        )}
+
+      {!loading &&
+        !error &&
+        hasData &&
+        !summary.topSubjectComparison && (
+          <p className={styles.description}>
+            비교할 이전 공부 기록이 없습니다.
+          </p>
+        )}
     </section>
   )
 }
-
-// import React, { useState, useEffect, useMemo} from 'react'
-// import { getSubjectRecord } from '../api/study.js'
-// import dayjs from 'dayjs'
-// import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-
-// export default function TotalSubject({ selectedDate, type }) {
-//   const [hour, setHour] = useState(0)
-//   const [min, setMin] = useState(0)
-//   const [subjects, setSubjects] = useState([])
-
-//   useEffect(() => {
-//     const fetchStudyTime = async () => {
-//       try {
-//         const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD')
-
-//         // API 요청
-//         const data = await getSubjectRecord(type, formattedDate)
-
-//         const totalMinutes = data.totalStudyTime || 0
-
-//         setHour(Math.floor(totalMinutes / 60))
-//         setMin(totalMinutes % 60)
-
-//         setSubjects(data.subjects || [])
-
-//       } catch (error) {
-//         console.error("과목공부 시간을 가져오는데 실패했습니다:", error)
-//         // 조회 실패 시 초기화
-//         setHour(0)
-//         setMin(0)
-//         setSubjects([])
-//       }
-//     }
-
-//     fetchStudyTime()
-//   }, [selectedDate, type])
-
-//   // 실제 공부 기록이 있는지 확인
-//   const hasSubjectData = subjects.length > 0
-
-//   // Recharts에 전달할 차트 데이터
-//   const chartData = useMemo(() => {
-//     // 공부 기록이 있으면 백엔드 데이터를 그대로 사용
-//     if (hasSubjectData) {
-//       return subjects
-//     }
-
-//     // 기록 없으면 비율 100인 빈 데이터 만들어서 표시
-//     return [
-//       {
-//         studyTitle: "공부 기록 없음",
-//         ratio: 100,
-//         subjectColor: "#ece8f7"
-//       }
-//     ]
-//   }, [subjects, hasSubjectData])
-
-//   return (
-//     <div style={{ width: '100%', padding: '20px', backgroundColor: '#fcfbf9', borderRadius: '20px' }}>
-
-//       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-//         <h3 style={{ color: '#888', fontSize: '0.9rem' }}>과목별 공부시간</h3>
-//         <h2 style={{ color: '#333', fontSize: '2rem', margin: '5px 0' }}>
-//           {hour}시간 {min}분
-//         </h2>
-//       </div>
-
-//       {/* Recharts 파이 차트 렌더링 영역 */}
-//       <div
-//         style={{
-//           position: "relative",
-//           width: "100%",
-//           height: "200px"
-//         }}
-//       >
-//         {/* 부모 크기에 맞춰 차트 크기 자동 조절 */}
-//         <ResponsiveContainer
-//           width="100%"
-//           height="100%"
-//         >
-//           <PieChart>
-//             <Pie
-//               data={chartData}
-//               dataKey="ratio"
-//               nameKey="studyTitle"
-//               cx="50%"
-//               cy="50%"
-//               innerRadius={60}
-//               outerRadius={80}
-//               stroke="none"
-//               isAnimationActive={true}
-//             >
-//               {chartData.map((entry, index) => (
-//                 <Cell
-//                   key={`cell-${index}`}
-//                   fill={entry.subjectColor}
-//                 />
-//               ))}
-//             </Pie>
-
-//             {/* 실제 공부 기록이 있을 때만 Tooltip 표시 */}
-//             {hasSubjectData && (
-//               <Tooltip
-//                 formatter={(value, name) => [
-//                   `${value}%`,
-//                   name
-//                 ]}
-//               />
-//             )}
-//           </PieChart>
-//         </ResponsiveContainer>
-
-//         {/* 공부 기록이 없을 때 도넛 차트 가운데 문구 표시 */}
-//         {!hasSubjectData && (
-//           <div
-//             style={{
-//               position: "absolute",
-//               top: "50%",
-//               left: "50%",
-
-//               display: "flex",
-//               flexDirection: "column",
-//               alignItems: "center",
-//               justifyContent: "center",
-
-//               transform: "translate(-50%, -50%)",
-//               textAlign: "center",
-//               pointerEvents: "none"
-//             }}
-//           >
-//             <span
-//               style={{
-//                 color: "#999",
-//                 fontSize: "0.75rem"
-//               }}
-//             >
-//               공부 기록
-//             </span>
-
-//             <strong
-//               style={{
-//                 marginTop: "2px",
-//                 color: "#666",
-//                 fontSize: "1rem"
-//               }}
-//             >
-//               없음
-//             </strong>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   )
-// }

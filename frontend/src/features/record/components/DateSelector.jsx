@@ -5,15 +5,70 @@ import Calendar from 'react-calendar'
 import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import styles from "./DateSelector.module.css"
 
-export default function DateSelector({ selectedDate, onChangeDate }) {
+export default function DateSelector({ selectedDate, onChangeDate, type }) {
     const [isOpen, setIsOpen] = useState(false)
 
+    const getMoveUnit = () => {
+        if (type === "weekly") {
+            return "week"
+        }
+
+        if (type === "monthly") {
+            return "month"
+        }
+
+        return "day"
+    }
+
+    function getDateLabel(
+        selectedDate,
+        type,
+    ) {
+        const target =
+            dayjs(selectedDate)
+
+        if (type === "monthly") {
+            return target.format("YYYY. MM")
+        }
+
+        if (type === "weekly") {
+            const dayNumber =
+                target.day()
+
+            const differenceToMonday =
+                dayNumber === 0
+                    ? 6
+                    : dayNumber - 1
+
+            const startDate =
+                target.subtract(
+                    differenceToMonday,
+                    "day",
+                )
+
+            const endDate =
+                startDate.add(6, "day")
+
+            return (
+                `${startDate.format(
+                    "YYYY. MM. DD",
+                )} - ${endDate.format(
+                    "MM. DD",
+                )}`
+            )
+        }
+
+        return target.format(
+            "YYYY. MM. DD (ddd)",
+        )
+    }
+
     const handlePrev = () => {
-        onChangeDate(dayjs(selectedDate).subtract(1, 'day').toDate())
+        onChangeDate(dayjs(selectedDate).subtract(1, getMoveUnit()).toDate())
     }
 
     const handleNext = () => {
-        onChangeDate(dayjs(selectedDate).add(1, 'day').toDate())
+        onChangeDate(dayjs(selectedDate).add(1, getMoveUnit()).toDate())
     }
 
     // 달력에서 날짜를 클릭했을 때 실행될 함수
@@ -35,7 +90,7 @@ export default function DateSelector({ selectedDate, onChangeDate }) {
                     className={styles.dateButton}
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    {dayjs(selectedDate).format("YYYY. MM. DD (ddd)")}
+                    {getDateLabel(selectedDate, type,)}
                 </button>
 
                 <div className={styles.arrowButtons}>

@@ -23,13 +23,13 @@ export default function TotalStudy({ selectedDate, type }) {
         // API 요청
         const data = await getStudyRecord(type, formattedDate);
 
-        const totalMinutes = data.current || 0
+        const totalSeconds = data.current || 0
         const diff = data.diff
 
         const absDiff = Math.abs(diff)
 
-        setHour(Math.floor(totalMinutes / 3600));
-        setMin(Math.floor((totalMinutes % 3600) / 60));
+        setHour(Math.floor(totalSeconds / 3600));
+        setMin(Math.floor((totalSeconds % 3600) / 60));
 
         setDiffHour(Math.floor(diff / 3600))
         setDiffMin(Math.floor((diff % 3600) / 60))

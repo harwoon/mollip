@@ -30,6 +30,7 @@ export default function RecordPage() {
                     <DateSelector
                         selectedDate={selectedDate}
                         onChangeDate={setSelectedDate}
+                        type={recordType}
                     />
                 </header>
 

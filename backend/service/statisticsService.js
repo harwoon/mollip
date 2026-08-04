@@ -1,14 +1,73 @@
 import dayjs from "dayjs"
 
+import * as subjectRepository from "../repository/subject.js"
 import * as authRepository from "../repository/auth.js"
 import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import * as groupRepository from "../repository/admin.js"
 import * as adminRepository from "../repository/admin.js"
 
-import { getWeekRange } from "../util/date.js"
+import { getWeekRange, getStudyPeriodRanges } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 import { calculateWeeklyStudyTimeByGroup } from "../util/ratio.js"
+
+const SUBJECT_FALLBACK_COLORS = [
+    "#E8C4E8",
+    "#FFDDB8",
+    "#BFEAD9",
+    "#C8E4F5",
+    "#A99AD3",
+    "#F4C7C3",
+]
+
+// 현재 기간과 이전 기간 비교
+function calculateComparison(
+    currentTotal,
+    previousTotal,
+) {
+    if (
+        currentTotal === 0 &&
+        previousTotal === 0
+    ) {
+        return {
+            status: "same",
+            rate: 0,
+        }
+    }
+
+    // 이전 기록이 없으면 퍼센트를 계산할 수 없음
+    if (previousTotal === 0) {
+        return {
+            status: "new",
+            rate: null,
+        }
+    }
+
+    const differenceRate =
+        (
+            (currentTotal - previousTotal) /
+            previousTotal
+        ) * 100
+
+    if (differenceRate === 0) {
+        return {
+            status: "same",
+            rate: 0,
+        }
+    }
+
+    return {
+        status:
+            differenceRate > 0
+                ? "up"
+                : "down",
+
+        // 화면에는 절댓값 표시
+        rate: Math.round(
+            Math.abs(differenceRate),
+        ),
+    }
+}
 
 // const now = new Date()
 
@@ -394,5 +453,251 @@ export async function getWeeklyTodoAchievement() {
         totalCount,
         completedCount,
         achievementRate
+    }
+}
+// 과목별 공부시간 통계
+export async function getSubjectStudySummary(
+    userId,
+    type,
+    date,
+) {
+    const {
+        currentRange,
+        previousRange,
+    } = getStudyPeriodRanges(
+        type,
+        date,
+    )
+
+    const [
+        currentStudies,
+        previousStudies,
+        subjectDocuments,
+    ] = await Promise.all([
+        studyRepository
+            .getSubjectStudySummaryByRange(
+                userId,
+                currentRange.startDate,
+                currentRange.endDate,
+            ),
+
+        studyRepository
+            .getSubjectStudySummaryByRange(
+                userId,
+                previousRange.startDate,
+                previousRange.endDate,
+            ),
+
+        subjectRepository
+            .findSubjectsByUser(userId),
+    ])
+
+    /*
+     * 1. 현재 기간 총 공부시간
+     */
+    const totalStudyTime =
+        currentStudies.reduce(
+            (total, subject) =>
+                total +
+                (
+                    Number(
+                        subject.sumStudyTime,
+                    ) || 0
+                ),
+            0,
+        )
+
+    /*
+     * 2. 이전 기간 총 공부시간
+     */
+    const previousTotalStudyTime =
+        previousStudies.reduce(
+            (total, subject) =>
+                total +
+                (
+                    Number(
+                        subject.sumStudyTime,
+                    ) || 0
+                ),
+            0,
+        )
+
+    /*
+     * 3. 과목 색상 Map
+     */
+    const colorMap = new Map(
+        subjectDocuments.map((subject) => [
+            subject.subjectName.trim(),
+            subject.subjectColor,
+        ]),
+    )
+
+    /*
+     * 4. 현재 기간 과목별 비율 계산
+     */
+    const subjects =
+        currentStudies
+            .map((subject, index) => {
+                const sumStudyTime =
+                    Number(
+                        subject.sumStudyTime,
+                    ) || 0
+
+                const ratio =
+                    totalStudyTime === 0
+                        ? 0
+                        : Number(
+                            (
+                                (
+                                    sumStudyTime /
+                                    totalStudyTime
+                                ) * 100
+                            ).toFixed(2),
+                        )
+
+                return {
+                    studyTitle:
+                        subject.studyTitle,
+
+                    sumStudyTime,
+
+                    ratio,
+
+                    subjectColor:
+                        colorMap.get(
+                            subject.studyTitle,
+                        ) ||
+                        SUBJECT_FALLBACK_COLORS[
+                            index %
+                            SUBJECT_FALLBACK_COLORS.length
+                        ],
+                }
+            })
+            .sort(
+                (a, b) =>
+                    b.sumStudyTime -
+                    a.sumStudyTime,
+            )
+
+    /*
+     * 5. 이전 기간 과목별 비율 계산
+     */
+    const previousSubjects =
+        previousStudies
+            .map((subject) => {
+                const sumStudyTime =
+                    Number(
+                        subject.sumStudyTime,
+                    ) || 0
+
+                const ratio =
+                    previousTotalStudyTime === 0
+                        ? 0
+                        : Number(
+                            (
+                                (
+                                    sumStudyTime /
+                                    previousTotalStudyTime
+                                ) * 100
+                            ).toFixed(2),
+                        )
+
+                return {
+                    studyTitle:
+                        subject.studyTitle,
+
+                    sumStudyTime,
+
+                    ratio,
+                }
+            })
+            .sort(
+                (a, b) =>
+                    b.sumStudyTime -
+                    a.sumStudyTime,
+            )
+
+    /*
+     * 6. 현재 기간과 이전 기간의
+     *    가장 많이 공부한 과목 선택
+     */
+    const currentTopSubject =
+        subjects[0] || null
+
+    const previousTopSubject =
+        previousSubjects[0] || null
+
+    /*
+     * 7. 각 기간 1위 과목의 비율 비교
+     */
+    let topSubjectComparison = null
+
+    if (
+        currentTopSubject &&
+        previousTopSubject
+    ) {
+        const currentRatio =
+            Number(
+                currentTopSubject.ratio,
+            ) || 0
+
+        const previousRatio =
+            Number(
+                previousTopSubject.ratio,
+            ) || 0
+
+        const difference =
+            Number(
+                (
+                    currentRatio -
+                    previousRatio
+                ).toFixed(2),
+            )
+
+        let status = "same"
+
+        if (difference > 0) {
+            status = "up"
+        } else if (difference < 0) {
+            status = "down"
+        }
+
+        topSubjectComparison = {
+            currentSubject:
+                currentTopSubject.studyTitle,
+
+            previousSubject:
+                previousTopSubject.studyTitle,
+
+            currentRatio,
+
+            previousRatio,
+
+            difference:
+                Math.abs(difference),
+
+            status,
+        }
+    }
+
+    return {
+        type,
+        date,
+
+        currentRange,
+        previousRange,
+
+        totalStudyTime,
+        previousTotalStudyTime,
+
+        comparison:
+            calculateComparison(
+                totalStudyTime,
+                previousTotalStudyTime,
+            ),
+
+        subjects,
+
+        topSubjectComparison,
     }
 }

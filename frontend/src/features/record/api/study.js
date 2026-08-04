@@ -117,3 +117,41 @@ export async function getMonthlyStudyRecords(date) {
 
     return data
 }
+
+// 과목별 공부시간 요약
+export async function getSubjectStudySummary(
+    type,
+    date,
+) {
+    const token =
+        localStorage.getItem("token")
+
+    const query =
+        new URLSearchParams({
+            type,
+            date,
+        })
+
+    const response = await fetch(
+        `${API_URL}/statistics/subject-summary?${query}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization:
+                    `Bearer ${token}`,
+            },
+        },
+    )
+
+    const data =
+        await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "과목별 공부시간을 불러오지 못했습니다.",
+        )
+    }
+
+    return data
+}
