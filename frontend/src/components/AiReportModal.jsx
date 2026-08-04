@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getWeeklyReport } from "../features/ai/api/ai.js"
 
 import AiSummary from "../features/ai/components/AiSummary.jsx";
@@ -13,7 +13,13 @@ export default function AiReportModal({ onClose, onAddTodo }) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
+    const isFetched = useRef(false)
+
     useEffect(() => {
+        if (isFetched.current) return
+
+        isFetched.current = true
+        
         async function fetchReport() {
             try {
                 const data = await getWeeklyReport()
