@@ -19,35 +19,24 @@ export default function SubjectRecord({type,date}){
     },[type,date])
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "16px" }}>
+        <div>
             {data.map((subject, index) => {
                 const ratio = Math.round(subject.ratio)
                 const hours = (subject.sumStudyTime / 3600).toFixed(1)
 
                 return (
-                    <div 
-                        key={index} 
-                        style={{ display: "flex", alignItems: "center", fontSize: "14px" }}
-                    >
-                        <div
-                            style={{
-                                width: "12px",
-                                height: "12px",
-                                backgroundColor: subject.subjectColor,
-                                borderRadius: "2px",
-                                marginRight: "12px"
-                            }}
-                        />
+                    <div key={index} >
+                        <div/>
                         
-                        <span style={{ width: "120px", fontWeight: "500", color: "#333" }}>
+                        <span>
                             {subject.studyTitle}
                         </span>
                         
-                        <span style={{ width: "40px", textAlign: "right", marginRight: "8px", color: "#555" }}>
+                        <span>
                             {ratio}%
                         </span>
                         
-                        <span style={{ color: "#888" }}>
+                        <span>
                             ({hours}시간)
                         </span>
                     </div>
