@@ -55,7 +55,6 @@ async def generate_weekly_report(data: WeeklyStudyData):
             {
               "day": "추천 요일 (예: 화요일)",
               "task": "추천 Todo 내용 (미달성 Todo나 주요 과목 기반)",
-              "duration": "예상 소요 시간 (예: 40분)",
               "effect": "예상 효과 (예: 이해도 향상 및 복습 완료율 증가)"
             }
           ],
