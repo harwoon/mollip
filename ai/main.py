@@ -52,7 +52,7 @@ async def generate_weekly_report(data: WeeklyStudyData):
             {
               "title": "발견된 패턴 요약 (예: 주말에 학습이 몰리는 경향이 있어요.)",
               "description": "해당 패턴에 대한 상세 설명 및 조언"
-            }
+            } // 반드시 4개의 학습 패턴(객체)을 생성하세요.
           ],
           "recommendations": [
             {

@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react"
-// import { getWeeklyReport } from "../api/ai.js"
+import { getWeeklyReport } from "../features/ai/api/ai.js"
 
-// import AiSummary from "../"
-// import AiLastWeek from "./AiLastWeek.jsx"
-// import AiThisWeek from "./AiThisWeek.jsx"
-// import AiNextWeek from "./AiNextWeek.jsx"
 import AiSummary from "../features/ai/components/AiSummary.jsx";
 import AiLastWeek from "../features/ai/components/AiLastWeek.jsx";
 import AiThisWeek from "../features/ai/components/AiThisWeek.jsx";
@@ -12,7 +8,7 @@ import AiNextWeek from "../features/ai/components/AiNextWeek.jsx";
 
 import "./AiReportModal.css"
 
-export default function AiReportModal({ onClose }) {
+export default function AiReportModal({ onClose, onAddTodo }) {
     const [report, setReport] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
@@ -46,10 +42,10 @@ export default function AiReportModal({ onClose }) {
                     {/* 응답 형태 확정 전까지, 우선 원본 그대로 확인용 출력 */}
                     {report && (
                         <div>
-                            <AiSummary  />
-                            <AiLastWeek />
-                            <AiThisWeek />
-                            <AiNextWeek />
+                            <AiSummary diagnosis={report.diagnosis} />
+                            <AiLastWeek patterns={report.patterns} />
+                            <AiThisWeek recommendations={report.recommendations} onAddTodo={onAddTodo} />
+                            <AiNextWeek expectedChanges={report.expectedChanges} />
                         </div>
                     )}
                 </div>
