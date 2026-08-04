@@ -31,6 +31,7 @@ class WeeklyStudyData(BaseModel):
     topSubjects: list[str]
     missedTodos: list[str]
     dailyRecords: List[DailyRecord]
+    currentStreak: int
 
 # 2. 리포트 생성 API 엔드포인트
 @app.post("/ai/weekly-report")
@@ -65,11 +66,18 @@ async def generate_weekly_report(data: WeeklyStudyData):
             // task에 요일이나 시간에 관한 내용을 넣지 마세요.
           ],
           "expectedChanges": [
+            // 반드시 아래 2개의 지표에 대한 객체만 배열에 포함하세요. (총 2개 고정)
             {
-              "label": "변화 지표명 (예: Todo 달성률)",
+              "label": "Todo 달성률",
               "from": "현재 수치 (예: 71%)",
               "to": "예상 수치 (예: 83% 내외)",
               "trend": "up 또는 down"
+            },
+            {
+              "label": "연속 학습일",
+              "from": "현재 수치 (예: 2일)",
+              "to": "예상 수치 (예: 7일)",
+              "trend": "up"
             }
           ]
         }
@@ -94,6 +102,7 @@ async def generate_weekly_report(data: WeeklyStudyData):
         # user_prompt에 일별 기록 주입
         user_prompt = f"""
         [사용자 이름]: {data.userName}
+        [현재 연속 학습일]: {data.currentStreak}일
         [이번 주 총 공부시간]: {data.totalStudyHours}시간
         [Todo 달성률]: {data.achievementRate}%
         [주요 공부 과목]: {', '.join(data.topSubjects)}
