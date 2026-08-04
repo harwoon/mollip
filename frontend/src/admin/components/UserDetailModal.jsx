@@ -3,6 +3,7 @@ import "./UserDetailModal.css"
 
 import UserDetailInfo from "../features/user/components/UserDetailInfo"
 import SubjectRecord from "../features/user/components/SubjectRecord"
+import Todo from "../features/user/components/Todo"
 
 export default function UserDetailModal({ user, onClose }) {
     const [type, setType] = useState("daily")
@@ -95,6 +96,8 @@ export default function UserDetailModal({ user, onClose }) {
 
                 {/* 차트 컴포넌트 렌더링 */}
                 <SubjectRecord type={type} date={selectedDate} userId={user._id} />
+
+                <Todo type={type} date={selectedDate} userId={user._id} />
 
             </div>
         </div>
