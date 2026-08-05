@@ -136,6 +136,7 @@ export async function getMemberStatusUsers() {
         result[type].push({
             _id: user._id,
             nickname: user.nickname,
+            // 마지막 접속일 = 마지막 공부일
             lastStudyDate: user.lastStudyDate || null
         })
     }
