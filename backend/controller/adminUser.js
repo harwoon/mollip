@@ -300,7 +300,28 @@ export async function getUserStudyTrend(req, res) {
             studyDate: { $gte: start, $lte: end }
         })
 
-        const groupedData = {}
+        const dataMap = new Map()
+        let current = dayjs(startDate)
+        const compareUnit = type === "daily" ? "day" : type === "weekly" ? "isoWeek" : "month";
+
+        while (current.isBefore(endDate) || current.isSame(endDate, compareUnit)) {
+            let label = ""
+
+            if (type === "daily") {
+                label = current.format("MM.DD")
+                current = current.add(1, "day")
+            } else if (type === "weekly") {
+                const startOfWeek = current.startOf("isoWeek").format("MM.DD")
+                const endOfWeek = current.endOf("isoWeek").format("MM.DD")
+                label = `${startOfWeek} ~ ${endOfWeek}`
+                current = current.add(1, "week")
+            } else if (type === "monthly") {
+                label = current.format("YYYY.MM")
+                current = current.add(1, "month")
+            }
+            
+            dataMap.set(label, 0)
+        }
 
         studies.forEach(record => {
             const date = dayjs(record.studyDate)
@@ -316,18 +337,15 @@ export async function getUserStudyTrend(req, res) {
                 label = date.format("YYYY.MM")
             }
 
-            if (!groupedData[label]) {
-                groupedData[label] = 0
+            if (dataMap.has(label)) {
+                dataMap.set(label, dataMap.get(label) + record.sumStudyTime)
             }
-            groupedData[label] += record.sumStudyTime
         })
 
-        const chartData = Object.keys(groupedData)
-            .map(label => ({
-                label,
-                studyTime: Number((groupedData[label] / 60).toFixed(1))
-            }))
-            .sort((a, b) => a.label.localeCompare(b.label))
+        const chartData = Array.from(dataMap, ([label, totalTime]) => ({
+            label,
+            studyTime: Number((totalTime / 60).toFixed(1)) 
+        }))
 
         return res.status(200).json({
             success: true,
