@@ -1,18 +1,20 @@
 import React from "react"
 
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
+
 export default function UserDetailInfo({ user }) {
     if (!user) return null
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            
+
             {/* --- [상단 영역] 프로필 및 핵심 요약 수치 --- */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-                
+
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                     <img
-                        src={user.profileImage || null}
-                        alt="프로필"
+                        src={user.profileImage ? `${API_URL}${user.profileImage}` : null}
+                        alt="프로필 이미지"
                         style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#eee", objectFit: "cover" }}
                     />
                     <div>
