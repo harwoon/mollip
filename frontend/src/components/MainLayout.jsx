@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar"
 import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
     
-function MainLayout() {
+export default function MainLayout() {
     const [userInfo, setUserInfo] = useState(() => {
         const savedUser = localStorage.getItem("user")
         return savedUser ? JSON.parse(savedUser) : null
@@ -57,28 +57,21 @@ function MainLayout() {
     }
 
     return (
-        <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
-            <Sidebar
-                userInfo={userInfo}
-                todayTodos={todayTodos}
-                onAddTodo={handleAddAiTodo}
-                onRemoveTodo={handleRemoveAiTodo}
-            />
-            <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
-                <Outlet context={{
-                    todoRefreshKey,
-                    handleTodoListChanged
-                }} />
-            </main>
-        </div>
-    )
-}
-
-// 최상위를 TimerProvider로 감싸줍니다.
-export default function MainLayout() {
-    return (
         <TimerProvider>
-            <MainLayoutContent />
+            <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
+                <Sidebar
+                    userInfo={userInfo}
+                    todayTodos={todayTodos}
+                    onAddTodo={handleAddAiTodo}
+                    onRemoveTodo={handleRemoveAiTodo}
+                />
+                <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
+                    <Outlet context={{
+                        todoRefreshKey,
+                        handleTodoListChanged
+                    }} />
+                </main>
+            </div>
         </TimerProvider>
     )
 }
