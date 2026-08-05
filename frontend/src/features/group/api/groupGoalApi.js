@@ -1,6 +1,4 @@
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
-    "http://127.0.0.1:3000"
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 /**
  * 로그인 사용자의 주간 그룹 목표 달성 현황 조회
@@ -15,7 +13,7 @@ export async function fetchMyWeeklyGroupGoals() {
     }
 
     const response = await fetch(
-        `${API_BASE_URL}/group/goals/me`,
+        `${API_URL}/group/goals/me`,
         {
             method: "GET",
             headers: {

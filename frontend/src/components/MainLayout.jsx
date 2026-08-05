@@ -3,10 +3,7 @@ import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
 
-const API_URL =
-    import.meta.env.VITE_LOCAL_API_URL ||
-    "http://127.0.0.1:3000"
-
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
     
 export default function MainLayout() {
     const [userInfo, setUserInfo] = useState(() => {
