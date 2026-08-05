@@ -5,6 +5,7 @@ import * as adminGroupStatisticsService from "../service/adminGroupStatisticsSer
 
 import Group from "../models/Group.js"
 import Study from "../models/Study.js"
+import Subject from "../models/Subject.js"
 import mongoose from "mongoose"
 import { getWeekRange, getWeekOfMonth } from "../util/date.js"
 import dayjs from "dayjs"
@@ -280,23 +281,23 @@ export async function getUserStudyTrend(req, res) {
     const endDate = dayjs(end)
 
     if (type === "daily" && endDate.diff(startDate, "day") > 14) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "일간 조회는 최대 14일까지만 가능합니다." 
+        return res.status(400).json({
+            success: false,
+            message: "일간 조회는 최대 14일까지만 가능합니다."
         })
     }
 
     if (type === "weekly" && endDate.diff(startDate, "month", true) > 3) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "주간 조회는 최대 3개월까지만 가능합니다." 
+        return res.status(400).json({
+            success: false,
+            message: "주간 조회는 최대 3개월까지만 가능합니다."
         })
     }
 
     try {
         const studies = await Study.find({
             user: new mongoose.Types.ObjectId(userid),
-            studyDate: { $gte: start, $lte: end } 
+            studyDate: { $gte: start, $lte: end }
         })
 
         const groupedData = {}
@@ -324,7 +325,7 @@ export async function getUserStudyTrend(req, res) {
         const chartData = Object.keys(groupedData)
             .map(label => ({
                 label,
-                studyTime: Number((groupedData[label] / 60).toFixed(1)) 
+                studyTime: Number((groupedData[label] / 60).toFixed(1))
             }))
             .sort((a, b) => a.label.localeCompare(b.label))
 
@@ -339,30 +340,83 @@ export async function getUserStudyTrend(req, res) {
     }
 }
 
-export async function getUserSubjectTrend(req,res){
+export async function getUserSubjectTrend(req, res) {
     const { type, start, end, userid } = req.query
 
     const startDate = dayjs(start)
     const endDate = dayjs(end)
 
     if (type === "daily" && endDate.diff(startDate, "day") > 14) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "일간 조회는 최대 14일까지만 가능합니다." 
+        return res.status(400).json({
+            success: false,
+            message: "일간 조회는 최대 14일까지만 가능합니다."
         })
     }
 
     if (type === "weekly" && endDate.diff(startDate, "month", true) > 3) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "주간 조회는 최대 3개월까지만 가능합니다." 
+        return res.status(400).json({
+            success: false,
+            message: "주간 조회는 최대 3개월까지만 가능합니다."
         })
     }
 
     try {
-        
-    } catch (error) {
-        
-    }
+        const userObjectId = new mongoose.Types.ObjectId(userid)
+        const [studies, subjects] = await Promise.all([
+            Study.find({
+                user: userObjectId,
+                studyDate: { $gte: start, $lte: end }
+            }),
+            Subject.find({
+                user: userObjectId
+            })
+        ])
 
+        const colorMap = {}
+        subjects.forEach(sub => {
+            colorMap[sub.subjectName] = sub.subjectColor
+        })
+
+        const subjectTotals = {}
+        let totalStudySeconds = 0
+
+        studies.forEach(record => {
+            const subject = record.studyTitle
+
+            if (!subjectTotals[subject]) {
+                subjectTotals[subject] = 0
+            }
+
+            subjectTotals[subject] += record.sumStudyTime
+            totalStudySeconds += record.sumStudyTime
+        })
+
+        const chartData = Object.entries(subjectTotals)
+            .map(([subject, totalSeconds]) => {
+
+                const ratio = totalStudySeconds > 0
+                    ? Number(((totalSeconds / totalStudySeconds) * 100).toFixed(1))
+                    : 0;
+
+                return {
+                    subject: subject,
+                    studyTime: Number((totalSeconds / 60).toFixed(1)),
+                    subjectColor: colorMap[subject] || "#cccccc",
+                    ratio: ratio
+                }
+            })
+            .sort((a, b) => b.studyTime - a.studyTime)
+
+        return res.status(200).json({
+            success: true,
+            data: chartData
+        })
+
+    } catch (error) {
+        console.error("과목별 공부 합계 조회 실패:", error)
+        return res.status(500).json({
+            success: false,
+            message: "서버 오류로 인해 통계를 불러오지 못했습니다."
+        })
+    }
 }
