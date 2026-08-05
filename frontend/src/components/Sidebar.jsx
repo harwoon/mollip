@@ -1,28 +1,21 @@
-import { useState } from "react"
+import { useState, memo } from "react"
 import { NavLink } from "react-router-dom"
 
 import SidebarUserInfo from "./SidebarUserInfo"
 import SidebarStudyStreak from "./SidebarStudyStreak"
 import SidebarLogout from "./SidebarLogout"
 import AiReportModal from "./AiReportModal.jsx"
+import SidebarTimer from "./SidebarTimer.jsx"
 
 import "./Sidebar.css"
 import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
-// onAddTodo = AI todo
-export default function Sidebar({ 
-    selectedSubject, 
-    time, 
-    isRunning, 
-    userInfo, 
-    onStopAndSave, 
-    // AI Todo 추가 여부를 표시하기 위한 오늘 Todo 목록
+function Sidebar({ 
+    userInfo,
     todayTodos = [],
-    // AI 추천 Todo 추가 함수
     onAddTodo,
-    // AI 추천 Todo 제거 함수
     onRemoveTodo
 }) {
     const [isReportOpen, setIsReportOpen] = useState(false)
@@ -34,13 +27,10 @@ export default function Sidebar({
     }
 
     const handleGroupClick = (e) => {
-        // 클릭하는 현재 시점의 groupId를 가져옴
         const groupId = localStorage.getItem("groupId")
 
         if (!groupId || groupId === DEFAULT_GROUP_ID) {
-            // /group 페이지로 이동하는 기본 동작 중지
             e.preventDefault()
-
             alert(
                 `현재 그룹이 정해지지 않았습니다. 
                 그룹 배정을 위해서는 총 공부시간 1시간 이상을 달성해야 합니다. 
@@ -48,19 +38,6 @@ export default function Sidebar({
             )
         }
     }
-
-    const activeStyle = ({ isActive }) => {
-        return {
-        textDecoration: "none",
-        fontWeight: isActive ? "bold" : "normal",
-        color: isActive ? "#007bff" : "#333",
-        padding: "10px",
-        borderRadius: "8px",
-        backgroundColor: isActive ? "#e9ecef" : "transparent",
-        display: "block",
-        }
-    }
-
 
     return (
         <aside className="sidebar">
@@ -96,7 +73,6 @@ export default function Sidebar({
                     <div className="sidebarNavigationGroup">
                         <p className="sidebarNavigationTitle">COMMUNICATION</p>
 
-                        {/* 6a671438ab632542fc161df7 - 그룹 휴먼 id */}
                         <NavLink to="/group" className={getNavClassName} onClick={handleGroupClick}>
                             <FiUsers className="sidebarNavigationIcon" />
                             <span>그룹</span>
@@ -119,19 +95,7 @@ export default function Sidebar({
                     </div>
                 </nav>
 
-                {/* 타이머 UI 박스 */}
-                {isRunning && selectedSubject && (
-                    <div className="sidebarTimer">
-                        <p className="sidebarTimerSubject">
-                            <span aria-hidden="true">🔥</span>
-                            {selectedSubject.subjectName} 공부 중
-                        </p>
-
-                        <strong className="sidebarTimerTime">
-                            {formatMiniTime(time)}
-                        </strong>
-                    </div>
-                )}
+                <SidebarTimer />
             </div>
 
             <div className="sidebarBottom">
@@ -140,16 +104,13 @@ export default function Sidebar({
                 </div>
 
                 <div className="sidebarLogout">
-                    <SidebarLogout userInfo={userInfo} isRunning={isRunning} onStopAndSave={onStopAndSave} />
+                    <SidebarLogout userInfo={userInfo} />
                 </div>
             </div>
 
-            {/* onAddTodo = AI todo */}
             {isReportOpen && (
                 <AiReportModal
                     onClose={() => setIsReportOpen(false)}
-
-                    // AI Todo
                     todayTodos={todayTodos}
                     onAddTodo={onAddTodo}
                     onRemoveTodo={onRemoveTodo}
@@ -159,9 +120,4 @@ export default function Sidebar({
     )
 }
 
-const formatMiniTime = (currentTime) => {
-        const hours = Math.floor(currentTime / 360000)
-        const minutes = Math.floor((currentTime % 360000) / 6000)
-        const seconds = Math.floor((currentTime % 6000) / 100)
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-}
+export default memo(Sidebar)
