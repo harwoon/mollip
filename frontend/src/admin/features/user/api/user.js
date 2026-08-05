@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 // 백 완료 전까지 보류
 // 유저 정보 조회

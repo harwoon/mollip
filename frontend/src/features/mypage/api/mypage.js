@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../config/apiUrl.js"
 
 // 로그인한 사용자의 닉네임과 이메일 수정
 export async function updateMyInfo(nickname, email) {

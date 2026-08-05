@@ -1,6 +1,4 @@
-import React from "react"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 export default function UserDetailInfo({ user }) {
     if (!user) return null

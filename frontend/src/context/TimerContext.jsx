@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from "react"
+import { API_URL } from "../config/apiUrl.js"
+import { createContext, useContext, useState, useEffect, useRef } from "react"
 
 const TimerContext = createContext()
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 export function TimerProvider({ children }) {
     const [selectedSubject, setSelectedSubject] = useState(() => {

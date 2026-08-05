@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL?.replace(/\/$/, "")
+import { API_URL } from "../../../config/apiUrl.js"
 
 async function getRequest(path, errorMessage) {
   const token = localStorage.getItem("token")

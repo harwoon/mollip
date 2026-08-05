@@ -1,6 +1,5 @@
+import { API_URL } from "../../../config/apiUrl.js"
 import { getCurrentDate } from "../../../../util/date"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 // Todo 조회
 export async function getTodoList() {

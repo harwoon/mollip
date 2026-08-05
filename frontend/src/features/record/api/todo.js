@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../config/apiUrl.js"
 
 // 기록 페이지의 일간·주간·월간 Todo 조회
 export async function getTodoRecords(type, date) {

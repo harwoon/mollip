@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../config/apiUrl.js"
 
 // 로그인한 사용자 정보 조회
 export async function getMyInfo() {

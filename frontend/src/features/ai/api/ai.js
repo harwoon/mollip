@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../config/apiUrl.js"
 
 // 주간 AI 코칭 리포트 조회
 export async function getWeeklyReport() {
