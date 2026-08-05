@@ -11,7 +11,6 @@ export default function SubjectRecord({ type, start, end, userId }) {
             try {
                 const record = await getSubjectRecord(type, start, end, userId)
                 setData(record.data || [])
-                console.log(record.data)
 
             } catch (error) {
                 console.error("과목 공부 조회 실패:", error)
