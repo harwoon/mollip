@@ -26,13 +26,16 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// 하드코딩 되어있던 주소 수정
+const corsOptions = {
+    origin: config.cors.allowedOrgins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}
+
 const server = http.createServer(app)
 const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"]
-    }
+    cors: corsOptions
 })
 
 app.set('io', io)
@@ -42,13 +45,7 @@ app.set('io', io)
 // redisClient.on('connect', () => console.log('Redis 연결 성공'));
 // redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
-app.use(
-    cors({
-        origin: "http://localhost:5173",
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"]
-    })
-)
+app.use(cors(corsOptions))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

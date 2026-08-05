@@ -34,4 +34,7 @@ export const config = {
             "GOOGLE_CLIENT_ID",
         ),
     },
+    cors: {
+        allowedOrgins: required("CORS_ORIGINS").split(",")
+    }
 }
