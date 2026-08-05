@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function TodoAchievementRecord({ type, start, end, userId }) {
 
-    const [record, setRecord] = useState([]) 
+    const [record, setRecord] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
@@ -23,7 +23,7 @@ export default function TodoAchievementRecord({ type, start, end, userId }) {
             }
         };
 
-        if (start && end && type) { 
+        if (start && end && type) {
             fetchTodoData()
         }
     }, [type, start, end, userId])
@@ -56,39 +56,61 @@ export default function TodoAchievementRecord({ type, start, end, userId }) {
         return null
     }
 
+    // 커스텀 X축 라벨
+    const CustomXAxisTick = ({ x, y, payload }) => {
+        const dateArray = payload.value.split(" ~ ")
+
+        return (
+            <g transform={`translate(${x},${y})`}>
+                <text x={0} y={0} dy={16} textAnchor="middle" fill="#888" fontSize={12}>
+                    {dateArray.map((date, index) => (
+                        <tspan
+                            x={0}
+                            dy={index === 0 ? 0 : 16}
+                            key={index}
+                        >
+                            {date}
+                            {index === 0 && dateArray.length > 1 ? " ~" : ""}
+                        </tspan>
+                    ))}
+                </text>
+            </g>
+        )
+    }
+
     return (
         <div style={{ width: "100%", height: "300px", marginTop: "20px", display: "flex", flexDirection: "column" }}>
             <h3 style={{ marginBottom: "15px", fontSize: "16px", color: "#333", margin: "0 0 15px 0" }}>
                 Todo 목표 달성률
             </h3>
-            
+
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={record} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eaeaea" />
-                    
-                    <XAxis 
-                        dataKey="label" 
-                        tick={{ fill: "#888", fontSize: 12 }} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        dy={10} 
+
+                    <XAxis
+                        dataKey="label"
+                        interval={0}
+                        tick={<CustomXAxisTick />}
+                        axisLine={false}
+                        tickLine={false}
                     />
-                    
-                    <YAxis 
-                        domain={[0, 100]} 
-                        tick={{ fill: "#888", fontSize: 12 }} 
-                        axisLine={false} 
-                        tickLine={false} 
+
+                    <YAxis
+                        domain={[0, 100]}
+                        tick={{ fill: "#888", fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
                         tickFormatter={(value) => `${value}%`}
                     />
-                    
+
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(0,0,0,0.05)" }} />
-                    
-                    <Bar 
-                        dataKey="achievementRate" 
-                        fill="#7E57C2" 
+
+                    <Bar
+                        dataKey="achievementRate"
+                        fill="#7E57C2"
                         radius={[4, 4, 0, 0]}
-                        animationDuration={1000} 
+                        animationDuration={1000}
                         barSize={30}
                     />
                 </BarChart>
