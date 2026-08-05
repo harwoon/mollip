@@ -1,5 +1,6 @@
+import { API_URL } from "../config/apiUrl.js"
 import { useOutletContext } from "react-router-dom"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import Timer from "../features/home/components/Timer"
 import TodoList from "../features/home/components/TodoList"
@@ -10,10 +11,6 @@ import { getMyInfo } from "../features/auth/api/auth"
 import styles from "./HomePage.module.css"
 
 import { useTimer } from "../context/TimerContext"
-
-const API_URL =
-  import.meta.env.VITE_LOCAL_API_URL ||
-  "http://127.0.0.1:3000"
 
 // 마이페이지에서 저장한 과목 순서를 홈 화면에도 적용
 function applySavedSubjectOrder(subjectList) {

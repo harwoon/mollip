@@ -1,3 +1,4 @@
+import { API_URL } from "../../../config/apiUrl.js"
 import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { getMyInfo } from "../../auth/api/auth"
@@ -7,8 +8,6 @@ import { RiAccountCircle2Fill } from "react-icons/ri"
 import { updateMyInfo, updateProfileImage, withdrawMyAccount } from "../api/mypage"
 
 import styles from "./UserInfo.module.css"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 export default function UserInfo() {
     // 회원 탈퇴 후 로그인 페이지 이동

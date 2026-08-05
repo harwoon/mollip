@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { API_URL } from "../../../config/apiUrl.js"
+import { useState, useEffect } from 'react'
 import { socket } from '../../../../util/socket'
 
 import { FiClock, FiUsers } from "react-icons/fi"
 import styles from "./ActiveUserList.module.css"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 const StudyTimer = ({ startTime }) => {
     const [timeText, setTimeText] = useState("00:00:00")

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 // 관리자 - 그룹 개수 조회
 export async function getGroupCount() {

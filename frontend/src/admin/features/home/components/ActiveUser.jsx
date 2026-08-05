@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
+
 const DEFAULT_PROFILE_IMG = '/images/noprofile.png'
 
 export default function RecentUser({ activeUsers }) {

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 // 과목별 공부 시간 가져오기
 export async function getSubjectRecord(type, start, end, userId) {

@@ -5,8 +5,6 @@ import { getProfileImageUrl } from "../../../util/profileImage.js"
 
 import styles from "./GroupRanking.module.css"
 
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
-
 export default function GroupRanking() {
     const [ranking, setRanking] = useState([])
     const [loading, setLoading] = useState(true)

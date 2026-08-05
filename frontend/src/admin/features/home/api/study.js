@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 // 최근 공부 시간 추이
 // http://127.0.0.1:3000/admin/study-time-trend?type=daily&startDate=2026-07-01&endDate=2026-07-14

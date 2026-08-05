@@ -1,7 +1,4 @@
-// src/features/admin/api/adminUserApi.js
-// import { API_URL } from "../../config/api"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../config/apiUrl.js"
 
 export async function getAllAdminUsers() {
      const token = localStorage.getItem("token")

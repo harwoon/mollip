@@ -1,5 +1,4 @@
-const API_URL =
-    import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../config/apiUrl.js"
 
 export function getProfileImageUrl(
     profileImg,

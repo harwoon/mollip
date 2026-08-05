@@ -1,6 +1,6 @@
-import "./UsersTable.css"
+import { API_URL } from "../../../../config/apiUrl.js"
 
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import "./UsersTable.css"
 
 function getProfileImageUrl(profileImg) {
     return profileImg

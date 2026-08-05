@@ -1,6 +1,4 @@
-// import axios from "axios"
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../../config/apiUrl.js"
 
 // 관리자 - 전체 사용자 수 조회
 export async function getUserCount() {

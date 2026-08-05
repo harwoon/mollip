@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_LOCAL_API_URL
+import { API_URL } from "../../../config/apiUrl.js"
 
 // 내 그룹 가져오기
 export async function getMyGroup() {
