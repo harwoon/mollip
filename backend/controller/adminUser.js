@@ -420,3 +420,217 @@ export async function getUserSubjectTrend(req, res) {
         })
     }
 }
+
+// 개인 Todo 달성률 추이
+export async function getUserTodoAchievementTrend(req, res) {
+    const { userId } = req.params
+    const { type, start, end } = req.query
+
+    if (!userId || !type || !start || !end) {
+        return res.status(400).json({
+            success: false,
+            message: "userId, type, start, end를 모두 입력해주세요."
+        })
+    }
+
+    if (!mongoose.isValidObjectId(userId)) {
+        return res.status(400).json({
+            success: false,
+            message: "잘못된 회원 ID 형식입니다."
+        })
+    }
+
+    if (!["daily", "weekly", "monthly"].includes(type)) {
+        return res.status(400).json({
+            success: false,
+            message: "type은 daily, weekly, monthly 중 하나여야 합니다."
+        })
+    }
+
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
+
+    if (!datePattern.test(start) || !datePattern.test(end)) {
+        return res.status(400).json({
+            success: false,
+            message: "날짜는 YYYY-MM-DD 형식으로 입력해주세요."
+        })
+    }
+
+    const startDate = dayjs(start)
+    const endDate = dayjs(end)
+
+    // 실제로 존재하는 날짜인지 확인
+    if (
+        !startDate.isValid() ||
+        !endDate.isValid() ||
+        startDate.format("YYYY-MM-DD") !== start ||
+        endDate.format("YYYY-MM-DD") !== end
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: "올바른 날짜를 입력해주세요."
+        })
+    }
+
+    // 시작일이 종료일보다 뒤인 경우
+    if (startDate.isAfter(endDate, "day")) {
+        return res.status(400).json({
+            success: false,
+            message: "시작일은 종료일보다 늦을 수 없습니다."
+        })
+    }
+
+    // 일간 최대 14일(시작, 종료일 포함) 날짜 차이 13일 + 시작일 포함 = 총 14일
+    const inclusiveDayCount =
+        endDate.diff(startDate, "day") + 1
+
+    if (type === "daily" && inclusiveDayCount > 14) {
+        return res.status(400).json({
+            success: false,
+            message: "일간 조회는 최대 14일까지 가능합니다."
+        })
+    }
+
+    // 주간 최대 3개월
+    if (
+        type === "weekly" &&
+        endDate.isAfter(startDate.add(3, "month"), "day")
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: "주간 조회는 최대 3개월까지 가능합니다."
+        })
+    }
+
+    try {
+        // Repository에서 실제 Todo 기록 일간·주간·월간 기준으로 집계
+        const result = await todoRepository.getUserTodoAchievementTrend(userId, type, start, end)
+
+        // 실제 Todo가 없는 날짜·주·월 차트에 0%표시
+        const resultMap = new Map()
+
+        result.forEach((item) => {
+            let key
+
+            if (type === "daily") {
+                key = item._id
+            } else if (type === "weekly") {
+                key = `${item._id.year}-${item._id.week}`
+            } else {
+                key = item._id
+            }
+
+            resultMap.set(key, item)
+        })
+
+        const chartData = []
+
+        // 일간 차트 데이터
+        if (type === "daily") {
+            let currentDate = startDate.startOf("day")
+
+            while (
+                currentDate.isBefore(endDate, "day") ||
+                currentDate.isSame(endDate, "day")
+            ) {
+                const dateKey = currentDate.format("YYYY-MM-DD")
+
+                const achievement = resultMap.get(dateKey)
+
+                chartData.push({
+                    date: dateKey,
+                    label: currentDate.format("MM.DD"),
+                    totalCount:
+                        achievement?.totalCount ?? 0,
+                    completedCount:
+                        achievement?.completedCount ?? 0,
+                    achievementRate:
+                        achievement?.achievementRate ?? 0
+                })
+
+                currentDate = currentDate.add(1, "day")
+            }
+        }
+
+        // 주간 차트 데이터
+        else if (type === "weekly") {
+            let currentWeek = startDate.startOf("isoWeek")
+
+            const lastWeek = endDate.startOf("isoWeek")
+
+            while (
+                currentWeek.isBefore(lastWeek, "week") ||
+                currentWeek.isSame(lastWeek, "week")
+            ) {
+                const isoYear = currentWeek.isoWeekYear()
+
+                const isoWeekNumber = currentWeek.isoWeek()
+
+                const weekKey = `${isoYear}-${isoWeekNumber}`
+
+                const achievement = resultMap.get(weekKey)
+
+                const weekStart = currentWeek
+                const weekEnd = currentWeek.endOf("isoWeek")
+
+                chartData.push({
+                    year: isoYear,
+                    week: isoWeekNumber,
+                    startDate: weekStart.format("YYYY-MM-DD"),
+                    endDate: weekEnd.format("YYYY-MM-DD"),
+                    label:
+                        `${weekStart.format("MM.DD")} ~ ` +
+                        `${weekEnd.format("MM.DD")}`,
+                    totalCount: achievement?.totalCount ?? 0,
+                    completedCount: achievement?.completedCount ?? 0,
+                    achievementRate: achievement?.achievementRate ?? 0
+                })
+
+                currentWeek = currentWeek.add(1, "week")
+            }
+        }
+
+        // 월간 차트 데이터
+        else if (type === "monthly") {
+            let currentMonth = startDate.startOf("month")
+
+            const lastMonth = endDate.startOf("month")
+
+            while (
+                currentMonth.isBefore(lastMonth, "month") ||
+                currentMonth.isSame(lastMonth, "month")
+            ) {
+                const monthKey = currentMonth.format("YYYY-MM")
+
+                const achievement = resultMap.get(monthKey)
+
+                chartData.push({
+                    month: monthKey,
+                    label: currentMonth.format("YYYY.MM"),
+                    totalCount: achievement?.totalCount ?? 0,
+                    completedCount: achievement?.completedCount ?? 0,
+                    achievementRate: achievement?.achievementRate ?? 0
+                })
+
+                currentMonth = currentMonth.add(1, "month")
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            type,
+            period: {
+                startDate: start,
+                endDate: end
+            },
+            data: chartData
+        })
+    } catch (error) {
+        console.error("관리자 회원 Todo 달성률 추이 조회 오류:", error)
+
+        return res.status(500).json({
+            success: false,
+            message: "회원 Todo 달성률 추이를 불러오는 중 오류가 발생했습니다."
+        })
+    }
+}

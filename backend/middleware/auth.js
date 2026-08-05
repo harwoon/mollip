@@ -44,9 +44,9 @@ export const isAuth = async (req, res, next) => {
 
 // 관리자 권한 체크 (isAuth 다음에 적용)
 export const isAdmin = (req, res, next) => {
-    console.log("req.user:", req.user)
-    console.log("req.user.role:", req.user?.role)
-    console.log("role type:", typeof req.user?.role)
+    // console.log("req.user:", req.user)
+    // console.log("req.user.role:", req.user?.role)
+    // console.log("role type:", typeof req.user?.role)
 
     // isAuth 없이 단독으로 쓰였을 경우 방지
     if (!req.user) {
