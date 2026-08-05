@@ -105,13 +105,17 @@ router.post("/member-status/send-all-mail", adminMemberStatusController.sendAllM
 
 // ====================== 유저 상세
 // 일간/주간/월간 과목 비율 조회
-//http://127.0.0.1:3000/admin/ratio?type=daily&date=2026-07-26&userid=6a6fdd0ea7b6baa85e4d088d
-router.get("/ratio", isAuth, statController.getRatio)
+//http://127.0.0.1:3000/admin/user/subjectTrend?type=daily&start=2026-07-26&end=2026-07-29&userid=6a6fdd0ea7b6baa85e4d088d
+router.get("/user/subjectTrend", isAuth, adminUserController.getUserSubjectTrend)
 
 // 일간 목표달성률 조회
 // http://127.0.0.1:3000/admin/achievement?type=daily&date=2026-07-27&userid=6a6fdd0ea7b6baa85e4d088d
 // http://127.0.0.1:3000/admin/achievement?type=weekly&date=2026-07-27&userid=6a6fdd0ea7b6baa85e4d088d
 // http://127.0.0.1:3000/admin/achievement?type=monthly&date=2026-07-27&userid=6a6fdd0ea7b6baa85e4d088d
 router.get("/achievement", isAuth, todoController.getAchievement)
+
+// 일간/주간/월간 공부 시간 추이 (단위 분)
+// http://127.0.0.1:3000/admin/user/studyTrend?type=daily&start=2026-07-27&end=2026-07-29&userid=6a6fdd0ea7b6baa85e4d088d
+router.get("/user/studyTrend",isAuth, adminUserController.getUserStudyTrend )
 
 export default router

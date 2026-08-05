@@ -7,6 +7,8 @@ import Group from "../models/Group.js"
 import Study from "../models/Study.js"
 import mongoose from "mongoose"
 import { getWeekRange, getWeekOfMonth } from "../util/date.js"
+import dayjs from "dayjs"
+import isoWeek from "dayjs/plugin/isoWeek.js"
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 // totalUserCount 탈퇴하지 않은 전체 일반 회원 수
@@ -266,4 +268,101 @@ export async function getTotalStudy(req, res) {
         console.error("유저 총 공부시간 가져오기 실패:", error);
         return res.status(500).json({ message: "유저의 총 공부시간을 가져오던 중 오류가 발생했습니다." })
     }
+}
+
+
+dayjs.extend(isoWeek)
+
+export async function getUserStudyTrend(req, res) {
+    const { type, start, end, userid } = req.query
+
+    const startDate = dayjs(start)
+    const endDate = dayjs(end)
+
+    if (type === "daily" && endDate.diff(startDate, "day") > 14) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "일간 조회는 최대 14일까지만 가능합니다." 
+        })
+    }
+
+    if (type === "weekly" && endDate.diff(startDate, "month", true) > 3) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "주간 조회는 최대 3개월까지만 가능합니다." 
+        })
+    }
+
+    try {
+        const studies = await Study.find({
+            user: new mongoose.Types.ObjectId(userid),
+            studyDate: { $gte: start, $lte: end } 
+        })
+
+        const groupedData = {}
+
+        studies.forEach(record => {
+            const date = dayjs(record.studyDate)
+            let label = ""
+
+            if (type === "daily") {
+                label = date.format("MM.DD")
+            } else if (type === "weekly") {
+                const startOfWeek = date.startOf("isoWeek").format("MM.DD")
+                const endOfWeek = date.endOf("isoWeek").format("MM.DD")
+                label = `${startOfWeek} ~ ${endOfWeek}`
+            } else if (type === "monthly") {
+                label = date.format("YYYY.MM")
+            }
+
+            if (!groupedData[label]) {
+                groupedData[label] = 0
+            }
+            groupedData[label] += record.sumStudyTime
+        })
+
+        const chartData = Object.keys(groupedData)
+            .map(label => ({
+                label,
+                studyTime: Number((groupedData[label] / 60).toFixed(1)) 
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label))
+
+        return res.status(200).json({
+            success: true,
+            data: chartData
+        })
+
+    } catch (error) {
+        console.error("총 공부 통계 조회 실패:", error)
+        return res.status(500).json({ message: "서버 오류가 발생했습니다." })
+    }
+}
+
+export async function getUserSubjectTrend(req,res){
+    const { type, start, end, userid } = req.query
+
+    const startDate = dayjs(start)
+    const endDate = dayjs(end)
+
+    if (type === "daily" && endDate.diff(startDate, "day") > 14) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "일간 조회는 최대 14일까지만 가능합니다." 
+        })
+    }
+
+    if (type === "weekly" && endDate.diff(startDate, "month", true) > 3) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "주간 조회는 최대 3개월까지만 가능합니다." 
+        })
+    }
+
+    try {
+        
+    } catch (error) {
+        
+    }
+
 }
