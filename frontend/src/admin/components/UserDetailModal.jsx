@@ -1,5 +1,8 @@
 import React, { useState } from "react"
 import "./UserDetailModal.css"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import dayjs from "dayjs"
 
 import UserDetailInfo from "../features/user/components/UserDetailInfo"
 import SubjectRecord from "../features/user/components/SubjectRecord"
@@ -8,13 +11,18 @@ import Todo from "../features/user/components/Todo"
 export default function UserDetailModal({ user, onClose }) {
     const [type, setType] = useState("daily")
 
-    const today = new Date().toISOString().split("T")[0]
-    const [selectedDate, setSelectedDate] = useState(today)
+    const today = new Date()
+    const lastWeek = new Date()
+    lastWeek.setDate(today.getDate() - 7)
+
+    const [dateRange, setDateRange] = useState([lastWeek, today])
+    const [startDate, endDate] = dateRange
 
     if (!user) return null
+    const formattedStartDate = startDate ? dayjs(startDate).format("YYYY-MM-DD") : ""
+    const formattedEndDate = endDate ? dayjs(endDate).format("YYYY-MM-DD") : ""
 
     return (
-        // 모달 전체 뒷배경
         <div
             onClick={onClose}
             style={{
@@ -30,7 +38,6 @@ export default function UserDetailModal({ user, onClose }) {
                 zIndex: 9999
             }}
         >
-            {/* 모달 내용 박스*/}
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
@@ -46,13 +53,11 @@ export default function UserDetailModal({ user, onClose }) {
                     gap: "20px"
                 }}
             >
-                {/* 닫기 버튼 영역 */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
                     <h2 style={{ margin: 0 }}>회원 상세</h2>
                     <button type="button" onClick={onClose} style={{ cursor: "pointer", padding: "5px 10px" }}>✕ 닫기</button>
                 </div>
 
-                {/* 일간/주간/월간 버튼 */}
                 <div style={{ display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
                     <div style={{ display: "flex", gap: "5px" }}>
                         <button
@@ -78,27 +83,36 @@ export default function UserDetailModal({ user, onClose }) {
                         </button>
                     </div>
 
-                    {/* 날짜 기간 선택 */}
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <label htmlFor="date-picker" style={{ fontSize: "14px", color: "#555" }}>기준일 선택:</label>
-                        <input
-                            id="date-picker"
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            style={{ padding: "5px", borderRadius: "5px", border: "1px solid #ccc" }}
+                        <label style={{ fontSize: "14px", color: "#555" }}>조회 기간:</label>
+                        <DatePicker
+                            selectsRange={true}
+                            startDate={startDate}
+                            endDate={endDate}
+                            onChange={(update) => setDateRange(update)}
+                            dateFormat="yyyy-MM-dd"
+                            placeholderText="기간을 선택하세요"
+                            isClearable={true}
+                            className="custom-datepicker" 
                         />
                     </div>
                 </div>
 
-                {/* 유저 정보 컴포넌트 렌더링 */}
                 <UserDetailInfo user={user} />
 
-                {/* 차트 컴포넌트 렌더링 */}
-                <SubjectRecord type={type} date={selectedDate} userId={user._id} />
+                <SubjectRecord 
+                    type={type} 
+                    start={formattedStartDate} 
+                    end={formattedEndDate} 
+                    userId={user._id} 
+                />
 
-                <Todo type={type} date={selectedDate} userId={user._id} />
-
+                <Todo 
+                    type={type} 
+                    startDate={formattedStartDate} 
+                    endDate={formattedEndDate} 
+                    userId={user._id} 
+                />
             </div>
         </div>
     )
