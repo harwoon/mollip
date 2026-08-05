@@ -120,12 +120,6 @@ export default function AiThisWeek({
                                                 : ""
                                         }`}
                                     >
-                                        {/* 요일이 있을 때만 표시 */}
-                                        {recommend.day && (
-                                            <span className="aiRecommendationDay">
-                                                {recommend.day}
-                                            </span>
-                                        )}
 
                                         <span className="aiRecommendationTaskText">
                                             {recommend.task}
