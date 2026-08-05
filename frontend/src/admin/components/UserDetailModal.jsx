@@ -18,6 +18,38 @@ export default function UserDetailModal({ user, onClose }) {
     const [dateRange, setDateRange] = useState([lastWeek, today])
     const [startDate, endDate] = dateRange
 
+    const isValidRange = (targetType, start, end) => {
+        if (!start || !end) return true
+
+        const diffDays = dayjs(end).diff(dayjs(start), "day")
+        const diffMonths = dayjs(end).diff(dayjs(start), "month", true)
+
+        if (targetType === "daily" && diffDays > 14) {
+            alert("일간 조회는 최대 14일까지만 가능합니다.")
+            return false;
+        }
+        if (targetType === "weekly" && diffMonths > 3) {
+            alert("주간 조회는 최대 3개월까지만 가능합니다.")
+            return false
+        }
+
+        return true
+    }
+
+    const handleTypeChange = (newType) => {
+        if (isValidRange(newType, startDate, endDate)) {
+            setType(newType);
+        }
+    }
+
+    const handleDateChange = (update) => {
+        const [newStart, newEnd] = update;
+        // 새로 선택하려는 달력 기간이 현재 타입의 제한을 넘지 않을 때만 상태 변경
+        if (isValidRange(type, newStart, newEnd)) {
+            setDateRange(update);
+        }
+    }
+
     if (!user) return null
     const formattedStartDate = startDate ? dayjs(startDate).format("YYYY-MM-DD") : ""
     const formattedEndDate = endDate ? dayjs(endDate).format("YYYY-MM-DD") : ""
@@ -62,21 +94,21 @@ export default function UserDetailModal({ user, onClose }) {
                     <div style={{ display: "flex", gap: "5px" }}>
                         <button
                             type="button"
-                            onClick={() => setType("daily")}
+                            onClick={() => handleTypeChange("daily")} 
                             style={{ fontWeight: type === "daily" ? "bold" : "normal" }}
                         >
                             일간
                         </button>
                         <button
                             type="button"
-                            onClick={() => setType("weekly")}
+                            onClick={() => handleTypeChange("weekly")}
                             style={{ fontWeight: type === "weekly" ? "bold" : "normal" }}
                         >
                             주간
                         </button>
                         <button
                             type="button"
-                            onClick={() => setType("monthly")}
+                            onClick={() => handleTypeChange("monthly")}
                             style={{ fontWeight: type === "monthly" ? "bold" : "normal" }}
                         >
                             월간
@@ -89,7 +121,7 @@ export default function UserDetailModal({ user, onClose }) {
                             selectsRange={true}
                             startDate={startDate}
                             endDate={endDate}
-                            onChange={(update) => setDateRange(update)}
+                            onChange={handleDateChange}
                             dateFormat="yyyy-MM-dd"
                             placeholderText="기간을 선택하세요"
                             isClearable={true}
