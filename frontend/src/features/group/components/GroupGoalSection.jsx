@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { RiTargetFill } from "react-icons/ri"
 
 import {
     fetchMyWeeklyGroupGoals
@@ -23,8 +24,7 @@ export default function GroupGoalSection() {
                 setLoading(true)
                 setError("")
 
-                const data =
-                    await fetchMyWeeklyGroupGoals()
+                const data = await fetchMyWeeklyGroupGoals()
 
                 if (isMounted) {
                     setGoalData(data)
@@ -93,25 +93,45 @@ export default function GroupGoalSection() {
         weekEndDate
     } = goalData
 
-    const groupColor =
-        group?.groupColor || "#dd6262"
+    const groupColor = group?.groupColor || "#dd6262"
 
     return (
         <div className={styles.section}>
             <header className={styles.header}>
-                <div className={styles.titleArea}>
-                    <h2 className={styles.title}>
-                        그룹별 목표
-                    </h2>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                    
+                    <div
+                        style={{
+                            minWidth: "36px",
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            backgroundColor: groupColor, // 그룹 컬러에 맞춰 변경됨!
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "#ffffff", // 아이콘 색상 (흰색)
+                            marginTop: "2px"
+                        }}
+                    >
+                        <RiTargetFill size={22} />
+                    </div>
 
-                    <p className={styles.description}>
-                        {group?.groupName || "현재"} 그룹의
-                        이번 주 목표
-                    </p>
+                    {/* 기존 텍스트 영역 */}
+                    <div className={styles.titleArea}>
+                        <h2 className={styles.title} style={{ margin: 0 }}>
+                            그룹별 목표
+                        </h2>
 
-                    <span className={styles.week}>
-                        {weekStartDate} ~ {weekEndDate}
-                    </span>
+                        <p className={styles.description}>
+                            {group?.groupName || "현재"} 그룹의
+                            이번 주 목표
+                        </p>
+
+                        <span className={styles.week}>
+                            {weekStartDate} ~ {weekEndDate}
+                        </span>
+                    </div>
                 </div>
             </header>
 

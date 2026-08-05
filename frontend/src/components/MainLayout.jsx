@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar"
 import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
     
-export default function MainLayout() {
+function MainLayout() {
     const [userInfo, setUserInfo] = useState(() => {
         const savedUser = localStorage.getItem("user")
         return savedUser ? JSON.parse(savedUser) : null

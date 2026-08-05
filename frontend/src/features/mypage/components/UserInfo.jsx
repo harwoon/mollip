@@ -1,8 +1,8 @@
-// [역할: 내 정보 조회 및 수정]
 import { useEffect, useState, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import { getMyInfo } from "../../auth/api/auth"
 import { PiPencilSimpleDuotone } from "react-icons/pi"
-import { useNavigate } from "react-router-dom"
+import { RiAccountCircle2Fill } from "react-icons/ri"
 
 import { updateMyInfo, updateProfileImage, withdrawMyAccount } from "../api/mypage"
 
@@ -10,7 +10,7 @@ import styles from "./UserInfo.module.css"
 
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
-export default function UserInfo(){
+export default function UserInfo() {
     // 회원 탈퇴 후 로그인 페이지 이동
     const navigate = useNavigate()
 
@@ -42,10 +42,10 @@ export default function UserInfo(){
 
     useEffect(() => {
         async function loadMyInfo() {
-            try{
+            try {
                 const data = await getMyInfo()
 
-                const userInfo ={
+                const userInfo = {
                     nickname: data.user.nickname ?? "",
                     email: data.user.email ?? "",
                     profileImg: data.user.profileImg ?? ""
@@ -53,7 +53,7 @@ export default function UserInfo(){
 
                 setUser(userInfo)
                 setOriginalUser(userInfo)
-            }catch(error){
+            } catch (error) {
                 console.error("마이페이지 사용자 정보 조회 오류: ", error)
             }
         }
@@ -71,8 +71,8 @@ export default function UserInfo(){
         previewImageUrl || savedProfileImageUrl
 
     // 닉네임, 이메일 input값 변경
-    function handleChange(event){
-        const {name, value} = event.target
+    function handleChange(event) {
+        const { name, value } = event.target
 
         setUser((previousUser) => ({
             ...previousUser,
@@ -81,16 +81,16 @@ export default function UserInfo(){
     }
 
     // 이미지 연필버튼 클릭 시 숨겨진 파일 선택창 열기
-    function handleImageEditClick(){
-        if(!isEditing) return
+    function handleImageEditClick() {
+        if (!isEditing) return
         fileInputRef.current?.click()
     }
 
     // 이미지 파일 선택 시 실행
-    function handleImageChange(event){
+    function handleImageChange(event) {
         const file = event.target.files?.[0]
 
-        if(!file) return
+        if (!file) return
 
         // 이미지 파일만 선택 가능
         if (!file.type.startsWith("image/")) {
@@ -100,7 +100,7 @@ export default function UserInfo(){
         }
 
         // 기존 미리보기 URL 메모리 해제
-        if(previewImageUrl){
+        if (previewImageUrl) {
             URL.revokeObjectURL(previewImageUrl)
         }
 
@@ -111,24 +111,24 @@ export default function UserInfo(){
     // 수정하기, 수정완료 버튼
     async function handleEdit() {
         // 수정모드 아닐경우 = 수정모드로 전환
-        if(!isEditing){
+        if (!isEditing) {
             setIsEditing(true)
             return
         }
 
         // 수정완료 누르면 입력값 검사
-        if(!user.nickname.trim()){
+        if (!user.nickname.trim()) {
             alert("닉네임을 입력해주세요.")
             return
         }
-        if(!user.email.trim()){
+        if (!user.email.trim()) {
             alert("이메일을 입력해주세요.")
             return
         }
 
-        try{
+        try {
             // 닉네임, 이메일 수정
-            const infoData  = await updateMyInfo(
+            const infoData = await updateMyInfo(
                 user.nickname.trim(),
                 user.email.trim()
             )
@@ -136,7 +136,7 @@ export default function UserInfo(){
             let updatedProfileImg = user.profileImg
 
             // 새 이미지 선택했을때만 이미지 수정
-            if(selectedImageFile){
+            if (selectedImageFile) {
                 const imageData = await updateProfileImage(
                     selectedImageFile
                 )
@@ -171,7 +171,7 @@ export default function UserInfo(){
             setIsEditing(false)
             alert(infoData.message || "회원정보가 수정되었습니다!")
 
-        }catch (error) {
+        } catch (error) {
             console.error(
                 "회원정보 수정 오류:",
                 error
@@ -210,7 +210,7 @@ export default function UserInfo(){
         // 탈퇴 확인 문구 입력
         const confirmationText = window.prompt('"탈퇴하겠습니다"를 입력해주세요.')
         // 취소한 경우
-        if (confirmationText === null) {return}
+        if (confirmationText === null) { return }
         // 확인 문구 검사
         if (confirmationText !== "탈퇴하겠습니다") {
             alert('"탈퇴하겠습니다"를 정확히 입력해주세요.')
@@ -220,7 +220,7 @@ export default function UserInfo(){
         // 탈퇴 사유 입력
         const withdrawalReason = window.prompt("탈퇴 사유를 입력해주세요.")
         // 취소한 경우
-        if (withdrawalReason === null) {return}
+        if (withdrawalReason === null) { return }
         // 탈퇴 사유 공백 검사
         if (!withdrawalReason.trim()) {
             alert("탈퇴 사유를 입력해주세요.")
@@ -262,12 +262,33 @@ export default function UserInfo(){
         }
     }
 
-    return(
+    return (
         <section className={`commonSection ${styles.userInfo}`}>
             <div className={styles.userInfoHeader}>
-                <div>
-                    <h2>내 정보 수정</h2>
-                    <p>내 정보를 관리하고 수정할 수 있습니다.</p>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+
+                    {/* 동그란 아이콘 배경 */}
+                    <div
+                        style={{
+                            minWidth: "42px",
+                            width: "42px",
+                            height: "42px",
+                            borderRadius: "50%",
+                            backgroundColor: "#E2E2F6",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "#8e5ab9",
+                            marginTop: "2px"
+                        }}
+                    >
+                        <RiAccountCircle2Fill size={22} />
+                    </div>
+
+                    <div>
+                        <h2 style={{ margin: 0 }}>내 정보 수정</h2>
+                        <p style={{ margin: "4px 0 0 0" }}>내 정보를 관리하고 수정할 수 있습니다.</p>
+                    </div>
                 </div>
             </div>
 

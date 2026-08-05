@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react"
 import dayjs from "dayjs"
 
-import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts"
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts"
 
 import { getTodoRecords } from "../api/todo"
 import styles from "./Todo.module.css"
+import { RiFlagLine } from "react-icons/ri"
 
 
 export default function Todo({
-        selectedDate, type
-}){
+    selectedDate, type
+}) {
     // Todo 목록 필터 : 전체. 완료. 미완료
     const [filter, setFilter] = useState("all")
 
@@ -23,7 +24,7 @@ export default function Todo({
     // 조회 단위, 날짜 바뀔때마다 Todo 기록 다시 조회
     useEffect(() => {
         async function fetchTodoRecords() {
-            try{
+            try {
                 setLoading(true)
                 setError("")
 
@@ -41,7 +42,7 @@ export default function Todo({
 
                 setTodoList(normalizedTodoList)
 
-            }catch(error){
+            } catch (error) {
                 console.error("Todo 기록 조회 오류:", error)
 
                 setError(
@@ -50,7 +51,7 @@ export default function Todo({
                 )
 
                 setTodoList([])
-            }finally{
+            } finally {
                 setLoading(false)
             }
         }
@@ -79,8 +80,8 @@ export default function Todo({
 
     // 목표 달성률 계산
     // 완료 / 전체 x 100 (없으면 0%)
-    const achievementRate  = useMemo(() => {
-        if (todoList.length === 0){
+    const achievementRate = useMemo(() => {
+        if (todoList.length === 0) {
             return 0
         }
 
@@ -94,8 +95,8 @@ export default function Todo({
     const chartData = useMemo(() => {
         // todo 한개도 없으면 완료, 미완료 모두 0임
         // 회색 도넛 만들고 달성률 0%로 표시
-        if (todoList.length === 0){
-            return[
+        if (todoList.length === 0) {
+            return [
                 {
                     name: "Todo 없음",
                     value: 1,
@@ -116,7 +117,7 @@ export default function Todo({
                 color: "#ebe7f3"
             }
         ]
-    },[
+    }, [
         todoList.length,
         completedCount,
         incompleteCount
@@ -126,13 +127,13 @@ export default function Todo({
     // 선택된 필터에 맞는 Todo만 반환
     const filteredTodoList = useMemo(() => {
         // 완료 목록
-        if(filter === "completed"){
+        if (filter === "completed") {
             return todoList.filter(
                 (todoItem) => todoItem.state === true
             )
         }
         // 미완료 목록
-        if(filter === "incomplete"){
+        if (filter === "incomplete") {
             return todoList.filter(
                 (todoItem) => todoItem.state === false
             )
@@ -146,9 +147,28 @@ export default function Todo({
         <section className={styles.todoRecord}>
             {/* 목표 달성률 영역 */}
             <div className={styles.achievementCard}>
-                <h2 className={styles.achievementTitle}>
-                    목표 달성률
-                </h2>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                    {/* 동그란 아이콘 배경 */}
+                    <div
+                        style={{
+                            minWidth: "36px",
+                            width: "36px",
+                            height: "36px",
+                            borderRadius: "50%",
+                            backgroundColor: "#E2E2F6",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "#6B4EFF",
+                        }}
+                    >
+                        <RiFlagLine size={24} />
+                    </div>
+
+                    <h2 className={styles.achievementTitle} style={{ margin: 0 }}>
+                        목표 달성률
+                    </h2>
+                </div>
 
                 {/* Recharts 도넛 차트 */}
                 <div className={styles.chartArea}>
