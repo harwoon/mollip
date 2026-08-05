@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename)
 
 // 하드코딩 되어있던 주소 수정
 const corsOptions = {
-    origin: config.cors.allowedOrgins,
+    origin: config.cors.allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }
