@@ -332,3 +332,17 @@
         gap: 10px;
     }
 }
+
+/* 관리자 관리회원현황 모달 버튼 */
+.adminMemberStatusSidebarButton {
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* 버튼 기본 스타일 제거 후 기존 사이드바 링크와 동일하게 표시 */
+.adminMemberStatusSidebarButton:focus-visible {
+    outline: 2px solid var(--color-primary-300);
+    outline-offset: 2px;
+}

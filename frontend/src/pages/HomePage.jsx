@@ -9,6 +9,8 @@ import { getMyInfo } from "../features/auth/api/auth"
 
 import styles from "./HomePage.module.css"
 
+import { useTimer } from "../context/TimerContext"
+
 const API_URL =
   import.meta.env.VITE_LOCAL_API_URL ||
   "http://127.0.0.1:3000"
@@ -75,6 +77,8 @@ function applySavedSubjectOrder(subjectList) {
 
 // todoRefreshKey = Ai todo
 export default function HomePage() {
+  const { todoRefreshKey, handleTodoListChanged } = useOutletContext() // AI Todo 추가/제거 후 홈 Todo 목록 재조회 값, 홈 Todo 추가/삭제 후 AI 추천 목록 동기화 함수
+  
   const {
     selectedSubject,
     setSelectedSubject,
@@ -84,12 +88,8 @@ export default function HomePage() {
     setIsRunning,
     actualStartTime,
     setActualStartTime,
-    handleGlobalSave,
-    // AI Todo 추가/제거 후 홈 Todo 목록 재조회 값
-    todoRefreshKey,
-    // 홈 Todo 추가/삭제 후 AI 추천 목록 동기화 함수
-    handleTodoListChanged
-  } = useOutletContext()
+    handleGlobalSave
+  } = useTimer()
 
   const [subjects, setSubjects] =
     useState([])

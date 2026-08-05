@@ -1,31 +1,21 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { getSubjectRecord } from "../api/study.js";
-import { getSubjectStudySummary } from "../api/study.js";
-import dayjs from "dayjs";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import React, { useState, useEffect, useMemo } from "react"
+import { getSubjectRecord, getSubjectStudySummary } from "../api/study.js"
+import dayjs from "dayjs"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
+import { RiAccountCircleLine } from "react-icons/ri"
 
-import styles from "./TotalSubject.module.css";
+import styles from "./TotalSubject.module.css"
 
 function formatStudyTime(seconds) {
-  const safeSeconds =
-    Number(seconds) || 0
-
-  const totalMinutes =
-    Math.floor(safeSeconds / 60)
-
-  const hours =
-    Math.floor(totalMinutes / 60)
-
-  const minutes =
-    totalMinutes % 60
+  const safeSeconds = Number(seconds) || 0
+  const totalMinutes = Math.floor(safeSeconds / 60)
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
 
   return `${hours}시간 ${minutes}분`
 }
 
-function getComparisonText(
-  type,
-  comparison,
-) {
+function getComparisonText(type, comparison) {
   if (!comparison) {
     return ""
   }
@@ -36,16 +26,8 @@ function getComparisonText(
     monthly: "지난달",
   }
 
-  const previousPeriod =
-    previousPeriodMap[type] ||
-    "이전 기간"
-
-  const {
-    currentSubject,
-    previousSubject,
-    difference,
-    status,
-  } = comparison
+  const previousPeriod = previousPeriodMap[type] || "이전 기간"
+  const { currentSubject, previousSubject, difference, status } = comparison
 
   if (status === "same") {
     return (
@@ -70,59 +52,34 @@ function getComparisonText(
   )
 }
 
-function SubjectTooltip({
-  active,
-  payload,
-}) {
-  if (
-    !active ||
-    !payload ||
-    payload.length === 0
-  ) {
+function SubjectTooltip({ active, payload }) {
+  if (!active || !payload || payload.length === 0) {
     return null
   }
 
-  const subject =
-    payload[0].payload
+  const subject = payload[0].payload;
 
   return (
     <div className={styles.tooltip}>
-      <strong>
-        {subject.studyTitle}
-      </strong>
-
-      <span>
-        {formatStudyTime(
-          subject.sumStudyTime,
-        )}
-      </span>
-
-      <span>
-        {subject.ratio}%
-      </span>
+      <strong>{subject.studyTitle}</strong>
+      <span>{formatStudyTime(subject.sumStudyTime)}</span>
+      <span>{subject.ratio}%</span>
     </div>
   )
 }
 
-export default function TotalSubject({
-  selectedDate,
-  type,
-}) {
-  const [summary, setSummary] =
-    useState({
-      totalStudyTime: 0,
-      comparison: {
-        status: "same",
-        rate: 0,
-      },
-      subjects: [],
-    })
+export default function TotalSubject({ selectedDate, type }) {
+  const [summary, setSummary] = useState({
+    totalStudyTime: 0,
+    comparison: {
+      status: "same",
+      rate: 0,
+    },
+    subjects: [],
+  })
 
-  const [loading, setLoading] =
-    useState(true)
-
-  const [error, setError] =
-    useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     let cancelled = false
@@ -132,28 +89,17 @@ export default function TotalSubject({
         setLoading(true)
         setError("")
 
-        const formattedDate =
-          dayjs(selectedDate)
-            .format("YYYY-MM-DD")
-
-        const data =
-          await getSubjectStudySummary(
-            type,
-            formattedDate,
-          )
+        const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+        const data = await getSubjectStudySummary(type, formattedDate);
 
         if (!cancelled) {
           setSummary(data)
         }
       } catch (error) {
-        console.error(
-          "과목별 공부시간 조회 실패:",
-          error,
-        )
+        console.error("과목별 공부시간 조회 실패:", error)
 
         if (!cancelled) {
           setError(error.message)
-
           setSummary({
             totalStudyTime: 0,
             comparison: {
@@ -165,7 +111,7 @@ export default function TotalSubject({
         }
       } finally {
         if (!cancelled) {
-          setLoading(false)
+          setLoading(false);
         }
       }
     }
@@ -175,80 +121,77 @@ export default function TotalSubject({
     return () => {
       cancelled = true
     }
-  }, [
-    selectedDate,
-    type,
-  ])
+  }, [selectedDate, type])
 
-  const hasData =
-    summary.subjects.length > 0
+  const hasData = summary.subjects.length > 0
 
-  const chartData =
-    useMemo(() => {
-      if (hasData) {
-        return summary.subjects
-      }
+  const chartData = useMemo(() => {
+    if (hasData) {
+      return summary.subjects
+    }
 
-      return [
-        {
-          studyTitle:
-            "공부 기록 없음",
-          sumStudyTime: 1,
-          ratio: 0,
-          subjectColor:
-            "#E4DCEF",
-        },
-      ]
-    }, [
-      summary.subjects,
-      hasData,
-    ])
+    return [
+      {
+        studyTitle: "공부 기록 없음",
+        sumStudyTime: 1,
+        ratio: 0,
+        subjectColor: "#E4DCEF",
+      },
+    ]
+  }, [summary.subjects, hasData]);
 
   const comparisonClassName = [
     styles.comparison,
-    styles[
-    summary.comparison.status
-    ],
+    styles[summary.comparison?.status],
   ].join(" ")
 
   return (
-    <section
-      className={`commonSection ${styles.container}`}
-    >
+    <section className={`commonSection ${styles.container}`}>
       <div className={styles.header}>
-        <div>
-          <h3 className={styles.title}>
-            과목별 공부시간
-          </h3>
 
-          {loading && (
-            <p className={styles.description}>
-              공부시간을 불러오는 중입니다.
-            </p>
-          )}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          
+          <div
+            style={{
+              minWidth: "36px",
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              backgroundColor: "#E2E2F6",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              color: "#6B4EFF",
+            }}
+          >
+            <RiAccountCircleLine size={24} />
+          </div>
 
-          {error && (
-            <p className={styles.description}>
-              과목별 공부시간을 불러오지 못했습니다.
-            </p>
-          )}
+          <div>
+            <h3 className={styles.title}>과목별 공부시간</h3>
+
+            {loading && (
+              <p className={styles.description}>
+                공부시간을 불러오는 중입니다.
+              </p>
+            )}
+
+            {error && (
+              <p className={styles.description}>
+                과목별 공부시간을 불러오지 못했습니다.
+              </p>
+            )}
+          </div>
         </div>
 
         <strong className={styles.totalTime}>
-          {loading
-            ? "-"
-            : formatStudyTime(
-              summary.totalStudyTime,
-            )}
+          {loading ? "-" : formatStudyTime(summary.totalStudyTime)}
         </strong>
       </div>
 
       <div className={styles.chartArea}>
         {!loading && !error && hasData ? (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
+          <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartData}
@@ -261,38 +204,25 @@ export default function TotalSubject({
                 stroke="none"
                 isAnimationActive
               >
-                {chartData.map(
-                  (subject, index) => (
-                    <Cell
-                      key={
-                        `${subject.studyTitle}-${index}`
-                      }
-                      fill={
-                        subject.subjectColor
-                      }
-                    />
-                  ),
-                )}
+                {chartData.map((subject, index) => (
+                  <Cell
+                    key={`${subject.studyTitle}-${index}`}
+                    fill={subject.subjectColor}
+                  />
+                ))}
               </Pie>
 
-              <Tooltip
-                content={<SubjectTooltip />}
-              />
+              <Tooltip content={<SubjectTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         ) : (
           !loading && (
             <div className={styles.emptyState}>
               <span>
-                {error
-                  ? "조회 실패"
-                  : "공부 기록이 없습니다."}
+                {error ? "조회 실패" : "공부 기록이 없습니다."}
               </span>
-
               <strong>
-                {error
-                  ? "잠시 후 다시 시도해주세요."
-                  : "공부를 시작해보세요!"}
+                {error ? "잠시 후 다시 시도해주세요." : "공부를 시작해보세요!"}
               </strong>
             </div>
           )
@@ -300,26 +230,17 @@ export default function TotalSubject({
       </div>
 
       {/* 차트 아래 비교 문구 */}
-      {!loading &&
-        !error &&
-        hasData &&
-        summary.topSubjectComparison && (
-          <p className={styles.description}>
-            {getComparisonText(
-              type,
-              summary.topSubjectComparison,
-            )}
-          </p>
-        )}
+      {!loading && !error && hasData && summary.topSubjectComparison && (
+        <p className={styles.description}>
+          {getComparisonText(type, summary.topSubjectComparison)}
+        </p>
+      )}
 
-      {!loading &&
-        !error &&
-        hasData &&
-        !summary.topSubjectComparison && (
-          <p className={styles.description}>
-            비교할 이전 공부 기록이 없습니다.
-          </p>
-        )}
+      {!loading && !error && hasData && !summary.topSubjectComparison && (
+        <p className={styles.description}>
+          비교할 이전 공부 기록이 없습니다.
+        </p>
+      )}
     </section>
   )
 }
