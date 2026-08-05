@@ -119,9 +119,9 @@ router.get("/user/subjectTrend", isAuth, adminUserController.getUserSubjectTrend
 router.get("/user/studyTrend",isAuth, adminUserController.getUserStudyTrend )
 
 // Todo 달성률 추이
-// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=daily&date=2026-08-05
-// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=weekly&date=2026-08-05
-// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=monthly&date=2026-08-05
+// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=daily&date=2026-08-01&end=2026-08-05
+// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=weekly&start=2026-08-01&end=2026-08-15
+// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=monthly&date=2026-07-05&end=2026-08-25
 router.get("/users/:userId/todo-achievement-trend", adminUserController.getUserTodoAchievementTrend)
 
 export default router
