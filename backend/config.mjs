@@ -35,6 +35,6 @@ export const config = {
         ),
     },
     cors: {
-        allowedOrgins: required("CORS_ORIGINS").split(",")
+        allowedOrigins: required("CORS_ORIGINS").split(",")
     }
 }
