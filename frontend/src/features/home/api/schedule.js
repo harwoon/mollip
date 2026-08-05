@@ -1,8 +1,4 @@
-
-
-
-
-const API_URL = import.meta.env.VITE_LOCAL_API_URL || "http://127.0.0.1:3000"
+const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
 async function requestSchedule(
     url,

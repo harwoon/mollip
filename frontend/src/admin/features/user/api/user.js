@@ -1,26 +1,5 @@
 const API_URL = import.meta.env.VITE_LOCAL_API_URL
 
-// 백 완료 전까지 보류
-// 유저 정보 조회
-// export async function getUserInfo() {
-//     const token = localStorage.getItem("token")
-
-//     const response = await fetch(`${API_URL}/admin/user`, {
-//         method: "GET",
-//         headers: {
-//             Authorization: `Bearer ${token}`
-//         }
-//     })
-
-//     const data = await response.json()
-
-//     if(!response.ok) {
-//         throw new Error(data.message || "유저 정보를 가져오지 못했습니다.")
-//     }
-
-//     return data
-// }
-
 // 과목별 공부 시간 가져오기
 export async function getSubjectRecord(type, start, end, userId) {
     const token = localStorage.getItem("token")
@@ -43,14 +22,11 @@ export async function getSubjectRecord(type, start, end, userId) {
     return data
 }
 
-// 기록 페이지의 일간·주간·월간 Todo 조회
-export async function getTodoRecords(type, date, userId) {
+// 총 공부 시간 추이 가져오기
+export async function getStudyTrend(type, start, end, userId) {
     const token = localStorage.getItem("token")
 
-    let url = `${API_URL}/admin/achievement?type=${type}&date=${date}`
-    if (userId) {
-        url += `&userId=${userId}`
-    }
+    let url = `${API_URL}/admin/user/studyTrend?type=${type}&start=${start}&end=${end}&userid=${userId}`
 
     const response = await fetch(url, {
         method: "GET",
@@ -62,9 +38,30 @@ export async function getTodoRecords(type, date, userId) {
     const data = await response.json()
 
     if (!response.ok) {
-        throw new Error(
-            data.message || "Todo 기록을 불러오지 못했습니다."
-        )
+        throw new Error(data.message || "총 공부 시간을 불러오지 못했습니다.")
+    }
+
+    return data
+}
+
+// http://127.0.0.1:3000/admin/users/6a702d8ca2d7700555a2d6d6/todo-achievement-trend?type=monthly&start=2026-08-01&end=2026-08-04
+// todo 추이 가져오기
+export async function getTodoTrend(type,start,end,userId){
+    const token = localStorage.getItem("token")
+
+    let url = `${API_URL}/admin/users/${userId}/todo-achievement-trend?type=${type}&start=${start}&end=${end}`
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "총 todo 추이를 불러오지 못했습니다.")
     }
 
     return data
