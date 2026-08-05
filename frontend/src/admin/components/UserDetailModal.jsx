@@ -7,6 +7,7 @@ import dayjs from "dayjs"
 import UserDetailInfo from "../features/user/components/UserDetailInfo"
 import SubjectRecord from "../features/user/components/SubjectRecord"
 import TotalStudy from "../features/user/components/TotalStudy"
+import TodoRate from "../features/user/components/TodoRate"
 
 export default function UserDetailModal({ user, onClose }) {
     const [type, setType] = useState("daily")
@@ -133,6 +134,13 @@ export default function UserDetailModal({ user, onClose }) {
                 <UserDetailInfo user={user} />
 
                 <TotalStudy 
+                    type={type} 
+                    start={formattedStartDate} 
+                    end={formattedEndDate} 
+                    userId={user._id} 
+                />
+
+                <TodoRate
                     type={type} 
                     start={formattedStartDate} 
                     end={formattedEndDate} 
