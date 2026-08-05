@@ -1,0 +1,233 @@
+/* =========================
+   Todo 추천 영역
+========================= */
+.todoArea {
+    width: 100%;
+
+    border-color: var(--color-primary-100);
+}
+
+.todoArea :global(.aiReportHeader) {
+    margin-bottom: var(--space-4);
+}
+
+.todoArea :global(.aiReportHeader h3) {
+    margin: 0;
+
+    color: var(--color-text);
+    font-size: var(--font-md);
+    font-weight: 800;
+}
+
+/* Todo 목록 */
+.todoArea :global(.aiRecommendationList) {
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    list-style: none;
+}
+
+/* Todo 한 줄 */
+.todoArea :global(.aiRecommendationItem) {
+    min-width: 0;
+    min-height: 72px;
+    padding: var(--space-3) var(--space-4);
+
+    display: grid;
+    grid-template-columns:
+        38px
+        minmax(230px, 1.3fr)
+        minmax(220px, 1fr)
+        88px;
+    align-items: center;
+    gap: var(--space-3);
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--color-primary-50) 0%,
+            var(--color-surface-soft) 42%,
+            var(--color-surface) 100%
+        );
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.todoArea :global(.aiRecommendationItem:hover) {
+    border-color: var(--color-primary-200);
+    transform: translateY(-1px);
+}
+
+.todoArea :global(.aiRecommendationItemAdded) {
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-200);
+}
+
+
+/* 추천 번호 */
+.todoArea :global(.aiRecommendationNumber) {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+    font-size: var(--font-xs);
+    font-weight: 800;
+
+    background: var(--color-primary-600);
+    border-radius: var(--radius-sm);
+}
+
+/* 번호별 색상 구분 */
+.todoArea
+:global(.aiRecommendationItem:nth-child(2) .aiRecommendationNumber) {
+    background: #42b96f;
+}
+
+.todoArea
+:global(.aiRecommendationItem:nth-child(3) .aiRecommendationNumber) {
+    background: #f28a25;
+}
+
+
+/* Todo 핵심 내용 */
+.todoArea :global(.aiRecommendationMain) {
+    min-width: 0;
+}
+
+.todoArea :global(.aiRecommendationTask) {
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 750;
+    line-height: 1.5;
+}
+
+.todoArea :global(.aiRecommendationDay) {
+    flex-shrink: 0;
+}
+
+.todoArea :global(.aiRecommendationDay::after) {
+    content: " ·";
+}
+
+.todoArea :global(.aiRecommendationTaskText) {
+    min-width: 0;
+}
+
+/* 소요시간은 제목과 동일한 흐름으로 표시 */
+.todoArea :global(.aiRecommendationDuration) {
+    flex-shrink: 0;
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 750;
+}
+
+/* 완료된 Todo */
+.todoArea :global(.aiRecommendationTaskCompleted) {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
+
+/* 예상 효과 영역 */
+.todoArea :global(.aiRecommendationEffect) {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* 이미지처럼 네임택 형태 */
+.todoArea :global(.aiRecommendationEffectLabel) {
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    font-weight: 800;
+    line-height: 1;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: 999px;
+}
+
+.todoArea :global(.aiRecommendationEffectText) {
+    min-width: 0;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    line-height: 1.5;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Todo 추가 버튼 */
+.todoArea :global(.aiRecommendationButton) {
+    width: 88px;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+
+    color: #ffffff;
+    font-size: var(--font-xs);
+    font-weight: 800;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--color-primary-600),
+            var(--color-primary-700)
+        );
+    border: 0;
+    border-radius: var(--radius-sm);
+
+    cursor: pointer;
+
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.todoArea
+:global(.aiRecommendationButton:hover:not(:disabled)) {
+    box-shadow: var(--shadow-button);
+    transform: translateY(-1px);
+}
+
+/* 이미 추가된 버튼 */
+.todoArea :global(.aiRecommendationButtonAdded) {
+    color: var(--color-primary-700);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-primary-200);
+}
+
+.todoArea :global(.aiRecommendationButton:disabled) {
+    opacity: 0.55;
+    cursor: default;
+}

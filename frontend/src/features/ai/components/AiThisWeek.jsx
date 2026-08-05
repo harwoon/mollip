@@ -106,30 +106,74 @@ export default function AiThisWeek({
                                     added ? "aiRecommendationItemAdded" : ""
                                 }`}
                             >
-                                <div className="aiRecommendationContent">
+                                {/* 추천 순서 */}
+                                <span className="aiRecommendationNumber">
+                                    {String(index + 1).padStart(2, "0")}
+                                </span>
+
+                                {/* Todo 핵심 정보 */}
+                                <div className="aiRecommendationMain">
                                     <p
-                                        className={
+                                        className={`aiRecommendationTask ${
                                             completed
                                                 ? "aiRecommendationTaskCompleted"
                                                 : ""
-                                        }
+                                        }`}
                                     >
-                                        <span>{recommend.task}</span>
-                                        <span className="aiRecommendationDuration">
-                                            ({recommend.duration})
+                                        {/* 요일이 있을 때만 표시 */}
+                                        {recommend.day && (
+                                            <span className="aiRecommendationDay">
+                                                {recommend.day}
+                                            </span>
+                                        )}
+
+                                        <span className="aiRecommendationTaskText">
+                                            {recommend.task}
                                         </span>
+
+                                        {/* 소요시간 */}
+                                        {recommend.duration && (
+                                            <span className="aiRecommendationDuration">
+                                                {recommend.duration}
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
 
+                                {/* 예상 효과 */}
+                                {recommend.effect && (
+                                    <div className="aiRecommendationEffect">
+                                        <span className="aiRecommendationEffectLabel">
+                                            예상 효과
+                                        </span>
+
+                                        <span className="aiRecommendationEffectText">
+                                            {recommend.effect}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {/* Todo 추가/제거 버튼 */}
                                 <button
                                     type="button"
-                                    onClick={() => handleTodoButton(recommend, index)}
+                                    onClick={() =>
+                                        handleTodoButton(
+                                            recommend,
+                                            index
+                                        )
+                                    }
                                     disabled={processing}
                                     className={`aiRecommendationButton ${
-                                        added ? "aiRecommendationButtonAdded" : ""
+                                        added
+                                            ? "aiRecommendationButtonAdded"
+                                            : ""
                                     }`}
                                 >
-                                    {processing ? "처리 중..." : added ? "추가됨" : "Todo 추가"}
+                                    {processing
+                                        ? "처리 중..."
+                                        : added
+                                            ? "추가됨"
+                                            : "+ 추가"}
                                 </button>
                             </li>
                         )
