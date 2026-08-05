@@ -13,9 +13,13 @@ export default function UserDetailInfo({ user }) {
 
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                     <img
-                        src={user.profileImage ? `${API_URL}${user.profileImage}` : null}
+                        src={user.profileImg ? `${API_URL}${user.profileImg}` : "/images/noprofile.png"}
                         alt="프로필 이미지"
                         style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#eee", objectFit: "cover" }}
+                        onError={(event) => {
+                            event.currentTarget.onerror = null
+                            event.currentTarget.src = "/images/noprofile.png"
+                        }}
                     />
                     <div>
                         <h3 style={{ margin: "0 0 5px 0" }}>
@@ -49,7 +53,6 @@ export default function UserDetailInfo({ user }) {
                 </div>
             </div>
 
-            {/* --- [하단 영역] 기본 정보 --- */}
             <div style={{ border: "1px solid #eee", padding: "20px", borderRadius: "8px" }}>
                 <h4 style={{ margin: "0 0 15px 0" }}>기본 정보</h4>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.95rem" }}>
