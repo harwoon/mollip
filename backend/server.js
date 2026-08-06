@@ -30,7 +30,8 @@ const __dirname = path.dirname(__filename)
 const corsOptions = {
     origin: config.cors.allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }
 
 const server = http.createServer(app)
