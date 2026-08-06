@@ -1,0 +1,219 @@
+.scheduleModalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+/* 모달 전체 박스 */
+.scheduleModal {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* 헤더 */
+.scheduleModalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--theme-color);
+    flex-shrink: 0;
+}
+
+.scheduleModalHeader h2 {
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+}
+
+.scheduleModalClose {
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scheduleModalContent {
+    padding: 24px;
+    overflow-y: auto;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.scheduleModalContent::-webkit-scrollbar {
+    width: 6px;
+}
+.scheduleModalContent::-webkit-scrollbar-track {
+    background: transparent;
+}
+.scheduleModalContent::-webkit-scrollbar-thumb {
+    background-color: #dddddd;
+    border-radius: 10px;
+}
+.scheduleModalContent::-webkit-scrollbar-thumb:hover {
+    background-color: #cccccc;
+}
+
+/* --- 폼 --- */
+.scheduleForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.scheduleForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.scheduleForm textarea {
+    width: 100%;
+    min-height: 90px;
+    max-height: 300px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    resize: none;
+    overflow-y: hidden;
+}
+
+.scheduleForm input:focus,
+.scheduleForm textarea:focus,
+.scheduleForm select:focus {
+    outline: none;
+    border-color: var(--theme-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-color) 30%, white);
+}
+
+/* 체크박스 */
+.scheduleCheckbox {
+    flex-direction: row !important;
+    align-items: center;
+}
+
+.scheduleCheckbox input {
+    accent-color: var(--theme-color);
+}
+
+/* 시간 */
+.scheduleTimeRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* 버튼 영역 */
+.scheduleModalActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.scheduleActionRight {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.scheduleModalActions button {
+    padding: 9px 16px;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.scheduleSaveButton {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    color: #333;
+    font-weight: 700;
+}
+
+.scheduleDeleteButton {
+    border-color: #ffdddd;
+    color: #e53935;
+}
+
+/* 일정 목록 */
+.scheduleListSection {
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.scheduleListHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.scheduleListHeader h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.scheduleListHeader button {
+    color: var(--theme-color);
+}
+
+.scheduleList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.scheduleListItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #eeeeee;
+    border-radius: 8px;
+    background: white;
+    text-align: left;
+    cursor: pointer;
+}
+
+.scheduleListItem.selected {
+    border-color: var(--theme-color);
+    background: color-mix(in srgb, var(--theme-color) 18%, white);
+}
+
+.scheduleColor {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.scheduleEmpty {
+    margin: 12px 0 0;
+    color: #999999;
+    font-size: 13px;
+}
