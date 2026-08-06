@@ -66,3 +66,26 @@ export async function getTodoTrend(type,start,end,userId){
 
     return data
 }
+
+// 주간 공부 시간 가져오기
+// http://127.0.0.1:3000/admin/user/totalStudyTime?date=2026-07-26&userid=6a6fdd0ea7b6baa85e4d088d
+export async function getTotalStudyTime(date,userId){
+    const token = localStorage.getItem("token")
+
+    let url = `${API_URL}/admin/user/totalStudyTime?date=${date}&userid=${userId}`
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "이번 주 공부시간을 불러오지 못했습니다.")
+    }
+
+    return data
+}
