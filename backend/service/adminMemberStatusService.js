@@ -6,6 +6,31 @@ import mongoose from "mongoose"
 import User from "../models/User.js"
 import transporter from "../util/mailer.js"
 import { getMemberStatusMailTemplate } from "../util/memberStatusMailTemplates.js"
+import path from "path"
+import { fileURLToPath } from "url"
+
+// 이미지
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const MAIL_IMAGES = {
+    inactive7: {
+        filename: "state7.png",
+        path: path.resolve(__dirname, "../public/images/state7.png"),
+        cid: "mollip-state7"
+    },
+
+    inactive14: {
+        filename: "state14.png",
+        path: path.resolve(__dirname, "../public/images/state14.png"),
+        cid: "mollip-state14"
+    },
+
+    dormant: {
+        filename: "state30.png",
+        path: path.resolve(__dirname, "../public/images/state30.png"),
+        cid: "mollip-state30"
+    }
+}
 
 // 하루를 밀리초로 변환
 const DAY_MS = 1000 * 60 * 60 * 24
@@ -265,26 +290,37 @@ export async function sendMemberStatusMails({type, userIds}) {
             }
 
             // 회원 상태에 맞는 메일 양식 생성
-            const template =
-                getMemberStatusMailTemplate(
-                    type,
-                    user.nickname
-                )
+            const mailImage = MAIL_IMAGES[type]
+
+            const template = getMemberStatusMailTemplate(
+                type,
+                user.nickname,
+                mailImage?.cid
+            )
 
             // 실제 메일 발송
             await transporter.sendMail({
                 from: {
-                    name:
-                        process.env.MAIL_FROM_NAME || "Mollip",
-
+                    name: process.env.MAIL_FROM_NAME || "Mollip",
                     address:
-                        process.env
-                            .MAIL_FROM_ADDRESS || process.env.MAIL_USER
+                        process.env.MAIL_FROM_ADDRESS ||
+                        process.env.MAIL_USER
                 },
 
                 to: user.email,
                 subject: template.subject,
-                html: template.html
+                html: template.html,
+
+                attachments: mailImage
+                    ? [
+                        {
+                            filename: mailImage.filename,
+                            path: mailImage.path,
+                            cid: mailImage.cid,
+                            contentDisposition: "inline"
+                        }
+                    ]
+                    : []
             })
 
             return {

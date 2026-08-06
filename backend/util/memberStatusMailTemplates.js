@@ -4,7 +4,9 @@ function createMailLayout({
     nickname,
     message,
     buttonText,
-    buttonUrl
+    buttonUrl,
+    imageCid = null,
+    imageAlt = "Mollip 안내 이미지"
 }) {
     return `
         <!DOCTYPE html>
@@ -85,6 +87,36 @@ function createMailLayout({
                         오늘도 작은 몰입을 시작해 보세요.
                     </p>
                 </div>
+
+                <!-- 메일 이미지 -->
+                ${
+                    imageCid
+                        ? `
+                            <div
+                                style="
+                                    padding: 30px 30px 0;
+                                    text-align: center;
+                                "
+                            >
+                                <img
+                                    src="cid:${imageCid}"
+                                    alt="${imageAlt}"
+                                    width="280"
+                                    style="
+                                        display: block;
+                                        width: 100%;
+                                        max-width: 280px;
+                                        height: auto;
+                                        margin: 0 auto;
+                                        border: 0;
+                                        outline: none;
+                                        text-decoration: none;
+                                    "
+                                />
+                            </div>
+                        `
+                        : ""
+                }
 
                 <!-- 본문 영역 -->
                 <div
@@ -210,7 +242,8 @@ function createMailLayout({
 // 회원 상태별 메일 양식 반환
 export function getMemberStatusMailTemplate(
     type,
-    nickname
+    nickname,
+    imageCid
 ) {
     // 프론트 주소
     const frontendUrl =
@@ -256,11 +289,10 @@ export function getMemberStatusMailTemplate(
                     </p>
                 `,
 
-                buttonText:
-                    "Mollip에서 공부 시작하기",
-
-                buttonUrl:
-                    `${frontendUrl}/home`
+                buttonText: "Mollip에서 공부 시작하기",
+                buttonUrl: `${frontendUrl}/home`,
+                imageCid,
+                imageAlt: "7일 미학습 안내"
             })
         }
     }
@@ -304,11 +336,10 @@ export function getMemberStatusMailTemplate(
                     </p>
                 `,
 
-                buttonText:
-                    "학습 기록 확인하기",
-
-                buttonUrl:
-                    `${frontendUrl}/records`
+                buttonText: "학습 기록 확인하기",
+                buttonUrl: `${frontendUrl}/records`,
+                imageCid,
+                imageAlt: "7일 미학습 안내"
             })
         }
     }
@@ -320,9 +351,7 @@ export function getMemberStatusMailTemplate(
                 "[Mollip] 휴면 그룹 이동 안내",
 
             html: createMailLayout({
-                title:
-                    "휴면 그룹 이동을 안내드립니다.",
-
+                title: "휴면 그룹 이동을 안내드립니다.",
                 nickname,
 
                 message: `
@@ -352,11 +381,12 @@ export function getMemberStatusMailTemplate(
                     </p>
                 `,
 
-                buttonText:
-                    "Mollip 다시 시작하기",
+                buttonText: "Mollip 다시 시작하기",
+                buttonUrl: `${frontendUrl}/home`,
 
-                buttonUrl:
-                    `${frontendUrl}/home`
+                // adminMemberStatusService.js의 attachments.cid와 동일해야 함
+                imageCid: "mollip-dormant-image",
+                imageAlt: "다시 몰입을 시작하는 Mollip 캐릭터"
             })
         }
     }

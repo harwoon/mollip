@@ -1,3 +1,7 @@
+// cd backend
+// node util/mailer.js
+
+
 import nodemailer from "nodemailer"
 
 // SMTP 메일 전송기 생성
