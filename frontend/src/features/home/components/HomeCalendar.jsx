@@ -104,10 +104,16 @@ export default function HomeCalendar() {
   async function handleSaveSchedule(scheduleData) {
     try {
       setError("")
+      const payload = {
+        ...scheduleData,
+        allDay: scheduleData.allDay ?? false,
+        startTime: scheduleData.startTime || "09:00" 
+      }
+
       if (selectedSchedule?._id) {
-        await updateSchedule(selectedSchedule._id, scheduleData)
+        await updateSchedule(selectedSchedule._id, payload)
       } else {
-        await addSchedule(scheduleData)
+        await addSchedule(payload)
       }
       await fetchSchedules()
       setSelectedSchedule(null)
@@ -166,12 +172,9 @@ export default function HomeCalendar() {
               onMouseEnter={(event) => {
                 if (daySchedules.length === 0) return
                 const rect = event.currentTarget.getBoundingClientRect()
-                const scheduleTexts = daySchedules.map((schedule) => {
-                  const timeStr = schedule.allDay ? "" : schedule.startTime ? `${schedule.startTime} ` : ""
-                  return `${timeStr}${schedule.title}`
-                })
+                
                 setHoveredSchedule({
-                  texts: scheduleTexts,
+                  schedules: daySchedules,
                   top: rect.bottom + 4,
                   left: rect.left,
                 })
@@ -236,11 +239,18 @@ export default function HomeCalendar() {
               left: hoveredSchedule.left,
             }}
           >
-            {hoveredSchedule.texts.map((text, idx) => (
-              <div key={idx} className={styles.tooltipItem}>
-                • {text}
-              </div>
-            ))}
+            {hoveredSchedule.schedules.map((schedule, idx) => {
+              const timeStr = schedule.allDay ? "" : `${schedule.startTime || "09:00"} `
+              return (
+                <div 
+                  key={idx} 
+                  className={styles.tooltipItem}
+                  style={{ color: schedule.color || "#b19cd9" }}
+                >
+                  • {timeStr}{schedule.title}
+                </div>
+              )
+            })}
           </div>,
           document.body,
         )}
