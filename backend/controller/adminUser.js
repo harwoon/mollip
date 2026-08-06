@@ -319,7 +319,7 @@ export async function getUserStudyTrend(req, res) {
                 label = current.format("YYYY.MM")
                 current = current.add(1, "month")
             }
-            
+
             dataMap.set(label, 0)
         }
 
@@ -344,7 +344,7 @@ export async function getUserStudyTrend(req, res) {
 
         const chartData = Array.from(dataMap, ([label, totalTime]) => ({
             label,
-            studyTime: Number((totalTime / 60).toFixed(1)) 
+            studyTime: Number((totalTime / 60).toFixed(1))
         }))
 
         return res.status(200).json({
@@ -650,5 +650,47 @@ export async function getUserTodoAchievementTrend(req, res) {
             success: false,
             message: "회원 Todo 달성률 추이를 불러오는 중 오류가 발생했습니다."
         })
+    }
+}
+
+// 이번 주 공부시간(오늘)
+export async function getUserTotalStudyTime(req, res) {
+    const { date, userid } = req.query
+    let sumTime = 0
+
+    try {
+        const { startDate, endDate } = getWeekRange(date)
+
+        const studies = await studyRepository.getWeeklyByUserIdAndDate(userid, startDate, endDate)
+
+        studies.forEach((study) => {
+            sumTime += study.sumStudyTime
+        })
+
+        return res.status(200).json(sumTime)
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "서버 오류로 총 공부시간을 불러오지 못했습니다." })
+    }
+}
+
+// 전체 누적 공부시간
+export async function getUserTotalStudyRecord(req, res) {
+    const { userid } = req.query
+    let sumTime = 0
+
+    try {
+        const studies = await studyRepository.getAllByUserId(userid)
+
+        studies.forEach((study) => {
+            sumTime += study.sumStudyTime
+        })
+
+        return res.status(200).json(sumTime)
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "서버 오류로 누적 공부시간을 불러오지 못했습니다." })
     }
 }
