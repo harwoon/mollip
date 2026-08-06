@@ -374,7 +374,7 @@ export function getWeeklyGoalMailTemplate({
         ).replace(/\/$/, "")
 
     const buttonUrl =
-        `${frontendUrl}/home`
+        `${frontendUrl}/records`
 
     const buttonText =
         "학습 현황 확인하기"
