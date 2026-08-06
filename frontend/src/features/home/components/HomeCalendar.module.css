@@ -16,22 +16,21 @@
     margin-bottom: 8px;
 }
 
-/* react-calendar 라이브러리 글로벌 스타일 매핑 */
-:global(.react-calendar) {
+.customCalendar :global(.react-calendar) {
     width: 100% !important;
     border: none !important;
     background: transparent !important;
     font-family: inherit;
 }
 
-:global(.react-calendar__navigation) {
+.customCalendar :global(.react-calendar__navigation) {
     display: flex;
     height: 40px;
     margin-bottom: 10px;
     align-items: center;
 }
 
-:global(.react-calendar__navigation button) {
+.customCalendar :global(.react-calendar__navigation button) {
     background: none;
     border: none;
     font-weight: 600;
@@ -41,7 +40,7 @@
 }
 
 /* 요일 헤더 (월 ~ 일) */
-:global(.react-calendar__month-view__weekdays) {
+.customCalendar :global(.react-calendar__month-view__weekdays) {
     display: flex !important;
     text-align: center;
     font-weight: 600;
@@ -50,23 +49,23 @@
     padding-bottom: 8px;
 }
 
-:global(.react-calendar__month-view__weekdays__weekday) {
+.customCalendar :global(.react-calendar__month-view__weekdays__weekday) {
     flex: 1 !important;
     text-align: center;
 }
 
-:global(.react-calendar__month-view__weekdays__weekday abbr) {
+.customCalendar :global(.react-calendar__month-view__weekdays__weekday abbr) {
     text-decoration: none !important;
 }
 
 /* Flexbox를 이용한 완벽한 7등분 날짜 정렬 */
-:global(.react-calendar__month-view__days) {
+.customCalendar :global(.react-calendar__month-view__days) {
     display: flex !important;
     flex-wrap: wrap !important;
 }
 
-:global(.react-calendar__tile) {
-    position: relative !important;
+.customCalendar :global(.react-calendar__tile) {
+    position: relative !important; 
     flex: 0 0 14.2857% !important;
     max-width: 14.2857% !important;
     height: 56px !important;
@@ -83,17 +82,17 @@
     margin-bottom: 4px;
 }
 
-:global(.react-calendar__tile):hover {
+.customCalendar :global(.react-calendar__tile):hover {
     background-color: #f1f3f5 !important;
     border-color: #dee2e6;
 }
 
-:global(.react-calendar__tile--active) {
+.customCalendar :global(.react-calendar__tile--active) {
     background: #fafafa !important;
     color: inherit !important;
 }
 
-:global(.react-calendar__tile) > abbr {
+.customCalendar :global(.react-calendar__tile) > abbr {
     display: none !important; 
 }
 
@@ -121,12 +120,12 @@
 }
 
 /* 주말 빨간 글씨 */
-:global(.react-calendar__month-view__days__day--weekend) .customTileNumber {
+.customCalendar :global(.react-calendar__month-view__days__day--weekend) .customTileNumber {
     color: #dc3545 !important;
 }
 
 /* 이전달/다음달 날짜 연하게 */
-:global(.react-calendar__month-view__days__day--neighboringMonth) .customTileNumber {
+.customCalendar :global(.react-calendar__month-view__days__day--neighboringMonth) .customTileNumber {
     color: #ccc !important;
 }
 
