@@ -125,6 +125,17 @@ export default function UserInfo() {
             return
         }
 
+        // 변경사항 있는지 확인 (닉네임/이메일/이미지 중 하나라도 바뀌었는지 확인)
+        const isNicknameChanged = user.nickname.trim() !== originalUser.nickname
+        const isEmailChanged = user.email.trim() !== originalUser.email
+        const isProfileImgChanged = !!selectedImageFile
+
+        if (!isNicknameChanged && !isEmailChanged && !isProfileImgChanged) {
+            alert("수정된 내용이 없습니다.")
+            setIsEditing(true)
+            return
+        }
+
         try {
             // 닉네임, 이메일 수정
             const infoData = await updateMyInfo(

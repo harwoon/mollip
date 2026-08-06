@@ -16,7 +16,7 @@ import todoRouter from "./router/todo.js"
 import groupRouter from "./router/group.js"
 import aiRouter from "./router/ai.js"
 import scheduleRouter from "./router/Schedule.js"
-
+import { startWeeklyGoalReminderJob } from "./jobs/weeklyGoalReminderJob.js"
 import { startWeeklyGroupJob } from "./jobs/weeklyGroupJob.js"
 import { startStreakJob } from "./jobs/streakJob.js"
 import { startDormantGroupJob } from "./jobs/dormantGroupJob.js"
@@ -134,6 +134,7 @@ connectDB().then(() => {
     startWeeklyGroupJob()
     startStreakJob()
     startDormantGroupJob()
+    startWeeklyGoalReminderJob()
 
     server.listen(config.host.port, () => {
         console.log(`웹 서버 및 소켓 서버 실행 중 (포트: ${config.host.port}) ...`)
