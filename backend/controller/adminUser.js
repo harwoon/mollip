@@ -674,3 +674,23 @@ export async function getUserTotalStudyTime(req, res) {
         return res.status(500).json({ message: "서버 오류로 총 공부시간을 불러오지 못했습니다." })
     }
 }
+
+// 전체 누적 공부시간
+export async function getUserTotalStudyRecord(req, res) {
+    const { userid } = req.query
+    let sumTime = 0
+
+    try {
+        const studies = await studyRepository.getAllByUserId(userid)
+
+        studies.forEach((study) => {
+            sumTime += study.sumStudyTime
+        })
+
+        return res.status(200).json(sumTime)
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "서버 오류로 누적 공부시간을 불러오지 못했습니다." })
+    }
+}

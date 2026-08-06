@@ -128,4 +128,8 @@ router.get("/users/:userId/todo-achievement-trend", adminUserController.getUserT
 // http://127.0.0.1:3000/admin/user/totalStudyTime?date=2026-07-26&userid=6a6fdd0ea7b6baa85e4d088d
 router.get("/user/totalStudyTime",adminUserController.getUserTotalStudyTime)
 
+// 전체 공부시간
+// http://127.0.0.1:3000/admin/user/totalStudyRecord?userid=6a6fdd0ea7b6baa85e4d088d
+router.get("/user/totalStudyRecord", adminUserController.getUserTotalStudyRecord)
+
 export default router
