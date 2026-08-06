@@ -60,12 +60,74 @@ app.use("/group", groupRouter);
 app.use("/schedule", scheduleRouter);
 app.use("/ai", aiRouter);
 
+// Redis에 저장된 전체 공부 중 사용자 조회
+const getAllAdminActiveUsers = async () => {
+  const studyKeys = await redisClient.keys("study:*");
+
+  if (studyKeys.length === 0) {
+    return [];
+  }
+
+  const usersByGroup = await Promise.all(
+    studyKeys.map(async (redisKey) => {
+      const groupId = redisKey.replace("study:", "");
+
+      const usersMap = await redisClient.hgetall(redisKey);
+
+      return Object.entries(usersMap)
+        .map(([userId, userJson]) => {
+          try {
+            const userData = JSON.parse(userJson);
+
+            return {
+              groupId,
+              userId: String(userId),
+              ...userData,
+            };
+          } catch (error) {
+            console.error(
+              "Redis 공부 사용자 변환 실패:",
+              redisKey,
+              userId,
+              error,
+            );
+
+            return null;
+          }
+        })
+        .filter(Boolean);
+    }),
+  );
+
+  return usersByGroup.flat();
+};
+
 io.on("connection", (socket) => {
   console.log("소켓 연결됨:", socket.id);
 
-  socket.on("joinAdminRoom", () => {
+  socket.on("joinAdminRoom", async () => {
     socket.join("admin_room");
-    console.log("관리자가 admin_room에 입장했습니다.");
+
+    console.log("관리자가 admin_room에 입장했습니다.", socket.id);
+
+    try {
+      const activeUsers = await getAllAdminActiveUsers();
+
+      // 관리자 한 명에게 현재 전체 목록 전달
+      socket.emit("currentAdminActiveUsers", activeUsers);
+
+      console.log("관리자에게 현재 공부 중 사용자 전달:", activeUsers.length);
+    } catch (error) {
+      console.error("관리자 공부 중 사용자 조회 실패:", error);
+
+      socket.emit("currentAdminActiveUsers", []);
+    }
+  });
+
+  socket.on("leaveAdminRoom", () => {
+    socket.leave("admin_room");
+
+    console.log("관리자가 admin_room에서 나갔습니다.", socket.id);
   });
 
   // 그룹 페이지 입장
