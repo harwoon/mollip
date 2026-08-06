@@ -43,8 +43,8 @@
 }
 
 .sidebarUSerImgBox{
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
@@ -62,7 +62,6 @@
 
     display: flex;
     flex-direction: column;
-    gap: 5px;
 }
 
 .sidebarNavigationTitle {
@@ -109,7 +108,7 @@
 
 .sidebarNavigationLinkActive:hover {
     color: var(--color-surface);
-    background: var(--color-primary-500);
+    background: var(--color-primary-400);
 }
 
 .sidebarNavigationIcon {
@@ -145,7 +144,7 @@
     text-align: center;
 
     background: var(--color-primary-50);
-    border: 1px solid var(--color-primary-200);
+    border: 1px solid var(--color-primary-100);
     border-radius: var(--radius-md);
 }
 
@@ -174,20 +173,7 @@
     letter-spacing: 1px;
 }
 
-.sidebarBottom {
-    width: 100%;
-    margin-top: 40px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.sidebarStreak {
-    width: 100%;
-}
-
-.sidebarLogout {
+.sidebarStreak, .sidebarAI, .sidebarLogout {
     width: 100%;
 }
 
@@ -204,78 +190,122 @@
     border-radius: var(--radius-sm);
 }
 /* =========================
-   사이드바 하단 영역
+    사이드바 하단 영역
 ========================= */
 
 .sidebarBottom {
-  width: 100%;
-  margin-top: 40px;
+    width: 100%;
+    margin-top: 40px;
 
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 
 /* =========================
-   연속 학습일 카드
+    연속 학습일 카드
 ========================= */
 
 .sidebarStreak {
-  width: 100%;
+    width: 100%;
+}
+
+.sidebarAI{
+    width: 100%;
+    padding: 15px 20px;
+
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-lg);
+
+    color: var(--chart-primary);
+    font-weight: 600;
+}
+.sidebarAI{
+    width: 100%;
+    padding: 15px 20px;
+
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-lg);
+
+    color: var(--chart-primary);
+    font-weight: 600;
+
+    background: var(--chart-color-1);
+    color: #fff;
+
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+.sidebarAI .sidebarNavigationIcon{
+    color: #fff;
+}
+.sidebarAI:hover{
+    background: var(--chart-primary);
 }
 
 .sidebarStudyStreak {
-  width: 100%;
-  padding: 25px 20px;
+    width: 100%;
+    padding: 25px 20px;
 
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 
-  background: var(--color-primary-50);
-  border: 1px solid var(--color-primary-100);
-  border-radius: var(--radius-lg);
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-lg);
 }
 
 .sidebarStudyTitle {
-  color: var(--color-primary-600);
-  font-size: var(--font-sm);
-  font-weight: 600;
-  line-height: 20px;
+    color: var(--color-primary-600);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    line-height: 20px;
 }
 
 .sidebarStudyCount {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
 }
 
 .sidebarStudyCount strong {
-  color: var(--color-primary-600);
-  font-size: 45px;
-  font-weight: 700;
-  line-height: 50px;
+    color: var(--color-primary-600);
+    font-size: 45px;
+    font-weight: 700;
+    line-height: 50px;
 }
 
 .sidebarStudyCount span {
-  color: var(--color-primary-700);
-  font-size: var(--font-lg);
-  font-weight: 500;
-  line-height: 25px;
+    color: var(--color-primary-700);
+    font-size: var(--font-lg);
+    font-weight: 500;
+    line-height: 25px;
 }
 
 .sidebarStudyCount span[aria-hidden="true"] {
-  margin-left: 10px;
-  font-size: 30px;
-  line-height: 35px;
+    margin-left: 10px;
+    font-size: 30px;
+    line-height: 35px;
 }
 
 .sidebarStudyMax {
-  color: var(--color-text-secondary);
-  font-size: var(--font-xs);
-  font-weight: 500;
-  line-height: 20px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+    font-weight: 500;
+    line-height: 20px;
 }
 
 
@@ -285,6 +315,7 @@
 
 .sidebarLogout {
     width: 100%;
+    opacity: .5;
 }
 
 .sidebarLogoutButton {

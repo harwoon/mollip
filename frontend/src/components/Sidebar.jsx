@@ -9,6 +9,7 @@ import SidebarTimer from "./SidebarTimer.jsx"
 
 import "./Sidebar.css"
 import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
+import { RiSparklingFill } from "react-icons/ri"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
 
@@ -87,21 +88,20 @@ function Sidebar({
                             <span>마이페이지</span>
                         </NavLink>
                     </div>
-
-                    <div>
-                        <button type="button" onClick={() => setIsReportOpen(true)}>
-                            AI 학습 리포트
-                        </button>
-                    </div>
                 </nav>
-
-                <SidebarTimer />
             </div>
 
             <div className="sidebarBottom">
+                <SidebarTimer />
+
                 <div className="sidebarStreak">
                     <SidebarStudyStreak />
                 </div>
+
+                <button type="button" onClick={() => setIsReportOpen(true)} className="sidebarAI">
+                    <RiSparklingFill className="sidebarNavigationIcon" />
+                    <span>AI 학습 리포트</span>
+                </button>
 
                 <div className="sidebarLogout">
                     <SidebarLogout userInfo={userInfo} />
