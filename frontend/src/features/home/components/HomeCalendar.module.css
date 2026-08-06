@@ -1,5 +1,5 @@
 /* 카드 박스 기본 레이아웃 */
-.home-calendar-card {
+.homeCalendarCard {
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid #eaeaea;
@@ -9,22 +9,29 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
-/* 캘린더 기본 초기화 */
-.react-calendar {
+/* 에러 메시지 */
+.scheduleError {
+    color: #dc3545;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+/* react-calendar 라이브러리 글로벌 스타일 매핑 */
+:global(.react-calendar) {
     width: 100% !important;
     border: none !important;
     background: transparent !important;
     font-family: inherit;
 }
 
-/* 상단 네비게이션 */
-.react-calendar__navigation {
+:global(.react-calendar__navigation) {
     display: flex;
     height: 40px;
     margin-bottom: 10px;
     align-items: center;
 }
-.react-calendar__navigation button {
+
+:global(.react-calendar__navigation button) {
     background: none;
     border: none;
     font-weight: 600;
@@ -34,7 +41,7 @@
 }
 
 /* 요일 헤더 (월 ~ 일) */
-.react-calendar__month-view__weekdays {
+:global(.react-calendar__month-view__weekdays) {
     display: flex !important;
     text-align: center;
     font-weight: 600;
@@ -42,25 +49,27 @@
     color: #888;
     padding-bottom: 8px;
 }
-.react-calendar__month-view__weekdays__weekday {
+
+:global(.react-calendar__month-view__weekdays__weekday) {
     flex: 1 !important;
     text-align: center;
 }
-.react-calendar__month-view__weekdays__weekday abbr {
+
+:global(.react-calendar__month-view__weekdays__weekday abbr) {
     text-decoration: none !important;
 }
 
 /* Flexbox를 이용한 완벽한 7등분 날짜 정렬 */
-.react-calendar__month-view__days {
+:global(.react-calendar__month-view__days) {
     display: flex !important;
     flex-wrap: wrap !important;
 }
 
-.react-calendar__tile {
+:global(.react-calendar__tile) {
     position: relative !important;
-    flex: 0 0 14.2857% !important; /* 가로 정확히 7등분 */
+    flex: 0 0 14.2857% !important;
     max-width: 14.2857% !important;
-    height: 56px !important; /* 고정 높이로 찌그러짐 방지 */
+    height: 56px !important;
     background: #fafafa !important;
     border-radius: 8px !important;
     padding: 4px !important;
@@ -71,26 +80,25 @@
     overflow: hidden !important;
     cursor: pointer;
     border: 1px solid transparent;
-    margin-bottom: 4px; /* 줄 간격 */
+    margin-bottom: 4px;
 }
 
-.react-calendar__tile:hover {
+:global(.react-calendar__tile):hover {
     background-color: #f1f3f5 !important;
     border-color: #dee2e6;
 }
 
-/* 기본 라이브러리 스타일 제거 */
-.react-calendar__tile--active {
+:global(.react-calendar__tile--active) {
     background: #fafafa !important;
     color: inherit !important;
 }
 
-.react-calendar__tile > abbr {
+:global(.react-calendar__tile) > abbr {
     display: none !important; 
 }
 
-/* 날짜 칸 내부 콘텐츠 및 주말 빨간 글씨 */
-.calendar-custom-tile-content {
+/* 날짜 칸 내부 콘텐츠 및 커스텀 스타일 */
+.calendarCustomTileContent {
     position: absolute;
     top: 0;
     left: 0;
@@ -102,7 +110,7 @@
     box-sizing: border-box;
 }
 
-.custom-tile-number {
+.customTileNumber {
     font-weight: 600;
     font-size: 11px;
     margin-bottom: 3px;
@@ -112,37 +120,32 @@
     align-self: flex-start;
 }
 
-/* 월요일 시작(iso8601) 기준 토요일(6번째), 일요일(7번째) 정확히 타겟팅 */
-.react-calendar__month-view__days__day--weekend .custom-tile-number {
+/* 주말 빨간 글씨 */
+:global(.react-calendar__month-view__days__day--weekend) .customTileNumber {
     color: #dc3545 !important;
 }
 
-/* 이전달/다음달 날짜는 주말이라도 연하게 처리 */
-.react-calendar__month-view__days__day--neighboringMonth .custom-tile-number {
-    color: #ccc !important;
-}
-
-/* 이전달/다음달 날짜 흐리게 */
-.react-calendar__month-view__days__day--neighboringMonth .custom-tile-number {
+/* 이전달/다음달 날짜 연하게 */
+:global(.react-calendar__month-view__days__day--neighboringMonth) .customTileNumber {
     color: #ccc !important;
 }
 
 /* 선택된 날짜 동그라미 */
-.custom-tile-number.is-selected {
+.isSelected {
     background-color: var(--theme-color, #7c83fd);
     color: white !important;
 }
 
 /* 일정 바 프리뷰 */
-.calendar-schedule-preview {
+.calendarSchedulePreview {
     display: flex;
     flex-direction: column;
     gap: 2px;
     width: 100%;
 }
 
-.calendar-schedule-item {
-    background-color: var(--bg-color);
+.calendarScheduleItem {
+    background-color: var(--bgColor);
     height: 4px; 
     margin: 0; 
     border-radius: 2px; 
@@ -151,24 +154,24 @@
     transition: all 0.2s ease;
 }
 
-.calendar-schedule-item.is-start {
+.calendarScheduleItem.isStart {
     margin-left: 2px;
     width: calc(100% - 2px);
 }
 
-.calendar-schedule-item.is-end {
+.calendarScheduleItem.isEnd {
     margin-right: 2px;
     width: calc(100% - 2px);
 }
 
-.calendar-schedule-item.is-start.is-end {
+.calendarScheduleItem.isStart.isEnd {
     margin-left: 2px;
     margin-right: 2px;
     width: calc(100% - 4px);
 }
 
 /* +1 뱃지 */
-.calendar-schedule-more {
+.calendarScheduleMore {
     font-size: 8px;
     color: #555;
     margin-top: 1px;
@@ -181,8 +184,8 @@
     box-sizing: border-box;
 }
 
-/* 툴팁 */
-.calendar-schedule-tooltip {
+/* 마우스 호버 툴팁 스타일 */
+.calendarScheduleTooltip {
     position: fixed;
     background-color: #333 !important;
     color: #fff !important;
@@ -199,6 +202,6 @@
     min-width: 130px;
 }
 
-.tooltip-item {
+.tooltipItem {
     white-space: nowrap;
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import Calendar from 'react-calendar'
 import dayjs from 'dayjs'
-import './HomeCalendar.css'
+import styles from './HomeCalendar.module.css'
 import ScheduleModal from "./ScheduleModal.jsx"
 import { getSchedules, addSchedule, updateSchedule, deleteSchedule } from '../api/schedule.js'
 import { createPortal } from 'react-dom'
@@ -29,12 +29,11 @@ export default function HomeCalendar() {
     }
   }, [activeMonth])
 
-  // 기존 일정 조회 useEffect
   useEffect(() => {
     fetchSchedules()
   }, [fetchSchedules])
 
-  // 알람 useEffect
+  // 일정 알람 로직
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission()
@@ -56,8 +55,8 @@ export default function HomeCalendar() {
           !firedSchedules.includes(schedule._id)
         ) {
           if ("Notification" in window && Notification.permission === "granted") {
-            new Notification("Mollip 일정 알림!!", {
-              body: `[${schedule.title}] 등록된 일정 시간이 되었습니다!`,
+            new Notification("Mollip 일정 알림 🔔", {
+              body: `[${schedule.title}] 일정이 지금 시작됩니다!`,
             })
 
             firedSchedules.push(schedule._id)
@@ -134,8 +133,8 @@ export default function HomeCalendar() {
   }
 
   return (
-    <div className="home-calendar-card">
-      {error && <p className="schedule-error">{error}</p>}
+    <div className={styles.homeCalendarCard}>
+      {error && <p className={styles.scheduleError}>{error}</p>}
 
       <Calendar
         onChange={setSelectedDate}
@@ -163,7 +162,7 @@ export default function HomeCalendar() {
 
           return (
             <div
-              className="calendar-custom-tile-content"
+              className={styles.calendarCustomTileContent}
               onMouseEnter={(event) => {
                 if (daySchedules.length === 0) return
                 const rect = event.currentTarget.getBoundingClientRect()
@@ -181,18 +180,18 @@ export default function HomeCalendar() {
                 setHoveredSchedule(null)
               }}
             >
-              <div className={`custom-tile-number ${isSelected ? 'is-selected' : ''}`}>
+              <div className={`${styles.customTileNumber} ${isSelected ? styles.isSelected : ''}`}>
                 {dayNum}
               </div>
 
-              <div className="calendar-schedule-preview">
+              <div className={styles.calendarSchedulePreview}>
                 {daySchedules
                   .slice(0, 2)
                   .map((schedule) => (
                     <div
                       key={schedule._id}
-                      className={`calendar-schedule-item ${schedule.isStart ? 'is-start' : ''} ${schedule.isEnd ? 'is-end' : ''}`}
-                      style={{ "--bg-color": schedule.color || "#b19cd9" }}
+                      className={`${styles.calendarScheduleItem} ${schedule.isStart ? styles.isStart : ''} ${schedule.isEnd ? styles.isEnd : ''}`}
+                      style={{ "--bgColor": schedule.color || "#b19cd9" }}
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelectedDate(new Date(schedule.startDate))
@@ -203,7 +202,7 @@ export default function HomeCalendar() {
                   ))}
 
                 {daySchedules.length > 2 && (
-                  <span className="calendar-schedule-more">
+                  <span className={styles.calendarScheduleMore}>
                     +{daySchedules.length - 2}
                   </span>
                 )}
@@ -231,14 +230,14 @@ export default function HomeCalendar() {
       {hoveredSchedule &&
         createPortal(
           <div
-            className="calendar-schedule-tooltip"
+            className={styles.calendarScheduleTooltip}
             style={{
               top: hoveredSchedule.top,
               left: hoveredSchedule.left,
             }}
           >
             {hoveredSchedule.texts.map((text, idx) => (
-              <div key={idx} className="tooltip-item">
+              <div key={idx} className={styles.tooltipItem}>
                 • {text}
               </div>
             ))}
