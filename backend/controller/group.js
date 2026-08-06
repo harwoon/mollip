@@ -355,7 +355,7 @@ export async function updateGroup(req, res) {
       todoCompletionRate,
       attendanceDays,
     } = req.body || {};
-
+    
     // 그룹 존재 확인
     const existingGroup = await groupRepository.findById(id);
     if (!existingGroup) {
@@ -449,7 +449,7 @@ export async function updateGroup(req, res) {
       }
 
       nextGroupTime = time;
-      updateData.groupTime = time;
+      updateData.groupTime = time * 3600;
     }
 
     // 기존 목표값 조회
@@ -635,7 +635,7 @@ export async function updateGroup(req, res) {
         },
       ];
     }
-
+    
     // 아무 값도 전달되지 않은 경우
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
