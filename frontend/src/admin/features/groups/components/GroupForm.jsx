@@ -253,20 +253,23 @@ export default function GroupForm({
             return;
         }
 
-        const time =
-            Number(groupTime);
+        /*
+        * 컬러코드 형식 검사
+        */
+        const colorPattern = /^#[0-9A-F]{6}$/i;
 
-        const minStudy =
-            Number(minStudyTime);
+        if (!colorPattern.test(groupColor)) {
+            setError(
+                "컬러코드는 #RRGGBB 형식으로 입력해주세요."
+            );
+            return;
+        }
 
-        const challengeStudy =
-            Number(challengeStudyTime);
-
-        const todoRate =
-            Number(todoCompletionRate);
-
-        const attendance =
-            Number(attendanceDays);
+        const time = Number(groupTime)
+        const minStudy = Number(minStudyTime)
+        const challengeStudy = Number(challengeStudyTime)
+        const todoRate = Number(todoCompletionRate)
+        const attendance = Number(attendanceDays)
 
         /*
          * 숫자 검사
@@ -458,17 +461,34 @@ export default function GroupForm({
                         type="button"
                         className="colorSwatch"
                         style={{
-                            backgroundColor:
-                                groupColor,
+                            backgroundColor: groupColor,
                         }}
                         onClick={() =>
-                            setShowPicker(
-                                (previous) => !previous,
-                            )
+                            setShowPicker((previous) => !previous)
                         }
                     />
 
-                    <span>{groupColor}</span>
+                    <input
+                        type="text"
+                        className="colorCodeInput"
+                        value={groupColor}
+                        placeholder="#FFFFFF"
+                        maxLength={7}
+                        onChange={(event) => {
+                            let value = event.target.value.toUpperCase();
+
+                            // # 자동 추가
+                            if (value && !value.startsWith("#")) {
+                                value = "#" + value;
+                            }
+
+                            // 최대 7글자
+                            value = value.slice(0, 7);
+
+                            // 입력 중에는 그대로 표시
+                            setGroupColor(value);
+                        }}
+                    />
                 </div>
 
                 {showPicker && (
