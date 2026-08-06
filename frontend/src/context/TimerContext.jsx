@@ -26,7 +26,6 @@ export function TimerProvider({ children }) {
 
     const expectedTimeRef = useRef(Number(localStorage.getItem("mollip_time")) || 0)
     const prevSubjectRef = useRef(selectedSubject?._id)
-
     // 로컬스토리지 동기화
     useEffect(() => {
         if (selectedSubject) {

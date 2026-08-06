@@ -67,4 +67,7 @@ router.get("/subject", isAuth, authController.getSubjects)
 // http://127.0.0.1:3000/auth/withdraw
 router.patch("/withdraw",isAuth,authController.withdraw)
 
+// 주간 그룹 변경시 알람
+router.post("/weekly-group-notice/consume", isAuth, authController.consumeWeeklyGroupNotice)
+
 export default router

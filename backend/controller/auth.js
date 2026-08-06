@@ -9,6 +9,13 @@ import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import AdminLog from "../models/AdminLog.js"
 import { createJwtToken } from "../util/jwt.js"
+import * as groupRepository
+    from "../repository/group.js"
+
+import {
+    getKstToday,
+    getWeekRange,
+} from "../util/date.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -123,6 +130,64 @@ export async function signup(req, res) {
     const userInsertedId = await authRepository.createUser(
         { userId, userPw: hashed, nickname, email, profileImg }
     )
+
+    
+    // 방금 생성한 사용자 문서 조회
+    const newUser =
+        await authRepository.findById(
+            userInsertedId,
+        )
+
+    if (!newUser) {
+        return res.status(500).json({
+            message:
+                "가입한 사용자 정보를 찾지 못했습니다.",
+        })
+    }
+
+    // 신규 사용자의 기본 그룹 조회
+    const currentGroup =
+        await groupRepository.findById(
+            newUser.groupId,
+        )
+
+    if (!currentGroup) {
+        return res.status(500).json({
+            message:
+                "신규 사용자의 기본 그룹을 찾지 못했습니다.",
+        })
+    }
+
+    // 현재 주 월요일
+    const {
+        startDate: currentWeekStart,
+    } = getWeekRange(getKstToday())
+
+    // 신규가입 그룹 배정 알림 저장
+    await authRepository
+        .updateWeeklyGroupNotice(
+            newUser._id,
+            {
+                weekStart:
+                    currentWeekStart,
+
+                previousGroupId: "",
+                previousGroupName: "",
+
+                currentGroupId:
+                    String(
+                        currentGroup._id,
+                    ),
+
+                currentGroupName:
+                    currentGroup.groupName,
+
+                status: "NEW",
+                isRead: false,
+                assignedAt:
+                    new Date(),
+            },
+        )
 
     const newLog = await AdminLog.create({
         type: 'SIGNUP',
@@ -702,5 +767,39 @@ export async function withdraw(req, res) {
         return res.status(500).json({
             message: "회원 탈퇴 처리 중 오류가 발생했습니다."
         })
+    }
+}
+// 그룹 변경시 알람
+export async function consumeWeeklyGroupNotice(
+    req,
+    res,
+) {
+    try {
+        const user =
+            await authRepository
+                .consumeWeeklyGroupNotice(
+                    req.user._id,
+                )
+
+        return res
+            .status(200)
+            .json({
+                notice:
+                    user
+                        ?.weeklyGroupNotice ??
+                    null,
+            })
+    } catch (error) {
+        console.error(
+            "주간 그룹 알림 조회 실패:",
+            error,
+        )
+
+        return res
+            .status(500)
+            .json({
+                message:
+                    "그룹 알림을 불러오지 못했습니다.",
+            })
     }
 }

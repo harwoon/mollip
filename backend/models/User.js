@@ -42,6 +42,61 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: '6a6c309cb5f65e32d4078d00',
         },
+
+        weeklyGroupNotice: {
+            // 알림 종류
+            status: {
+                type: String,
+                enum: [
+                    "UP",
+                    "SAME",
+                    "DOWN",
+                    "RETURN",
+                    "NEW",
+                ],
+                default: "SAME",
+            },
+
+            // 이전 그룹 정보
+            previousGroupId: {
+                type: String,
+                default: "",
+            },
+
+            previousGroupName: {
+                type: String,
+                default: "",
+            },
+
+            // 새로 배정된 그룹 정보
+            currentGroupId: {
+                type: String,
+                default: "",
+            },
+
+            currentGroupName: {
+                type: String,
+                default: "",
+            },
+
+            // 어느 주의 그룹 배정 알림인지
+            weekStart: {
+                type: String,
+                default: "",
+            },
+
+            // 알림 확인 여부
+            isRead: {
+                type: Boolean,
+                default: true,
+            },
+
+            assignedAt: {
+                type: Date,
+                default: null,
+            },
+        },
+
         lastStudyDate: {
             type: String,
             default: ""

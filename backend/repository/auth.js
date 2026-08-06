@@ -94,11 +94,30 @@ export async function findByUserid(userId) {
     });
 }
 
+
 // 회원가입
 export async function createUser(userData) {
     const user = new User(userData);
     const savedUser = await user.save();
     return savedUser._id.toString();
+}
+// 신규가입 및 그룹 배정 알림 저장
+export async function updateWeeklyGroupNotice(
+    userId,
+    weeklyGroupNotice,
+) {
+    return User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                weeklyGroupNotice,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        },
+    )
 }
 
 // 로그인 유지 (ID로 찾기)
@@ -188,27 +207,115 @@ export async function getUserGroup(userId) {
         .lean();
 }
 
-export async function updateUserGroups(updates) {
+export async function updateUserGroups(
+    updates,
+) {
     if (updates.length === 0) {
-        return null;
+        return null
     }
 
-    const operations = updates.map((update) => ({
-        updateOne: {
-            filter: {
-                _id: update.userId,
-            },
-            update: {
-                $set: {
-                    groupId: update.groupId,
+    const operations =
+        updates.map((update) => ({
+            updateOne: {
+                filter: {
+                    _id: update.userId,
+
+                    // 같은 주 알림 중복 생성 방지
+                    "weeklyGroupNotice.weekStart": {
+                        $ne:
+                            update
+                                .weeklyGroupNotice
+                                .weekStart,
+                    },
+                },
+                update: {
+                    $set: {
+                        groupId:
+                            update.groupId,
+                        weeklyGroupNotice:
+                            update
+                                .weeklyGroupNotice,
+                    },
                 },
             },
-        },
-    }));
+        }))
 
-    return User.bulkWrite(operations);
+    return User.bulkWrite(
+        operations,
+    )
 }
+// 한번만 읽히는 알람
+// 알림을 한 번만 조회하고 읽음 처리
+export async function consumeWeeklyGroupNotice(
+    userId,
+) {
+    return User.findOneAndUpdate(
+        {
+            _id: userId,
 
+            // 아직 읽지 않은 알림만 조회
+            "weeklyGroupNotice.isRead":
+                false,
+
+            // 정상적인 알림 상태만 조회
+            "weeklyGroupNotice.status": {
+                $in: [
+                    "UP",
+                    "SAME",
+                    "DOWN",
+                    "RETURN",
+                    "NEW",
+                ],
+            },
+
+            $or: [
+                /*
+                 * 신규가입 알림은
+                 * weekStart가 없어도 조회
+                 */
+                {
+                    "weeklyGroupNotice.status":
+                        "NEW",
+
+                    "weeklyGroupNotice.currentGroupId": {
+                        $nin: [
+                            "",
+                            null,
+                        ],
+                    },
+                },
+
+                /*
+                 * 주간 그룹 알림은
+                 * weekStart가 있어야 조회
+                 */
+                {
+                    "weeklyGroupNotice.weekStart": {
+                        $nin: [
+                            "",
+                            null,
+                        ],
+                    },
+                },
+            ],
+        },
+        {
+            $set: {
+                "weeklyGroupNotice.isRead":
+                    true,
+            },
+        },
+        {
+            /*
+             * 읽음 처리하기 전 데이터를 반환
+             * 프론트에서는 isRead:false 상태를 받음
+             */
+            new: false,
+        },
+    )
+        .select("weeklyGroupNotice")
+        .lean()
+}
 export async function resetExpiredStreaks(yesterdayString) {
     return User.updateMany(
         {

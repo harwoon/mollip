@@ -153,3 +153,9 @@ export async function findGroupGoalsById(groupId) {
     .select("groupName groupColor groupTime goals")
     .lean();
 }
+
+export async function getGroupById(
+    groupId,
+) {
+    return Group.findById(groupId)
+}

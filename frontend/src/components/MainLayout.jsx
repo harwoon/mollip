@@ -1,16 +1,85 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Outlet } from "react-router-dom"
 import Sidebar from "./Sidebar"
 import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
-    
+import GroupNoticeModal from "./GroupNoticeModal"
+
+import {
+    consumeWeeklyGroupNotice,
+} from "../features/auth/api/auth"
+
 export default function MainLayout() {
+
     const [userInfo, setUserInfo] = useState(() => {
         const savedUser = localStorage.getItem("user")
         return savedUser ? JSON.parse(savedUser) : null
     })
+    const [groupNotice, setGroupNotice] =
+        useState(null)
 
-    const [todoRefreshKey, setTodoRefreshKey] = useState(0) 
+    const [isGroupNoticeOpen, setIsGroupNoticeOpen] =
+        useState(false)
+
+    const groupNoticeCheckedRef =
+        useRef(false)
+
+    useEffect(() => {
+        if (groupNoticeCheckedRef.current) {
+            return
+        }
+
+        groupNoticeCheckedRef.current = true
+
+        async function checkGroupNotice() {
+            try {
+                const data =
+                    await consumeWeeklyGroupNotice()
+
+                const notice =
+                    data?.notice
+
+                if (!notice) {
+                    return
+                }
+
+                setGroupNotice(notice)
+                setIsGroupNoticeOpen(true)
+
+                localStorage.setItem(
+                    "groupId",
+                    notice.currentGroupId,
+                )
+
+                setUserInfo((previousUser) => {
+                    if (!previousUser) {
+                        return previousUser
+                    }
+
+                    const updatedUser = {
+                        ...previousUser,
+                        groupId:
+                            notice.currentGroupId,
+                    }
+
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(updatedUser),
+                    )
+
+                    return updatedUser
+                })
+            } catch (error) {
+                console.error(
+                    "주간 그룹 알림 조회 실패:",
+                    error,
+                )
+            }
+        }
+
+        checkGroupNotice()
+    }, [])
+    const [todoRefreshKey, setTodoRefreshKey] = useState(0)
     const [todayTodos, setTodayTodos] = useState([])
 
     const syncTodayTodos = async () => {
@@ -71,6 +140,14 @@ export default function MainLayout() {
                         handleTodoListChanged
                     }} />
                 </main>
+                <GroupNoticeModal
+                    open={isGroupNoticeOpen}
+                    notice={groupNotice}
+                    onClose={() => {
+                        setIsGroupNoticeOpen(false)
+                        setGroupNotice(null)
+                    }}
+                />
             </div>
         </TimerProvider>
     )

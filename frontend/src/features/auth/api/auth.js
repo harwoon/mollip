@@ -150,3 +150,30 @@ export async function loginGoogleUser(
 
     return data
 }
+// 주간 유저 그룹 배치 알람
+export async function consumeWeeklyGroupNotice() {
+    const token =
+        localStorage.getItem("token")
+
+    const response = await fetch(
+        `${API_URL}/auth/weekly-group-notice/consume`,
+        {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
+    )
+
+    const data =
+        await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "그룹 알림을 불러오지 못했습니다.",
+        )
+    }
+
+    return data
+}

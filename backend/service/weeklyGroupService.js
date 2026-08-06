@@ -4,6 +4,52 @@ import * as authRepository from "../repository/auth.js"
 import { getWeekRange } from "../util/date.js"
 
 
+function getGroupNoticeStatus({
+    previousGroup,
+    currentGroup,
+    previousGroupId,
+    dormantGroupId,
+}) {
+    if (!currentGroup) {
+        return "SAME"
+    }
+
+    // 휴면 그룹에서 일반 그룹으로 돌아온 경우
+    if (
+        String(previousGroupId) ===
+        String(dormantGroupId)
+    ) {
+        return "RETURN"
+    }
+
+    // 기존 그룹 정보가 없으면 비교 불가
+    if (!previousGroup) {
+        return "SAME"
+    }
+
+    const previousGroupTime =
+        Number(previousGroup.groupTime)
+
+    const currentGroupTime =
+        Number(currentGroup.groupTime)
+
+    if (
+        currentGroupTime >
+        previousGroupTime
+    ) {
+        return "UP"
+    }
+
+    if (
+        currentGroupTime <
+        previousGroupTime
+    ) {
+        return "DOWN"
+    }
+
+    return "SAME"
+}
+
 export async function assignWeeklyGroups() {
     // 지난주에 해당하는 날짜 생성
     const lastWeekDate = new Date()
@@ -26,6 +72,13 @@ export async function assignWeeklyGroups() {
     const groups =
         await groupRepository.getGroupsByTimeDesc()
 
+    const groupOrderMap = new Map(
+        groups.map((group, index) => [
+            String(group._id),
+            index,
+        ]),
+    )
+
     // 전체 사용자 조회
     const users =
         await authRepository.getAllUsers()
@@ -44,24 +97,72 @@ export async function assignWeeklyGroups() {
 
     const updates = []
 
+    const groupMap = new Map(
+        groups.map((group) => [
+            String(group._id),
+            group,
+        ]),
+    )
+
     for (const user of users) {
         const totalStudyTime =
-            studyTimeMap.get(String(user._id)) ?? 0
+            studyTimeMap.get(
+                String(user._id),
+            ) ?? 0
 
-        // 조건을 만족하는 가장 높은 그룹 선택
-        const matchedGroup = groups.find(
-            (group) =>
-                totalStudyTime >=
-                Number(group.groupTime),
-        )
+        const matchedGroup =
+            groups.find(
+                (group) =>
+                    totalStudyTime >=
+                    Number(group.groupTime),
+            )
 
         if (!matchedGroup) {
             continue
         }
 
+        const previousGroupId =
+            String(user.groupId ?? "")
+
+        const previousGroup =
+            groupMap.get(previousGroupId)
+
+        const status =
+            getGroupNoticeStatus({
+                previousGroup,
+                currentGroup:
+                    matchedGroup,
+                previousGroupId,
+                dormantGroupId:
+                    config.group.dormantId,
+            })
+
         updates.push({
             userId: user._id,
-            groupId: matchedGroup._id,
+            groupId:
+                String(matchedGroup._id),
+
+            weeklyGroupNotice: {
+                weekStart:
+                    noticeWeekStart,
+
+                previousGroupId,
+                previousGroupName:
+                    previousGroup
+                        ?.groupName ?? "",
+
+                currentGroupId:
+                    String(
+                        matchedGroup._id,
+                    ),
+
+                currentGroupName:
+                    matchedGroup.groupName,
+
+                status,
+                isRead: false,
+                assignedAt: new Date(),
+            },
         })
     }
 
