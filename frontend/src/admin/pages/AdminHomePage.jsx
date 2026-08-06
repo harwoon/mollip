@@ -34,7 +34,7 @@ export default function AdminHomePage() {
         weeklyTotalTimeDiff: "",
 
         avgGoalRate: 0,
-        avgGoalRateDiff: "수정 필요",
+        avgGoalRateDiff: 0,
     })
 
     const [groups, setGroups] = useState([])
@@ -177,7 +177,14 @@ export default function AdminHomePage() {
                             .weeklyStudyTimeDiff,
 
                     // 이번 주 전체 Todo 달성률
-                    avgGoalRate: todoAchievementData.achievement?.achievementRate || 0
+                    avgGoalRate: Number(
+                        todoAchievementData.achievement ?.achievementRate
+                    ) || 0,
+
+                    // 지난주 대비 Todo 달성률 차이
+                    avgGoalRateDiff: Number(
+                        todoAchievementData.achievement ?.achievementRateDiff
+                    ) || 0
                 }))
             } catch (error) {
                 console.error("데이터 조회 실패", error.message)

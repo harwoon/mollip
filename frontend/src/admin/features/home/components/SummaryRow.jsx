@@ -65,6 +65,26 @@ function formatStudyTimeDiff(
     )
 }
 
+// 전주대비 Todo달성률
+function formatAchievementRateDiff(
+    difference,
+) {
+    const value =
+        Number(difference) || 0
+
+    if (value === 0) {
+        return "지난주와 동일"
+    }
+
+    const sign =
+        value > 0 ? "+" : ""
+
+    return (
+        `${sign}${value}%p ` +
+        `(전주 대비)`
+    )
+}
+
 export default function SummaryRow({ summary }) {
     return (
         <div className="summaryRow">
@@ -117,7 +137,9 @@ export default function SummaryRow({ summary }) {
                 label="이번 주 todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
-                diff={summary.avgGoalRateDiff}
+                diff={formatAchievementRateDiff(
+                    summary.avgGoalRateDiff,
+                )}
             />
         </div>
     )
