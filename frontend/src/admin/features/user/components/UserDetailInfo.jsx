@@ -1,22 +1,72 @@
+import React, { useState, useEffect } from "react"
 import { API_URL } from "../../../../config/apiUrl.js"
+import { getTotalStudyTime, getTotalStudyRecord, getTodoTrend } from "../api/user.js"
 
 export default function UserDetailInfo({ user }) {
+    const [weeklyTime, setWeeklyTime] = useState(0)
+    const [totalTime, setTotalTime] = useState(0)
+    const [weeklyTodoRate, setWeeklyTodoRate] = useState(0) 
+
+    useEffect(() => {
+        if (!user || !user._id) return
+
+        const fetchStudyTimes = async () => {
+            try {
+                const curr = new Date()
+                const today = curr.toISOString().split("T")[0]
+                
+                const day = curr.getDay()
+                const diffToMonday = day === 0 ? -6 : 1 - day
+                
+                const monday = new Date(curr)
+                monday.setDate(curr.getDate() + diffToMonday)
+                
+                const sunday = new Date(monday)
+                sunday.setDate(monday.getDate() + 6)
+                
+                const start = monday.toISOString().split("T")[0]
+                const end = sunday.toISOString().split("T")[0]
+
+                const [weeklyData, totalData, todoData] = await Promise.all([
+                    getTotalStudyTime(today, user._id),
+                    getTotalStudyRecord(user._id),
+                    getTodoTrend("weekly", start, end, user._id) 
+                ])
+
+                setWeeklyTime(weeklyData)
+                setTotalTime(totalData) 
+
+                const rate = todoData?.data?.[0]?.achievementRate || 0
+                setWeeklyTodoRate(rate)
+
+            } catch (error) {
+                console.error("데이터 연동 실패:", error)
+            }
+        }
+
+        fetchStudyTimes()
+    }, [user])
+
+    const formatTime = (seconds) => {
+        const h = Math.floor(seconds / 3600)
+        const m = Math.floor((seconds % 3600) / 60)
+        if (h > 0) return `${h}시간 ${m}분`
+        return `${m}분`
+    }
+
     if (!user) return null
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
-            {/* --- [상단 영역] 프로필 및 핵심 요약 수치 --- */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                     <img
                         src={user.profileImg ? `${API_URL}${user.profileImg}` : "/images/noprofile.png"}
                         alt="프로필 이미지"
                         style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#eee", objectFit: "cover" }}
                         onError={(event) => {
-                            event.currentTarget.onerror = null
-                            event.currentTarget.src = "/images/noprofile.png"
+                            event.currentTarget.onerror = null;
+                            event.currentTarget.src = "/images/noprofile.png";
                         }}
                     />
                     <div>
@@ -41,12 +91,12 @@ export default function UserDetailInfo({ user }) {
                     <div>
                         <p style={{ margin: "0 0 5px 0", fontSize: "0.9rem", color: "#666" }}>이번 주 공부시간</p>
                         <strong style={{ fontSize: "1.2rem" }}>
-                            {user.weeklyStudyTime ? Math.floor(user.weeklyStudyTime / 60) : 0}시간
+                            {formatTime(weeklyTime)}
                         </strong>
                     </div>
                     <div>
                         <p style={{ margin: "0 0 5px 0", fontSize: "0.9rem", color: "#666" }}>목표 달성률</p>
-                        <strong style={{ fontSize: "1.2rem" }}>{user.achievementRate || 0}%</strong>
+                        <strong style={{ fontSize: "1.2rem" }}>{weeklyTodoRate}%</strong>
                     </div>
                 </div>
             </div>
@@ -64,11 +114,10 @@ export default function UserDetailInfo({ user }) {
                     </li>
                     <li style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ color: "#666" }}>전체 누적 공부시간</span>
-                        <span>{user.totalStudyTime ? Math.floor(user.totalStudyTime / 60) : 0}시간</span>
+                        <span>{formatTime(totalTime)}</span>
                     </li>
                 </ul>
             </div>
-
         </div>
     )
 }
