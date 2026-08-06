@@ -1,297 +1,375 @@
-import React, { useState, useEffect } from "react"
-import { socket } from "../../../util/socket.js"
-import Topbar from "../components/AdminTopbar.jsx"
-import SummaryRow from "../features/home/components/SummaryRow.jsx"
-import { getGroupCount } from "../features/home/api/group.js"
-import { getActiveUsers } from "../features/users/api/user.js"
-import { getUserCount, getWeeklyTodoAchievement, getLog } from "../features/home/api/user.js"
-import { getGroup } from "../features/groups/api/group.js"
-import { getTotalTime } from "../features/home/api/study.js"
-import { getGroupStudyTime } from "../features/groups/api/group.js"
-import GroupStudyTimeChart from "../features/home/components/GroupStudyTimeChart.jsx"
+import React, { useState, useEffect } from "react";
+import { socket } from "../../../util/socket.js";
+import Topbar from "../components/AdminTopbar.jsx";
+import SummaryRow from "../features/home/components/SummaryRow.jsx";
+import { getGroupCount } from "../features/home/api/group.js";
+import {
+  getUserCount,
+  getWeeklyTodoAchievement,
+  getLog,
+} from "../features/home/api/user.js";
+import { getGroup } from "../features/groups/api/group.js";
+import { getTotalTime } from "../features/home/api/study.js";
+import { getGroupStudyTime } from "../features/groups/api/group.js";
+import GroupStudyTimeChart from "../features/home/components/GroupStudyTimeChart.jsx";
 
-import ActiveUser from "../features/home/components/ActiveUser.jsx"
-import RecentUser from "../features/home/components/RecentUser.jsx"
-import StudyTrend from "../features/home/components/StudyTrend.jsx"
-import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx"
-import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
+import ActiveUser from "../features/home/components/ActiveUser.jsx";
+import RecentUser from "../features/home/components/RecentUser.jsx";
+import StudyTrend from "../features/home/components/StudyTrend.jsx";
+import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx";
+import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js";
 
 export default function AdminHomePage() {
-    const [activeUsers, setActiveUsers] = useState([])
-    const [logs, setLogs] = useState([])
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [logs, setLogs] = useState([]);
 
-    const [summary, setSummary] = useState({
-        groupCount: 0,
-        groupCountDiff: 0,
+  const [summary, setSummary] = useState({
+    groupCount: 0,
+    groupCountDiff: 0,
 
-        totalUserCount: 0,
-        userCountDiff: 0,
+    totalUserCount: 0,
+    userCountDiff: 0,
 
-        studyingCount: 0,
-        studyingCountNote: "수정 필요",
+    studyingCount: 0,
+    studyingCountNote: "수정 필요",
 
-        weeklyTotalTime: 0,
-        weeklyTotalTimeDiff: "",
+    weeklyTotalTime: 0,
+    weeklyTotalTimeDiff: "",
 
-        avgGoalRate: 0,
-        avgGoalRateDiff: 0,
-    })
+    avgGoalRate: 0,
+    avgGoalRateDiff: 0,
+  });
 
-    const [groups, setGroups] = useState([])
-    const [groupsLoading, setGroupsLoading] = useState(true)
-    const [groupsError, setGroupsError] = useState("")
+  const [groups, setGroups] = useState([]);
+  const [groupsLoading, setGroupsLoading] = useState(true);
+  const [groupsError, setGroupsError] = useState("");
 
-    const [groupStudySummary, setGroupStudySummary] = useState({
-        startDate: "",
-        endDate: "",
-        allGroupsTotalStudyTime: 0,
-        groupStatistics: [],
-    })
+  const [groupStudySummary, setGroupStudySummary] = useState({
+    startDate: "",
+    endDate: "",
+    allGroupsTotalStudyTime: 0,
+    groupStatistics: [],
+  });
 
-    const [groupStudyLoading, setGroupStudyLoading] = useState(true)
-    const [groupStudyError, setGroupStudyError] = useState("")
-    useEffect(() => {
+  const [groupStudyLoading, setGroupStudyLoading] = useState(true);
+  const [groupStudyError, setGroupStudyError] = useState("");
+  useEffect(() => {
+    async function fetchLogs() {
+      try {
+        const data = await getLog();
+        setLogs(data);
+      } catch (error) {
+        console.error("로그 데이터 불러오기 실패:", error);
+      }
+    }
+    fetchLogs();
 
-        async function fetchLogs() {
-            try {
-                const data = await getLog()
-                setLogs(data)
+    let isMounted = true;
 
-            } catch (error) {
-                console.error("로그 데이터 불러오기 실패:", error)
-            }
-        }
-        fetchLogs()
+    /*
+     * 사용자에게 그룹 이름과 그룹 색상 추가
+     */
+    const addGroupInfo = async (user) => {
+      try {
+        const groupData = await getGroup(user.groupId);
 
-        socket.connect()
-        socket.emit('joinAdminRoom')
+        return {
+          ...user,
+          userId: String(user.userId),
+          groupId: String(user.groupId),
 
-        socket.on('newAdminLog', (newLog) => {
-            setLogs((prevLogs) => [newLog, ...prevLogs])
-        })
+          groupName: groupData.group?.groupName || "알 수 없는 그룹",
 
-        socket.on('adminUserStarted', async (newUser) => {
-            try {
-                const groupData = await getGroup(newUser.groupId);
+          groupColor: groupData.group?.groupColor || "#999999",
+        };
+      } catch (error) {
+        console.error("그룹 정보 조회 실패:", user.groupId, error);
 
-                newUser.groupName = groupData.group.groupName
-                newUser.groupColor = groupData.group.groupColor
+        return {
+          ...user,
+          userId: String(user.userId),
+          groupId: String(user.groupId),
+          groupName: "알 수 없는 그룹",
+          groupColor: "#999999",
+        };
+      }
+    };
 
-            } catch (error) {
-                console.error("그룹 정보 조회 실패:", error)
-                newUser.groupName = "알 수 없는 그룹"
-                newUser.groupColor = "#999999"
-            }
+    /*
+     * 소켓 최초 연결 및 재연결 시
+     * 관리자 방에 다시 입장
+     */
+    const handleJoinAdminRoom = () => {
+      console.log("관리자 소켓 연결:", socket.id);
 
-            // API 호출이 끝난 뒤 최종적으로 상태 업데이트
-            setActiveUsers((prev) => {
-                const isAlreadyActive = prev.some(user => user.userId === newUser.userId)
-                if (isAlreadyActive) return prev
-                return [...prev, newUser]
-            })
+      socket.emit("joinAdminRoom");
+    };
 
-            // 공부중 인원수 +1
-            setSummary(prev => ({ ...prev, studyingCount: prev.studyingCount + 1 }))
-        })
+    /*
+     * 관리자 새로고침 또는 다른 메뉴에서 돌아왔을 때
+     * Redis에 저장된 현재 공부 중 사용자 전체
+     */
+    const handleCurrentAdminActiveUsers = async (users = []) => {
+      try {
+        const safeUsers = Array.isArray(users) ? users : [];
 
-        socket.on('adminUserStopped', ({ userId: stoppedUserId }) => {
-            setActiveUsers((prev) => prev.filter(user => user.userId !== stoppedUserId))
+        const usersWithGroup = await Promise.all(
+          safeUsers.map((user) => addGroupInfo(user)),
+        );
 
-            // 공부중 인원수 -1 (0 밑으로는 안 내려가게)
-            setSummary(prev => ({ ...prev, studyingCount: Math.max(prev.studyingCount - 1, 0) }))
-        })
-
-        async function fetchActiveCount() {
-            try {
-                const data = await getActiveUsers()
-                setSummary(prev => ({
-                    ...prev,
-                    studyingCount: data.activeUserIds.length
-                }))
-            } catch (error) {
-                console.error("현재 공부중 인원 조회 실패:", error.message)
-            }
-        }
-
-        async function fetchSummary() {
-            try {
-                const [groupData, userData, todoAchievementData, totalTimeData] = await Promise.all([
-                    getGroupCount(),
-                    getUserCount(),
-                    getWeeklyTodoAchievement(),
-                    getTotalTime()
-                ])
-
-                setSummary(prev => ({
-                    ...prev,
-                    // 운영 중인 그룹 수
-                    groupCount:
-                        Number(groupData.count) || 0,
-
-                    // 그룹 수 전주 대비 증감
-                    groupCountDiff:
-                        Number(
-                            groupData.groupCountDiff,
-                        ) || 0,
-
-                    // 전체 사용자 수
-                    totalUserCount:
-                        Number(
-                            userData.totalUserCount,
-                        ) || 0,
-
-                    // 사용자 수 전주 대비 증감
-                    userCountDiff:
-                        Number(
-                            userData.userCountDiff,
-                        ) || 0,
-
-
-                    // 탈퇴 회원 수
-                    withdrawnUserCount:
-                        Number(
-                            userData.withdrawnUserCount,
-                        ) || 0,
-
-                    // 휴면 회원을 제외한 정상 회원 수
-                    normalUserCount:
-                        Number(
-                            userData.normalUserCount,
-                        ) || 0,
-
-
-                    // 휴면 그룹 소속 회원 수
-                    dormantUserCount:
-                        Number(
-                            userData.dormantUserCount,
-                        ) || 0,
-
-                    // 이번 주 총 공부시간
-                    weeklyTotalTime:
-                        totalTimeData
-                            .currentWeeklyStudyTime,
-
-                    // 이번주 와 저번주 공부시간 차이        
-                    weeklyTotalTimeDiff:
-                        totalTimeData
-                            .weeklyStudyTimeDiff,
-
-                    // 이번 주 전체 Todo 달성률
-                    avgGoalRate: Number(
-                        todoAchievementData.achievement ?.achievementRate
-                    ) || 0,
-
-                    // 지난주 대비 Todo 달성률 차이
-                    avgGoalRateDiff: Number(
-                        todoAchievementData.achievement ?.achievementRateDiff
-                    ) || 0
-                }))
-            } catch (error) {
-                console.error("데이터 조회 실패", error.message)
-            }
+        if (!isMounted) {
+          return;
         }
 
-        async function fetchGroupStatistics() {
-            try {
-                setGroupsLoading(true)
-                setGroupsError("")
+        setActiveUsers(usersWithGroup);
+      } catch (error) {
+        console.error("현재 공부 중 사용자 목록 처리 실패:", error);
 
-                const data = await fetchAdminGroupStatistics()
-                const groupList = Array.isArray(data.groups) ? data.groups : []
-                setGroups(groupList)
-
-            } catch (error) {
-                console.error("그룹 목표 달성률 조회 실패:", error)
-
-                setGroups([])
-
-                setGroupsError(error.message || "그룹 목표 달성률을 불러오지 못했습니다.")
-            } finally {
-                setGroupsLoading(false)
-            }
+        if (isMounted) {
+          setActiveUsers([]);
         }
-        async function fetchGroupStudySummary() {
-            try {
-                setGroupStudyLoading(true)
-                setGroupStudyError("")
+      }
+    };
 
-                const data = await getGroupStudyTime()
+    /*
+     * 새로운 관리자 로그
+     */
+    const handleNewAdminLog = (newLog) => {
+      setLogs((prevLogs) => [newLog, ...prevLogs]);
+    };
 
-                setGroupStudySummary({
-                    startDate: data.startDate || "",
-                    endDate: data.endDate || "",
-                    allGroupsTotalStudyTime:
-                        Number(data.allGroupsTotalStudyTime) || 0,
-                    groupStatistics:
-                        Array.isArray(data.groupStatistics)
-                            ? data.groupStatistics
-                            : [],
-                })
-            } catch (error) {
-                console.error(
-                    "그룹별 공부시간 조회 실패:",
-                    error,
-                )
+    /*
+     * 사용자가 공부를 새로 시작
+     */
+    const handleAdminUserStarted = async (newUser) => {
+      const userWithGroup = await addGroupInfo(newUser);
 
-                setGroupStudyError(
-                    error.message ||
-                    "그룹별 공부시간을 불러오지 못했습니다.",
-                )
-            } finally {
-                setGroupStudyLoading(false)
-            }
+      if (!isMounted) {
+        return;
+      }
+
+      setActiveUsers((prevUsers) => {
+        const userId = String(userWithGroup.userId);
+
+        const isAlreadyActive = prevUsers.some(
+          (user) => String(user.userId) === userId,
+        );
+
+        /*
+         * 이미 목록에 있으면 최신 정보로 변경
+         */
+        if (isAlreadyActive) {
+          return prevUsers.map((user) =>
+            String(user.userId) === userId
+              ? {
+                  ...user,
+                  ...userWithGroup,
+                }
+              : user,
+          );
         }
 
-        fetchActiveCount()
-        fetchSummary()
-        fetchGroupStatistics()
-        fetchGroupStudySummary()
+        return [...prevUsers, userWithGroup];
+      });
+    };
 
-        return () => {
-            socket.off('adminUserStarted')
-            socket.off('adminUserStopped')
-            socket.off('newAdminLog')
-            socket.disconnect()
-        }
-    }, [])
+    /*
+     * 사용자가 Stop 버튼을 누름
+     */
+    const handleAdminUserStopped = ({ userId: stoppedUserId }) => {
+      setActiveUsers((prevUsers) =>
+        prevUsers.filter(
+          (user) => String(user.userId) !== String(stoppedUserId),
+        ),
+      );
+    };
 
-    return (
-        <>
-            <div>
-                <Topbar
-                    title="관리자 대시보드"
-                    description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
-                />
-                <SummaryRow summary={summary} />
+    /*
+     * 소켓 이벤트 등록
+     */
+    socket.on("connect", handleJoinAdminRoom);
 
-                <GroupStudyTimeChart
-                    summary={groupStudySummary}
-                    loading={groupStudyLoading}
-                    error={groupStudyError}
-                />
-            </div>
+    socket.on("currentAdminActiveUsers", handleCurrentAdminActiveUsers);
 
-            <ActiveUser activeUsers={activeUsers} />
+    socket.on("newAdminLog", handleNewAdminLog);
 
-            {/* 그룹 목표 달성률 */}
-            <div className="groupsAchievementPanel">
-                {groupsError && (
-                    <p className="groupsAchievementError">
-                        {groupsError}
-                    </p>
-                )}
+    socket.on("adminUserStarted", handleAdminUserStarted);
 
-                <GroupGoalAchievement
-                    groups={groups}
-                    loading={groupsLoading}
-                />
-            </div>
+    socket.on("adminUserStopped", handleAdminUserStopped);
 
+    /*
+     * 이미 연결돼 있으면 바로 입장
+     * 연결되지 않았으면 connect 실행
+     */
+    if (socket.connected) {
+      handleJoinAdminRoom();
+    } else {
+      socket.connect();
+    }
 
+    async function fetchSummary() {
+      try {
+        const [groupData, userData, todoAchievementData, totalTimeData] =
+          await Promise.all([
+            getGroupCount(),
+            getUserCount(),
+            getWeeklyTodoAchievement(),
+            getTotalTime(),
+          ]);
 
-            <RecentUser logs={logs} />
+        setSummary((prev) => ({
+          ...prev,
+          // 운영 중인 그룹 수
+          groupCount: Number(groupData.count) || 0,
 
-            <StudyTrend />
-        </>
-    )
+          // 그룹 수 전주 대비 증감
+          groupCountDiff: Number(groupData.groupCountDiff) || 0,
+
+          // 전체 사용자 수
+          totalUserCount: Number(userData.totalUserCount) || 0,
+
+          // 사용자 수 전주 대비 증감
+          userCountDiff: Number(userData.userCountDiff) || 0,
+
+          // 탈퇴 회원 수
+          withdrawnUserCount: Number(userData.withdrawnUserCount) || 0,
+
+          // 휴면 회원을 제외한 정상 회원 수
+          normalUserCount: Number(userData.normalUserCount) || 0,
+
+          // 휴면 그룹 소속 회원 수
+          dormantUserCount: Number(userData.dormantUserCount) || 0,
+
+          // 이번 주 총 공부시간
+          weeklyTotalTime: totalTimeData.currentWeeklyStudyTime,
+
+          // 이번주 와 저번주 공부시간 차이
+          weeklyTotalTimeDiff: totalTimeData.weeklyStudyTimeDiff,
+
+          // 이번 주 전체 Todo 달성률
+          avgGoalRate:
+            Number(todoAchievementData.achievement?.achievementRate) || 0,
+
+          // 지난주 대비 Todo 달성률 차이
+          avgGoalRateDiff:
+            Number(todoAchievementData.achievement?.achievementRateDiff) || 0,
+        }));
+      } catch (error) {
+        console.error("데이터 조회 실패", error.message);
+      }
+    }
+
+    async function fetchGroupStatistics() {
+      try {
+        setGroupsLoading(true);
+        setGroupsError("");
+
+        const data = await fetchAdminGroupStatistics();
+        const groupList = Array.isArray(data.groups) ? data.groups : [];
+        setGroups(groupList);
+      } catch (error) {
+        console.error("그룹 목표 달성률 조회 실패:", error);
+
+        setGroups([]);
+
+        setGroupsError(
+          error.message || "그룹 목표 달성률을 불러오지 못했습니다.",
+        );
+      } finally {
+        setGroupsLoading(false);
+      }
+    }
+    async function fetchGroupStudySummary() {
+      try {
+        setGroupStudyLoading(true);
+        setGroupStudyError("");
+
+        const data = await getGroupStudyTime();
+
+        setGroupStudySummary({
+          startDate: data.startDate || "",
+          endDate: data.endDate || "",
+          allGroupsTotalStudyTime: Number(data.allGroupsTotalStudyTime) || 0,
+          groupStatistics: Array.isArray(data.groupStatistics)
+            ? data.groupStatistics
+            : [],
+        });
+      } catch (error) {
+        console.error("그룹별 공부시간 조회 실패:", error);
+
+        setGroupStudyError(
+          error.message || "그룹별 공부시간을 불러오지 못했습니다.",
+        );
+      } finally {
+        setGroupStudyLoading(false);
+      }
+    }
+
+    fetchSummary();
+    fetchGroupStatistics();
+    fetchGroupStudySummary();
+
+    return () => {
+      isMounted = false;
+
+      socket.off("connect", handleJoinAdminRoom);
+
+      socket.off("currentAdminActiveUsers", handleCurrentAdminActiveUsers);
+
+      socket.off("newAdminLog", handleNewAdminLog);
+
+      socket.off("adminUserStarted", handleAdminUserStarted);
+
+      socket.off("adminUserStopped", handleAdminUserStopped);
+
+      /*
+       * 공용 socket 연결 자체는 끊지 않고
+       * 관리자 방에서만 나감
+       */
+      if (socket.connected) {
+        socket.emit("leaveAdminRoom");
+      }
+
+      // 삭제해야 함
+      // socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    setSummary((prev) => ({
+      ...prev,
+      studyingCount: activeUsers.length,
+    }));
+  }, [activeUsers.length]);
+
+  return (
+    <>
+      <div>
+        <Topbar
+          title="관리자 대시보드"
+          description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
+        />
+        <SummaryRow summary={summary} />
+
+        <GroupStudyTimeChart
+          summary={groupStudySummary}
+          loading={groupStudyLoading}
+          error={groupStudyError}
+        />
+      </div>
+
+      <ActiveUser activeUsers={activeUsers} />
+
+      {/* 그룹 목표 달성률 */}
+      <div className="groupsAchievementPanel">
+        {groupsError && <p className="groupsAchievementError">{groupsError}</p>}
+
+        <GroupGoalAchievement groups={groups} loading={groupsLoading} />
+      </div>
+
+      <RecentUser logs={logs} />
+
+      <StudyTrend />
+    </>
+  );
 }
