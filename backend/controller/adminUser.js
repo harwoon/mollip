@@ -681,6 +681,12 @@ export async function getUserTotalStudyRecord(req, res) {
     let sumTime = 0
 
     try {
+        if (!userid || userid === "undefined") {
+            return res.status(400).json({ message: "유효하지 않은 유저 ID입니다." })
+        }
+
+        const objectId = new mongoose.Types.ObjectId(userid)
+
         const studies = await studyRepository.getAllByUserId(userid)
 
         studies.forEach((study) => {

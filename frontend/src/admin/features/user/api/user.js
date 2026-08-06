@@ -89,3 +89,26 @@ export async function getTotalStudyTime(date,userId){
 
     return data
 }
+
+// 전체 공부시간
+// http://127.0.0.1:3000/admin/user/totalStudyRecord?userid=6a6fdd0ea7b6baa85e4d088d
+export async function getTotalStudyRecord(userId){
+    const token = localStorage.getItem("token")
+
+    let url = `${API_URL}/admin/user/totalStudyRecord?userid=${userId}`
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(data.message || "전체 공부시간을 불러오지 못했습니다.")
+    }
+
+    return data
+}
