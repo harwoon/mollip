@@ -143,6 +143,7 @@ export default function HomeCalendar() {
       {error && <p className={styles.scheduleError}>{error}</p>}
 
       <Calendar
+        className={styles.customCalendar}
         onChange={setSelectedDate}
         value={selectedDate}
         calendarType="iso8601"

@@ -3,7 +3,7 @@
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
     height: 100vh;
-    padding: 40px 20px;
+    padding: 40px 20px 20px;
     background: var(--color-surface);
     border-right: 1px solid var(--color-border);
     box-shadow: var(--shadow-card);
@@ -18,7 +18,7 @@
 
 .sidebarLogo {
     width: 100%;
-    margin-bottom: 35px;
+    margin-bottom: 20px;
 
     display: flex;
     justify-content: center;
@@ -27,13 +27,13 @@
 
 .sidebarLogo img {
     width: 85%;
-    max-width: 180px;
+    max-width: 160px;
     height: auto;
 }
 
 .sidebarUser {
     width: 100%;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
 }
 
 .sidebarUserInfo{
@@ -72,23 +72,22 @@
     color: var(--color-text-muted);
     font-size: var(--font-xs);
     font-weight: 500;
-    line-height: 20px;
-    letter-spacing: 0.5px;
+    line-height: 18px;
+    letter-spacing: 0.3px;
 }
 
 .sidebarNavigationLink {
     width: 100%;
-    min-height: 40px;
-    padding: 15px 15px;
+    min-height: 34px;
+    padding: 10px;
 
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 
     color: var(--color-text-secondary);
     font-size: var(--font-md);
     font-weight: 600;
-    line-height: 20px;
 
     background: transparent;
     border-radius: var(--radius-md);
