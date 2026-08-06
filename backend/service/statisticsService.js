@@ -7,7 +7,7 @@ import * as todoRepository from "../repository/todo.js"
 import * as groupRepository from "../repository/admin.js"
 import * as adminRepository from "../repository/admin.js"
 
-import { getWeekRange, getStudyPeriodRanges } from "../util/date.js"
+import { getWeekRange, getStudyPeriodRanges, addDays } from "../util/date.js"
 import { calculateStudyStatistics } from "../util/ratio.js"
 import { calculateWeeklyStudyTimeByGroup } from "../util/ratio.js"
 
@@ -419,42 +419,91 @@ export async function getWeeklyGroupStudySummary(
         groupStatistics,
     }
 }
-// 전체 사용자 주간 Todo 달성률
+// 전체 사용자 주간 Todo 달성률 - 0806 승아수정(Todo 전주대비)
 export async function getWeeklyTodoAchievement() {
-    const { startDate, endDate } = getWeekRange(new Date())
+    // 이번주
+    const currentWeek = getWeekRange(new Date())
 
-    // 사용자별 이번주 Todo 전체개수, 완료계수 집계
-    const weeklyAchievements = await todoRepository.getWeeklyAchievementByUsers(
-        startDate,
-        endDate
-    )
+    // 지난주
+    const previousWeek = {
+        startDate: addDays(
+            currentWeek.startDate, -7,
+        ),
+        endDate: addDays(
+            currentWeek.endDate, -7,
+        ),
+    }
 
-    // 확인용 로그
-    console.log("이번 주 조회 기간:", startDate, endDate)
-    console.log("사용자별 Todo 집계:", weeklyAchievements)
+    // 이번주, 지난주 Todo집계
+    const [currentAchievements, previousAchievements] = await Promise.all([
+        todoRepository.getWeeklyAchievementByUsers(
+            currentWeek.startDate,
+            currentWeek.endDate,
+        ),
+        todoRepository.getWeeklyAchievementByUsers(
+            previousWeek.startDate,
+            previousWeek.endDate,
+        ),
+    ])
 
-    let totalCount = 0
-    let completedCount = 0
+    // 사용자별 집계 결과 = 서비스 전체 기준으로 합산
+    function calculateTotalAchievement(achievements) {
+        let totalCount = 0
+        let completedCount = 0
 
-    // 사용자별 집계값을 전체 기준으로 합산
-    weeklyAchievements.forEach(achievement => {
-        totalCount += achievement.totalCount || 0
-        completedCount += achievement.completedCount || 0
-    })
+        achievements.forEach((achievement) => {
+            totalCount += Number(achievement.totalCount) || 0
+            completedCount += Number(achievement.completedCount) || 0
+        })
 
-    // Todo 하나도 없으면 0 처리
-    const achievementRate = totalCount === 0 ? 0 : Number(
-        (completedCount / totalCount * 100).toFixed(1)  // 소수점 첫째자리까지 표현
+        const achievementRate = totalCount === 0 ? 0 : Number(
+            (
+                completedCount /
+                totalCount *
+                100
+            ).toFixed(1)
+        )
+
+        return {
+            totalCount,
+            completedCount,
+            achievementRate
+        }
+    }
+
+    const currentAchievement = calculateTotalAchievement(currentAchievements)
+    const previousAchievement =calculateTotalAchievement( previousAchievements)
+
+    // 달성률 간 차이 퍼센트로 계산
+    const achievementRateDiff = Number(
+        (currentAchievement.achievementRate - previousAchievement.achievementRate).toFixed(1)
     )
 
     return {
-        startDate,
-        endDate,
-        totalCount,
-        completedCount,
-        achievementRate
+        startDate: currentWeek.startDate,
+        endDate: currentWeek.endDate,
+        totalCount: currentAchievement.totalCount,
+        completedCount: currentAchievement.completedCount,
+        achievementRate: currentAchievement.achievementRate,
+
+        // 전주 대비 값
+        achievementRateDiff,
+
+        currentWeek: {
+            startDate: currentWeek.startDate,
+            endDate: currentWeek.endDate,
+            ...currentAchievement,
+        },
+
+        previousWeek: {
+            startDate: previousWeek.startDate,
+            endDate: previousWeek.endDate,
+            ...previousAchievement,
+        },
     }
 }
+
+
 // 과목별 공부시간 통계
 export async function getSubjectStudySummary(
     userId,

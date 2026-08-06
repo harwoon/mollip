@@ -13,7 +13,8 @@ export async function addSchedule(req, res) {
 
         const {
             title,
-            scheduleDate,
+            startDate,
+            endDate,
             startTime = "",
             endTime = "",
             allDay = false,
@@ -27,9 +28,15 @@ export async function addSchedule(req, res) {
             })
         }
 
-        if (!scheduleDate) {
+        if (!startDate || !endDate) {
             return res.status(400).json({
-                message: "일정 날짜를 입력해주세요.",
+                message: "일정 시작일과 종료일을 모두 입력해주세요.",
+            })
+        }
+
+        if (startDate > endDate) {
+            return res.status(400).json({
+                message: "종료일은 시작일보다 빠를 수 없습니다.",
             })
         }
 
@@ -48,7 +55,8 @@ export async function addSchedule(req, res) {
         const scheduleData = {
             user: userId,
             title: title.trim(),
-            scheduleDate,
+            startDate,
+            endDate,
 
             // 종일 일정이면 시간은 저장하지 않음
             startTime: allDay ? "" : startTime,
@@ -132,7 +140,8 @@ export async function updateSchedule(req, res) {
 
         const {
             title,
-            scheduleDate,
+            startDate,
+            endDate,
             startTime = "",
             endTime = "",
             allDay = false,
@@ -148,7 +157,13 @@ export async function updateSchedule(req, res) {
 
         if (!scheduleDate) {
             return res.status(400).json({
-                message: "일정 날짜를 입력해주세요.",
+                message: "일정 시작일과 종료일을 모두 입력해주세요.",
+            })
+        }
+
+        if (startDate > endDate) {
+            return res.status(400).json({
+                message: "종료일은 시작일보다 빠를 수 없습니다.",
             })
         }
 
@@ -166,7 +181,8 @@ export async function updateSchedule(req, res) {
 
         const updateData = {
             title: title.trim(),
-            scheduleDate,
+            startDate,
+            endDate,
             startTime: allDay ? "" : startTime,
             endTime: allDay ? "" : endTime,
             allDay: Boolean(allDay),
