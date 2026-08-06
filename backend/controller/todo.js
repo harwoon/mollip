@@ -4,8 +4,6 @@ import { getWeekRange } from "../util/date.js"
 
 // Todo 목록 조회
 export async function getTodoList(req, res) {
-
-    
     const userId = req.user._id
 
     try{
@@ -32,8 +30,6 @@ export async function getTodoList(req, res) {
 export async function addTodo(req, res) {
     const userId = req.user._id
 
-    
-    
     // 프론트에 전달받은 Todo 내용
     const {todo, todoDate} = req.body
 
@@ -197,37 +193,6 @@ export async function getRecords(req, res) {
     }
 }
 
-// // 일간 목표 달성률
-// export async function getDailyAchievement(req, res) {
-//     const {date} = req.query
-//     const userId = req.user._id
-
-//     if(!date){
-//         return res.status(400).json({
-//             message: "date를 입력해주세요."
-//         })
-//     }
-
-//     try{
-//         const achievement = await todoRepository.getDailyAchievement(
-//             userId, date
-//         )
-
-//         return res.status(200).json({
-//             todoDate: date,
-//             ...achievement
-//         })
-
-//     } catch(error){
-//         console.error("Todo 목표 달성률 조회 오류:", error)
-
-//         return res.status(500).json({
-//             message:
-//                 "서버 오류로 Todo 목표 달성률을 불러오지 못했습니다."
-//         })
-//     }
-// }
-
 // 일간,주간,월간 목표 달성률
 export async function getAchievement(req, res) {
     const {type, date} = req.query
@@ -250,9 +215,7 @@ export async function getAchievement(req, res) {
             )
 
             // reduce() 사용 위함: 문서가 있으면 배열에 넣고, 없으면 빈 배열에 만듦
-            todoLists = dailyTodoList
-                ? [dailyTodoList]
-                : []
+            todoLists = dailyTodoList ? [dailyTodoList] : []
 
             period = {
                 startDate: date,
@@ -316,7 +279,7 @@ export async function getAchievement(req, res) {
 
         // 목표달성률 계산: 전체 Todo가 없으면 0으로 나눌 수 없어 0 반환
         // Todo가 있으면 완료개수 / 전체개수 x 100
-        const achievementRate =
+        const achievementRate = 
             totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100)
 
         return res.status(200).json({
