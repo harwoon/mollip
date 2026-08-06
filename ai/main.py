@@ -64,21 +64,6 @@ async def generate_weekly_report(data: WeeklyStudyData):
             }
             // 반드시 5개의 추천 항목(객체)을 생성하세요.
             // task에 요일이나 시간에 관한 내용을 넣지 마세요.
-          ],
-          "expectedChanges": [
-            // 반드시 아래 2개의 지표에 대한 객체만 배열에 포함하세요. (총 2개 고정)
-            {
-              "label": "Todo 달성률",
-              "from": "현재 수치 (예: 71%)",
-              "to": "예상 수치 (예: 83% 내외)",
-              "trend": "up 또는 down"
-            },
-            {
-              "label": "연속 학습일",
-              "from": "현재 수치 (예: 2일)",
-              "to": "예상 수치 (예: 7일)",
-              "trend": "up"
-            }
           ]
         }
         """
