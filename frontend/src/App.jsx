@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import ProtectedRoute from "./ProtectedRoute"
+import ProtectedRoute from "./guards/ProtectedRoute"
 import Login from "./pages/LoginPage"
 import Home from "./pages/HomePage"
 import Signup from "./pages/SignupPage"
@@ -12,6 +12,9 @@ import AdminUsersPage from "./admin/pages/AdminUsersPage"
 import AdminGroupsPage from "./admin/pages/AdminGroupsPage"
 import WeekStatusPage from "./pages/WeekStatusPage"
 import GroupPage from "./pages/GroupPage"
+import AdminRoute from "./guards/AdminRoute"
+import AdminRootRedirect from "./guards/AdminRootRedirect"
+import UnauthorizedPage from "./pages/UnauthorizedPage"
 
 const router = createBrowserRouter([
   {
@@ -25,6 +28,14 @@ const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />
+  },
+  { 
+    path: "/unauthorized",
+    element: <UnauthorizedPage />
+  },
+  { 
+    path: "/admin",
+    element: <AdminRootRedirect />
   },
 
   {
@@ -56,21 +67,27 @@ const router = createBrowserRouter([
           }
         ]
       },
+
+      // 관리자 페이지
       {
-        // 관리자 페이지
-        element: <AdminMainLayout />,
+        element: <AdminRoute/>,
         children: [
           {
-            path: "/admin/home",
-            element: <AdminHomePage />
-          },
-          {
-            path: "/admin/users",
-            element: <AdminUsersPage />
-          },
-          {
-            path: "/admin/groups",
-            element: <AdminGroupsPage />
+            element: <AdminMainLayout />,
+            children: [
+              {
+                path: "/admin/home",
+                element: <AdminHomePage />
+              },
+              {
+                path: "/admin/users",
+                element: <AdminUsersPage />
+              },
+              {
+                path: "/admin/groups",
+                element: <AdminGroupsPage />
+              }
+            ]
           }
         ]
       }
