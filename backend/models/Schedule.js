@@ -8,7 +8,6 @@ const scheduleSchema = new mongoose.Schema(
             required: true,
             index: true,
         },
-
         title: {
             type: String,
             required: true,
@@ -16,35 +15,33 @@ const scheduleSchema = new mongoose.Schema(
             maxlength: 50,
         },
 
-        scheduleDate: {
+        startDate: {
             type: String,
             required: true,
-            // 예: 2026-08-03
+        },
+        endDate: {
+            type: String,
+            required: true,
         },
 
         startTime: {
             type: String,
             default: "",
-            // 예: 14:00
         },
-
         endTime: {
             type: String,
             default: "",
         },
-
         allDay: {
             type: Boolean,
             default: false,
         },
-
         memo: {
             type: String,
             trim: true,
             maxlength: 500,
             default: "",
         },
-
         color: {
             type: String,
             default: "#be282f",
@@ -57,10 +54,10 @@ const scheduleSchema = new mongoose.Schema(
 
 scheduleSchema.index({
     user: 1,
-    scheduleDate: 1,
+    startDate: 1,
+    endDate: 1,
 })
 
-const Schedule =
-    mongoose.model("Schedule", scheduleSchema)
+const Schedule = mongoose.model("Schedule", scheduleSchema)
 
 export default Schedule
