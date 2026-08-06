@@ -2,18 +2,20 @@ import Schedule from "../models/Schedule.js"
 
 export async function findSchedulesByDateRange(
     userId,
-    startDate,
-    endDate
+    queryStartDate,
+    queryEndDate
 ) {
     return Schedule.find({
         user: userId,
-        scheduleDate: {
-            $gte: startDate,
-            $lte: endDate,
+        startDate: {
+            $lte: queryEndDate,
+        },
+        endDate: {
+            $gte: queryStartDate,
         },
     })
         .sort({
-            scheduleDate: 1,
+            startDate: 1,
             startTime: 1,
         })
         .lean()
