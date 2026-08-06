@@ -1,7 +1,18 @@
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import dayjs from "dayjs"
 
-import "./ScheduleModal.css"
+import styles from "./ScheduleModal.module.css"
+
+// 📌 포스트잇 감성의 예쁜 파스텔톤 7가지 색상 팔레트
+const PASTEL_COLORS = [
+    { name: "연보라", value: "#b19cd9" },
+    { name: "연노랑", value: "#fdfd96" },
+    { name: "연민트", value: "#b0e0e6" },
+    { name: "연하늘", value: "#a2a8d3" },
+    { name: "연핑크", value: "#ffb7b2" },
+    { name: "연피치", value: "#ffdac1" },
+    { name: "연그레이", value: "#e2e2e2" },
+]
 
 const initialForm = {
     title: "",
@@ -9,7 +20,50 @@ const initialForm = {
     endTime: "",
     allDay: false,
     memo: "",
-    color: "#7c83fd",
+    color: "#b19cd9",
+}
+
+function parseTimeString(timeStr) {
+    if (!timeStr) return { ampm: "오전", hour: "09", minute: "00" }
+
+    const [hStr, mStr] = timeStr.split(":")
+    let h = parseInt(hStr, 10)
+
+    if (isNaN(h)) {
+        return {
+            ampm: "오전",
+            hour: "09",
+            minute: "00",
+        }
+    }
+
+    let ampm = "오전"
+
+    if (h >= 12) {
+        ampm = "오후"
+        if (h > 12) h -= 12
+    }
+
+    if (h === 0) h = 12
+
+    return {
+        ampm,
+        hour: String(h).padStart(2, "0"),
+        minute: mStr || "00",
+    }
+}
+
+function formatTimeString(ampm, hour, minute) {
+    if (!hour || !minute) return ""
+
+    let h = parseInt(hour, 10)
+
+    if (isNaN(h)) return ""
+
+    if (ampm === "오후" && h < 12) h += 12
+    if (ampm === "오전" && h === 12) h = 0
+
+    return `${String(h).padStart(2, "0")}:${minute.padStart(2, "0")}`
 }
 
 export default function ScheduleModal({
@@ -21,36 +75,58 @@ export default function ScheduleModal({
     onDelete,
     onClose,
 }) {
-    const [form, setForm] =
-        useState(initialForm)
+    const [form, setForm] = useState(initialForm)
 
-    // 수정할 일정을 선택하면 기존 내용을 입력창에 표시
+    const [startObj, setStartObj] = useState({
+        ampm: "오전",
+        hour: "09",
+        minute: "00",
+    })
+
+    const [endObj, setEndObj] = useState({
+        ampm: "오전",
+        hour: "10",
+        minute: "00",
+    })
+
+    // 📌 메모 자동 높이 조절용
+    const memoRef = useRef(null)
+
     useEffect(() => {
         if (selectedSchedule) {
             setForm({
-                title:
-                    selectedSchedule.title || "",
-                startTime:
-                    selectedSchedule.startTime ||
-                    "",
-                endTime:
-                    selectedSchedule.endTime ||
-                    "",
-                allDay:
-                    selectedSchedule.allDay ||
-                    false,
-                memo:
-                    selectedSchedule.memo || "",
-                color:
-                    selectedSchedule.color ||
-                    "#7c83fd",
+                title: selectedSchedule.title || "",
+                startTime: selectedSchedule.startTime || "",
+                endTime: selectedSchedule.endTime || "",
+                allDay: selectedSchedule.allDay || false,
+                memo: selectedSchedule.memo || "",
+                color: selectedSchedule.color || "#b19cd9",
             })
+
+            setStartObj(
+                parseTimeString(selectedSchedule.startTime)
+            )
+
+            setEndObj(
+                parseTimeString(selectedSchedule.endTime)
+            )
 
             return
         }
 
-        // 새 일정 작성 상태
         setForm(initialForm)
+
+        setStartObj({
+            ampm: "오전",
+            hour: "09",
+            minute: "00",
+        })
+
+        setEndObj({
+            ampm: "오전",
+            hour: "10",
+            minute: "00",
+        })
     }, [selectedSchedule, selectedDate])
 
     function handleChange(event) {
@@ -58,15 +134,73 @@ export default function ScheduleModal({
             name,
             value,
             type,
-            checked,
+            checked
         } = event.target
 
         setForm((previousForm) => ({
             ...previousForm,
-            [name]:
-                type === "checkbox"
-                    ? checked
-                    : value,
+            [name]: type === "checkbox"
+                ? checked
+                : value,
+        }))
+
+        // 📌 메모 입력 시 높이 자동 증가
+        if (
+            name === "memo" &&
+            memoRef.current
+        ) {
+            memoRef.current.style.height = "auto"
+            memoRef.current.style.height =
+                `${memoRef.current.scrollHeight}px`
+        }
+    }
+
+    function handleStartTimeChange(field, value) {
+        const updated = {
+            ...startObj,
+            [field]: value,
+        }
+
+        setStartObj(updated)
+
+        const combined =
+            formatTimeString(
+                updated.ampm,
+                updated.hour,
+                updated.minute
+            )
+
+        setForm((prev) => ({
+            ...prev,
+            startTime: combined,
+        }))
+    }
+
+    function handleEndTimeChange(field, value) {
+        const updated = {
+            ...endObj,
+            [field]: value,
+        }
+
+        setEndObj(updated)
+
+        const combined =
+            formatTimeString(
+                updated.ampm,
+                updated.hour,
+                updated.minute
+            )
+
+        setForm((prev) => ({
+            ...prev,
+            endTime: combined,
+        }))
+    }
+
+    function handleColorSelect(colorValue) {
+        setForm((previousForm) => ({
+            ...previousForm,
+            color: colorValue,
         }))
     }
 
@@ -84,45 +218,28 @@ export default function ScheduleModal({
             form.endTime &&
             form.startTime >= form.endTime
         ) {
-            alert(
-                "종료 시간은 시작 시간보다 늦어야 합니다.",
-            )
+            alert("종료 시간은 시작 시간보다 늦어야 합니다.")
             return
         }
 
         const scheduleData = {
             ...form,
             title: form.title.trim(),
-            scheduleDate:
-                dayjs(selectedDate).format(
-                    "YYYY-MM-DD",
-                ),
-
-            // 종일 일정이면 시간은 빈 문자열로 저장
-            startTime: form.allDay
-                ? ""
-                : form.startTime,
-
-            endTime: form.allDay
-                ? ""
-                : form.endTime,
+            scheduleDate: dayjs(selectedDate).format("YYYY-MM-DD"),
+            startTime: form.allDay ? "" : form.startTime,
+            endTime: form.allDay ? "" : form.endTime,
         }
 
         await onSave(scheduleData)
     }
 
     async function handleDelete() {
-        if (!selectedSchedule) {
-            return
-        }
+        if (!selectedSchedule) return
 
-        const isConfirmed = window.confirm(
-            "이 일정을 삭제하시겠습니까?",
-        )
+        const isConfirmed =
+            window.confirm("이 일정을 삭제하시겠습니까?")
 
-        if (!isConfirmed) {
-            return
-        }
+        if (!isConfirmed) return
 
         await onDelete(selectedSchedule._id)
     }
@@ -130,231 +247,353 @@ export default function ScheduleModal({
     function handleNewSchedule() {
         onSelectSchedule(null)
         setForm(initialForm)
+        setStartObj({
+            ampm: "오전",
+            hour: "09",
+            minute: "00",
+        })
+        setEndObj({
+            ampm: "오전",
+            hour: "10",
+            minute: "00",
+        })
     }
 
     return (
         <div
-            className="schedule-modal-overlay"
+            className={styles.scheduleModalOverlay}
             onClick={onClose}
         >
             <div
-                className="schedule-modal"
-                onClick={(event) => {
+                className={styles.scheduleModal}
+                onClick={(event) =>
                     event.stopPropagation()
+                }
+                style={{
+                    "--theme-color": form.color,
+                    boxShadow: `0 10px 25px rgba(0,0,0,0.1), 0 0 12px ${form.color}50`,
                 }}
             >
-                <div className="schedule-modal-header">
+                <div
+                    className={styles.scheduleModalHeader}
+                    style={{ "--theme-color": form.color }}
+                >
                     <h2>
                         {dayjs(selectedDate).format(
-                            "YYYY년 M월 D일",
+                            "YYYY년 M월 D일"
                         )}
                     </h2>
 
                     <button
                         type="button"
-                        className="schedule-modal-close"
+                        className={styles.scheduleModalClose}
                         onClick={onClose}
                     >
                         ×
                     </button>
                 </div>
 
-                <section className="schedule-list-section">
-                    <div className="schedule-list-header">
-                        <h3>등록된 일정</h3>
+                {/* 📌 내부 스크롤을 담당하는 래퍼 */}
+                <div className={styles.scheduleModalContent}>
+                    <form
+                        className={styles.scheduleForm}
+                        onSubmit={handleSubmit}
+                    >
+                        <label>
+                            일정 제목
 
-                        <button
-                            type="button"
-                            onClick={
-                                handleNewSchedule
-                            }
-                        >
-                            새 일정
-                        </button>
-                    </div>
+                            <input
+                                type="text"
+                                name="title"
+                                value={form.title}
+                                onChange={handleChange}
+                                placeholder="일정 제목을 입력하세요"
+                                maxLength={50}
+                            />
+                        </label>
 
-                    {schedules.length === 0 ? (
-                        <p className="schedule-empty">
-                            등록된 일정이 없습니다.
-                        </p>
-                    ) : (
-                        <div className="schedule-list">
-                            {schedules.map(
-                                (schedule) => (
-                                    <button
-                                        type="button"
-                                        key={
-                                            schedule._id
-                                        }
-                                        className={
-                                            selectedSchedule?._id ===
-                                                schedule._id
-                                                ? "schedule-list-item selected"
-                                                : "schedule-list-item"
-                                        }
-                                        onClick={() => {
-                                            onSelectSchedule(
-                                                schedule,
-                                            )
-                                        }}
-                                    >
-                                        <span
-                                            className="schedule-color"
-                                            style={{
-                                                backgroundColor:
-                                                    schedule.color,
-                                            }}
+                        <label className={styles.scheduleCheckbox}>
+                            <input
+                                type="checkbox"
+                                name="allDay"
+                                checked={form.allDay}
+                                onChange={handleChange}
+                            />
+                            종일 일정
+                        </label>
+
+                        {!form.allDay && (
+                            <div className={styles.scheduleTimeRow}>
+                                <label style={{ flex: 1 }}>
+                                    시작 시간
+
+                                    <div style={{ display: "flex", gap: "5px", marginTop: "6px" }}>
+                                        <select
+                                            value={startObj.ampm}
+                                            onChange={(e) =>
+                                                handleStartTimeChange(
+                                                    "ampm",
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+                                            <option value="오전">오전</option>
+                                            <option value="오후">오후</option>
+                                        </select>
+
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="12"
+                                            value={startObj.hour}
+                                            onChange={(e) =>
+                                                handleStartTimeChange(
+                                                    "hour",
+                                                    e.target.value
+                                                )
+                                            }
                                         />
 
+                                        <span>:</span>
+
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            value={startObj.minute}
+                                            onChange={(e) =>
+                                                handleStartTimeChange(
+                                                    "minute",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </label>
+
+                                <label style={{ flex: 1 }}>
+                                    종료 시간
+
+                                    <div style={{ display: "flex", gap: "5px", marginTop: "6px" }}>
+                                        <select
+                                            value={endObj.ampm}
+                                            onChange={(e) =>
+                                                handleEndTimeChange(
+                                                    "ampm",
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+                                            <option value="오전">오전</option>
+                                            <option value="오후">오후</option>
+                                        </select>
+
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="12"
+                                            value={endObj.hour}
+                                            onChange={(e) =>
+                                                handleEndTimeChange(
+                                                    "hour",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                        <span>:</span>
+
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            value={endObj.minute}
+                                            onChange={(e) =>
+                                                handleEndTimeChange(
+                                                    "minute",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </label>
+                            </div>
+                        )}
+
+                        <label>
+                            일정 색상
+
+                            <div
+                                style={{
+                                    display: "flex",
+                                    gap: "10px",
+                                    marginTop: "8px",
+                                    alignItems: "center"
+                                }}
+                            >
+                                {PASTEL_COLORS.map((item) => {
+                                    const isSelected =
+                                        form.color === item.value
+
+                                    return (
+                                        <button
+                                            key={item.value}
+                                            type="button"
+                                            title={item.name}
+                                            onClick={() =>
+                                                handleColorSelect(item.value)
+                                            }
+                                            style={{
+                                                width: "30px",
+                                                height: "30px",
+                                                borderRadius: "50%",
+                                                backgroundColor: item.value,
+                                                border: isSelected
+                                                    ? "3px solid #333"
+                                                    : "1px solid #ddd",
+                                                cursor: "pointer",
+                                                transform: isSelected
+                                                    ? "scale(1.15)"
+                                                    : "scale(1)",
+                                                transition:
+                                                    "all 0.2s ease",
+                                            }}
+                                        />
+                                    )
+                                })}
+                            </div>
+                        </label>
+
+                        <label>
+                            메모
+
+                            <textarea
+                                ref={memoRef}
+                                name="memo"
+                                value={form.memo}
+                                onChange={handleChange}
+                                placeholder="메모를 입력하세요"
+                                maxLength={500}
+                            />
+                        </label>
+
+                        <div className={styles.scheduleModalActions}>
+                            {selectedSchedule && (
+                                <button
+                                    type="button"
+                                    className={styles.scheduleDeleteButton}
+                                    onClick={handleDelete}
+                                >
+                                    삭제
+                                </button>
+                            )}
+
+                            <div
+                                className={styles.scheduleActionRight}
+                            >
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                >
+                                    취소
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className={styles.scheduleSaveButton}
+                                >
+                                    {selectedSchedule
+                                        ? "수정"
+                                        : "등록"}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <section
+                        className={styles.scheduleListSection}
+                        style={{
+                            marginTop: "20px",
+                            borderTop: "1px solid #eee",
+                            paddingTop: "15px"
+                        }}
+                    >
+                        <div
+                            className={styles.scheduleListHeader}
+                        >
+                            <h3>
+                                등록된 일정
+                            </h3>
+
+                            {selectedSchedule ? (
+                                <button
+                                    type="button"
+                                    onClick={handleNewSchedule}
+                                    style={{
+                                        fontSize: "13px"
+                                    }}
+                                >
+                                    + 새 일정 작성
+                                </button>
+                            ) : (
+                                <span
+                                    style={{
+                                        fontSize: "13px",
+                                        color: "#888"
+                                    }}
+                                >
+                                    작성 중
+                                </span>
+                            )}
+                        </div>
+
+                        {schedules.length === 0 ? (
+                            <p
+                                className={styles.scheduleEmpty}
+                            >
+                                이날 등록된 일정이 없습니다.
+                            </p>
+                        ) : (
+                            <div
+                                className={styles.scheduleList}
+                            >
+                                {schedules.map((schedule) => (
+                                    <button
+                                        type="button"
+                                        key={schedule._id}
+                                        className={`
+                                            ${styles.scheduleListItem}
+                                            ${selectedSchedule?._id === schedule._id
+                                                ? styles.selected
+                                                : ""
+                                            }
+                                        `}
+                                        onClick={() =>
+                                            onSelectSchedule(schedule)
+                                        }
+                                    >
+                                        <span
+                                            className={styles.scheduleColor}
+                                            style={{
+                                                backgroundColor:
+                                                    schedule.color
+                                            }}
+                                        />
                                         <span>
                                             {schedule.allDay
                                                 ? "종일"
                                                 : schedule.startTime ||
                                                 "시간 없음"}
                                         </span>
-
                                         <strong>
-                                            {
-                                                schedule.title
-                                            }
+                                            {schedule.title}
                                         </strong>
                                     </button>
-                                ),
-                            )}
-                        </div>
-                    )}
-                </section>
-
-                <form
-                    className="schedule-form"
-                    onSubmit={handleSubmit}
-                >
-                    <label>
-                        일정 제목
-
-                        <input
-                            type="text"
-                            name="title"
-                            value={form.title}
-                            onChange={
-                                handleChange
-                            }
-                            placeholder="일정 제목을 입력하세요"
-                            maxLength={50}
-                        />
-                    </label>
-
-                    <label className="schedule-checkbox">
-                        <input
-                            type="checkbox"
-                            name="allDay"
-                            checked={form.allDay}
-                            onChange={
-                                handleChange
-                            }
-                        />
-
-                        종일 일정
-                    </label>
-
-                    {!form.allDay && (
-                        <div className="schedule-time-row">
-                            <label>
-                                시작 시간
-
-                                <input
-                                    type="time"
-                                    name="startTime"
-                                    value={
-                                        form.startTime
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                />
-                            </label>
-
-                            <label>
-                                종료 시간
-
-                                <input
-                                    type="time"
-                                    name="endTime"
-                                    value={
-                                        form.endTime
-                                    }
-                                    onChange={
-                                        handleChange
-                                    }
-                                />
-                            </label>
-                        </div>
-                    )}
-
-                    <label>
-                        일정 색상
-
-                        <div className="schedule-color-field">
-                            <input
-                                type="color"
-                                name="color"
-                                className="schedule-color-input"
-                                value={form.color}
-                                onChange={handleChange}
-                            />
-
-                            <span className="schedule-color-code">
-                                {form.color}
-                            </span>
-                        </div>
-                    </label>
-
-                    <label>
-                        메모
-
-                        <textarea
-                            name="memo"
-                            value={form.memo}
-                            onChange={
-                                handleChange
-                            }
-                            placeholder="메모를 입력하세요"
-                            maxLength={500}
-                        />
-                    </label>
-
-                    <div className="schedule-modal-actions">
-                        {selectedSchedule && (
-                            <button
-                                type="button"
-                                className="schedule-delete-button"
-                                onClick={
-                                    handleDelete
-                                }
-                            >
-                                삭제
-                            </button>
+                                ))}
+                            </div>
                         )}
-
-                        <div className="schedule-action-right">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                            >
-                                취소
-                            </button>
-
-                            <button
-                                type="submit"
-                                className="schedule-save-button"
-                            >
-                                {selectedSchedule
-                                    ? "수정"
-                                    : "등록"}
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                    </section>
+                </div>
             </div>
         </div>
     )
