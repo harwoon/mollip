@@ -78,12 +78,12 @@ export default function UserDetailModal({ user, onClose }) {
 
             const studyData = (studyRes.data || []).map(item => ({
                 "기간(라벨)": item.label,
-                "총 공부시간(시간)": item.studyTime
+                "총 공부시간(분)": item.studyTime
             }))
 
             const subjectData = (subjectRes.data || []).map(item => ({
                 "과목명": item.subject,
-                "공부시간(시간)": item.studyTime,
+                "공부시간(분)": item.studyTime,
                 "비율(%)": item.ratio
             }))
 
