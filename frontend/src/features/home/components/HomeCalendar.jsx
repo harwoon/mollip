@@ -7,308 +7,223 @@ import { getSchedules, addSchedule, updateSchedule, deleteSchedule } from '../ap
 import { createPortal } from 'react-dom'
 
 export default function HomeCalendar() {
-  const [hoveredSchedule, setHoveredSchedule] =
-    useState(null)
+  const [hoveredSchedule, setHoveredSchedule] = useState(null)
 
-  const [selectedDate, setSelectedDate] =
-    useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [activeMonth, setActiveMonth] = useState(new Date())
+  const [schedules, setSchedules] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState(null)
+  const [error, setError] = useState("")
 
-  const [activeMonth, setActiveMonth] =
-    useState(new Date())
+  const fetchSchedules = useCallback(async () => {
+    try {
+      setError("")
+      const startDate = dayjs(activeMonth).startOf("month").format("YYYY-MM-DD")
+      const endDate = dayjs(activeMonth).endOf("month").format("YYYY-MM-DD")
+      const data = await getSchedules(startDate, endDate)
+      setSchedules(Array.isArray(data) ? data : data.schedules || [])
+    } catch (error) {
+      console.error("일정 조회 실패:", error)
+      setError(error.message)
+    }
+  }, [activeMonth])
 
-  const [schedules, setSchedules] =
-    useState([])
-
-  const [isModalOpen, setIsModalOpen] =
-    useState(false)
-
-  const [
-    selectedSchedule,
-    setSelectedSchedule,
-  ] = useState(null)
-
-  const [error, setError] =
-    useState("")
-
-  // 현재 화면에 표시 중인 월의 일정 조회
-  const fetchSchedules =
-    useCallback(async () => {
-      try {
-        setError("")
-
-        const startDate =
-          dayjs(activeMonth)
-            .startOf("month")
-            .format("YYYY-MM-DD")
-
-        const endDate =
-          dayjs(activeMonth)
-            .endOf("month")
-            .format("YYYY-MM-DD")
-
-        const data =
-          await getSchedules(
-            startDate,
-            endDate,
-          )
-
-        // 백엔드가 { schedules: [] }로 반환한다고 가정
-        setSchedules(
-          Array.isArray(data)
-            ? data
-            : data.schedules || [],
-        )
-      } catch (error) {
-        console.error(
-          "일정 조회 실패:",
-          error,
-        )
-
-        setError(error.message)
-      }
-    }, [activeMonth])
-
-  // 처음 화면이 열리거나 월이 바뀌면 일정 조회
+  // 기존 일정 조회 useEffect
   useEffect(() => {
     fetchSchedules()
   }, [fetchSchedules])
 
-  // 일정들을 날짜별로 묶기
-  const schedulesByDate =
-    useMemo(() => {
-      return schedules.reduce(
-        (result, schedule) => {
-          const dateKey =
-            schedule.scheduleDate
+  // 알람 useEffect
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission()
+    }
 
-          if (!result[dateKey]) {
-            result[dateKey] = []
+    const alarmTimer = setInterval(() => {
+      const now = dayjs()
+      const nowDate = now.format("YYYY-MM-DD")
+      const nowTime = now.format("HH:mm")
+
+      const storageKey = `notified_schedules_${nowDate}`
+      const firedSchedules = JSON.parse(localStorage.getItem(storageKey) || "[]")
+
+      schedules.forEach((schedule) => {
+        if (
+          !schedule.allDay &&
+          schedule.startDate === nowDate &&
+          schedule.startTime === nowTime &&
+          !firedSchedules.includes(schedule._id)
+        ) {
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("Mollip 일정 알림!!", {
+              body: `[${schedule.title}] 등록된 일정 시간이 되었습니다!`,
+            })
+
+            firedSchedules.push(schedule._id)
+            localStorage.setItem(storageKey, JSON.stringify(firedSchedules))
           }
+        }
+      })
+    }, 60000)
 
-          result[dateKey].push(
-            schedule,
-          )
+    return () => clearInterval(alarmTimer)
+  }, [schedules])
 
-          return result
-        },
-        {},
-      )
-    }, [schedules])
+  const schedulesByDate = useMemo(() => {
+    const result = {}
 
-  // 일정 등록 또는 수정
-  async function handleSaveSchedule(
-    scheduleData,
-  ) {
+    const sortedSchedules = [...schedules].sort((a, b) => {
+      const durationA = dayjs(a.endDate).diff(dayjs(a.startDate), 'day')
+      const durationB = dayjs(b.endDate).diff(dayjs(b.startDate), 'day')
+      return durationB - durationA
+    })
+
+    sortedSchedules.forEach((schedule) => {
+      const start = dayjs(schedule.startDate)
+      const end = dayjs(schedule.endDate)
+      const diffDays = Math.max(0, end.diff(start, 'day'))
+
+      for (let i = 0; i <= diffDays; i++) {
+        const dateKey = start.add(i, 'day').format("YYYY-MM-DD")
+
+        if (!result[dateKey]) {
+          result[dateKey] = []
+        }
+
+        result[dateKey].push({
+          ...schedule,
+          isStart: i === 0,
+          isEnd: i === diffDays
+        })
+      }
+    })
+
+    return result
+  }, [schedules])
+
+  async function handleSaveSchedule(scheduleData) {
     try {
       setError("")
-
-      // 선택한 기존 일정이 있으면 수정
       if (selectedSchedule?._id) {
-        await updateSchedule(
-          selectedSchedule._id,
-          scheduleData,
-        )
+        await updateSchedule(selectedSchedule._id, scheduleData)
       } else {
-        // 선택한 기존 일정이 없으면 새로 등록
-        await addSchedule(
-          scheduleData,
-        )
+        await addSchedule(scheduleData)
       }
-
-      // 저장 후 현재 월 일정 다시 조회
       await fetchSchedules()
-
       setSelectedSchedule(null)
       setIsModalOpen(false)
     } catch (error) {
-      console.error(
-        "일정 저장 실패:",
-        error,
-      )
-
+      console.error("일정 저장 실패:", error)
       setError(error.message)
-      alert(
-        error.message ||
-        "일정을 저장하지 못했습니다.",
-      )
+      alert(error.message || "일정을 저장하지 못했습니다.")
     }
   }
 
-  // 일정 삭제
-  async function handleDeleteSchedule(
-    scheduleId,
-  ) {
+  async function handleDeleteSchedule(scheduleId) {
     try {
       setError("")
-
       await deleteSchedule(scheduleId)
-
-      // 삭제 후 현재 월 일정 다시 조회
       await fetchSchedules()
-
       setSelectedSchedule(null)
     } catch (error) {
-      console.error(
-        "일정 삭제 실패:",
-        error,
-      )
-
+      console.error("일정 삭제 실패:", error)
       setError(error.message)
-      alert(
-        error.message ||
-        "일정을 삭제하지 못했습니다.",
-      )
+      alert(error.message || "일정을 삭제하지 못했습니다.")
     }
   }
 
   return (
-    <div className="calendar-container">
-      {error && (
-        <p className="schedule-error">
-          {error}
-        </p>
-      )}
+    <div className="home-calendar-card">
+      {error && <p className="schedule-error">{error}</p>}
 
       <Calendar
-        value={selectedDate}
         onChange={setSelectedDate}
-
-        onClickDay={(clickedDate) => {
-          setSelectedDate(
-            clickedDate,
-          )
-
-          setSelectedSchedule(null)
-          setIsModalOpen(true)
-        }}
-
-        onActiveStartDateChange={({
-          activeStartDate,
-        }) => {
-          setActiveMonth(
-            activeStartDate,
-          )
-        }}
-
-        tileContent={({ date, view }) => {
-          if (view !== "month") {
-            return null
-          }
-
-          const dateKey =
-            dayjs(date).format("YYYY-MM-DD")
-
-          const daySchedules =
-            schedulesByDate[dateKey] || []
-
-          if (daySchedules.length === 0) {
-            return null
-          }
-
-
-          return (
-            <div className="calendar-schedule-preview">
-              {daySchedules
-                .slice(0, 2)
-                .map((schedule) => (
-                  <div
-                    key={schedule._id}
-                    className="calendar-schedule-item"
-                  >
-                    <span
-                      className="calendar-schedule-dot"
-                      style={{
-                        backgroundColor:
-                          schedule.color ||
-                          "#7c83fd",
-                      }}
-                    />
-
-                    <span
-                      className="calendar-schedule-title"
-                      onMouseEnter={(event) => {
-                        const rect =
-                          event.currentTarget.getBoundingClientRect()
-
-                        setHoveredSchedule({
-                          text: `${schedule.allDay
-                            ? ""
-                            : schedule.startTime
-                              ? `${schedule.startTime} `
-                              : ""
-                            }${schedule.title}`,
-
-                          top: rect.bottom + 6,
-                          left: rect.left,
-                        })
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredSchedule(null)
-                      }}
-                    >
-                      {schedule.allDay
-                        ? ""
-                        : schedule.startTime
-                          ? `${schedule.startTime} `
-                          : ""}
-
-                      {schedule.title}
-                    </span>
-                  </div>
-                ))}
-
-              {daySchedules.length > 2 && (
-                <span className="calendar-schedule-more">
-                  +{daySchedules.length - 2}
-                </span>
-              )}
-            </div>
-          )
-        }}
-
-        formatDay={(
-          locale,
-          date,
-        ) =>
-          dayjs(date).format("D")
-        }
-
+        value={selectedDate}
+        calendarType="iso8601"
+        formatDay={(locale, date) => dayjs(date).format("D")}
         next2Label={null}
         prev2Label={null}
         showNeighboringMonth={false}
+        onActiveStartDateChange={({ activeStartDate }) => {
+          setActiveMonth(activeStartDate)
+        }}
+        onClickDay={(value) => {
+          setSelectedDate(value)
+          setSelectedSchedule(null)
+          setIsModalOpen(true)
+        }}
+        tileContent={({ date, view }) => {
+          if (view !== "month") return null
+
+          const dateKey = dayjs(date).format("YYYY-MM-DD")
+          const daySchedules = schedulesByDate[dateKey] || []
+          const dayNum = dayjs(date).date()
+          const isSelected = selectedDate && dayjs(selectedDate).format("YYYY-MM-DD") === dateKey
+
+          return (
+            <div
+              className="calendar-custom-tile-content"
+              onMouseEnter={(event) => {
+                if (daySchedules.length === 0) return
+                const rect = event.currentTarget.getBoundingClientRect()
+                const scheduleTexts = daySchedules.map((schedule) => {
+                  const timeStr = schedule.allDay ? "" : schedule.startTime ? `${schedule.startTime} ` : ""
+                  return `${timeStr}${schedule.title}`
+                })
+                setHoveredSchedule({
+                  texts: scheduleTexts,
+                  top: rect.bottom + 4,
+                  left: rect.left,
+                })
+              }}
+              onMouseLeave={() => {
+                setHoveredSchedule(null)
+              }}
+            >
+              <div className={`custom-tile-number ${isSelected ? 'is-selected' : ''}`}>
+                {dayNum}
+              </div>
+
+              <div className="calendar-schedule-preview">
+                {daySchedules
+                  .slice(0, 2)
+                  .map((schedule) => (
+                    <div
+                      key={schedule._id}
+                      className={`calendar-schedule-item ${schedule.isStart ? 'is-start' : ''} ${schedule.isEnd ? 'is-end' : ''}`}
+                      style={{ "--bg-color": schedule.color || "#b19cd9" }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedDate(new Date(schedule.startDate))
+                        setSelectedSchedule(schedule)
+                        setIsModalOpen(true)
+                      }}
+                    />
+                  ))}
+
+                {daySchedules.length > 2 && (
+                  <span className="calendar-schedule-more">
+                    +{daySchedules.length - 2}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        }}
       />
 
       {isModalOpen && (
         <ScheduleModal
-          selectedDate={
-            selectedDate
-          }
-          schedules={
-            schedulesByDate[
-            dayjs(
-              selectedDate,
-            ).format(
-              "YYYY-MM-DD",
-            )
-            ] || []
-          }
-          selectedSchedule={
-            selectedSchedule
-          }
-          onSelectSchedule={
-            setSelectedSchedule
-          }
-          onSave={
-            handleSaveSchedule
-          }
-          onDelete={
-            handleDeleteSchedule
-          }
+          selectedDate={selectedDate}
+          schedules={schedulesByDate[dayjs(selectedDate).format("YYYY-MM-DD")] || []}
+          selectedSchedule={selectedSchedule}
+          onSelectSchedule={setSelectedSchedule}
+          onSave={handleSaveSchedule}
+          onDelete={handleDeleteSchedule}
           onClose={() => {
             setIsModalOpen(false)
-            setSelectedSchedule(
-              null,
-            )
+            setSelectedSchedule(null)
           }}
         />
       )}
@@ -322,7 +237,11 @@ export default function HomeCalendar() {
               left: hoveredSchedule.left,
             }}
           >
-            {hoveredSchedule.text}
+            {hoveredSchedule.texts.map((text, idx) => (
+              <div key={idx} className="tooltip-item">
+                • {text}
+              </div>
+            ))}
           </div>,
           document.body,
         )}

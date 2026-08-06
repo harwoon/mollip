@@ -1,212 +1,204 @@
+/* 카드 박스 기본 레이아웃 */
+.home-calendar-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #eaeaea;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
 
-/* 전체 달력 컨테이너 부드럽게 만들기 */
+/* 캘린더 기본 초기화 */
 .react-calendar {
-  width: 100%;
-  max-width: 400px;
-  background-color: #fcfbf9;
-  /* 차분한 미색 배경 */
-  border: none;
-  border-radius: 15px;
-  /* 둥근 모서리 */
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
-  /* 부드러운 그림자 */
-  padding: 20px;
-  font-family: 'Pretendard', sans-serif;
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: inherit;
 }
 
-/* 요일 밑줄 없애고 색상 연하게 */
+/* 상단 네비게이션 */
+.react-calendar__navigation {
+    display: flex;
+    height: 40px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+.react-calendar__navigation button {
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+}
+
+/* 요일 헤더 (월 ~ 일) */
 .react-calendar__month-view__weekdays {
-  text-decoration: none;
-  font-weight: bold;
-  color: #888888;
+    display: flex !important;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: #888;
+    padding-bottom: 8px;
+}
+.react-calendar__month-view__weekdays__weekday {
+    flex: 1 !important;
+    text-align: center;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none !important;
 }
 
-/* 오늘 날짜 표시 동그랗게 */
-.react-calendar__tile--now {
-  background: #f0e6d2 !important;
-  border-radius: 50%;
-  color: #333;
+/* Flexbox를 이용한 완벽한 7등분 날짜 정렬 */
+.react-calendar__month-view__days {
+    display: flex !important;
+    flex-wrap: wrap !important;
 }
 
-/* 각 날짜 칸(Tile) 여백 및 정렬 */
 .react-calendar__tile {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  position: relative;
+    position: relative !important;
+    flex: 0 0 14.2857% !important; /* 가로 정확히 7등분 */
+    max-width: 14.2857% !important;
+    height: 56px !important; /* 고정 높이로 찌그러짐 방지 */
+    background: #fafafa !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    cursor: pointer;
+    border: 1px solid transparent;
+    margin-bottom: 4px; /* 줄 간격 */
 }
 
-/* 실제 날짜 박스 */
-.react-calendar__tile {
-    overflow: visible;
-}
-
-/* 마우스를 올린 날짜 박스가 다른 날짜보다 위에 표시 */
 .react-calendar__tile:hover {
-    z-index: 100;
+    background-color: #f1f3f5 !important;
+    border-color: #dee2e6;
 }
 
-/* 공부 기록 점(Dot) 스타일 */
-.study-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  position: absolute;
-  bottom: 5px;
-  /* 날짜 숫자 바로 아래에 위치 */
+/* 기본 라이브러리 스타일 제거 */
+.react-calendar__tile--active {
+    background: #fafafa !important;
+    color: inherit !important;
 }
 
-/* 달력 전체의 기본 뼈대를 부드럽게 다듬기 */
-.react-calendar {
-  width: 100%;
-  max-width: 400px;
-  background-color: #fdfaf6;
-  /* 아주 연한 미색 베이스 */
-  border: none;
-  border-radius: 15px;
-  padding: 20px;
+.react-calendar__tile > abbr {
+    display: none !important; 
 }
 
-/* 밑줄 지우고 요일 텍스트 색상 연하게 */
-.react-calendar__month-view__weekdays {
-  text-decoration: none;
-  font-weight: bold;
-  color: #888;
+/* 날짜 칸 내부 콘텐츠 및 주말 빨간 글씨 */
+.calendar-custom-tile-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    box-sizing: border-box;
 }
 
-/* 요일 칸과 날짜 칸들의 기본 높이와 정렬 */
-.react-calendar__tile {
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.custom-tile-number {
+    font-weight: 600;
+    font-size: 11px;
+    margin-bottom: 3px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: #333;
+    align-self: flex-start;
 }
 
-/* 🌟 여기가 핵심! 오늘 날짜 강조하기 */
-.react-calendar__tile--now {
-  background: #e2cec1 !important;
-  /* 차분하고 따뜻한 스킨/베이지 톤 */
-  color: #333 !important;
-  border-radius: 50%;
-  /* 완벽한 동그라미로 만들기 */
-  font-weight: bold;
+/* 월요일 시작(iso8601) 기준 토요일(6번째), 일요일(7번째) 정확히 타겟팅 */
+.react-calendar__month-view__days__day--weekend .custom-tile-number {
+    color: #dc3545 !important;
 }
 
-.calendarContainer {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-
-
+/* 이전달/다음달 날짜는 주말이라도 연하게 처리 */
+.react-calendar__month-view__days__day--neighboringMonth .custom-tile-number {
+    color: #ccc !important;
 }
 
-.calendar {
-  width: 100% !important;
-  height: 100%;
-  min-height: 0;
+/* 이전달/다음달 날짜 흐리게 */
+.react-calendar__month-view__days__day--neighboringMonth .custom-tile-number {
+    color: #ccc !important;
 }
 
+/* 선택된 날짜 동그라미 */
+.custom-tile-number.is-selected {
+    background-color: var(--theme-color, #7c83fd);
+    color: white !important;
+}
+
+/* 일정 바 프리뷰 */
 .calendar-schedule-preview {
-  width: 100%;
-  min-width: 0;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  margin-top: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
 }
 
 .calendar-schedule-item {
-  width: 100%;
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-  gap: 3px;
+    background-color: var(--bg-color);
+    height: 4px; 
+    margin: 0; 
+    border-radius: 2px; 
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
 }
 
-.calendar-schedule-item {
-  position: relative;
-  overflow: visible;
+.calendar-schedule-item.is-start {
+    margin-left: 2px;
+    width: calc(100% - 2px);
 }
 
-
-.calendar-schedule-dot {
-  display: inline-block;
-  flex: 0 0 10px;
-
-  width: 10px;
-  height: 10px;
-
-  border-radius: 50%;
+.calendar-schedule-item.is-end {
+    margin-right: 2px;
+    width: calc(100% - 2px);
 }
 
-.calendar-schedule-title {
-  min-width: 0;
-  flex: 1;
-
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-
-  font-size: 15px;
-  line-height: 18px;
-  text-align: left;
-
-  cursor: pointer;
+.calendar-schedule-item.is-start.is-end {
+    margin-left: 2px;
+    margin-right: 2px;
+    width: calc(100% - 4px);
 }
 
-
+/* +1 뱃지 */
 .calendar-schedule-more {
-  display: block;
-
-  color: #777777;
-  font-size: 9px;
-  text-align: right;
+    font-size: 8px;
+    color: #555;
+    margin-top: 1px;
+    font-weight: 700;
+    text-align: center;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    padding: 0px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.calendar-container .react-calendar__tile {
-  min-height: 58px;
-  padding: 6px 2px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-
-  overflow: visible;
-}
-
-.calendar-container .react-calendar__tile abbr {
-  flex-shrink: 0;
-}
-
+/* 툴팁 */
 .calendar-schedule-tooltip {
-  position: fixed;
+    position: fixed;
+    background-color: #333 !important;
+    color: #fff !important;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 99999 !important;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 130px;
+}
 
-  width: max-content;
-  max-width: 350px;
-
-  padding: 8px 12px;
-
-  white-space: normal;
-  overflow-wrap: break-word;
-
-  font-size: 20px;
-  line-height: 28px;
-  text-align: left;
-
-  color: #222222;
-  background-color: #ffffff;
-
-  border: 1px solid #dddddd;
-  border-radius: 8px;
-
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-
-  pointer-events: none;
-  z-index: 999999;
+.tooltip-item {
+    white-space: nowrap;
 }
