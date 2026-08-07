@@ -416,6 +416,7 @@ export async function withdrawUser(userId, withdrawalReason, totalStudyTime) {
     user.withdrawnAt = new Date()
     user.totalStudyTime = totalStudyTime
     user.groupId = null
+    user.googleId = null
 
     // 연속 학습 정보 초기화
     user.currentStreak = 0
