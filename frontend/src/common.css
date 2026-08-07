@@ -453,3 +453,762 @@
     font-size: var(--font-sm);
     line-height: 1.6;
 }
+
+/* =========================================================
+   COMMON BUTTON
+   ========================================================= */
+
+/* 주요 버튼
+   저장 / 확인 / 등록 / 추가 */
+.app-btn-primary {
+    min-width: 108px;
+    height: 42px;
+    padding: 0 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    color: #fff;
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: var(--color-primary-600);
+    border: 1px solid var(--color-primary-600);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .12s ease;
+}
+
+.app-btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+
+    box-shadow:
+        0 6px 14px rgba(107, 78, 207, .18);
+}
+
+.app-btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.app-btn-primary:disabled {
+    color: rgba(255, 255, 255, .75);
+
+    background: var(--color-primary-200);
+    border-color: var(--color-primary-200);
+
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+
+/* 보조 버튼
+   취소 / 뒤로가기 */
+.app-btn-secondary {
+    min-width: 96px;
+    height: 42px;
+    padding: 0 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    background: #fff;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease,
+        border-color .18s ease;
+}
+
+.app-btn-secondary:hover:not(:disabled) {
+    color: var(--color-primary-700);
+
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+}
+
+.app-btn-secondary:disabled {
+    color: var(--color-text-muted);
+
+    background: #f7f7f8;
+    border-color: var(--color-border);
+
+    cursor: not-allowed;
+}
+
+
+/* 위험 버튼
+   삭제 / 탈퇴 */
+.app-btn-danger {
+    min-width: 96px;
+    height: 42px;
+    padding: 0 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    color: #fff;
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.app-btn-danger:hover:not(:disabled) {
+    background: #e95861;
+    border-color: #e95861;
+
+    box-shadow:
+        0 6px 14px rgba(239, 108, 115, .18);
+}
+
+.app-btn-danger:disabled {
+    color: #ef9ca1;
+
+    background: #fff7f7;
+    border-color: #f5c9cc;
+
+    cursor: not-allowed;
+}
+
+
+/* 위험 Outline 버튼 */
+.app-btn-danger-outline {
+    min-width: 96px;
+    height: 42px;
+    padding: 0 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    color: var(--color-danger);
+    font-size: var(--font-sm);
+    font-weight: 700;
+
+    background: #fff;
+    border: 1px solid var(--color-danger);
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background-color .18s ease,
+        border-color .18s ease;
+}
+
+.app-btn-danger-outline:hover:not(:disabled) {
+    background: var(--color-danger-soft);
+}
+
+
+/* 링크 버튼 */
+.app-btn-link {
+    min-height: 36px;
+    padding: 0 4px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    color: var(--color-primary-600);
+    font-size: var(--font-sm);
+    font-weight: 600;
+
+    background: transparent;
+    border: 0;
+
+    cursor: pointer;
+
+    transition: color .18s ease;
+}
+
+.app-btn-link:hover:not(:disabled) {
+    color: var(--color-primary-800);
+}
+
+
+/* X 닫기 */
+.app-btn-close {
+    flex: 0 0 auto;
+
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    color: var(--color-text-muted);
+    font-size: 20px;
+
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease;
+}
+
+.app-btn-close:hover {
+    color: var(--color-text);
+
+    background: #f6f5f8;
+}
+
+
+/* 작은 크기 버튼 */
+.app-btn-small {
+    min-width: auto;
+    height: 34px;
+
+    padding: 0 13px;
+
+    font-size: var(--font-xs);
+}
+
+
+/* 버튼 정렬 */
+.app-button-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+
+/* =========================================================
+   MODAL OVERLAY
+   작업 모달 / 큰 모달 공통
+   ========================================================= */
+
+.app-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: rgba(30, 27, 36, .42);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+
+/* =========================================================
+   MODAL BASE
+   ========================================================= */
+
+.app-modal {
+    max-height: calc(100vh - 48px);
+
+    display: flex;
+    flex-direction: column;
+
+    background: #fff;
+
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+
+    box-shadow:
+        0 24px 70px rgba(41, 32, 55, .16),
+        0 4px 16px rgba(41, 32, 55, .06);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   ACTION MODAL
+   일정 / Todo / 과목 / 정보 수정 / 그룹 수정
+   ========================================================= */
+
+.app-modal-action {
+    width: min(100%, 580px);
+}
+
+
+/* =========================================================
+   LARGE MODAL
+   AI Report / 관리자 상세 / 복합 정보
+   ========================================================= */
+
+.app-modal-large {
+    width: min(100%, 1080px);
+}
+
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.app-modal-header {
+    flex: 0 0 auto;
+
+    min-height: 76px;
+    padding: 20px 24px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    background: #fff;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.app-modal-header-main {
+    min-width: 0;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.app-modal-header-icon {
+    flex: 0 0 auto;
+
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-primary-600);
+    font-size: 18px;
+
+    background: var(--color-primary-50);
+    border-radius: 10px;
+}
+
+.app-modal-heading {
+    min-width: 0;
+}
+
+.app-modal-title {
+    margin: 0;
+
+    color: var(--color-text);
+    font-size: 20px;
+    font-weight: 750;
+    line-height: 1.35;
+
+    letter-spacing: -.01em;
+}
+
+.app-modal-description {
+    margin: 5px 0 0;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   MODAL BODY
+   ========================================================= */
+
+.app-modal-body {
+    min-height: 0;
+    padding: 24px;
+
+    background: #fff;
+
+    overflow-y: auto;
+}
+
+
+/* 큰 모달은 내부 콘텐츠가 많으므로 여유있게 */
+.app-modal-large .app-modal-body {
+    padding: 28px;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
+
+.app-modal-footer {
+    flex: 0 0 auto;
+
+    min-height: 74px;
+    padding: 15px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+    background: #fff;
+    border-top: 1px solid var(--color-border);
+}
+
+
+
+/* =========================================================
+   SMALL ALERT OVERLAY
+   ========================================================= */
+
+.app-alert-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(30, 27, 36, .38);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+
+/* =========================================================
+   SMALL ALERT
+   ========================================================= */
+
+.app-alert {
+    position: relative;
+
+    width: min(100%, 400px);
+    padding: 32px 28px 24px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    background: #fff;
+
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+
+    box-shadow:
+        0 24px 60px rgba(41, 32, 55, .15),
+        0 4px 14px rgba(41, 32, 55, .05);
+}
+
+
+/* 알럿 X */
+.app-alert-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 32px;
+    height: 32px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+
+    color: var(--color-text-muted);
+    font-size: 18px;
+
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        color .18s ease,
+        background-color .18s ease;
+}
+
+.app-alert-close:hover {
+    color: var(--color-text);
+
+    background: #f6f5f8;
+}
+
+
+/* =========================================================
+   ALERT ICON
+   ========================================================= */
+
+.app-alert-icon {
+    width: 54px;
+    height: 54px;
+
+    margin-bottom: 18px;
+
+    display: grid;
+    place-items: center;
+
+    font-size: 26px;
+
+    border: 2px solid currentColor;
+    border-radius: 50%;
+}
+
+
+/* 완료 : 초록 원 + Check */
+.app-alert-icon-success {
+    color: var(--color-success);
+}
+
+
+/* 일반 안내 */
+.app-alert-icon-info {
+    color: var(--color-primary-600);
+}
+
+
+/* 주의 */
+.app-alert-icon-warning {
+    color: var(--color-warning);
+}
+
+
+/* 위험 */
+.app-alert-icon-danger {
+    color: var(--color-danger);
+}
+
+
+/* =========================================================
+   ALERT CONTENT
+   ========================================================= */
+
+.app-alert-title {
+    margin: 0;
+
+    color: var(--color-text);
+    font-size: 18px;
+    font-weight: 750;
+    line-height: 1.45;
+}
+
+.app-alert-message {
+    margin: 8px 0 0;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    line-height: 1.65;
+
+    white-space: pre-line;
+}
+
+
+/* 여러 안내 메시지가 필요한 팝업 */
+.app-alert-list {
+    width: 100%;
+
+    margin: 16px 0 0;
+    padding: 14px 16px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+    line-height: 1.7;
+
+    text-align: left;
+
+    background: #faf9fb;
+
+    border-radius: 10px;
+
+    list-style: none;
+}
+
+.app-alert-list li {
+    position: relative;
+
+    padding-left: 13px;
+}
+
+.app-alert-list li::before {
+    content: "";
+
+    position: absolute;
+    top: .72em;
+    left: 0;
+
+    width: 4px;
+    height: 4px;
+
+    background: var(--color-text-muted);
+    border-radius: 50%;
+}
+
+
+/* =========================================================
+   ALERT BUTTON
+   ========================================================= */
+
+.app-alert-actions {
+    width: 100%;
+
+    margin-top: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.app-alert-actions > button {
+    flex: 1;
+}
+
+
+/* 확인 하나만 있는 경우 */
+.app-alert-actions-single > button {
+    flex: 0 0 auto;
+
+    min-width: 120px;
+}
+
+
+
+/* =========================================================
+   MODAL STATE
+   로딩 / 오류 / Empty
+   ========================================================= */
+
+.app-modal-state {
+    min-height: 220px;
+
+    padding: 32px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.app-modal-state strong {
+    color: var(--color-text);
+    font-size: var(--font-md);
+}
+
+.app-modal-state p {
+    margin: 0;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   COMMON SPINNER
+   ========================================================= */
+
+.app-spinner {
+    width: 30px;
+    height: 30px;
+
+    margin-bottom: 8px;
+
+    border: 3px solid var(--color-primary-100);
+    border-top-color: var(--color-primary-600);
+    border-radius: 50%;
+
+    animation: appSpinnerRotate .8s linear infinite;
+}
+
+@keyframes appSpinnerRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+    .app-modal-overlay {
+        padding: 14px;
+    }
+
+    .app-modal {
+        max-height: calc(100vh - 28px);
+    }
+
+    .app-modal-header {
+        min-height: auto;
+        padding: 18px;
+    }
+
+    .app-modal-body,
+    .app-modal-large .app-modal-body {
+        padding: 18px;
+    }
+
+    .app-modal-footer {
+        min-height: auto;
+        padding: 14px 18px;
+    }
+
+    .app-alert {
+        padding:
+            30px
+            20px
+            22px;
+    }
+
+    .app-button-group {
+        width: 100%;
+    }
+
+    .app-button-group > button {
+        flex: 1;
+    }
+}
