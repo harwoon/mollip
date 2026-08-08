@@ -100,6 +100,16 @@ export default function GroupRanking() {
     // 이미 서버에서 순위대로 정렬되어 있다는 전제
     const topThreeRanking = ranking.slice(0, 3)
 
+    // TOP3를 2위 / 1위 / 3위 순서로 배치
+    const podiumRanking =
+        topThreeRanking.length === 3
+            ? [
+                topThreeRanking[1],
+                topThreeRanking[0],
+                topThreeRanking[2],
+            ]
+            : topThreeRanking
+
     return (
         <section className={`commonSection ${styles.rankingCard}`}>
             <header className={styles.header}>
@@ -124,142 +134,149 @@ export default function GroupRanking() {
             {ranking.length === 0 ? (
                 <p className={styles.emptyMessage}>표시할 랭킹이 없습니다.</p>
             ) : (
-                <div className={styles.content}>
-                    {/* TOP 3 영역 */}
-                    <div className={styles.topThreeSection}>
-                        <h3 className={styles.sectionTitle}>TOP 3</h3>
-                        <ol className={styles.topThreeList}>
-                            {topThreeRanking.map(
-                                (user, index) => {
-                                    const isCurrentUser =
-                                        String(user.userId) === String(currentUserId)
-                                    return (
-                                        <li
-                                            key={user.userId}
-                                            className={`${styles.topThreeItem} ${isCurrentUser
-                                                ? styles.currentUser
-                                                : ""
-                                                }`}
-                                        >
-                                            <strong className={styles.topRank}
-                                            >{index + 1}</strong>
+            <div className={styles.content}>
 
-                                            <img
-                                                className={
-                                                    styles.topProfileImage
-                                                }
-                                                src={getProfileImageUrl(
-                                                    user.profileImg,
-                                                )}
-                                                alt={`${user.nickname} 프로필`}
-                                                onError={(event) => {
-                                                    event.currentTarget.onerror =
-                                                        null
-
-                                                    event.currentTarget.src =
-                                                        "/images/noprofile.png"
-                                                }}
-                                            />
-
-                                            <div className={styles.topUserInfo}
-                                            >
-                                                <span className={styles.nickname}
-                                                >{user.nickname}</span>
-                                                {isCurrentUser && (
-                                                    <span className={styles.meBadge}>나</span>
-                                                )}
-                                            </div>
-
-                                            <span className={styles.studyTime}
-                                            >
-                                                {formatStudyTime(
-                                                    user.totalStudyTime
-                                                )}
-                                            </span>
-                                        </li>
-                                    )
-                                }
-                            )}
-                        </ol>
-                    </div>
-
-                    {/* 전체 그룹 랭킹 영역 */}
-                    <div className={styles.allRankingSection}>
-                        <h3 className={styles.sectionTitle}>전체 그룹 랭킹</h3>
-
-                        <div
-                            ref={rankingContainerRef}
-                            className={styles.rankingScrollContainer}
-                        >
-                            <ol className={styles.rankingList}>
-                                {ranking.map((user, index) => {
-                                    const isCurrentUser =
-                                        String(user.userId) === String(currentUserId)
-
-                                    return (
-                                        <li
-                                            key={user.userId}
-                                            ref={
-                                                isCurrentUser
-                                                    ? currentUserRef
-                                                    : null
-                                            }
-                                            className={`${styles.rankingItem} ${isCurrentUser
-                                                ? styles.currentUser
-                                                : ""
-                                                }`}
-                                        >
-                                            <strong className={styles.rank}>{index + 1}</strong>
-
-                                            <img
-                                                className={
-                                                    styles.profileImage
-                                                }
-                                                src={getProfileImageUrl(
-                                                    user.profileImg,
-                                                )}
-                                                alt={`${user.nickname} 프로필`}
-                                                onError={(event) => {
-                                                    event.currentTarget.onerror =
-                                                        null
-
-                                                    event.currentTarget.src =
-                                                        "/images/noprofile.png"
-                                                }}
-                                            />
-
-                                            <div className={styles.userInfo}>
-                                                <span className={styles.nickname}>
-                                                    {
-                                                        user.nickname
-                                                    }
-                                                </span>
-
-                                                {isCurrentUser && (
-                                                    <span
-                                                        className={
-                                                            styles.meBadge
-                                                        }
-                                                    >
-                                                        나
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <span className={styles.studyTime}>
-                                                {formatStudyTime(
-                                                    user.totalStudyTime
-                                                )}
-                                            </span>
-                                        </li>
-                                    )
-                                }
-                                )}
-                            </ol>
+                <section className={styles.topThreeSection}>
+                    <div className={styles.sectionHeader}>
+                        <div>
+                            <h3 className={styles.sectionTitle}>TOP 3</h3>
+                            <p className={styles.sectionDescription}>
+                                이번 주 가장 많이 공부한 그룹원이에요.
+                            </p>
                         </div>
                     </div>
-                </div>
-            )}
-        </section>
+
+                    <ol className={styles.topThreeList}>
+                        {podiumRanking.map((user) => {
+                            const originalRank =
+                                ranking.findIndex(
+                                    (rankingUser) => String(
+                                        rankingUser.userId
+                                    ) === String(user.userId)
+                                ) + 1
+
+                            const isCurrentUser = String(user.userId) === String(currentUserId)
+                            const isFirstPlace = originalRank === 1
+
+                            return (
+                                <li
+                                    key={user.userId}
+                                    className={`
+                                        ${styles.topThreeItem}
+                                        ${isFirstPlace ? styles.firstPlace : ""}
+                                        ${isCurrentUser ? styles.currentUser : ""}
+                                    `}
+                                >
+                                    {/* 순위 */}
+                                    <div className={styles.topRankBadge}>
+                                        <strong className={styles.topRank}>
+                                            {originalRank}
+                                        </strong>
+
+                                        {isFirstPlace && (
+                                            <FaCrown className={styles.topCrown}/>
+                                        )}
+                                    </div>
+
+                                    {/* 프로필 */}
+                                    <div className={ styles.topProfileWrap}>
+                                        <img
+                                            className={styles.topProfileImage}
+                                            src={getProfileImageUrl(user.profileImg)}
+                                            alt={`${user.nickname} 프로필`}
+                                            onError={(event) => {
+                                                event.currentTarget.onerror = null
+                                                event.currentTarget.src = "/images/noprofile.png"
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* 사용자 */}
+                                    <div className={styles.topUserInfo}>
+                                        <span className={styles.nickname}>
+                                            {user.nickname}
+                                        </span>
+
+                                        {isCurrentUser && (
+                                            <span className={styles.meBadge}>나</span>
+                                        )}
+                                    </div>
+
+                                    {/* 공부시간 */}
+                                    <span className={styles.topStudyTime}>
+                                        {formatStudyTime(user.totalStudyTime)}
+                                    </span>
+                                </li>
+                            )
+                        })}
+                    </ol>
+                </section>
+
+
+                <section className={styles.allRankingSection}>
+                    <div className={styles.sectionHeader}>
+                        <div>
+                            <h3 className={styles.sectionTitle}>전체 그룹 랭킹</h3>
+                            <p className={styles.sectionDescription}>
+                                내 순위는 보라색으로 표시돼요.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        ref={rankingContainerRef}
+                        className={styles.rankingScrollContainer}
+                    >
+                        <ol className={styles.rankingList}>
+                            {ranking.map((user, index) => {
+                                const isCurrentUser = String(user.userId) === String(currentUserId)
+
+                                return (
+                                    <li
+                                        key={user.userId}
+                                        ref={isCurrentUser ? currentUserRef : null}
+                                        className={`
+                                            ${styles.rankingItem}
+                                            ${isCurrentUser ? styles.currentUser : ""}
+                                        `}
+                                    >
+                                        <strong className={styles.rank}
+                                        >{index + 1}</strong>
+
+                                        <img
+                                            className={styles.profileImage}
+                                            src={getProfileImageUrl(user.profileImg)}
+                                            alt={`${user.nickname} 프로필`}
+                                            onError={(event) => {
+                                                event.currentTarget.onerror = null
+                                                event.currentTarget.src = "/images/noprofile.png"
+                                            }}
+                                        />
+
+                                        <div className={styles.userInfo}>
+                                            <span className={styles.nickname}>
+                                                {user.nickname}
+                                            </span>
+
+                                            {isCurrentUser && (
+                                                <span className={styles.meBadge}
+                                                >나</span>
+                                            )}
+                                        </div>
+
+                                        <span className={styles.studyTime}>
+                                            {formatStudyTime(
+                                                user.totalStudyTime
+                                            )}
+                                        </span>
+                                    </li>
+                                )
+                            })}
+                        </ol>
+                    </div>
+                </section>
+            </div>
+        )}
+    </section>
     )
 }
