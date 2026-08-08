@@ -302,7 +302,7 @@ export default function HomePage() {
     }
 
     if (!userInfo) {
-      return "유저 정보 불러오는 중..."
+      return "사용자 정보 불러오는 중..."
     }
 
     const streak =

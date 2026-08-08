@@ -339,7 +339,7 @@ export async function updateProfileImage(req, res) {
 
 }
 
-// 유저 과목 추가
+// 사용자 과목 추가
 export async function addSubject(req, res) {
     const { subjectName, subjectColor } = req.body
     const userId = req.user._id
@@ -413,7 +413,7 @@ export async function addSubject(req, res) {
     }
 }
 
-// 유저 과목 수정
+// 사용자 과목 수정
 export async function updateSubject(req, res) {
     const subjectId = req.params.id
     const { subjectName, subjectColor } = req.body
@@ -467,7 +467,7 @@ export async function updateSubject(req, res) {
     })
 }
 
-// 유저 과목 삭제 (Soft Delete)
+// 사용자 과목 삭제 (Soft Delete)
 export async function deleteSubject(req, res) {
     try {
         const subjectId = req.params.id
@@ -506,7 +506,7 @@ export async function deleteSubject(req, res) {
     }
 }
 
-// 유저 과목 목록 조회
+// 사용자 과목 목록 조회
 export async function getSubjects(req, res) {
     try {
         const userId = req.user._id
@@ -643,7 +643,7 @@ export async function updateSubjectOrder(req, res) {
     }
 }
 
-// // 유저 탈퇴- 사용안함
+// // 사용자 탈퇴- 사용안함
 // export async function deleteAll(req, res) {
 //     try {
 //         const userId = req.user._id

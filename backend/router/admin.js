@@ -3,7 +3,7 @@ import { isAuth, isAdmin } from "../middleware/auth.js"
 import * as adminUserController from "../controller/adminUser.js"  // 회원 조회/상세/엑셀 등 "회원" 관련 컨트롤러
 import * as adminGroupStatsController from "../controller/adminGroupStats.js"  // 그룹 통계(달성률, 공부시간 등 집계) 컨트롤러
 import * as adminDashboardController from "../controller/adminDashboard.js"  // 홈 대시보드 지표(추이, 로그 등) 컨트롤러
-import * as groupController from "../controller/group.js"  // 그룹 CRUD (생성/수정/목록) — 일반 유저용 router/group.js와 공유하는 컨트롤러
+import * as groupController from "../controller/group.js"  // 그룹 CRUD (생성/수정/목록) — 일반 사용자용 router/group.js와 공유하는 컨트롤러
 import * as adminMemberStatusController from "../controller/adminMemberStatus.js" // 관리회원현황 컨트롤러
 import * as statController from "../controller/statistics.js"
 import * as todoController from "../controller/todo.js"
@@ -56,7 +56,7 @@ router.get("/users", adminUserController.getUsers)
 // http://127.0.0.1:3000/admin/users/:id
 router.get("/users/:id", adminUserController.getUserDetail)
 
-// 유저 일간/주간/월간 총 공부시간 가져오기
+// 사용자 일간/주간/월간 총 공부시간 가져오기
 // http://127.0.0.1:3000/admin/user/totalStudy?type=daily&userId=6a670d0cc8a40c958ee09962&start=2026-07-20&end=2026-07-30
 router.get("/user/totalStudy", adminUserController.getTotalStudy)
 
@@ -103,7 +103,7 @@ router.get("/member-status", adminMemberStatusController.getMemberStatus)
 router.post("/member-status/send-all-mail", adminMemberStatusController.sendAllMemberStatusMail)
 
 
-// ====================== 유저 상세
+// ====================== 사용자 상세
 // 일간/주간/월간 과목 추이 (단위 분)
 //http://127.0.0.1:3000/admin/user/subjectTrend?type=daily&start=2026-07-26&end=2026-07-29&userid=6a6fdd0ea7b6baa85e4d088d
 router.get("/user/subjectTrend", isAuth, adminUserController.getUserSubjectTrend)

@@ -32,7 +32,7 @@ export async function getUserCount(req, res) {
     }
 }
 
-// 검색/필터/정렬이 적용된 전체 유저 목록을 만드는 공용 함수
+// 검색/필터/정렬이 적용된 전체 사용자 목록을 만드는 공용 함수
 // (getUsers와 엑셀 다운로드가 이 함수를 공유해서 씀 — 페이지네이션은 각자 알아서 처리)
 async function buildEnrichedUsers({ search, groupId, status, sortBy, sortOrder }) {
     const users = await adminRepository.findAllMatchingUsers({ search, groupId })
@@ -175,28 +175,28 @@ export async function getUserDetail(req, res) {
     })
 }
 
-// 현재 공부 중인 전체 유저 ID 목록 조회
+// 현재 공부 중인 전체 사용자 ID 목록 조회
 export async function getActiveUsers(req, res) {
     try {
         const activeUserIds = await adminRepository.getActiveUserIds()
         return res.status(200).json({
-            message: "현재 공부 중인 유저 목록을 성공적으로 불러왔습니다.",
+            message: "현재 공부 중인 사용자 목록을 성공적으로 불러왔습니다.",
             activeUserIds
         })
     } catch (error) {
-        console.error("활성 유저 조회 오류:", error)
+        console.error("활성 사용자 조회 오류:", error)
         return res.status(500).json({
-            message: "활성 유저 조회 중 오류가 발생했습니다."
+            message: "활성 사용자 조회 중 오류가 발생했습니다."
         })
     }
 }
 
-// 유저의 누적 총 공부시간 가져오기 (기간별)
+// 사용자의 누적 총 공부시간 가져오기 (기간별)
 export async function getTotalStudy(req, res) {
     const { type, userId, start, end } = req.query
 
     try {
-        // 1. 검색 조건 (Match): 특정 유저의 시작일~종료일 사이의 데이터만 필터링
+        // 1. 검색 조건 (Match): 특정 사용자의 시작일~종료일 사이의 데이터만 필터링
         const matchCondition = {
             user: new mongoose.Types.ObjectId(userId), // String을 ObjectId로 변환
             studyDate: { $gte: start, $lte: end } // 문자열 날짜("YYYY-MM-DD") 크기 비교
@@ -266,8 +266,8 @@ export async function getTotalStudy(req, res) {
         return res.status(200).json(formattedResult)
 
     } catch (error) {
-        console.error("유저 총 공부시간 가져오기 실패:", error);
-        return res.status(500).json({ message: "유저의 총 공부시간을 가져오던 중 오류가 발생했습니다." })
+        console.error("사용자 총 공부시간 가져오기 실패:", error);
+        return res.status(500).json({ message: "사용자의 총 공부시간을 가져오던 중 오류가 발생했습니다." })
     }
 }
 
@@ -682,7 +682,7 @@ export async function getUserTotalStudyRecord(req, res) {
 
     try {
         if (!userid || userid === "undefined") {
-            return res.status(400).json({ message: "유효하지 않은 유저 ID입니다." })
+            return res.status(400).json({ message: "유효하지 않은 사용자 ID입니다." })
         }
 
         const objectId = new mongoose.Types.ObjectId(userid)

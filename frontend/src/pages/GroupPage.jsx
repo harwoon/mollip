@@ -23,7 +23,7 @@ export default function GroupPage() {
                 setUserInfo(data.user)
             } catch (error) {
                 console.error(
-                    "유저 정보 불러오기 실패:",
+                    "사용자 정보 불러오기 실패:",
                     error
                 )
             } finally {
@@ -48,7 +48,7 @@ export default function GroupPage() {
         return (
             <main className="app-page app-page--fixed">
                 <div className="loading-state">
-                    유저 정보를 찾을 수 없습니다.
+                    사용자 정보를 찾을 수 없습니다.
                 </div>
             </main>
         )

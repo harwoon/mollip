@@ -119,7 +119,7 @@ export default function Timer({
       return `${subjectName}${particle} 선택되었습니다. 공부를 시작하세요!`
     }
 
-    if (!userInfo) return "유저 정보 불러오는 중..."
+    if (!userInfo) return "사용자 정보 불러오는 중..."
     const streak = userInfo.currentStreak || 0
     const userName = userInfo.nickname || "회원"
     if (streak === 0) return `${userName}님, 공부를 시작하세요!`

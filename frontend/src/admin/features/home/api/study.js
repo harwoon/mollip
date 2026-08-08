@@ -24,7 +24,7 @@ export async function getStudyTrend(type, start, end) {
     return { trend, currentPeriod, previousPeriod, comparison }
 }
 
-// 전체 유저 이번 주 공부시간
+// 전체 사용자 이번 주 공부시간
 // http://localhost:3000/admin/weekly-total-study-time
 export async function getTotalTime() {
 

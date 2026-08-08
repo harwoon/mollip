@@ -35,7 +35,7 @@ export default function AdminUsersPage() {
     const [page, setPage] = useState(1)
     const [activeUserIds, setActiveUserIds] = useState(new Set())
     
-    // 유저 상세 모달
+    // 사용자 상세 모달
     const [selectedUser, setSelectedUser] = useState(null)
 
     const isStatusSort = sortBy === "status"
@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
                 const data = await getActiveUsers()
                 setActiveUserIds(new Set(data.activeUserIds))
             } catch (err) {
-                console.error("활성 유저 초기 조회 실패:", err.message)
+                console.error("활성 사용자 초기 조회 실패:", err.message)
             }
         }
 
@@ -208,7 +208,7 @@ export default function AdminUsersPage() {
                 <Pagination page={page} totalPages={pagination.totalPages} onPageChange={setPage} />
             </div>
 
-            {/* 유저 상세 모달 */}
+            {/* 사용자 상세 모달 */}
             {selectedUser && (
                 <UserDetailModal
                     user={selectedUser}

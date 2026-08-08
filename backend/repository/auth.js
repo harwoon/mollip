@@ -86,7 +86,7 @@ export async function createGoogleUser(
     return User.create(userData)
 }
 
-// id 중복확인 및 단일 유저 조회
+// id 중복확인 및 단일 사용자 조회
 export async function findByUserid(userId) {
     return User.findOne({
         userId,
@@ -157,7 +157,7 @@ export async function updateStreak(
     );
 }
 
-// 주간 총 공부시간 바탕으로 그룹 나누기위한 유저 가져오는 함수
+// 주간 총 공부시간 바탕으로 그룹 나누기위한 사용자 가져오는 함수
 export async function getAllUsers() {
     return User.find({
         useYn: "Y",
@@ -194,7 +194,7 @@ export async function reactivateDormantUser(
         },
     )
 }
-// 주간 유저 랭킹을 위한 함수
+// 주간 사용자 랭킹을 위한 함수
 export async function getUserGroup(userId) {
     return User.findOne({
         _id: userId,
@@ -351,12 +351,12 @@ export async function getUsersByGroupId(groupId) {
     );
 }
 
-//유저 삭제 - 사용안함
+//사용자 삭제 - 사용안함
 export const deleteUserById = async (userId) => {
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-        throw new Error("존재하지 않는 유저입니다.");
+        throw new Error("존재하지 않는 사용자입니다.");
     }
 
     return deletedUser;

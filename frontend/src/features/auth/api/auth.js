@@ -157,7 +157,7 @@ export async function loginGoogleUser(
 
     return data
 }
-// 주간 유저 그룹 배치 알람
+// 주간 사용자 그룹 배치 알람
 export async function consumeWeeklyGroupNotice() {
     const token =
         localStorage.getItem("token")

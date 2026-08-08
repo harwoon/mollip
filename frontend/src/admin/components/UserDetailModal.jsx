@@ -112,7 +112,7 @@ export default function UserDetailModal({ user, onClose }) {
       XLSX.utils.book_append_sheet(
         workbook,
         XLSX.utils.json_to_sheet(profileData),
-        "유저프로필",
+        "사용자프로필",
       );
       XLSX.utils.book_append_sheet(
         workbook,

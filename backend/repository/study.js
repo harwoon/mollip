@@ -103,7 +103,7 @@ export async function deleteMany(userId) {
     return await Study.deleteMany({ user: userId });
 }
 
-// 유저 전체 누적 학습 기록 가져오기 (합산용) - 관리자
+// 사용자 전체 누적 학습 기록 가져오기 (합산용) - 관리자
 export async function getAllByUserId(user) {
     return Study.find({ user });
 }
