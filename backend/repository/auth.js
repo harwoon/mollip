@@ -131,10 +131,10 @@ export async function update(id, nickname, email) {
 }
 
 // 프로필 이미지 수정
-export async function updateProfileImage(id, profileImage) {
+export async function updateProfileImage(id, profileImg) {
     return User.findByIdAndUpdate(
         id,
-        { profileImg: profileImage },
+        { profileImg },
         { new: true },
     );
 }

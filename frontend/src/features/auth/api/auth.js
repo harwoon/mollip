@@ -53,7 +53,7 @@ export async function signupUser(userId, userPw, nickname, email, profileFile) {
     // 사용자가 이미지를 선택한 경우에만 파일 전송
     if (profileFile) {
         formData.append(
-            "profileImage", profileFile
+            "profileImg", profileFile
         )
     }
 

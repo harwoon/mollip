@@ -321,11 +321,11 @@ export async function updateProfileImage(req, res) {
     }
 
     // 브라우저가 접근할 이미지 주소
-    const profileImage = `/uploads/profile/${req.file.filename}`
+    const profileImg = `/uploads/profile/${req.file.filename}`
 
     // 이미지 경로 DB에 저장
     const updatedUser = await authRepository.updateProfileImage(
-        req.user._id, profileImage
+        req.user._id, profileImg
     )
 
     const userObj = updatedUser.toObject() // 몽구스 객체 일반 객체로 수정

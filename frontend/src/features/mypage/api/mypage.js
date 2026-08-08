@@ -40,8 +40,8 @@ export async function updateProfileImage(imageFile) {
     // 이미지 파일은 JSON X, FormData로 전송
     const formData = new FormData()
 
-    // 백엔드 라우터 : uploadProfile.single("profileImage")
-    formData.append("profileImage", imageFile)
+    // 백엔드 라우터 : uploadProfile.single("profileImg")
+    formData.append("profileImg", imageFile)
 
     // 백엔드 라우터: /profile-image
     const response = await fetch(`${API_URL}/auth/profile-image`, {
