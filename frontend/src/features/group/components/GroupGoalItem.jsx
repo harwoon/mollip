@@ -3,7 +3,7 @@ import styles from "./GroupGoalItem.module.css"
 const GOAL_LABELS = {
     MIN_STUDY_TIME: "주간 최소 공부시간",
     CHALLENGE_STUDY_TIME: "주간 도전 공부시간",
-    TODO_COMPLETION_RATE: "개인 Todo 학습률",
+    TODO_COMPLETION_RATE: "개인 Todo 달성률",
     ATTENDANCE_DAYS: "주간 출석일"
 }
 

@@ -589,7 +589,7 @@ export default function GroupForm({
 
                     <div className="groupFormField">
                         <label htmlFor="todoCompletionRate">
-                            Todo 학습률 목표
+                            Todo 달성률 목표
                         </label>
 
                         <div className="numberInputRow">
