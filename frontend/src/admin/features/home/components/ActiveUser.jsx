@@ -3,10 +3,10 @@ import { getProfileImageUrl } from "../../../../util/profileImage.js"
 export default function RecentUser({ activeUsers }) {
     return (
         <div>
-            <h2>접속중 유저 리스트</h2>
+            <h2>공부중인 사용자</h2>
             <ul>
                 {activeUsers.map(user => {
-                    const imgSrc = getProfileImageUrl(user.profileImg);
+                    const imgSrc = getProfileImageUrl(user.profileImg)
 
                     return (
                         <li key={user.userId}>

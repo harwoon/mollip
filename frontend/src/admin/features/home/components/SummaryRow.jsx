@@ -134,7 +134,7 @@ export default function SummaryRow({ summary }) {
 
             <SummaryCard
                 icon={<RiCheckboxCircleLine />}
-                label="이번 주 todo 달성률"
+                label="이번 주 Todo 달성률"
                 value={summary.avgGoalRate}
                 unit="%"
                 diff={formatAchievementRateDiff(
