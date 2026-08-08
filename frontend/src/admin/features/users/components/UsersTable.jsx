@@ -1,12 +1,6 @@
-import { API_URL } from "../../../../config/apiUrl.js"
+import { getProfileImageUrl } from "../../../../util/profileImage.js"
 
 import "./UsersTable.css"
-
-function getProfileImageUrl(profileImg) {
-    return profileImg
-        ? `${API_URL}${profileImg}`
-        : "/images/noprofile.png"
-}
 
 export default function UsersTable({ users, activeUserIds, onSelectUser }) {
     if (!users.length) {

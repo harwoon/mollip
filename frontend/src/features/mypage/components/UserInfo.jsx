@@ -1,4 +1,4 @@
-import { API_URL } from "../../../config/apiUrl.js"
+import { getProfileImageUrl } from "../../../util/profileImage.js"
 import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { getMyInfo } from "../../auth/api/auth"
@@ -60,10 +60,8 @@ export default function UserInfo() {
     }, [])
 
     // DB에는 /uploads/profile/... 상대경로 저장됨
-    // 백엔드 서버 주소를 앞에 붙여 실제 이미지 주소 생성
-    const savedProfileImageUrl = user.profileImg
-        ? `${API_URL}${user.profileImg}`
-        : "/images/noprofile.png"
+    // 백엔드 서버 주소를 앞에 붙여 실제 이미지 주소 생성 (구글 프로필처럼 완전한 URL이면 그대로 사용)
+    const savedProfileImageUrl = getProfileImageUrl(user.profileImg)
 
     // 새 이미지 선택 시 미리보기 우선 표시
     const profileImageUrl =

@@ -1,4 +1,4 @@
-import { API_URL } from "../../../config/apiUrl.js";
+import { getProfileImageUrl } from "../../../util/profileImage.js";
 import { useEffect, useState } from "react";
 import { socket } from "../../../../util/socket";
 
@@ -211,11 +211,7 @@ export default function ActiveUsersList({ groupId, userId }) {
             <li key={user.userId} className={styles.userItem}>
               <img
                 className={styles.profileImage}
-                src={
-                  user.profileImg
-                    ? `${API_URL}${user.profileImg}`
-                    : "/images/noprofile.png"
-                }
+                src={getProfileImageUrl(user.profileImg)}
                 alt={`${user.userName} 프로필`}
                 onError={(event) => {
                   event.currentTarget.src = "/images/noprofile.png";

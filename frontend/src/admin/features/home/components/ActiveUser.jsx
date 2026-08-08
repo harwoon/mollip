@@ -1,6 +1,4 @@
-import { API_URL } from "../../../../config/apiUrl.js"
-
-const DEFAULT_PROFILE_IMG = '/images/noprofile.png'
+import { getProfileImageUrl } from "../../../../util/profileImage.js"
 
 export default function RecentUser({ activeUsers }) {
     return (
@@ -8,9 +6,7 @@ export default function RecentUser({ activeUsers }) {
             <h2>접속중 유저 리스트</h2>
             <ul>
                 {activeUsers.map(user => {
-                    const imgSrc = user.profileImg
-                        ? `${API_URL}${user.profileImg}`
-                        : DEFAULT_PROFILE_IMG;
+                    const imgSrc = getProfileImageUrl(user.profileImg);
 
                     return (
                         <li key={user.userId}>

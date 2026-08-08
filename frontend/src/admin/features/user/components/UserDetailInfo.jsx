@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { API_URL } from "../../../../config/apiUrl.js"
+import { getProfileImageUrl } from "../../../../util/profileImage.js"
 import { getTotalStudyTime, getTotalStudyRecord, getTodoTrend } from "../api/user.js"
 
 export default function UserDetailInfo({ user }) {
@@ -61,7 +61,7 @@ export default function UserDetailInfo({ user }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                     <img
-                        src={user.profileImg ? `${API_URL}${user.profileImg}` : "/images/noprofile.png"}
+                        src={getProfileImageUrl(user.profileImg)}
                         alt="프로필 이미지"
                         style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#eee", objectFit: "cover" }}
                         onError={(event) => {
