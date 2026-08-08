@@ -84,7 +84,7 @@ export default function LongestStudy({ selectedDate, type }) {
 
         <div>
           <h3 className={styles.title}>집중 시간</h3>
-          <p className={styles.description}>가장 오래 집중한 학습시간</p>
+          <p className={styles.description}>가장 오래 집중한 공부시간</p>
         </div>
       </div>
 

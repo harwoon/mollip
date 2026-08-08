@@ -57,7 +57,7 @@ export default function TotalStudy({ selectedDate, type }) {
         <div>
           <h3 className={styles.title}>총 공부시간</h3>
 
-          <p className={styles.description}>선택한 기간의 누적 학습시간</p>
+          <p className={styles.description}>선택한 기간의 누적 공부시간</p>
         </div>
       </div>
 

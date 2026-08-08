@@ -30,7 +30,7 @@ export async function getLog(req, res) {
     }
 }
 
-// 관리자 서비스 전체 학습시간 추이 조회
+// 관리자 서비스 전체 공부시간 추이 조회
 export async function getStudyTimeTrend(req, res) {
     const {type, startDate, endDate} = req.query
 
@@ -174,7 +174,7 @@ export async function getStudyTimeTrend(req, res) {
 
 
         return res.status(200).json({
-            message: "서비스 학습시간 추이를 성공적으로 조회했습니다.",
+            message: "서비스 공부시간 추이를 성공적으로 조회했습니다.",
             type,
             trend,
             currentPeriod: {
@@ -194,9 +194,9 @@ export async function getStudyTimeTrend(req, res) {
         })
 
     } catch (error) {
-        console.error("서비스 학습시간 추이 조회 실패:", error)
+        console.error("서비스 공부시간 추이 조회 실패:", error)
         return res.status(500).json({
-            message: "서비스 학습시간 추이 조회 중 오류가 발생했습니다."
+            message: "서비스 공부시간 추이 조회 중 오류가 발생했습니다."
         })
     }
 }
@@ -332,7 +332,7 @@ function fillMissingTrendData(type, startDate, endDate, rawTrend) {
     return rawTrend
 }
 
-// 회원현황: summary 이번주 평균 학습시간
+// 회원현황: summary 이번주 평균 공부시간
 export async function getWeeklyAverageStudyTime(req, res) {
     try{
         // 오늘날짜 기준 이번주 월요일, 일요일 계산

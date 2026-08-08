@@ -288,7 +288,7 @@ export async function getTotalStudyTimeByUserId(userId) {
 }
 
 
-// 관리자 서비스 전체 학습시간 추이 조회
+// 관리자 서비스 전체 공부시간 추이 조회
 export async function getServiceStudyTimeTrend(type, startDate, endDate,) {
     let groupId
 
