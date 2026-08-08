@@ -247,8 +247,7 @@ export function getMemberStatusMailTemplate(
 ) {
     // 프론트 주소
     const frontendUrl =
-        process.env.FRONTEND_URL ||
-        "http://localhost:5173"
+        process.env.FRONTEND_URL
 
     // 7일 미학습 회원 메일
     if (type === "inactive7") {
@@ -339,7 +338,7 @@ export function getMemberStatusMailTemplate(
                 buttonText: "학습 기록 확인하기",
                 buttonUrl: `${frontendUrl}/records`,
                 imageCid,
-                imageAlt: "7일 미학습 안내"
+                imageAlt: "14일 미학습 안내"
             })
         }
     }
