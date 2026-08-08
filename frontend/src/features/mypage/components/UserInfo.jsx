@@ -266,7 +266,7 @@ export default function UserInfo() {
 
         } catch (error) {
             console.error("회원 탈퇴 오류:", error)
-            alert(error.message || "회원 탈퇴에 실패했습니다.")
+            alert(error.message || "회원 탈퇴 처리 중 오류가 발생했습니다.")
         }
     }
 
