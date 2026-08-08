@@ -172,3 +172,7 @@
     font-size: var(--font-xs);
     font-weight: 700;
 }
+
+@media (max-width: 1000px) {
+    .progressBox{margin-top: 20px;}
+}

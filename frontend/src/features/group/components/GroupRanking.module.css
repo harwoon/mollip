@@ -13,9 +13,7 @@
 }
 
 
-/* =========================
-   상단 제목
-========================= */
+/* ========================= 상단 제목 ========================= */
 
 .header {
     flex: 0 0 auto;
@@ -25,6 +23,25 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-3);
+}
+
+.headerTitleArea {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.headerIcon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-600);
+    background: var(--color-primary-100);
+    border-radius: 50%;
 }
 
 .title {
@@ -59,9 +76,7 @@
 }
 
 
-/* =========================
-   내부 전체 구조
-========================= */
+/* ========================= 내부 전체 구조 ========================= */
 
 .content {
     flex: 1 1 auto;
@@ -110,157 +125,119 @@
 }
 
 
-/* =========================
-   TOP 3
-========================= */
-
+/* ========================= TOP 3 ========================= */
 .topThreeList {
     position: relative;
-
     flex: 1 1 auto;
     width: 100%;
     min-width: 0;
     min-height: 0;
-    padding: 35px 10px 15px;
+    padding: var(--space-3) 0 0;
 
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+    gap: var(--space-2);
 
     overflow: hidden;
 }
 
 .topThreeItem {
     position: relative;
-
-    flex: 0 1 30%;
     min-width: 0;
-    padding: 0;
+    min-height: 155px;
+    padding: 14px 10px 12px;
 
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
 
     color: var(--color-text);
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-
-    box-shadow: none;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
 
     transition:
         transform 0.15s ease,
-        opacity 0.15s ease;
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
-/* 1등 */
+/* TOP3 */
 .topThreeItem:nth-child(1) {
     order: 2;
-
-    flex-basis: 36%;
-    align-self: flex-start;
-
-    padding-top: 25px;
+    min-height: 178px;
+    border-color: var(--color-primary-300);
+    background: var(--color-primary-50);
 }
 
-/* 2등 */
 .topThreeItem:nth-child(2) {
     order: 1;
-
-    padding-bottom: 5px;
 }
 
-/* 3등 */
 .topThreeItem:nth-child(3) {
     order: 3;
-
-    padding-bottom: 5px;
 }
 
 .topThreeItem:hover {
-    background: transparent;
-    border-color: transparent;
-
     transform: translateY(-3px);
+    border-color: var(--color-primary-300);
+    box-shadow: var(--shadow-card);
 }
 
 /* 순위 원형 배지 */
 .topRank {
     position: absolute;
-    top: auto;
-    bottom: 45px;
-    left: 50%;
-    z-index: 3;
+    top: 9px;
+    left: 10px;
 
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     color: var(--color-surface);
-    font-size: var(--font-sm);
+    font-size: 12px;
     font-weight: 800;
 
     background: var(--color-primary-600);
-    border: 0;
     border-radius: 50%;
-
-    transform: translateX(-50%);
 }
 
 /* 1등 왕관 */
 .topThreeItem:nth-child(1)::before {
     content: "♛";
-
-    position: absolute;
-    top: 0;
-    left: 50%;
-
+    margin-bottom: -3px;
     color: var(--color-primary-600);
-    font-size: 32px;
+    font-size: 24px;
     line-height: 1;
-
-    transform: translateX(-50%);
-}
-
-/* 1등 프로필 */
-.topThreeItem:nth-child(1) .topProfileImage {
-    flex-basis: 95px;
-    width: 95px;
-    height: 95px;
-
-    border-width: 3px;
-}
-
-/* 2등, 3등 프로필 */
-.topThreeItem:nth-child(2) .topProfileImage,
-.topThreeItem:nth-child(3) .topProfileImage {
-    flex-basis: 72px;
-    width: 72px;
-    height: 72px;
 }
 
 .topProfileImage {
-    flex: 0 0 auto;
+    flex: 0 0 58px;
+    width: 58px;
+    height: 58px;
 
     object-fit: cover;
-
     background: var(--color-primary-50);
-    border: 2px solid var(--color-primary-400);
+    border: 2px solid var(--color-primary-300);
     border-radius: 50%;
 }
 
-/* 이름 */
+.topThreeItem:nth-child(1) .topProfileImage {
+    flex-basis: 70px;
+    width: 70px;
+    height: 70px;
+    border-color: var(--color-primary-500);
+}
+
 .topUserInfo {
     width: 100%;
     min-width: 0;
-    margin-top: 12px;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -269,46 +246,29 @@
 
 .topThreeItem .nickname {
     max-width: 100%;
-
     color: var(--color-primary-700);
-    font-size: var(--font-sm);
+    font-size: var(--font-xs);
     font-weight: 700;
     text-align: center;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* 공부 시간 */
 .topThreeItem .studyTime {
-    color: var(--color-primary-600);
-    font-size: var(--font-sm);
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
     font-weight: 700;
 }
 
-/* 현재 사용자 */
 .topThreeItem.currentUser {
-    color: var(--color-text);
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-}
-
-.topThreeItem.currentUser:hover {
-    background: transparent;
-    border: 0;
-}
-
-.topThreeItem.currentUser .nickname,
-.topThreeItem.currentUser .studyTime {
-    color: var(--color-primary-700);
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-400);
+    box-shadow: inset 4px 0 0 var(--color-primary-500);
 }
 
 
-/* =========================
-   전체 랭킹
-========================= */
+/* ========================= 전체 랭킹 ========================= */
 
 .rankingScrollContainer {
     flex: 1 1 auto;
@@ -425,9 +385,7 @@
 }
 
 
-/* =========================
-   현재 사용자
-========================= */
+/* ========================= 현재 사용자 ========================= */
 
 .currentUser {
     color: var(--color-text);
@@ -468,9 +426,7 @@
 }
 
 
-/* =========================
-   상태 메시지
-========================= */
+/* ========================= 상태 메시지 ========================= */
 
 .stateContainer {
     width: 100%;
@@ -503,56 +459,45 @@
 }
 
 
-/* =========================
-   좁은 화면
-========================= */
-
-@media (max-width: 1350px) {
-    .content {
-        gap: var(--space-4);
-    }
-
-    .topThreeSection {
-        flex-basis: 46%;
-    }
-
-    .allRankingSection {
-        flex-basis: 54%;
-    }
-
-    .topThreeItem {
-        padding: var(--space-3);
-    }
-
-    .topProfileImage {
-        flex-basis: 56px;
-        width: 56px;
-        height: 56px;
-    }
-}
-
 @media (max-width: 1000px) {
+    .rankingCard {
+        height: auto;
+        min-height: 620px;
+
+        overflow: visible;
+    }
+
     .content {
+        display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        gap: var(--space-5);
+
+        overflow: visible;
     }
 
     .topThreeSection,
     .allRankingSection {
         flex: none;
+
         width: 100%;
-        min-height: 280px;
-    }
-}
+        min-height: 0;
 
-@media (max-width: 650px) {
+        overflow: visible;
+    }
+
     .topThreeList {
-        flex-direction: column;
-        overflow-y: auto;
+        min-height: 200px;
+
+        overflow: visible;
     }
 
-    .topThreeItem {
-        flex: 0 0 auto;
-        min-height: 130px;
+    .allRankingSection {
+        min-height: 320px;
+    }
+
+    .rankingScrollContainer {
+        max-height: 320px;
+
+        overflow-y: auto;
     }
 }

@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { getLongestRecord } from "../api/study.js";
 import dayjs from "dayjs";
 
-import { FiZap } from "react-icons/fi";
-import styles from "./LongestStudy.module.css";
+import { FiArrowDownRight, FiArrowUpRight, FiMinus, FiZap } from "react-icons/fi"
+import styles from "./LongestStudy.module.css"
 
 export default function LongestStudy({ selectedDate, type }) {
-  const [hour, setHour] = useState(0);
-  const [min, setMin] = useState(0);
+  const [hour, setHour] = useState(0)
+  const [min, setMin] = useState(0)
   
-  const [diffText, setDiffText] = useState("");
+  const [comparison, setComparison] = useState({
+      status: "same",
+      text: "이전 기간과 집중시간이 같아요.",
+  })
 
   useEffect(() => {
     const fetchStudyTime = async () => {
@@ -60,20 +63,30 @@ export default function LongestStudy({ selectedDate, type }) {
 
         // 비교 텍스트 저장
         if (diffMinutes > 0) {
-          setDiffText(`${targetText}보다 ${diffString} ▲`);
+            setComparison({
+                status: "up",
+                text: `${targetText}보다 ${diffString} 더 오래 집중했어요.`,
+            })
         } else if (diffMinutes < 0) {
-          setDiffText(`${targetText}보다 ${diffString} ▼`);
+            setComparison({
+                status: "down",
+                text: `${targetText}보다 ${diffString} 덜 집중했어요.`,
+            })
         } else {
-          setDiffText(`${targetText}와 동일해요`);
+            setComparison({
+                status: "same",
+                text: `${targetText}와 집중시간이 같아요.`,
+            })
         }
 
       } catch (error) {
-        console.error("집중 시간을 가져오는데 실패했습니다:", error);
+        console.error("집중 시간을 가져오는데 실패했습니다:", error)
       }
-    };
+    }
 
-    fetchStudyTime();
-  }, [selectedDate, type]);
+    fetchStudyTime()
+  }, [selectedDate, type])
+
 
   return (
     <section className={`commonSection ${styles.container}`}>
@@ -95,10 +108,17 @@ export default function LongestStudy({ selectedDate, type }) {
           <span>분</span>
         </strong>
       </div>
-      
-      <p>
-        {diffText}
-      </p>
+
+      <div className={`app-trend app-trend--${comparison.status}`}>
+        <span className="app-trend-icon" aria-hidden="true">
+          {comparison.status === "same"
+            ? <FiMinus />
+            : comparison.status === "down"
+              ? <FiArrowDownRight />
+              : <FiArrowUpRight />}
+        </span>
+        <span>{comparison.text}</span>
+      </div>
     </section>
-  );
+  )
 }

@@ -1,12 +1,19 @@
 /* 카드 박스 기본 레이아웃 */
 .homeCalendarCard {
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #eaeaea;
-    padding: 20px;
-    box-sizing: border-box;
     width: 100%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    /* background: #ffffff; */
+    /* border-radius: 16px; */
+    /* border: 1px solid #eaeaea; */
+    /* padding: 20px; */
 }
 
 /* 에러 메시지 */
@@ -14,6 +21,13 @@
     color: #dc3545;
     font-size: 12px;
     margin-bottom: 8px;
+}
+
+.customCalendar {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .customCalendar :global(.react-calendar) {
@@ -69,8 +83,8 @@
     flex: 0 0 14.2857% !important;
     max-width: 14.2857% !important;
     height: 56px !important;
-    background: #fafafa !important;
-    border-radius: 8px !important;
+    background: var(--color-surface-soft) !important;
+    border-radius: var(--radius-sm) !important;
     padding: 4px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -78,7 +92,7 @@
     box-sizing: border-box !important;
     overflow: hidden !important;
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 1px solid var(--color-surface);
     margin-bottom: 4px;
 }
 

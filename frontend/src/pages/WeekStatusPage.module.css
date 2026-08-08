@@ -12,9 +12,7 @@
 }
 
 
-/* =========================
-   개인·그룹 통계
-========================= */
+/* ========================= 개인·그룹 통계 ========================= */
 
 .statisticsSection {
     flex: 1 1 0;
@@ -64,9 +62,7 @@
 }
 
 
-/* =========================
-   랭킹
-========================= */
+/* ========================= 랭킹 ========================= */
 
 .rankingSection {
     flex: 0 0 auto;
@@ -89,29 +85,61 @@
     overflow: hidden;
 }
 
-
-/* =========================
-   화면 폭 대응
-========================= */
-
-@media (max-width: 1180px) {
+@media (max-width: 1000px) {
     .page {
         height: auto;
         min-height: 100%;
-        overflow-y: auto;
+
+        gap: var(--space-5);
+
+        overflow: visible;
     }
 
     .statisticsSection {
         flex: none;
-        min-height: 750px;
+
+        width: 100%;
+        min-height: 0;
+
+        overflow: visible;
+    }
+
+    .sectionTitle {
+        margin-bottom: var(--space-3);
+        padding-left: 0;
     }
 
     .statisticsPanel {
-        flex-direction: column;
+        flex: none;
+
+        width: 100%;
+        min-height: 0;
+        padding: var(--space-4);
+
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+
+        overflow: visible;
     }
 
     .statisticsPanel > * {
-        flex: 1 1 0;
         width: 100%;
+        min-width: 0;
+        min-height: 320px;
+    }
+
+    .rankingSection {
+        flex: none;
+
+        width: 100%;
+        min-height: 0;
+    }
+
+    .rankingPanel {
+        min-height: 420px;
+        padding: var(--space-4);
+
+        overflow: visible;
     }
 }

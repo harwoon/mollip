@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import AppAlert from "../../../components/common/AppAlert.jsx"
+import AppModal from "../../../components/common/AppModal.jsx"
 import styles from "./TodoModal.module.css"
 
 const MAX_LENGTH = 50
@@ -6,6 +8,8 @@ const MAX_LENGTH = 50
 export default function TodoModal({ onAdd, onClose }) {
     const [todoText, setTodoText] = useState("")
     const [submitting, setSubmitting] = useState(false)
+    // 공통 AppAlert
+    const [alertOpen, setAlertOpen] = useState(false)
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -13,7 +17,7 @@ export default function TodoModal({ onAdd, onClose }) {
         const trimmedTodo = todoText.trim()
 
         if (!trimmedTodo) {
-            alert("할 일을 입력해주세요.")
+            setAlertOpen(true)
             return
         }
 
@@ -45,28 +49,24 @@ export default function TodoModal({ onAdd, onClose }) {
     }, [onClose, submitting])
 
     return (
-        <div className={styles.overlay}
-            onMouseDown={() => {
-                if (!submitting) {onClose()}
-            }}
-        >
-            <div
-                className={styles.modal}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="todo-modal-title"
-                onMouseDown={(event) => event.stopPropagation()}
+        <>
+            <AppModal
+                open={true}
+                type="action"
+                title="Todo 추가하기"
+                onClose={submitting ? undefined : onClose}
+                closeOnOverlay={!submitting}
             >
-                <h3 id="todo-modal-title" className={styles.title}>Todo 추가하기</h3>
-
                 <form onSubmit={handleSubmit}>
                     <div className={styles.inputBox}>
+                        {/* GPT 수정 - textarea 기본 스타일은 common.css 사용 */}
                         <textarea
                             value={todoText}
                             placeholder="할 일을 입력하세요"
                             maxLength={MAX_LENGTH}
                             onChange={(event) => setTodoText(event.target.value)}
                             autoFocus
+                            className={`app-textarea ${styles.todoTextarea}`}
                         />
 
                         <span className={styles.counter}>
@@ -75,25 +75,36 @@ export default function TodoModal({ onAdd, onClose }) {
                     </div>
 
                     <div className={styles.buttonGroup}>
+                        {/* GPT 수정 - 전용 취소 버튼 스타일 대신 공통 secondary 버튼 사용 */}
                         <button
                             type="button"
-                            className={styles.cancelButton}
+                            className="app-btn-secondary"
                             onClick={onClose}
                             disabled={submitting}
                         >
                             취소
                         </button>
 
+                        {/* GPT 수정 - 전용 추가 버튼 스타일 대신 공통 primary 버튼 사용 */}
                         <button
                             type="submit"
-                            className={styles.addButton}
+                            className="app-btn-primary"
                             disabled={submitting || !todoText.trim()}
-                            >
+                        >
                             {submitting ? "추가 중..." : "추가하기"}
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </AppModal>
+
+            {/* GPT 추가 - 비어 있는 Todo 검증을 공통 AppAlert로 표시 */}
+            <AppAlert
+                open={alertOpen}
+                type="warning"
+                title="할 일을 입력해주세요."
+                onConfirm={() => setAlertOpen(false)}
+                onClose={() => setAlertOpen(false)}
+            />
+        </>
     )
 }

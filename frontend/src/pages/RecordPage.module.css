@@ -11,11 +11,7 @@
     overflow: hidden;
 }
 
-
-/* =========================
-   페이지 상단
-========================= */
-
+/* ========================= 페이지 상단========================= */
 .pageHeader {
     flex: 0 0 auto;
     width: 100%;
@@ -36,10 +32,7 @@
 }
 
 
-/* =========================
-   전체 본문
-========================= */
-
+/* ========================= 전체 본문 ========================= */
 .recordBody {
     flex: 1 1 auto;
     width: 100%;
@@ -54,10 +47,7 @@
 }
 
 
-/* =========================
-   왼쪽 메인 영역
-========================= */
-
+/* ========================= 왼쪽 메인 영역 ========================= */
 .mainArea {
     flex: 1 1 76%;
     min-width: 0;
@@ -70,13 +60,9 @@
     overflow: hidden;
 }
 
-
-/* =========================
-   요약 카드 3개
-========================= */
-
+/* ========================= 요약 카드 3개 ========================= */
 .summaryRow {
-    flex: 0 0 28%;
+    flex: 0 0 30%;
     width: 100%;
     min-width: 0;
     min-height: 0;
@@ -95,10 +81,7 @@
 }
 
 
-/* =========================
-   하단 그래프 영역
-========================= */
-
+/* ========================= 하단 그래프 영역 ========================= */
 .chartRow {
     flex: 1 1 auto;
     width: 100%;
@@ -141,9 +124,7 @@
 }
 
 
-/* =========================
-   오른쪽 Todo 영역
-========================= */
+/* ========================= 오른쪽 Todo 영역 ========================= */
 
 .todoArea {
     flex: 0 1 24%;
@@ -162,86 +143,79 @@
 }
 
 
-/* =========================
-   반응형
-========================= */
-
-@media (max-width: 1280px) {
-    .recordBody,
-    .mainArea,
-    .summaryRow,
-    .chartRow {
-        gap: var(--space-4);
-    }
-
-    .mainArea {
-        flex-basis: 72%;
-    }
-
-    .todoArea {
-        flex-basis: 28%;
-        min-width: 280px;
-    }
-}
-
 @media (max-width: 1000px) {
+    .pageHeader {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .pageHeader > div:first-child {
+        width: 100%;
+    }
+
+    .pageHeader h1 {
+        width: auto;
+        white-space: nowrap;
+    }
+
+    .controls {
+        width: 100%;
+
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
     .recordPage {
         height: auto;
-        min-height: 100%;
-
         overflow: visible;
-    }
-
-    .pageHeader {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .headerLeft {
-        flex-wrap: wrap;
     }
 
     .recordBody {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-5);
 
         overflow: visible;
     }
 
-    .mainArea,
-    .todoArea {
-        flex: none;
-        width: 100%;
-        min-width: 0;
+    .mainArea {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
 
         overflow: visible;
     }
 
     .summaryRow {
-        flex: none;
-        min-height: 200px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+
+        overflow: visible;
+        flex: auto;
+    }
+
+    .summaryRow > * {
+        min-height: 180px;
+        height: auto;
     }
 
     .chartRow {
-        flex: none;
-        min-height: 420px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-5);
+    }
+    
+    .chartRow > * {
+        min-height: 300px;
+        height: auto;
     }
 
     .todoArea {
-        min-height: 600px;
-    }
-}
-
-@media (max-width: 760px) {
-    .summaryRow,
-    .chartRow {
-        flex-direction: column;
-    }
-
-    .summaryRow > *,
-    .barArea,
-    .heatmapArea {
-        flex: none;
         width: 100%;
-        min-height: 280px;
+        min-height: 400px;
     }
 }

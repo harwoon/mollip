@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from "react"
 import { getSubjectRecord, getSubjectStudySummary } from "../api/study.js"
 import dayjs from "dayjs"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
-import { RiAccountCircleLine } from "react-icons/ri"
 
+import { RiAccountCircleLine } from "react-icons/ri"
+import { FiArrowDownRight, FiArrowUpRight, FiMinus } from "react-icons/fi"
 import styles from "./TotalSubject.module.css"
 
 function formatStudyTime(seconds) {
@@ -148,22 +149,8 @@ export default function TotalSubject({ selectedDate, type }) {
   return (
     <section className={`commonSection ${styles.container}`}>
       <div className={styles.header}>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          
-          <div
-            style={{
-              minWidth: "36px",
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              backgroundColor: "#E2E2F6",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "#6B4EFF",
-            }}
-          >
+        <div className={styles.headerTitleArea}>
+          <div className={styles.headerIcon}>
             <RiAccountCircleLine size={24} />
           </div>
 
@@ -227,19 +214,34 @@ export default function TotalSubject({ selectedDate, type }) {
             </div>
           )
         )}
-      </div>
 
       {/* 차트 아래 비교 문구 */}
-      {!loading && !error && hasData && summary.topSubjectComparison && (
-        <p className={styles.description}>
-          {getComparisonText(type, summary.topSubjectComparison)}
-        </p>
-      )}
+        {!loading && !error && hasData && (
+          <div className={styles.chartCenter}>
+            <span>총 공부</span>
+            <strong>{formatStudyTime(summary.totalStudyTime)}</strong>
+          </div>
+        )}
+      </div>
 
-      {!loading && !error && hasData && !summary.topSubjectComparison && (
-        <p className={styles.description}>
-          비교할 이전 공부 기록이 없습니다.
-        </p>
+      {!loading && !error && hasData && (
+        <div
+          className={`app-trend app-trend--${summary.topSubjectComparison?.status || "same"}`}
+        >
+          <span className="app-trend-icon" aria-hidden="true">
+            {summary.topSubjectComparison?.status === "up"
+              ? <FiArrowUpRight />
+              : summary.topSubjectComparison?.status === "down"
+                ? <FiArrowDownRight />
+                : <FiMinus />}
+          </span>
+
+          <span>
+            {summary.topSubjectComparison
+              ? getComparisonText(type, summary.topSubjectComparison)
+              : "비교할 이전 공부 기록이 없습니다."}
+          </span>
+        </div>
       )}
     </section>
   )

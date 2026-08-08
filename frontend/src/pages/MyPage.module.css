@@ -38,21 +38,42 @@
     min-height: 0;
 }
 
-@media (max-width: 1180px) {
+
+
+@media (max-width: 1000px) {
     .page {
         height: auto;
         min-height: 100%;
 
         flex-direction: column;
+        align-items: stretch;
 
-        overflow-y: auto;
+        overflow: visible;
     }
 
     .userArea,
     .subjectArea {
         flex: none;
+
         width: 100%;
         min-width: 0;
-        min-height: 650px;
+        min-height: 0;
+
+        overflow: visible;
+    }
+
+    .userArea {
+        min-height: 620px;
+    }
+
+    .subjectArea {
+        min-height: 520px;
+    }
+
+    .userArea > *,
+    .subjectArea > * {
+        width: 100%;
+        height: auto;
+        min-height: inherit;
     }
 }

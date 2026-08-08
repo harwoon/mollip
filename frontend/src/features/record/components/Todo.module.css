@@ -22,7 +22,7 @@
 
 .achievementCard {
     position: relative;
-    flex: 0 0 280px;
+    flex: 0 0 290px;
     min-height: 0;
     padding: var(--space-5);
 
@@ -47,6 +47,25 @@
     bottom: -10px;
     opacity: .5;
     z-index: 5;
+}
+
+.achievementHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.achievementHeaderIcon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-600);
+    background: var(--color-primary-100);
+    border-radius: 50%;
 }
 
 .achievementTitle {

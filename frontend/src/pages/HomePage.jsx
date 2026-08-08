@@ -6,6 +6,7 @@ import Timer from "../features/home/components/Timer"
 import TodoList from "../features/home/components/TodoList"
 import HomeCalendar from "../features/home/components/HomeCalendar"
 import SubjectList from "../features/home/components/SubjectList"
+import AppAlert from "../components/common/AppAlert.jsx"
 import { getMyInfo } from "../features/auth/api/auth"
 
 import styles from "./HomePage.module.css"
@@ -412,12 +413,8 @@ export default function HomePage() {
             </div>
 
             {/* 하단: Todo + 캘린더 */}
-            <div
-              className={`${styles.homeRow} ${styles.bottomRow}`}
-            >
-              <section
-                className={`commonSection ${styles.todoSection}`}
-              >
+            <div className={`${styles.homeRow} ${styles.bottomRow}`} >
+              <section className={`commonSection ${styles.todoSection}`} >
                 {/* AI todo도 받도록 수정 */}
                 <TodoList
                   refreshKey={todoRefreshKey}
@@ -426,10 +423,8 @@ export default function HomePage() {
                   onTodoListChanged={handleTodoListChanged}
                 />
               </section>
-
-              <section
-                className={`commonSection ${styles.calendarSection}`}
-              >
+              
+              <section className={styles.calendarSection}>
                 <HomeCalendar />
               </section>
             </div>
@@ -438,58 +433,15 @@ export default function HomePage() {
       </main>
 
       {/* 홈 공통 알림 모달 */}
-      {alertMessage && (
-        <div
-          className={
-            styles.alertOverlay
-          }
-          role="presentation"
-        >
-          <section
-            className={
-              styles.alertBox
-            }
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="home-alert-title"
-          >
-            <div
-              className={
-                styles.alertHeader
-              }
-            >
-              <strong
-                id="home-alert-title"
-              >
-                알림
-              </strong>
 
-              <button
-                type="button"
-                className={
-                  styles.alertCloseButton
-                }
-                onClick={() =>
-                  setAlertMessage(
-                    ""
-                  )
-                }
-                aria-label="알림 닫기"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p
-              className={
-                styles.alertMessage
-              }
-            >
-              {alertMessage}
-            </p>
-          </section>
-        </div>
-      )}
+      <AppAlert
+        open={Boolean(alertMessage)}
+        type="warning"
+        title="알림"
+        message={alertMessage}
+        onConfirm={() => setAlertMessage("")}
+        onClose={() => setAlertMessage("")}
+      />
     </>
   )
 }

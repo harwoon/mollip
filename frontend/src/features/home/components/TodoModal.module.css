@@ -1,4 +1,34 @@
-.overlay {
+.inputBox {
+    position: relative;
+}
+
+.todoTextarea {
+    min-height: 120px;
+    padding-bottom: 34px;
+    resize: vertical;
+}
+
+.counter {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.buttonGroup {
+    margin-top: var(--space-5);
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}
+
+
+
+/* .overlay { 삭제예정
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -102,4 +132,4 @@
 .buttonGroup button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
-}
+} */  

@@ -3,8 +3,11 @@ import Calendar from 'react-calendar'
 import dayjs from 'dayjs'
 import styles from './HomeCalendar.module.css'
 import ScheduleModal from "./ScheduleModal.jsx"
+import AppAlert from "../../../components/common/AppAlert.jsx"
+
 import { getSchedules, addSchedule, updateSchedule, deleteSchedule } from '../api/schedule.js'
 import { createPortal } from 'react-dom'
+
 
 export default function HomeCalendar() {
   const [hoveredSchedule, setHoveredSchedule] = useState(null)
@@ -15,6 +18,14 @@ export default function HomeCalendar() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState(null)
   const [error, setError] = useState("")
+
+  // 일정 저장, 삭제 성공·실패 메시지용 공통 Alert 상태
+  const [alertConfig, setAlertConfig] = useState({
+    open: false,
+    type: "info",
+    title: "",
+    message: "",
+  })
 
   const fetchSchedules = useCallback(async () => {
     try {
@@ -102,6 +113,7 @@ export default function HomeCalendar() {
   }, [schedules])
 
   async function handleSaveSchedule(scheduleData) {
+    const isEditing = Boolean(selectedSchedule?._id)
     try {
       setError("")
       const payload = {
@@ -118,10 +130,26 @@ export default function HomeCalendar() {
       await fetchSchedules()
       setSelectedSchedule(null)
       setIsModalOpen(false)
+
+      // 공통 success Alert
+      setAlertConfig({
+        open: true,
+        type: "success",
+        title: isEditing ? "일정 수정 완료" : "일정 추가 완료",
+        message: isEditing ? "일정이 수정되었습니다." : "새 일정이 추가되었습니다.",
+      })
+
     } catch (error) {
       console.error("일정 저장 실패:", error)
       setError(error.message)
-      alert(error.message || "일정을 저장하지 못했습니다.")
+      
+      // 공통 danger Alert
+      setAlertConfig({
+        open: true,
+        type: "danger",
+        title: "일정 저장 실패",
+        message: error.message || "일정을 저장하지 못했습니다.",
+      })
     }
   }
 
@@ -131,10 +159,27 @@ export default function HomeCalendar() {
       await deleteSchedule(scheduleId)
       await fetchSchedules()
       setSelectedSchedule(null)
+      setIsModalOpen(false)
+
+      //실제 삭제 성공 후 공통 success Alert 표시
+      setAlertConfig({
+        open: true,
+        type: "success",
+        title: "일정 삭제 완료",
+        message: "일정이 삭제되었습니다.",
+      })
+
     } catch (error) {
       console.error("일정 삭제 실패:", error)
       setError(error.message)
-      alert(error.message || "일정을 삭제하지 못했습니다.")
+      
+      // 공통 danger Alert
+      setAlertConfig({
+        open: true,
+        type: "danger",
+        title: "일정 삭제 실패",
+        message: error.message || "일정을 삭제하지 못했습니다.",
+      })
     }
   }
 
@@ -143,7 +188,7 @@ export default function HomeCalendar() {
       {error && <p className={styles.scheduleError}>{error}</p>}
 
       <Calendar
-        className={styles.customCalendar}
+        className={`app-calendar ${styles.customCalendar}`}
         onChange={setSelectedDate}
         value={selectedDate}
         calendarType="iso8601"
@@ -255,6 +300,16 @@ export default function HomeCalendar() {
           </div>,
           document.body,
         )}
+
+        {/* 공통 AppAlert */}
+        <AppAlert
+          open={alertConfig.open}
+          type={alertConfig.type}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          onConfirm={() => setAlertConfig((previous) => ({ ...previous, open: false }))}
+          onClose={() => setAlertConfig((previous) => ({ ...previous, open: false }))}
+        />
     </div>
   )
 }

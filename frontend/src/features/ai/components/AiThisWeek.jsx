@@ -5,6 +5,7 @@
 // recommendations.effect: 예상 효과
 // task랑 duration만 사용
 import { useState } from "react"
+import AppAlert from "../../../components/common/AppAlert.jsx"
 
 export default function AiThisWeek({ 
     recommendations = [], 
@@ -16,6 +17,8 @@ export default function AiThisWeek({
     onRemoveTodo
 }) {
     const [processingIndex, setProcessingIndex] = useState(null)
+    const [removeTarget, setRemoveTarget] = useState(null)
+    const [errorMessage, setErrorMessage] = useState("")
 
     // 오늘 홈 Todo에서 추천 Todo와 같은 항목 찾기
     const findTodayTodo = (task) => {
@@ -48,18 +51,7 @@ export default function AiThisWeek({
 
             // 오늘 이미 추가된 Todo = 홈에서 제거할지 확인
             if (added) {
-                const shouldRemove = window.confirm(
-                    `"${recommend.task}" Todo는 이미 추가되어 있습니다.\n홈 Todo에서 제거하시겠습니까?`
-                )
-
-                if (!shouldRemove) return
-
-                if (!onRemoveTodo) {
-                    console.error("onRemoveTodo가 전달되지 않았습니다.")
-                    return
-                }
-
-                await onRemoveTodo(recommend.task)
+                setRemoveTarget({ recommend, index })
                 return
             }
 
@@ -71,14 +63,37 @@ export default function AiThisWeek({
             await onAddTodo(recommend.task)
 
         } catch (error) {
-            console.error("AI 추천 Todo 처리 실패:", error)
-            alert(error.message || "Todo를 처리하지 못했습니다.")
+            setErrorMessage(error.message || "Todo를 처리하지 못했습니다.")
+        } finally {
+            setProcessingIndex(null)
+        }
+    }
+
+    // 공통 확인창에서 제거 확정했을 때 기존 onRemoveTodo 실행
+    const confirmRemoveTodo = async () => {
+        if (!removeTarget) return
+
+        const { recommend, index } = removeTarget
+        setRemoveTarget(null)
+
+        if (!onRemoveTodo) {
+            console.error("onRemoveTodo가 전달되지 않았습니다.")
+            return
+        }
+
+        try {
+            setProcessingIndex(index)
+            await onRemoveTodo(recommend.task)
+        } catch (error) {
+            console.error("AI 추천 Todo 제거 실패:", error)
+            setErrorMessage(error.message || "Todo를 처리하지 못했습니다.")
         } finally {
             setProcessingIndex(null)
         }
     }
 
     return (
+        <>
         <section>
             <div className="aiReportHeader">
                 <h3>이번주 Todo 추천</h3>
@@ -175,5 +190,33 @@ export default function AiThisWeek({
                 </ul>
             )}
         </section>
+
+        {/* 이미 추가된 Todo 제거 확인 */}
+        <AppAlert
+            open={Boolean(removeTarget)}
+            type="warning"
+            title="홈 Todo에서 제거하시겠습니까?"
+            message={
+                removeTarget
+                    ? `"${removeTarget.recommend.task}"을(를) 홈 Todo에서 제거합니다.`
+                    : ""
+            }
+            showCancel
+            confirmText="제거"
+            onCancel={() => setRemoveTarget(null)}
+            onClose={() => setRemoveTarget(null)}
+            onConfirm={confirmRemoveTodo}
+        />
+
+        {/* AI Todo 처리 실패 안내 */}
+        <AppAlert
+            open={Boolean(errorMessage)}
+            type="danger"
+            title="Todo 처리 실패"
+            message={errorMessage}
+            onConfirm={() => setErrorMessage("")}
+            onClose={() => setErrorMessage("")}
+        />
+        </>
     )
 }

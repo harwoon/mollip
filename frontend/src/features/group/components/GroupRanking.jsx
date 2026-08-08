@@ -99,29 +99,13 @@ export default function GroupRanking() {
     return (
         <section className={`commonSection ${styles.rankingCard}`}>
             <header className={styles.header}>
-                {/* 💡 알잘딱깔센 적용 완료: 아이콘 + 제목 가로 정렬 */}
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-
-                    {/* 동그란 왕관 아이콘 배경 */}
-                    <div
-                        style={{
-                            minWidth: "36px",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            backgroundColor: "#E2E2F6", // 연보라색 배경
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            color: "#6B4EFF", // 왕관 아이콘 색상 (보라색)
-                            marginTop: "2px"
-                        }}
-                    >
+                <div className={styles.headerTitleArea}>
+                    <div className={styles.headerIcon}>
                         <FaCrown size={20} />
                     </div>
 
                     <div>
-                        <h2 className={styles.title} style={{ margin: 0 }}>이번 주 그룹 랭킹</h2>
+                        <h2 className={styles.title}>이번 주 그룹 랭킹</h2>
                         <p className={styles.description}>
                             그룹원의 주간 공부시간 순위입니다.
                         </p>

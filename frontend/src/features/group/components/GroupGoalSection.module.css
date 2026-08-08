@@ -1,33 +1,46 @@
 .section {
     width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: var(--space-5);
 
-    /* height: 100%; 제거 */
-    height: auto;
-    min-height: 460px;
+    display: flex;
+    flex-direction: column;
 
-    padding: 28px 32px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
 
-    border: 1px solid #eeeaf4;
-    border-radius: 24px;
-    background-color: #ffffff;
-
-    box-shadow: 0 8px 24px rgb(35 24 62 / 5%);
-
-    box-sizing: border-box;
-
-    /* 잘리지 않도록 */
-    overflow: visible;
+    overflow: hidden;
 }
 
+
 .header {
-display: flex;
+    flex: 0 0 auto;
+    display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+}
 
-    gap: 20px;
+.headerTitleWrap {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
 
-    /* 기존 20px 또는 너무 큰 값이면 축소 */
-    margin-bottom: 14px;
+.headerIcon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 50%;
 }
 
 .titleArea {
@@ -35,124 +48,110 @@ display: flex;
 }
 
 .title {
-    margin: 0;
-
-    color: #272331;
-    font-size: 22px;
+    color: var(--color-text);
+    font-size: var(--font-lg);
     font-weight: 800;
     line-height: 1.3;
 }
 
 .description {
-    margin: 8px 0 0;
-
-    color: #777184;
-    font-size: 14px;
+    margin-top: var(--space-1);
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
     font-weight: 500;
 }
 
 .week {
     display: block;
-
-    margin-top: 6px;
-
-    color: #aaa4b3;
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
     font-size: 12px;
 }
 
 .content {
-    display: grid;
-    grid-template-columns:
-        minmax(0, 1fr)
-        190px;
-
-    align-items: center;
-    gap: 28px;
-
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
-    min-height: 320px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 145px;
+    align-items: center;
+    gap: var(--space-4);
+
+    overflow: hidden;
 }
 
 .goalList {
     min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .emptyMessage {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    min-height: 180px;
-    margin: 0;
-
-    color: #9992a6;
-    font-size: 14px;
+    min-height: 120px;
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
 }
 
 .achievementArea {
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    min-width: 0;
 }
 
 .stateBox {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: var(--space-5);
     display: flex;
     align-items: center;
     justify-content: center;
-
-    width: 100%;
-    min-height: 250px;
-    padding: 30px;
-
-    border: 1px solid #eeeaf4;
-    border-radius: 24px;
-    background-color: #ffffff;
-
-    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
 }
 
 .stateMessage {
-    margin: 0;
-
-    color: #8f8999;
-    font-size: 15px;
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
     font-weight: 500;
     text-align: center;
 }
 
 .errorMessage {
-    color: #db5b62;
+    color: var(--color-danger);
 }
 
-@media (max-width: 1100px) {
+
+@media (max-width: 1000px) {
     .section {
-        padding: 24px;
+        height: auto;
+        min-height: 300px;
+
+        overflow: visible;
     }
 
     .content {
-        grid-template-columns: minmax(0, 1fr) 170px;
-        gap: 20px;
-    }
-}
-
-@media (max-width: 760px) {
-    .section {
-        padding: 22px 20px;
-        border-radius: 18px;
-    }
-
-    .content {
+        display: grid;
         grid-template-columns: 1fr;
+        gap: var(--space-4);
+
+        overflow: visible;
+    }
+
+    .goalList {
+
+        overflow-y: auto;
     }
 
     .achievementArea {
-        order: -1;
-        padding-bottom: 16px;
-    }
-
-    .title {
-        font-size: 20px;
+        width: 100%;
+        min-height: 150px;
     }
 }

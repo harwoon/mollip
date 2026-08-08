@@ -57,6 +57,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: var(--space-2) 0;
 }
 
 .time {
@@ -73,4 +74,38 @@
     color: var(--color-text-secondary);
     font-size: var(--font-md);
     font-weight: 600;
+}
+
+
+@media (max-width: 1000px) {
+    .card {
+        min-height: 180px;
+        height: auto;
+
+        padding: 22px 24px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .valueArea {
+        margin: 14px 0 12px;
+    }
+
+    .comparison {
+        margin-top: auto;
+    }
+    .subjectSummary {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .subjectTotal {
+        margin-top: 6px;
+    }
+
+    .comparisonBox {
+        margin-top: auto;
+    }
 }

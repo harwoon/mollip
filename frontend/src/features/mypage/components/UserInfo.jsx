@@ -6,7 +6,7 @@ import { PiPencilSimpleDuotone } from "react-icons/pi"
 import { RiAccountCircle2Fill } from "react-icons/ri"
 
 import { updateMyInfo, updateProfileImage, withdrawMyAccount } from "../api/mypage"
-
+import AppAlert from "../../../components/common/AppAlert.jsx"
 import styles from "./UserInfo.module.css"
 
 export default function UserInfo() {
@@ -38,6 +38,46 @@ export default function UserInfo() {
 
     // 사용자가 선택한 이미지의 미리보기 주소
     const [previewImageUrl, setPreviewImageUrl] = useState("")
+
+    // 사용자 정보 화면의 안내/경고/확인 팝업 AppAlert 상태로 통일
+    const [alertConfig, setAlertConfig] = useState({
+        open: false,
+        type: "info",
+        title: "",
+        message: "",
+        showCancel: false,
+        confirmText: "확인",
+        onConfirm: null
+    })
+
+    // 공통 알림 열기
+    function showAlert({
+        type = "info",
+        title,
+        message = "",
+        showCancel = false,
+        confirmText = "확인",
+        onConfirm = null
+    }) {
+        setAlertConfig({
+            open: true,
+            type,
+            title,
+            message,
+            showCancel,
+            confirmText,
+            onConfirm
+        })
+    }
+
+    // 공통 알림 닫기
+    function closeAlert() {
+        setAlertConfig((previous) => ({
+            ...previous,
+            open: false,
+            onConfirm: null
+        }))
+    }
 
     useEffect(() => {
         async function loadMyInfo() {
@@ -91,7 +131,12 @@ export default function UserInfo() {
 
         // 이미지 파일만 선택 가능
         if (!file.type.startsWith("image/")) {
-            alert("이미지 파일만 선택할 수 있습니다.")
+            // 공통 AppAlert
+            showAlert({
+                type: "warning",
+                title: "이미지 파일을 확인해주세요.",
+                message: "이미지 파일만 선택할 수 있습니다."
+            })
             event.target.value = ""
             return
         }
@@ -115,11 +160,13 @@ export default function UserInfo() {
 
         // 수정완료 누르면 입력값 검사
         if (!user.nickname.trim()) {
-            alert("닉네임을 입력해주세요.")
+            // 공통 AppAlert
+            showAlert({ type: "warning", title: "닉네임을 입력해주세요." })
             return
         }
         if (!user.email.trim()) {
-            alert("이메일을 입력해주세요.")
+            // 공통 AppAlert
+            showAlert({ type: "warning", title: "이메일을 입력해주세요." })
             return
         }
 
@@ -129,7 +176,11 @@ export default function UserInfo() {
         const isProfileImgChanged = !!selectedImageFile
 
         if (!isNicknameChanged && !isEmailChanged && !isProfileImgChanged) {
-            alert("수정된 내용이 없습니다.")
+            // 공통 AppAlert
+            showAlert({
+                type: "info",
+                title: "수정된 내용이 없습니다."
+            })
             setIsEditing(true)
             return
         }
@@ -174,21 +225,24 @@ export default function UserInfo() {
                 fileInputRef.current.value = ""
             }
 
-
             // 수정모드 종료
             setIsEditing(false)
-            alert(infoData.message || "회원정보가 수정되었습니다!")
+            showAlert({
+                type: "success",
+                title: "회원정보 수정 완료",
+                message: infoData.message || "회원정보가 수정되었습니다."
+            })
 
         } catch (error) {
             console.error(
                 "회원정보 수정 오류:",
                 error
             )
-
-            alert(
-                error.message ||
-                "회원정보 수정에 실패했습니다."
-            )
+            showAlert({
+                type: "danger",
+                title: "회원정보 수정 실패",
+                message: error.message || "회원정보 수정에 실패했습니다."
+            })
         }
     }
 
@@ -212,16 +266,55 @@ export default function UserInfo() {
         setIsEditing(false)
     }
 
+    // 최종 탈퇴확인 후 API호출 별도 함수 분리
+    async function executeWithdraw(confirmationText, withdrawalReason) {
+        closeAlert()
+
+        try {
+            const data = await withdrawMyAccount(
+                confirmationText,
+                withdrawalReason.trim()
+            )
+
+            localStorage.removeItem("token")
+            localStorage.removeItem("role")
+            localStorage.removeItem("groupId")
+            localStorage.removeItem("userId")
+            localStorage.removeItem("user")
+
+            // GPT 수정 - 탈퇴 완료 alert 후 바로 이동하지 않고 확인 버튼을 누르면 로그인 화면으로 이동
+            showAlert({
+                type: "success",
+                title: "회원 탈퇴 완료",
+                message: data.message || "회원 탈퇴가 완료되었습니다.",
+                onConfirm: () => navigate("/", { replace: true })
+            })
+        } catch (error) {
+            console.error("회원 탈퇴 오류:", error)
+
+            // GPT 수정 - 탈퇴 실패 alert를 공통 위험 알림으로 변경
+            showAlert({
+                type: "danger",
+                title: "회원 탈퇴 실패",
+                message: error.message || "회원 탈퇴 처리 중 오류가 발생했습니다."
+            })
+        }
+    }
+
+
     // 회원 탈퇴
     async function handleWithdraw() {
-        console.log("버튼클릭")
         // 탈퇴 확인 문구 입력
         const confirmationText = window.prompt('"탈퇴하겠습니다"를 입력해주세요.')
         // 취소한 경우
         if (confirmationText === null) { return }
         // 확인 문구 검사
         if (confirmationText !== "탈퇴하겠습니다") {
-            alert('"탈퇴하겠습니다"를 정확히 입력해주세요.')
+            showAlert({
+                type: "warning",
+                title: "탈퇴 확인 문구를 확인해주세요.",
+                message: '"탈퇴하겠습니다"를 정확히 입력해주세요.'
+            })
             return
         }
 
@@ -231,71 +324,33 @@ export default function UserInfo() {
         if (withdrawalReason === null) { return }
         // 탈퇴 사유 공백 검사
         if (!withdrawalReason.trim()) {
-            alert("탈퇴 사유를 입력해주세요.")
+            showAlert({ type: "warning", title: "탈퇴 사유를 입력해주세요." })
             return
         }
 
         // 최종 확인
-        const isConfirmed = window.confirm(
-            "회원 탈퇴 후 공부 기록, 과목, Todo 데이터는 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?"
-        )
-
-        if (!isConfirmed) {
-            return
-        }
-
-        try {
-            // 회원 탈퇴 API 요청
-            const data = await withdrawMyAccount(
-                confirmationText,
-                withdrawalReason.trim()
-            )
-
-            // 로그인 및 사용자 정보 삭제
-            localStorage.removeItem("token")
-            localStorage.removeItem("role")
-            localStorage.removeItem("groupId")
-            localStorage.removeItem("userId")
-            localStorage.removeItem("user")
-            alert(data.message || "회원 탈퇴가 완료되었습니다.")
-
-            // 로그인 페이지로 이동
-            navigate("/", {
-                replace: true
-            })
-
-        } catch (error) {
-            console.error("회원 탈퇴 오류:", error)
-            alert(error.message || "회원 탈퇴 처리 중 오류가 발생했습니다.")
-        }
+        showAlert({
+            type: "danger",
+            title: "정말 회원 탈퇴하시겠습니까?",
+            message: "회원 탈퇴 후 공부 기록, 과목, Todo 데이터는 복구할 수 없습니다.",
+            showCancel: true,
+            confirmText: "탈퇴",
+            onConfirm: () => executeWithdraw(confirmationText, withdrawalReason)
+        })
     }
 
     return (
+        <>
         <section className={`commonSection ${styles.userInfo}`}>
             <div className={styles.userInfoHeader}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-
-                    {/* 동그란 아이콘 배경 */}
-                    <div
-                        style={{
-                            minWidth: "42px",
-                            width: "42px",
-                            height: "42px",
-                            borderRadius: "50%",
-                            backgroundColor: "#E2E2F6",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            color: "#8e5ab9",
-                            marginTop: "2px"
-                        }}
-                    >
+                <div className={styles.headerTitleArea}>
+                    <div className={styles.headerIcon}>
                         <RiAccountCircle2Fill size={22} />
                     </div>
 
                     <div>
-                        <h2 style={{ margin: 0 }}>내 정보 수정</h2>
-                        <p style={{ margin: "4px 0 0 0" }}>내 정보를 관리하고 수정할 수 있습니다.</p>
+                        <h2>내 정보 수정</h2>
+                        <p>내 정보를 관리하고 수정할 수 있습니다.</p>
                     </div>
                 </div>
             </div>
@@ -347,11 +402,9 @@ export default function UserInfo() {
                     value={user.nickname ?? ""}
                     onChange={handleChange}
                     readOnly={!isEditing}
-                    className={
-                        isEditing
-                            ? styles.editingInput
-                            : styles.readOnlyInput
-                    }
+                    className={`app-input ${
+                        isEditing ? styles.editingInput : styles.readOnlyInput
+                    }`}
                 />
 
                 <label htmlFor="email">
@@ -365,18 +418,16 @@ export default function UserInfo() {
                     value={user.email ?? ""}
                     onChange={handleChange}
                     readOnly={!isEditing}
-                    className={
-                        isEditing
-                            ? styles.editingInput
-                            : styles.readOnlyInput
-                    }
+                    className={`app-input ${
+                        isEditing ? styles.editingInput : styles.readOnlyInput
+                    }`}
                 />
             </div>
 
             <div className={styles.profileButtonArea}>
                 <button
                     type="button"
-                    className={styles.withdrawButton}
+                    className="app-btn-danger-outline"
                     onClick={handleWithdraw}
                 >
                     회원 탈퇴하기
@@ -386,7 +437,7 @@ export default function UserInfo() {
                     {isEditing && (
                         <button
                             type="button"
-                            className={styles.cancelButton}
+                            className="app-btn-secondary"
                             onClick={handleCancel}
                         >
                             취소
@@ -395,7 +446,7 @@ export default function UserInfo() {
 
                     <button
                         type="button"
-                        className={styles.editButton}
+                        className="app-btn-primary"
                         onClick={handleEdit}
                     >
                         {isEditing ? "수정 완료" : "수정하기"}
@@ -403,5 +454,25 @@ export default function UserInfo() {
                 </div>
             </div>
         </section>
+
+        {/* 공통 AppAlert */}
+        <AppAlert
+            open={alertConfig.open}
+            type={alertConfig.type}
+            title={alertConfig.title}
+            message={alertConfig.message}
+            showCancel={alertConfig.showCancel}
+            confirmText={alertConfig.confirmText}
+            onCancel={closeAlert}
+            onClose={closeAlert}
+            onConfirm={() => {
+                if (alertConfig.onConfirm) {
+                    alertConfig.onConfirm()
+                    return
+                }
+                closeAlert()
+            }}
+        />
+        </>
     )
 }

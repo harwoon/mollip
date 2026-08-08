@@ -24,7 +24,7 @@ export default function AiSummary({ diagnosis }) {
                 <RiSparklingFill />
                 <h3>AI 몰입 코치</h3>
             </div>
-
+            <img src="../../../../public/images/aireport.png" />
 
             <div className={styles.chartArea}>
                 <ResponsiveContainer width="100%" height="100%">

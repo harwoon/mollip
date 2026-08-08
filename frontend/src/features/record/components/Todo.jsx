@@ -147,25 +147,12 @@ export default function Todo({
         <section className={styles.todoRecord}>
             {/* 목표 달성률 영역 */}
             <div className={styles.achievementCard}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                    {/* 동그란 아이콘 배경 */}
-                    <div
-                        style={{
-                            minWidth: "36px",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            backgroundColor: "#E2E2F6",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            color: "#6B4EFF",
-                        }}
-                    >
+                <div className={styles.achievementHeader}>
+                    <div className={styles.achievementHeaderIcon}>
                         <RiFlagLine size={24} />
                     </div>
 
-                    <h2 className={styles.achievementTitle} style={{ margin: 0 }}>
+                    <h2 className={styles.achievementTitle}>
                         목표 달성률
                     </h2>
                 </div>

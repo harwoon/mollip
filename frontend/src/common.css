@@ -1,710 +1,229 @@
-/* 기능별 공통 섹션 */
-.commonSection {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-/* Mollip 공통 UI 컴포넌트 */
-.app-card {
-  min-width: 0;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
+/* ========================= 1. SURFACE / SECTION ========================= */
+.commonSection,
+.app-card,
 .app-panel {
-  min-width: 0;
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.app-section {
-  min-width: 0;
-  padding: var(--space-5);
-  background: var(--color-surface-soft);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-}
-
-.app-section-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-.app-section-title h2,
-.app-section-title h3 {
-  color: var(--color-text);
-  font-size: var(--font-lg);
-  font-weight: 700;
-}
-
-.app-grid { display: grid; gap: var(--space-4); min-width: 0; }
-.app-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.app-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.app-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-.app-scroll {
-  min-height: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-300) transparent;
-}
-
-.app-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.app-scroll::-webkit-scrollbar-thumb { background: var(--color-primary-300); border-radius: 999px; }
-.app-scroll::-webkit-scrollbar-track { background: transparent; }
-
-.app-button {
-  min-height: 40px;
-  padding: 0 var(--space-4);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  color: #fff;
-  font-weight: 700;
-  background: var(--color-primary-600);
-  border: 1px solid var(--color-primary-600);
-  border-radius: var(--radius-md);
-  transition: transform .15s ease, background-color .15s ease, box-shadow .15s ease;
-}
-.app-button:hover { background: var(--color-primary-700); box-shadow: var(--shadow-button); }
-.app-button:active { transform: translateY(1px); }
-.app-button--ghost { color: var(--color-primary-700); background: #fff; border-color: var(--color-primary-200); }
-
-.app-input,
-.app-select,
-.app-textarea {
-  width: 100%;
-  min-height: 42px;
-  padding: 0 var(--space-3);
-  color: var(--color-text);
-  background: #fff;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-}
-.app-textarea { min-height: 120px; padding-block: var(--space-3); resize: vertical; }
-.app-input:focus,
-.app-select:focus,
-.app-textarea:focus {
-  outline: none;
-  border-color: var(--color-primary-500) !important;
-  box-shadow: 0 0 0 3px var(--color-focus) !important;
-}
-
-.app-chip {
-  min-height: 28px;
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: var(--color-primary-700);
-  font-size: var(--font-xs);
-  font-weight: 700;
-  background: var(--color-primary-50);
-  border: 1px solid var(--color-primary-100);
-  border-radius: 999px;
-}
-
-.app-empty {
-  min-height: 120px;
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-
-/* react-calendar 공통 디자인 */
-.app-calendar,
-.react-calendar {
-  width: 100% !important;
-  padding: var(--space-4);
-  background: #fff;
-  border: 1px solid var(--color-border) !important;
-  border-radius: var(--radius-lg);
-  font-family: inherit;
-}
-.react-calendar button { border-radius: 8px; }
-.react-calendar__navigation { height: 42px; margin-bottom: var(--space-2); }
-.react-calendar__navigation button { color: var(--color-text); font-weight: 700; }
-.react-calendar__navigation button:enabled:hover,
-.react-calendar__navigation button:enabled:focus { background: var(--color-primary-50); }
-.react-calendar__month-view__weekdays { color: var(--color-primary-500); font-size: 11px; text-transform: none; }
-.react-calendar__month-view__weekdays abbr { text-decoration: none; }
-.react-calendar__tile { min-height: 42px; color: var(--color-text-secondary); }
-.react-calendar__tile:enabled:hover,
-.react-calendar__tile:enabled:focus { background: var(--color-primary-50); }
-.react-calendar__tile--now { color: var(--color-primary-700); background: var(--color-primary-50); }
-.react-calendar__tile--active,
-.react-calendar__tile--active:enabled:hover,
-.react-calendar__tile--active:enabled:focus { color: #fff; background: var(--color-primary-600); }
-
-@media (max-width: 1200px) {
-  .app-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 860px) {
-  .app-grid--2, .app-grid--3, .app-grid--4 { grid-template-columns: 1fr; }
-}
-
-/* 공통 탭 */
-.app-tabs {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 3px;
-  background: var(--color-primary-50);
-  border: 1px solid var(--color-primary-100);
-  border-radius: 999px;
-}
-
-.app-tab {
-  min-height: 30px;
-  padding: 0 12px;
-  color: var(--color-text-muted);
-  font-size: var(--font-xs);
-  font-weight: 700;
-  border-radius: 999px;
-  transition: color .15s ease, background-color .15s ease;
-}
-
-.app-tab:hover {
-  color: var(--color-primary-700);
-  background: var(--color-surface);
-}
-
-.app-tab.active {
-  color: #fff;
-  background: var(--color-primary-600);
-}
-
-/* 공통 날짜 선택기 */
-.app-date-selector {
-  position: relative;
-  z-index: 20;
-}
-
-.app-date-selector__box {
-  min-height: 42px;
-  padding: 0 var(--space-2) 0 var(--space-3);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-}
-
-.app-date-selector__icon {
-  flex: 0 0 auto;
-  color: var(--color-primary-600);
-  font-size: var(--font-lg);
-}
-
-.app-date-selector__text {
-  min-width: 150px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-sm);
-  text-align: left;
-}
-
-.app-date-selector__arrows {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: var(--space-2);
-}
-
-.app-date-selector__arrows button {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-sm);
-}
-
-.app-date-selector__arrows button:hover {
-  color: var(--color-primary-700);
-  background: var(--color-primary-50);
-}
-
-.app-date-selector__popup {
-  position: absolute;
-  top: calc(100% + var(--space-2));
-  right: 0;
-  width: 320px;
-  padding: var(--space-2);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
-/* 기록 요약 카드 */
-.record-summary-card {
-  min-height: var(--record-summary-min-height);
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-3);
-}
-
-.record-summary-title {
-  color: var(--color-text-secondary);
-  font-size: var(--font-md);
-  font-weight: 700;
-}
-
-.record-summary-value {
-  color: var(--color-primary-700);
-  font-size: clamp(26px, 2vw, 34px);
-  font-weight: 800;
-  letter-spacing: -.04em;
-}
-
-.record-summary-card--chart {
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.record-summary-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.record-summary-chart {
-  position: relative;
-  flex: 0 0 130px;
-  width: 130px;
-  height: 110px;
-}
-
-/* 기록 상세 패널 */
-.app-record-panel {
-  min-height: var(--record-detail-min-height);
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
-
-.app-record-panel__title {
-  margin-bottom: var(--space-5);
-  color: var(--color-text);
-  font-size: var(--font-lg);
-  font-weight: 700;
-  text-align: left;
-}
-
-.record-bar-chart {
-  position: relative;
-  width: 100%;
-  height: 340px;
-}
-
-.record-chart-empty {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transform: translate(-50%, -50%);
-  color: var(--color-text-muted);
-  font-size: var(--font-xs);
-  text-align: center;
-  pointer-events: none;
-}
-
-.record-chart-empty strong {
-  margin-top: 3px;
-  color: var(--color-text-secondary);
-  font-size: var(--font-md);
-}
-
-@media (max-width: 900px) {
-  .app-date-selector,
-  .app-date-selector__box,
-  .app-date-selector__text {
-    width: 100%;
-  }
-
-  .app-date-selector__text {
-    flex: 1;
-  }
-
-  .app-date-selector__popup {
-    left: 0;
-    right: auto;
-    width: min(100%, 360px);
-  }
-
-  .record-summary-card--chart {
-    align-items: flex-start;
-  }
-}
-
-.record-chart-tooltip {
-  padding: var(--space-3);
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  font-size: var(--font-sm);
-}
-
-.record-chart-tooltip__title {
-  margin-bottom: 5px;
-  color: var(--color-primary-700);
-  font-weight: 700;
-}
-
-
-/* =========================
-     기존 커스텀 알럿
-========================= */
-
-.alertOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-
-    width: 100vw;
-    height: 100vh;
-    padding: var(--space-5);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.alertBox {
-    width: 320px;
-    max-width: 100%;
-    padding: var(--space-5) var(--space-6);
-
-    color: var(--color-text);
-    text-align: left;
-
+    min-width: 0;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
+}
+
+.commonSection,
+.app-card {
     box-shadow: var(--shadow-card);
 }
 
-.alertHeader {
-    margin-bottom: var(--space-3);
+.app-panel {
+    padding: var(--space-5);
+}
 
+.app-section {
+    min-width: 0;
+    padding: var(--space-5);
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+}
+
+.app-section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
-.alertHeader strong {
+.app-section-title h2,
+.app-section-title h3 {
     color: var(--color-text);
-    font-size: var(--font-md);
+    font-size: var(--font-lg);
     font-weight: 700;
 }
 
-.alertCloseButton {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-lg);
-
-    border-radius: var(--radius-sm);
-
-    transition:
-        color 0.15s ease,
-        background-color 0.15s ease;
+/* ========================= 2. LAYOUT HELPERS ========================= */
+.app-grid {
+    min-width: 0;
+    display: grid;
+    gap: var(--space-4);
 }
 
-.alertCloseButton:hover {
-    color: var(--color-primary-700);
-    background: var(--color-primary-50);
+.app-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.alertMessage {
-    color: var(--color-text-secondary);
-    font-size: var(--font-sm);
-    line-height: 1.6;
+.app-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-/* =========================================================
-   COMMON BUTTON
-   ========================================================= */
+.app-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 
-/* 주요 버튼
-   저장 / 확인 / 등록 / 추가 */
-.app-btn-primary {
-    min-width: 108px;
+.app-scroll {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-300) transparent;
+}
+
+.app-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.app-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.app-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-primary-300);
+    border-radius: 999px;
+}
+
+/* ========================= 3. BUTTON SYSTEM ========================= */
+.app-btn-primary,
+.app-btn-secondary,
+.app-btn-danger,
+.app-btn-danger-outline {
+    min-width: 96px;
     height: 42px;
     padding: 0 20px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
-
-    color: #fff;
+    border-radius: var(--radius-sm);
     font-size: var(--font-sm);
     font-weight: 700;
+    line-height: 1;
+    transition:
+        color 0.18s ease,
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.12s ease;
+}
 
+.app-btn-primary {
+    min-width: 108px;
+    color: #fff;
     background: var(--color-primary-600);
     border: 1px solid var(--color-primary-600);
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition:
-        background-color .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease,
-        transform .12s ease;
 }
 
 .app-btn-primary:hover:not(:disabled) {
     background: var(--color-primary-700);
     border-color: var(--color-primary-700);
-
-    box-shadow:
-        0 6px 14px rgba(107, 78, 207, .18);
+    box-shadow: var(--shadow-button);
 }
 
-.app-btn-primary:active:not(:disabled) {
+.app-btn-primary:active:not(:disabled),
+.app-btn-danger:active:not(:disabled) {
     transform: translateY(1px);
 }
 
 .app-btn-primary:disabled {
-    color: rgba(255, 255, 255, .75);
-
+    color: rgba(255, 255, 255, 0.75);
     background: var(--color-primary-200);
     border-color: var(--color-primary-200);
-
-    box-shadow: none;
-    cursor: not-allowed;
 }
 
-
-/* 보조 버튼
-   취소 / 뒤로가기 */
 .app-btn-secondary {
-    min-width: 96px;
-    height: 42px;
-    padding: 0 20px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-
     color: var(--color-text-secondary);
-    font-size: var(--font-sm);
-    font-weight: 600;
-
-    background: #fff;
+    background: var(--color-surface);
     border: 1px solid var(--color-border-strong);
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition:
-        color .18s ease,
-        background-color .18s ease,
-        border-color .18s ease;
 }
 
 .app-btn-secondary:hover:not(:disabled) {
     color: var(--color-primary-700);
-
     background: var(--color-primary-50);
     border-color: var(--color-primary-300);
 }
 
 .app-btn-secondary:disabled {
     color: var(--color-text-muted);
-
     background: #f7f7f8;
     border-color: var(--color-border);
-
-    cursor: not-allowed;
 }
 
-
-/* 위험 버튼
-   삭제 / 탈퇴 */
 .app-btn-danger {
-    min-width: 96px;
-    height: 42px;
-    padding: 0 20px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-
     color: #fff;
-    font-size: var(--font-sm);
-    font-weight: 700;
-
     background: var(--color-danger);
     border: 1px solid var(--color-danger);
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition:
-        background-color .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease;
 }
 
 .app-btn-danger:hover:not(:disabled) {
     background: #e95861;
     border-color: #e95861;
-
-    box-shadow:
-        0 6px 14px rgba(239, 108, 115, .18);
+    box-shadow: 0 6px 14px rgba(239, 108, 115, 0.18);
 }
 
 .app-btn-danger:disabled {
     color: #ef9ca1;
-
     background: #fff7f7;
     border-color: #f5c9cc;
-
-    cursor: not-allowed;
 }
 
-
-/* 위험 Outline 버튼 */
 .app-btn-danger-outline {
-    min-width: 96px;
-    height: 42px;
-    padding: 0 20px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-
     color: var(--color-danger);
-    font-size: var(--font-sm);
-    font-weight: 700;
-
-    background: #fff;
+    background: var(--color-surface);
     border: 1px solid var(--color-danger);
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    transition:
-        background-color .18s ease,
-        border-color .18s ease;
 }
 
 .app-btn-danger-outline:hover:not(:disabled) {
     background: var(--color-danger-soft);
 }
 
-
-/* 링크 버튼 */
 .app-btn-link {
     min-height: 36px;
     padding: 0 4px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-
     color: var(--color-primary-600);
     font-size: var(--font-sm);
     font-weight: 600;
-
     background: transparent;
     border: 0;
-
-    cursor: pointer;
-
-    transition: color .18s ease;
+    transition: color 0.18s ease;
 }
 
 .app-btn-link:hover:not(:disabled) {
     color: var(--color-primary-800);
 }
 
-
-/* X 닫기 */
 .app-btn-close {
     flex: 0 0 auto;
-
     width: 36px;
     height: 36px;
-
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    padding: 0;
-
     color: var(--color-text-muted);
     font-size: 20px;
-
     background: transparent;
     border: 0;
-    border-radius: 8px;
-
-    cursor: pointer;
-
+    border-radius: var(--radius-sm);
     transition:
-        color .18s ease,
-        background-color .18s ease;
+        color 0.18s ease,
+        background-color 0.18s ease;
 }
 
-.app-btn-close:hover {
+.app-btn-close:hover:not(:disabled) {
     color: var(--color-text);
-
-    background: #f6f5f8;
+    background: var(--color-primary-50);
 }
 
-
-/* 작은 크기 버튼 */
 .app-btn-small {
     min-width: auto;
     height: 34px;
-
     padding: 0 13px;
-
     font-size: var(--font-xs);
 }
 
-
-/* 버튼 정렬 */
 .app-button-group {
     display: flex;
     align-items: center;
@@ -712,96 +231,169 @@
     gap: 10px;
 }
 
+/* ========================= 4. FORM SYSTEM ========================= */
+.app-input,
+.app-select,
+.app-textarea {
+    width: 100%;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
 
+.app-input,
+.app-select {
+    height: 42px;
+    padding: 0 12px;
+}
 
-/* =========================================================
-   MODAL OVERLAY
-   작업 모달 / 큰 모달 공통
-   ========================================================= */
+.app-textarea {
+    min-height: 110px;
+    padding: 12px;
+    line-height: 1.5;
+    resize: vertical;
+}
 
+.app-input::placeholder,
+.app-textarea::placeholder {
+    color: var(--color-text-muted);
+}
+
+.app-input:focus,
+.app-select:focus,
+.app-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px var(--color-focus);
+}
+
+.app-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.app-field-label {
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 700;
+}
+
+.app-field-required {
+    color: var(--color-danger);
+}
+
+.app-field-help {
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+    line-height: 1.45;
+}
+
+/* ========================= 5. SMALL UI ========================= */
+.app-chip {
+    min-height: 28px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    font-weight: 700;
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: 999px;
+}
+
+.app-empty {
+    min-height: 120px;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+/* ========================= 6. REACT CALENDAR BASE ========================= */
+.app-calendar,
+.react-calendar {
+    width: 100% !important;
+    font-family: inherit;
+}
+
+.app-calendar {
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-lg);
+}
+
+.app-calendar button,
+.react-calendar button {
+    font-family: inherit;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus,
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+    background: var(--color-primary-50);
+}
+
+.react-calendar__month-view__weekdays abbr {
+    text-decoration: none;
+}
+
+/* ========================= 7. MODAL - ACTION / LARGE ========================= */
 .app-modal-overlay {
     position: fixed;
     inset: 0;
     z-index: 1000;
-
+    padding: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 24px;
-
-    background: rgba(30, 27, 36, .42);
-
+    background: rgba(30, 27, 36, 0.42);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
 }
 
-
-/* =========================================================
-   MODAL BASE
-   ========================================================= */
-
 .app-modal {
     max-height: calc(100vh - 48px);
-
     display: flex;
     flex-direction: column;
-
-    background: #fff;
-
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
-
-    box-shadow:
-        0 24px 70px rgba(41, 32, 55, .16),
-        0 4px 16px rgba(41, 32, 55, .06);
-
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-modal);
     overflow: hidden;
 }
-
-
-/* =========================================================
-   ACTION MODAL
-   일정 / Todo / 과목 / 정보 수정 / 그룹 수정
-   ========================================================= */
 
 .app-modal-action {
     width: min(100%, 580px);
 }
 
-
-/* =========================================================
-   LARGE MODAL
-   AI Report / 관리자 상세 / 복합 정보
-   ========================================================= */
-
 .app-modal-large {
     width: min(100%, 1080px);
 }
 
-
-/* =========================================================
-   MODAL HEADER
-   ========================================================= */
-
 .app-modal-header {
     flex: 0 0 auto;
-
-    min-height: 76px;
-    padding: 20px 24px;
-
+    min-height: 72px;
+    padding: 18px 22px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 20px;
-
-    background: #fff;
+    gap: 18px;
+    background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
 }
 
 .app-modal-header-main {
     min-width: 0;
-
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -809,18 +401,14 @@
 
 .app-modal-header-icon {
     flex: 0 0 auto;
-
     width: 38px;
     height: 38px;
-
     display: grid;
     place-items: center;
-
     color: var(--color-primary-600);
     font-size: 18px;
-
     background: var(--color-primary-50);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
 }
 
 .app-modal-heading {
@@ -828,201 +416,124 @@
 }
 
 .app-modal-title {
-    margin: 0;
-
     color: var(--color-text);
     font-size: 20px;
     font-weight: 750;
     line-height: 1.35;
-
-    letter-spacing: -.01em;
+    letter-spacing: -0.01em;
 }
 
 .app-modal-description {
-    margin: 5px 0 0;
-
+    margin-top: 5px;
     color: var(--color-text-muted);
     font-size: var(--font-xs);
     line-height: 1.55;
 }
 
-
-/* =========================================================
-   MODAL BODY
-   ========================================================= */
-
 .app-modal-body {
     min-height: 0;
-    padding: 24px;
-
-    background: #fff;
-
+    padding: 22px;
     overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--color-surface);
 }
 
-
-/* 큰 모달은 내부 콘텐츠가 많으므로 여유있게 */
 .app-modal-large .app-modal-body {
     padding: 28px;
 }
 
-
-/* =========================================================
-   MODAL FOOTER
-   ========================================================= */
-
 .app-modal-footer {
     flex: 0 0 auto;
-
-    min-height: 74px;
-    padding: 15px 24px;
-
+    min-height: 72px;
+    padding: 14px 22px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-
-    background: #fff;
+    background: var(--color-surface);
     border-top: 1px solid var(--color-border);
 }
 
-
-
-/* =========================================================
-   SMALL ALERT OVERLAY
-   ========================================================= */
-
+/* ========================= 8. SMALL ALERT ========================= */
 .app-alert-overlay {
     position: fixed;
     inset: 0;
     z-index: 2000;
-
+    padding: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 20px;
-
-    background: rgba(30, 27, 36, .38);
-
+    background: rgba(30, 27, 36, 0.38);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
 }
 
-
-/* =========================================================
-   SMALL ALERT
-   ========================================================= */
-
 .app-alert {
     position: relative;
-
     width: min(100%, 400px);
     padding: 32px 28px 24px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
     text-align: center;
-
-    background: #fff;
-
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
-
-    box-shadow:
-        0 24px 60px rgba(41, 32, 55, .15),
-        0 4px 14px rgba(41, 32, 55, .05);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-modal);
 }
 
-
-/* 알럿 X */
 .app-alert-close {
     position: absolute;
     top: 12px;
     right: 12px;
-
     width: 32px;
     height: 32px;
-
+    padding: 0;
     display: grid;
     place-items: center;
-
-    padding: 0;
-
     color: var(--color-text-muted);
     font-size: 18px;
-
     background: transparent;
     border: 0;
-    border-radius: 8px;
-
-    cursor: pointer;
-
+    border-radius: var(--radius-sm);
     transition:
-        color .18s ease,
-        background-color .18s ease;
+        color 0.18s ease,
+        background-color 0.18s ease;
 }
 
 .app-alert-close:hover {
     color: var(--color-text);
-
-    background: #f6f5f8;
+    background: var(--color-primary-50);
 }
-
-
-/* =========================================================
-   ALERT ICON
-   ========================================================= */
 
 .app-alert-icon {
     width: 54px;
     height: 54px;
-
     margin-bottom: 18px;
-
     display: grid;
     place-items: center;
-
     font-size: 26px;
-
     border: 2px solid currentColor;
     border-radius: 50%;
 }
 
-
-/* 완료 : 초록 원 + Check */
 .app-alert-icon-success {
     color: var(--color-success);
 }
 
-
-/* 일반 안내 */
 .app-alert-icon-info {
     color: var(--color-primary-600);
 }
 
-
-/* 주의 */
 .app-alert-icon-warning {
     color: var(--color-warning);
 }
 
-
-/* 위험 */
 .app-alert-icon-danger {
     color: var(--color-danger);
 }
 
-
-/* =========================================================
-   ALERT CONTENT
-   ========================================================= */
-
 .app-alert-title {
-    margin: 0;
-
     color: var(--color-text);
     font-size: 18px;
     font-weight: 750;
@@ -1030,66 +541,44 @@
 }
 
 .app-alert-message {
-    margin: 8px 0 0;
-
+    margin-top: 8px;
     color: var(--color-text-muted);
     font-size: var(--font-xs);
     line-height: 1.65;
-
     white-space: pre-line;
 }
 
-
-/* 여러 안내 메시지가 필요한 팝업 */
 .app-alert-list {
     width: 100%;
-
-    margin: 16px 0 0;
+    margin-top: 16px;
     padding: 14px 16px;
-
     color: var(--color-text-secondary);
     font-size: var(--font-xs);
     line-height: 1.7;
-
     text-align: left;
-
-    background: #faf9fb;
-
-    border-radius: 10px;
-
-    list-style: none;
+    background: var(--color-surface-soft);
+    border-radius: var(--radius-md);
 }
 
 .app-alert-list li {
     position: relative;
-
     padding-left: 13px;
 }
 
 .app-alert-list li::before {
     content: "";
-
     position: absolute;
-    top: .72em;
+    top: 0.72em;
     left: 0;
-
     width: 4px;
     height: 4px;
-
     background: var(--color-text-muted);
     border-radius: 50%;
 }
 
-
-/* =========================================================
-   ALERT BUTTON
-   ========================================================= */
-
 .app-alert-actions {
     width: 100%;
-
     margin-top: 24px;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1100,32 +589,20 @@
     flex: 1;
 }
 
-
-/* 확인 하나만 있는 경우 */
 .app-alert-actions-single > button {
     flex: 0 0 auto;
-
     min-width: 120px;
 }
 
-
-
-/* =========================================================
-   MODAL STATE
-   로딩 / 오류 / Empty
-   ========================================================= */
-
+/* ========================= 9. SHARED STATE / SPINNER ========================= */
 .app-modal-state {
     min-height: 220px;
-
     padding: 32px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     color: var(--color-text-muted);
     text-align: center;
 }
@@ -1136,29 +613,19 @@
 }
 
 .app-modal-state p {
-    margin: 0;
-
     color: var(--color-text-muted);
     font-size: var(--font-xs);
     line-height: 1.6;
 }
 
-
-/* =========================================================
-   COMMON SPINNER
-   ========================================================= */
-
 .app-spinner {
     width: 30px;
     height: 30px;
-
     margin-bottom: 8px;
-
     border: 3px solid var(--color-primary-100);
     border-top-color: var(--color-primary-600);
     border-radius: 50%;
-
-    animation: appSpinnerRotate .8s linear infinite;
+    animation: appSpinnerRotate 0.8s linear infinite;
 }
 
 @keyframes appSpinnerRotate {
@@ -1168,47 +635,65 @@
 }
 
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* ========================= 10. SHARED TREND / COMPARISON ========================= */
+.app-trend {
+    min-height: 42px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+    font-weight: 600;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
 
-@media (max-width: 640px) {
+.app-trend-icon {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
 
-    .app-modal-overlay {
-        padding: 14px;
+.app-trend--up .app-trend-icon {
+    color: var(--color-success);
+    background: var(--color-success-soft);
+}
+
+.app-trend--down .app-trend-icon {
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+}
+
+.app-trend--same .app-trend-icon {
+    color: var(--color-primary-600);
+    background: var(--color-primary-100);
+}
+
+
+/* 공통 모달 1000px */
+@media (max-width: 1000px) {
+    .app-modal-overlay,
+    .app-alert-overlay {
+        padding: 20px;
     }
 
     .app-modal {
-        max-height: calc(100vh - 28px);
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 40px);
     }
 
-    .app-modal-header {
-        min-height: auto;
-        padding: 18px;
-    }
-
-    .app-modal-body,
-    .app-modal-large .app-modal-body {
-        padding: 18px;
-    }
-
-    .app-modal-footer {
-        min-height: auto;
-        padding: 14px 18px;
-    }
-
-    .app-alert {
-        padding:
-            30px
-            20px
-            22px;
-    }
-
-    .app-button-group {
+    .app-modal-action,
+    .app-modal-large {
         width: 100%;
     }
 
-    .app-button-group > button {
-        flex: 1;
+    .app-modal-large .app-modal-body {
+        padding: 24px;
     }
 }

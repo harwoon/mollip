@@ -3,10 +3,11 @@
 :root {
     font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: #24212a;
-    background: #f5f5f7;
+    background: #f6f6f8;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
 
+    /* ========================= Brand / Color ========================= */
     --color-primary-50: #f7f3ff;
     --color-primary-100: #eee6fb;
     --color-primary-200: #dacaf1;
@@ -16,23 +17,44 @@
     --color-primary-600: #7653b8;
     --color-primary-700: #6543a5;
     --color-primary-800: #523487;
+
     --color-surface: #ffffff;
     --color-surface-soft: #fbf9fd;
     --color-page: #f6f6f8;
+
     --color-border: #e3e0e7;
     --color-border-strong: #d3ceda;
+
     --color-text: #24212a;
     --color-text-secondary: #5f5967;
     --color-text-muted: #96909e;
-    --color-success: #45b887;
-    --color-warning: #f3a64a;
-    --color-danger: #ef6c73;
-    --color-focus: rgba(118, 83, 184, .16);
 
-    --sidebar-width: 280px;
-    --page-padding-y: clamp(50px, 1.5vw, 80px);
-    --page-padding-x: clamp(35px, 2.2vw, 60px);
-    --content-max-width: 1600px;
+    --color-success: #45b887;
+    --color-success-soft: #e5f6ee;
+    --color-warning: #f3a64a;
+    --color-warning-soft: #fff4e5;
+    --color-danger: #ef6c73;
+    --color-danger-soft: #fdebec;
+    --color-focus: rgba(118, 83, 184, 0.16);
+
+    /* ========================= 고정값 ========================= */
+    --sidebar-width: 250px;
+
+    --page-padding-top: 60px;
+    --page-padding-right: 50px;
+    --page-padding-bottom: 40px;
+    --page-padding-left: 50px;
+
+    --content-max-width: 1670px;
+
+    /* 홈을 기준으로 한 고정 레이아웃 */
+    --home-top-height: 370px;
+    --home-row-gap: 20px;
+    --home-column-gap: 32px;
+    --home-left-ratio: 65%;
+    --home-right-ratio: 35%;
+
+    /* ========================= Spacing ========================= */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -40,69 +62,55 @@
     --space-5: 20px;
     --space-6: 24px;
     --space-7: 32px;
+
+    /* ========================= Radius / Shadow ========================= */
     --radius-sm: 8px;
     --radius-md: 10px;
     --radius-lg: 15px;
     --radius-xl: 18px;
-    --shadow-card: 0 6px 20px rgba(49, 39, 64, .04);
-    --shadow-button: 0 8px 18px rgba(118, 83, 184, .18);
 
+    --shadow-card: 0 6px 20px rgba(49, 39, 64, 0.04);
+    --shadow-button: 0 8px 18px rgba(118, 83, 184, 0.18);
+    --shadow-modal: 0 24px 70px rgba(41, 32, 55, 0.16), 0 4px 16px rgba(41, 32, 55, 0.06);
+
+    /* ========================= Font Size ========================= */
     --font-xs: 14px;
     --font-sm: 15px;
     --font-md: 17px;
     --font-lg: 21px;
     --font-xl: 27px;
     --font-2xl: 30px;
-    
-    /* 기록 페이지를 포함한 차트·상태 UI 공통 토큰 */
-    --color-chart-grid: #ece9f0;
-    --color-success-soft: #e5f6ee;
-    --color-danger-soft: #fdebec;
-    --color-tooltip: #2d2932;
-    --record-summary-min-height: 150px;
-    --record-detail-min-height: 430px;
 
-
-    /* 공통 차트 컬러 */
+    /* ========================= Chart tokens ========================= */
     --chart-primary: #7653b8;
     --chart-primary-soft: #baa3dd;
     --chart-primary-light: #eee6fb;
-
     --chart-secondary: #d9a7d2;
     --chart-secondary-soft: #efd3eb;
-
     --chart-success: #87cdb1;
     --chart-warning: #f2c992;
     --chart-danger: #ef9a9f;
-
     --chart-grid: #dddddd;
     --chart-axis: #888888;
     --chart-axis-strong: #555555;
     --chart-cursor: #f4f0fa;
     --chart-reference-line: #bbbbbb;
-
-    /* 파이·막대그래프 기본 팔레트 */
     --chart-color-1: #9f83ce;
     --chart-color-2: #e7bedf;
     --chart-color-3: #f5d2aa;
     --chart-color-4: #afe7d3;
     --chart-color-5: #c9ddfa;
-
-
-    /* 공통 차트 폰트 크기*/
     --chart-font-xs: 10px;
     --chart-font-sm: 11px;
     --chart-font-md: 12px;
     --chart-font-lg: 13px;
-
-
-    /* 공통 차트 크기 */
     --chart-line-width: 2;
     --chart-dot-radius: 5;
     --chart-bar-size: 24;
     --chart-bar-radius: 4;
 }
 
+/* ========================= Pretendard ========================= */
 @font-face {
     font-family: 'Pretendard';
     font-weight: 100;
@@ -185,36 +193,148 @@
         url('https://cdn.jsdelivr.net/gh/fonts-archive/Pretendard/Pretendard-Black.otf') format('opentype');
 }
 
-body { margin: 0; padding: 0; font-size: 16px; background: var(--color-page); font-family:"Pretendard Variable", Pretendard, 'Pretendard', sans-serif;}
-html, h1, h2, h3, h4, h5, h6, form, fieldset, img { margin: 0; padding: 0; border: 0; }
-h1, h2, h3, h4, h5, h6 { font-size: 1em; font-family: inherit; }
-article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display: block; }
-ul, ol, dl, dt, dd { margin: 0; padding: 0; list-style: none; }
-legend { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
-label, input, button, select, img, textarea { vertical-align: middle; font-size: 1em; }
-input, button, textarea, select { margin: 0; font-family: inherit; }
-button { cursor: pointer; }
-p { margin: 0; padding: 0; word-break: keep-all; }
-hr { display: none; }
-a { color: inherit; text-decoration: none; cursor: pointer; }
-*, *::before, *::after { box-sizing: border-box; }
-img { max-width: 100%; display: block; }
-button, input, select, textarea { border: 0; background: none; }
 
+/* ========================= Reset ========================= */
+html,
+body,
+#root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
 
-.app-shell { width: 100%; height: 100vh; display: flex; overflow: hidden; background: var(--color-page); }
-.app-main { flex: 1; min-width: 0; height: 100vh; overflow: hidden; background: var(--color-page); }
+html {
+    overflow: hidden;
+}
 
+body {
+    overflow: hidden;
+    color: var(--color-text);
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    background: var(--color-page);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+dl,
+dt,
+dd,
+figure,
+form,
+fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 1em;
+    font-family: inherit;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+fieldset,
+img {
+    border: 0;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    margin: 0;
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button,
+input,
+select,
+textarea {
+    background: none;
+    border: 0;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+p {
+    word-break: keep-all;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ========================= Application shell ========================= */
+.app-shell {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+    background: var(--color-page);
+}
+
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--color-page);
+}
+
+/* ========================= User page base ========================= */
 .app-page {
     width: 100%;
     height: 100%;
-    padding: 
-        var(--page-padding-y)
-        var(--page-padding-x);
+    min-width: 0;
+    min-height: 0;
+    padding:
+        var(--page-padding-top)
+        var(--page-padding-right)
+        var(--page-padding-bottom)
+        var(--page-padding-left);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.app-page__inner { 
+.app-page--fixed {
+    overflow: hidden;
+}
+
+.app-page__inner {
     width: 100%;
     max-width: var(--content-max-width);
     min-width: 0;
@@ -222,72 +342,68 @@ button, input, select, textarea { border: 0; background: none; }
     margin: 0 auto;
 }
 
-.app-page-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: flex-start; 
-    gap: var(--space-5); 
-    margin-bottom: var(--space-5); 
+.app-page-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-bottom: var(--space-5);
 }
 
-.app-page-title { 
-    font-size: var(--font-xl); 
-    font-weight: 800; 
-    letter-spacing: -.02em; 
+.app-page-title {
+    color: var(--color-text);
+    font-size: var(--font-xl);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
 }
 
 .app-page-description {
-    margin-top: 6px; 
-    color: var(--color-text-muted); 
-    font-size: var(--font-md); 
+    margin-top: 6px;
+    color: var(--color-text-muted);
+    font-size: var(--font-md);
+    line-height: 1.35;
 }
 
-.loading-state { 
-    height: 100%; 
-    display: grid; 
-    place-items: center; 
-    color: var(--color-text-muted); 
-}
-
-.app-page--fixed {
+.loading-state {
+    width: 100%;
     height: 100%;
-    min-height: 0;
-    overflow: hidden;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-muted);
 }
 
-body{
-    max-height: 100vh;
-    overflow: hidden;
-}
 
-@media (max-width: 900px) {
-  :root { --sidebar-width: 188px; --page-padding: 18px; }
-}
-
-.usersLayout { padding: 18px; background: #fff; }
-.adminGroupsPage { height: 100%; padding: var(--page-padding); overflow-y: auto; }
-.groupsPageSection { padding: 20px; background: #fff; }
-
-/* ===========================
-   Notebook 대응 (반응형 전)
-   1366px ~ 1600px
-=========================== */
-@media (max-width: 1600px) {
+/* 공통 반응형 */
+@media (max-width: 1000px) {
     :root {
-        --sidebar-width: 250px;
-        --page-padding: 20px;
-        --card-gap: 16px;
-        --content-max-width: 1400px;
+        --sidebar-width: 210px;
+
+        --page-padding-top: 32px;
+        --page-padding-right: 24px;
+        --page-padding-bottom: 32px;
+        --page-padding-left: 24px;
     }
 
-    body {
-        font-size: 15px;
+    .app-main {
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
-    .container,
-    .layout,
-    .page,
-    main {
-        zoom: 0.9;
+    .app-page,
+    .app-page--fixed {
+        height: auto;
+        min-height: 100%;
+        overflow: visible;
+    }
+
+    .app-page__inner {
+        height: auto;
+        min-height: 100%;
+    }
+
+    .app-page-header {
+        flex-shrink: 0;
     }
 }

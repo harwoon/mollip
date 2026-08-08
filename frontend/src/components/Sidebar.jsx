@@ -7,6 +7,7 @@ import SidebarLogout from "./SidebarLogout"
 import AiReportModal from "./AiReportModal.jsx"
 import SidebarTimer from "./SidebarTimer.jsx"
 
+import AppAlert from "./common/AppAlert.jsx"
 import "./Sidebar.css"
 import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
 import { RiSparklingFill } from "react-icons/ri"
@@ -20,6 +21,7 @@ function Sidebar({
     onRemoveTodo
 }) {
     const [isReportOpen, setIsReportOpen] = useState(false)
+    const [isGroupAlertOpen, setIsGroupAlertOpen] = useState(false)
     
     const getNavClassName = ({ isActive }) => {
         return isActive 
@@ -32,15 +34,12 @@ function Sidebar({
 
         if (!groupId || groupId === DEFAULT_GROUP_ID) {
             e.preventDefault()
-            alert(
-                `현재 그룹이 정해지지 않았습니다. 
-                그룹 배정을 위해서는 총 공부시간 1시간 이상을 달성해야 합니다. 
-                그룹은 매주 월요일에 주간 공부시간이 초기화되면서 새롭게 배정됩니다.`,
-            )
+            setIsGroupAlertOpen(true)
         }
     }
 
     return (
+        <>
         <aside className="sidebar">
             <div className="sidebarTop">
                 <div className="sidebarLogo">
@@ -117,6 +116,20 @@ function Sidebar({
                 />
             )}
         </aside>
+
+        {/* 공통 경고 팝업 */}
+        <AppAlert
+            open={isGroupAlertOpen}
+            type="warning"
+            title="아직 그룹이 배정되지 않았습니다."
+            message={
+                "그룹 배정을 위해서는 총 공부시간 1시간 이상을 달성해야 합니다.\n" +
+                "그룹은 매주 월요일 주간 공부시간 초기화 시 새롭게 배정됩니다."
+            }
+            onConfirm={() => setIsGroupAlertOpen(false)}
+            onClose={() => setIsGroupAlertOpen(false)}
+        />
+        </>
     )
 }
 

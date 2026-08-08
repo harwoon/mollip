@@ -18,6 +18,26 @@
     gap: var(--space-3);
 }
 
+.headerTitleArea {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.headerIcon {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-primary-600);
+    background: var(--color-primary-100);
+    border-radius: 50%;
+}
+
 .title {
     color: var(--color-text);
     font-size: var(--font-md);
@@ -31,20 +51,41 @@
     font-size: var(--font-xs);
 }
 
-.totalTime {
-    flex-shrink: 0;
-
-    color: var(--color-primary-700);
-    font-size: var(--font-lg);
-    font-weight: 800;
-}
-
 .chartArea {
     position: relative;
 
     flex: 1 1 auto;
     width: 100%;
     min-height: 0;
+    padding: var(--space-1) 0;
+}
+
+.chartCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    text-align: center;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.chartCenter span {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+.chartCenter strong {
+    color: var(--color-primary-700);
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 .emptyState {
@@ -73,4 +114,37 @@
 
     color: var(--color-text-secondary);
     font-size: var(--font-sm);
+}
+
+@media (max-width: 1000px) {
+    .card {
+        min-height: 180px;
+        height: auto;
+
+        padding: 22px 24px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .valueArea {
+        margin: 14px 0 12px;
+    }
+
+    .comparison {
+        margin-top: auto;
+    }
+    .subjectSummary {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .subjectTotal {
+        margin-top: 6px;
+    }
+
+    .comparisonBox {
+        margin-top: auto;
+    }
 }

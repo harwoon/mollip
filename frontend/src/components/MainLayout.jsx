@@ -5,9 +5,8 @@ import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
 import GroupNoticeModal from "./GroupNoticeModal"
 
-import {
-    consumeWeeklyGroupNotice,
-} from "../features/auth/api/auth"
+import { consumeWeeklyGroupNotice} from "../features/auth/api/auth"
+
 
 export default function MainLayout() {
 
@@ -127,14 +126,14 @@ export default function MainLayout() {
 
     return (
         <TimerProvider>
-            <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
+            <div className="app-shell">
                 <Sidebar
                     userInfo={userInfo}
                     todayTodos={todayTodos}
                     onAddTodo={handleAddAiTodo}
                     onRemoveTodo={handleRemoveAiTodo}
                 />
-                <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
+                <main className="app-main">
                     <Outlet context={{
                         todoRefreshKey,
                         handleTodoListChanged
@@ -151,4 +150,4 @@ export default function MainLayout() {
             </div>
         </TimerProvider>
     )
-}
+} 

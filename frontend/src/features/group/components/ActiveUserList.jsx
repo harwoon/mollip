@@ -207,8 +207,16 @@ export default function ActiveUsersList({ groupId, userId }) {
         <div className={styles.emptyState}>현재 공부 중인 멤버가 없습니다.</div>
       ) : (
         <ul className={styles.userList}>
-          {activeUsers.map((user) => (
-            <li key={user.userId} className={styles.userItem}>
+          {activeUsers.map((user) => {
+
+            // 강조 스타일
+            const isCurrentUser = String(user.userId) === String(userId)
+
+            return (
+            <li
+              key={user.userId}
+              className={`${styles.userItem} ${isCurrentUser ? styles.currentUser : ""}`}
+            >
               <img
                 className={styles.profileImage}
                 src={getProfileImageUrl(user.profileImg)}
@@ -222,7 +230,8 @@ export default function ActiveUsersList({ groupId, userId }) {
 
               <StudyTimer startTime={user.startTime} />
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </section>

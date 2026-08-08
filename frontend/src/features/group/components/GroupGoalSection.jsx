@@ -98,28 +98,17 @@ export default function GroupGoalSection() {
     return (
         <div className={styles.section}>
             <header className={styles.header}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                    
+                <div className={styles.headerTitleWrap}>
                     <div
-                        style={{
-                            minWidth: "36px",
-                            width: "36px",
-                            height: "36px",
-                            borderRadius: "50%",
-                            backgroundColor: groupColor, // 그룹 컬러에 맞춰 변경됨!
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            color: "#ffffff", // 아이콘 색상 (흰색)
-                            marginTop: "2px"
-                        }}
+                        className={styles.headerIcon}
+                        style={{ backgroundColor: groupColor }}
                     >
                         <RiTargetFill size={22} />
                     </div>
 
                     {/* 기존 텍스트 영역 */}
                     <div className={styles.titleArea}>
-                        <h2 className={styles.title} style={{ margin: 0 }}>
+                        <h2 className={styles.title}>
                             그룹별 목표
                         </h2>
 

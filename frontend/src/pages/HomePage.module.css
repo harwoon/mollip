@@ -1,39 +1,20 @@
-.timerSection,
-.subjectSection,
-.calendarSection{
-    padding: 0 !important;
-}
-.subjectSection,
-.calendarSection{
-    border-radius: 0 !important;
-    border: none !important;
-    background: none !important;
-}
-
 .homeInner {
     width: 100%;
     height: 100%;
     min-width: 0;
     min-height: 0;
-
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
-}
-.homeInner :global(.app-page-header) {
-    flex: 0 0 auto;
 }
 
 .homeContent {
     flex: 1 1 auto;
     min-width: 0;
     min-height: 0;
-
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
-
+    gap: var(--home-row-gap);
     overflow: hidden;
 }
 
@@ -41,204 +22,107 @@
     width: 100%;
     min-width: 0;
     min-height: 0;
-
     display: flex;
     align-items: stretch;
-    gap: var(--space-7);
-
+    gap: var(--home-column-gap);
     overflow: hidden;
 }
 
-/* 타이머와 과목 목록이 있는 상단 */
 .topRow {
-    flex: .9 1 0;
+    flex: 0 0 var(--home-top-height);
+    height: var(--home-top-height);
 }
 
-/* Todo와 캘린더가 있는 하단 */
 .bottomRow {
-    flex: 1.1 1 0;
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
 }
 
-
-/* =========================
-   좌우 너비
-========================= */
-
+/* ========================= 좌우 비율 ========================= */
 .timerSection,
 .todoSection {
-    flex: 1 1 65%;
-    min-width: 0;
-    min-height: 0;
+    flex: 1 1 var(--home-left-ratio);
 }
 
 .subjectSection,
 .calendarSection {
-    flex: 0 1 35%;
+    flex: 0 1 var(--home-right-ratio);
     min-width: 320px;
-    min-height: 0;
 }
-
-
-/* =========================
-   기능별 섹션
-========================= */
 
 .timerSection,
 .subjectSection,
 .todoSection,
 .calendarSection {
+    min-width: 0;
+    min-height: 0;
     height: 100%;
-    max-height: 100%;
-
     overflow: hidden;
 }
 
-.timerSection,
+/* 공통 카드 여백 기준 */
 .todoSection {
     padding: var(--space-5);
 }
 
+/* 내부 컴포넌트가 자체 카드 디자인을 가지는 영역 */
 .subjectSection,
 .calendarSection {
     padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .subjectContent,
 .calendarContent {
     width: 100%;
     height: 100%;
+    min-width: 0;
     min-height: 0;
-
     overflow: hidden;
 }
 
 
-/* =========================
-   반응형
-========================= */
-
-@media (max-width: 1200px) {
-    .homeRow {
-        gap: var(--space-5);
-    }
-
-    .timerSection,
-    .todoSection {
-        flex-basis: 62%;
-    }
-
-    .subjectSection,
-    .calendarSection {
-        flex-basis: 38%;
-        min-width: 290px;
-    }
-}
-
-@media (max-width: 900px) {
-    .homeInner {
-        height: auto;
-        min-height: 100%;
-    }
-
+@media (max-width: 1000px) {
+    .homeInner,
     .homeContent {
-        flex: none;
+        height: auto;
         overflow: visible;
     }
 
     .homeRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--home-row-gap);
+
+        overflow: visible;
+    }
+
+    .topRow,
+    .bottomRow {
+        height: auto;
         flex: none;
-        flex-direction: column;
-        gap: var(--space-4);
     }
 
     .timerSection,
     .subjectSection,
     .todoSection,
     .calendarSection {
-        flex: none;
         width: 100%;
-        min-width: 0;
-        height: 340px;
+        height: auto;
+        min-height: 320px;
+
+        overflow: visible;
     }
-}
 
+    .topRow .timerSection {
+        min-height: 370px;
+    }
 
-
-/* =========================
-     기존 커스텀 알럿
-========================= */
-
-.alertOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-
-    width: 100vw;
-    height: 100vh;
-    padding: var(--space-5);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.alertBox {
-    width: 320px;
-    max-width: 100%;
-    padding: var(--space-5) var(--space-6);
-
-    color: var(--color-text);
-    text-align: left;
-
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-}
-
-.alertHeader {
-    margin-bottom: var(--space-3);
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-}
-
-.alertHeader strong {
-    color: var(--color-text);
-    font-size: var(--font-md);
-    font-weight: 700;
-}
-
-.alertCloseButton {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-lg);
-
-    border-radius: var(--radius-sm);
-
-    transition:
-        color 0.15s ease,
-        background-color 0.15s ease;
-}
-
-.alertCloseButton:hover {
-    color: var(--color-primary-700);
-    background: var(--color-primary-50);
-}
-
-.alertMessage {
-    color: var(--color-text-secondary);
-    font-size: var(--font-sm);
-    line-height: 1.6;
+    .calendarSection {
+        min-height: 460px;
+    }
 }

@@ -1,8 +1,9 @@
 // [역할: 내 과목 조회 및 수정]
 import { useEffect, useState } from "react"
 import {createSubject, deleteSubject, getSubjects, updateSubject, updateSubjectOrder} from "../../subject/api/subject"
-import {PiBookOpen, PiDotsSixVertical, PiInfo, PiPlus, PiTrash, PiX} from "react-icons/pi"
-
+import {PiBookOpen, PiDotsSixVertical, PiInfo, PiPlus, PiTrash} from "react-icons/pi"
+import AppAlert from "../../../components/common/AppAlert.jsx"
+import AppModal from "../../../components/common/AppModal.jsx"
 import styles from "./SubjectInfo.module.css"
 
 // 과목 컬러 5개
@@ -34,7 +35,15 @@ export default function SubjectInfo() {
     })
 
     // 커스텀 알림창 메시지
-    const [alertMessage, setAlertMessage] = useState("")
+    const [alertConfig, setAlertConfig] = useState({
+        open: false,
+        type: "info",
+        title: "",
+        message: "",
+        showCancel: false,
+        confirmText: "확인",
+        onConfirm: null,
+    })
 
     // 컴포넌트가 처음 화면에 나타날 때 목록 조회
     useEffect(() => {
@@ -47,12 +56,10 @@ export default function SubjectInfo() {
             if (event.key !== "Escape") {
                 return
             }
-
-            if (alertMessage) {
-                setAlertMessage("")
+            if (alertConfig.open) {
+                closeAlert()
                 return
             }
-
             if (isAdding) {
                 handleCancelCreate()
             }
@@ -69,7 +76,7 @@ export default function SubjectInfo() {
                 handleKeyDown
             )
         }
-    }, [alertMessage, isAdding])
+    }, [alertConfig.open, isAdding])
 
     // 로그인한 사용자의 과목 목록 조회
     async function loadSubjects() {
@@ -80,19 +87,34 @@ export default function SubjectInfo() {
             setSubjects(data.subjects ?? [])
 
         } catch (error) {
-            console.error(
-                "과목 목록 조회 오류:", error
-            )
-
-            setAlertMessage(
-                error.message || "과목 목록을 불러오지 못했습니다."
+            console.error("과목 목록 조회 오류:", error)
+            showAlert(
+                error.message || "과목 목록을 불러오지 못했습니다.",
+                { type: "danger", title: "과목 조회 실패" }
             )
         }
     }
 
     // 커스텀 알림 표시
-    function showAlert(message) {
-        setAlertMessage(message)
+    function showAlert(message, options = {}) {
+        setAlertConfig({
+            open: true,
+            type: options.type || "warning",
+            title: options.title || "알림",
+            message,
+            showCancel: Boolean(options.showCancel),
+            confirmText: options.confirmText || "확인",
+            onConfirm: options.onConfirm || null,
+        })
+    }
+
+    // 과목 알럿 닫기
+    function closeAlert() {
+        setAlertConfig((previous) => ({
+            ...previous,
+            open: false,
+            onConfirm: null,
+        }))
     }
 
     // 해당 색상을 사용하는 다른 과목이 있는지 확인
@@ -147,10 +169,7 @@ export default function SubjectInfo() {
                 )
             )
         } catch (error) {
-            console.error(
-                "과목명 수정 오류:", error
-            )
-
+            console.error("과목명 수정 오류:", error)
             showAlert(
                 error.message || "과목명 수정에 실패했습니다."
             )
@@ -187,10 +206,7 @@ export default function SubjectInfo() {
                 )
             )
         } catch (error) {
-            console.error(
-                "과목 색상 수정 오류:", error
-            )
-
+            console.error( "과목 색상 수정 오류:", error)
             showAlert(
                 error.message || "과목 색상 수정에 실패했습니다."
             )
@@ -243,12 +259,10 @@ export default function SubjectInfo() {
             showAlert("과목명을 입력해주세요.")
             return
         }
-
         if (!subjectColor) {
             showAlert("과목 색상을 선택해주세요.")
             return
         }
-
         if (isColorAlreadyUsed(subjectColor)) {
             showAlert("해당 컬러는 이미 사용 중입니다.")
             return
@@ -272,15 +286,18 @@ export default function SubjectInfo() {
             })
 
             setIsAdding(false)
-
             showAlert(
-                data.message || "과목이 추가되었습니다."
+                data.message || "과목이 추가되었습니다.",
+                {
+                    type: "success",
+                    title: "과목 추가 완료",
+                }
             )
+
         } catch (error) {
             console.error(
                 "과목 생성 오류:", error
             )
-
             showAlert(
                 error.message || "과목 추가에 실패했습니다."
             )
@@ -445,34 +462,48 @@ export default function SubjectInfo() {
     }
 
     // 기존 과목 삭제
-    async function handleDeleteSubject(subject) {
-        const confirmed = window.confirm(
-            `"${subject.subjectName}" 과목을 삭제하시겠습니까?`
+    function handleDeleteSubject(subject) {
+        showAlert(
+            `"${subject.subjectName}" 과목을 삭제하시겠습니까?`,
+            {
+                type: "danger",
+                title: "과목 삭제",
+                showCancel: true,
+                confirmText: "삭제",
+                onConfirm: () => confirmDeleteSubject(subject),
+            }
         )
+    }
 
-        if (!confirmed) {
-            return
-        }
+    async function confirmDeleteSubject(subject) {
+        closeAlert()
 
         try {
             const data = await deleteSubject(subject._id)
 
-            // 삭제한 과목을 화면 목록에서 제거
             setSubjects((previousSubjects) =>
                 previousSubjects.filter(
-                    (item) =>
-                        item._id !== subject._id
+                    (item) => item._id !== subject._id
                 )
             )
 
+            // 공통 success Alert
             showAlert(
-                data.message || "과목이 삭제되었습니다."
+                data.message || "과목이 삭제되었습니다.",
+                {
+                    type: "success",
+                    title: "과목 삭제 완료",
+                }
             )
         } catch (error) {
             console.error("과목 삭제 오류:", error)
 
             showAlert(
-                error.message || "과목 삭제에 실패했습니다."
+                error.message || "과목 삭제에 실패했습니다.",
+                {
+                    type: "danger",
+                    title: "과목 삭제 실패",
+                }
             )
         }
     }
@@ -506,6 +537,8 @@ export default function SubjectInfo() {
                         과목은 최대 5개까지 설정 가능하며, 통계 및 대시보드에 반영됩니다.
                     </span>
                 </div>
+
+                
 
                 {/* 등록된 과목 목록 */}
                 <div className={styles.subjectList}>
@@ -631,40 +664,40 @@ export default function SubjectInfo() {
                 </footer>
             </section>
 
-            {/* 과목 추가 모달 */}
-            {isAdding && (
-                <div
-                    className={styles.modalOverlay}
-                    role="presentation"
-                    onMouseDown={(event) => {
-                        if (
-                            event.target === event.currentTarget
-                        ) {
-                            handleCancelCreate()
-                        }
-                    }}
-                >
-                    <section
-                        className={styles.addModal}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="add-subject-title"
-                    >
+            {/* 공통 작업 AppModal */}
+            <AppModal
+                open={isAdding}
+                type="action"
+                title="과목 추가"
+                description="공부할 과목명과 대표 컬러를 선택해주세요."
+                onClose={handleCancelCreate}
+                footer={
+                    <>
                         <button
                             type="button"
-                            className={styles.modalCloseButton}
+                            className="app-btn-secondary"
                             onClick={handleCancelCreate}
-                            aria-label="과목 추가 창 닫기"
                         >
-                            <PiX aria-hidden="true" />
+                            취소
                         </button>
 
-                        <h2 id="add-subject-title" className={styles.modalTitle}>
-                            과목 추가하기
-                        </h2>
-
-                        <label className={styles.modalLabel} htmlFor="new-subject-name">
-                            과목명
+                        <button
+                            type="button"
+                            className="app-btn-primary"
+                            onClick={handleCreateSubject}
+                        >
+                            추가하기
+                        </button>
+                    </>
+                }
+            >
+                <div className={styles.modalForm}>
+                    <div className="app-field">
+                        <label
+                            className="app-field-label"
+                            htmlFor="new-subject-name"
+                        >
+                            과목명 <span className="app-field-required">*</span>
                         </label>
 
                         <input
@@ -673,104 +706,62 @@ export default function SubjectInfo() {
                             placeholder="과목명을 입력해주세요."
                             value={newSubject.subjectName}
                             onChange={handleNewSubjectNameChange}
-                            className={styles.modalInput}
+                            className="app-input"
                             autoFocus
                             maxLength={20}
                         />
+                    </div>
 
-                        <fieldset className={styles.modalColorSection}>
-                            <legend>컬러 선택</legend>
+                    <fieldset className={styles.modalColorSection}>
+                        <legend>컬러 선택</legend>
 
-                            <div className={styles.modalColorList}>
-                                {SubjectColorFix.map(
-                                    (color) => {
-                                        const isSelected = newSubject.subjectColor === color
-                                        const isUsed = isColorAlreadyUsed(color)
+                        <div className={styles.modalColorList}>
+                            {SubjectColorFix.map((color) => {
+                                const isSelected = newSubject.subjectColor === color
+                                const isUsed = isColorAlreadyUsed(color)
 
-                                        return (
-                                            <button
-                                                key={color}
-                                                type="button"
-                                                className={`${styles.modalColorButton} ${
-                                                    isSelected ? styles.selectedColor : ""
-                                                } ${
-                                                    isUsed ? styles.usedColor : ""
-                                                }`}
-                                                style={{backgroundColor: color}}
-                                                onClick={() => handleNewSubjectColorChange(color)
-                                                }
-                                                aria-label={`${color} 색상 선택`}
-                                                aria-pressed={isSelected}
-                                            >
-                                                {isSelected && "✓"}
-                                            </button>
-                                        )
-                                    }
-                                )}
-                            </div>
-                        </fieldset>
-
-                        <div className={styles.modalButtonArea}>
-                            <button
-                                type="button"
-                                className={styles.cancelCreateButton}
-                                onClick={handleCancelCreate}
-                            >
-                                취소
-                            </button>
-
-                            <button
-                                type="button"
-                                className={styles.completeCreateButton}
-                                onClick={handleCreateSubject}
-                            >
-                                추가하기
-                            </button>
+                                return (
+                                    <button
+                                        key={color}
+                                        type="button"
+                                        className={`${styles.modalColorButton} ${
+                                            isSelected ? styles.selectedColor : ""
+                                        } ${
+                                            isUsed ? styles.usedColor : ""
+                                        }`}
+                                        style={{backgroundColor: color}}
+                                        onClick={() => handleNewSubjectColorChange(color)}
+                                        aria-label={`${color} 색상 선택`}
+                                        aria-pressed={isSelected}
+                                    >
+                                        {isSelected && "✓"}
+                                    </button>
+                                )
+                            })}
                         </div>
-                    </section>
+                    </fieldset>
                 </div>
-            )}
+            </AppModal>
 
-            {/* 커스텀 알림창 */}
-            {alertMessage && (
-                <div className={styles.alertOverlay} role="presentation">
-                    <section
-                        className={styles.alertModal}
-                        role="alertdialog"
-                        aria-modal="true"
-                        aria-labelledby="subject-alert-title"
-                    >
-                        <div className={styles.alertHeader}>
-                            <strong id="subject-alert-title">
-                                알림
-                            </strong>
+            {/* 공통 AppAlert */}
+            <AppAlert
+                open={alertConfig.open}
+                type={alertConfig.type}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                showCancel={alertConfig.showCancel}
+                confirmText={alertConfig.confirmText}
+                onCancel={closeAlert}
+                onClose={closeAlert}
+                onConfirm={() => {
+                    if (alertConfig.onConfirm) {
+                        alertConfig.onConfirm()
+                        return
+                    }
 
-                            <button
-                                type="button"
-                                className={styles.alertCloseButton}
-                                onClick={() => setAlertMessage("")}
-                                aria-label="알림 닫기"
-                            >
-                                <PiX aria-hidden="true" />
-                            </button>
-                        </div>
-
-                        <p className={styles.alertMessage}>
-                            {alertMessage}
-                        </p>
-
-                        <div className={styles.alertButtonArea}>
-                            <button
-                                type="button"
-                                className={styles.alertConfirmButton}
-                                onClick={() => setAlertMessage("")}
-                            >
-                                확인
-                            </button>
-                        </div>
-                    </section>
-                </div>
-            )}
+                    closeAlert()
+                }}
+            />
         </>
     )
 }

@@ -197,7 +197,7 @@
 /* =========================
      기존 커스텀 알럿
 ========================= */
-
+/* 삭제예정
 .alertOverlay {
     position: fixed;
     inset: 0;
@@ -271,4 +271,4 @@
     color: var(--color-text-secondary);
     font-size: var(--font-sm);
     line-height: 1.6;
-}
+} */

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import styles from "./Timer.module.css"
 import { socket } from "../../../../util/socket"
-
+import AppAlert from "../../../components/common/AppAlert.jsx"
 
 export default function Timer({
   selectedSubject = null,
@@ -182,7 +182,9 @@ export default function Timer({
         else {
           setIsRunning(true)
           setTimerStatus("RUNNING")
-            alert("서버 문제로 기록이 저장되지 않았습니다. 다시 시도해 주세요.")
+
+          // 공통 Alert
+          setAlertMessage("서버 문제로 기록이 저장되지 않았습니다. 다시 시도해 주세요.")
         }
     }
     else {
@@ -219,17 +221,16 @@ export default function Timer({
         </p>
       </div>
 
-      {alertMessage && (
-        <div className={styles.alertOverlay}>
-          <div className={styles.alertBox}>
-            <div className={styles.alertHeader}>
-              <strong>알림</strong>
-              <button type="button" className={styles.alertCloseButton} onClick={() => setAlertMessage(null)}>✕</button>
-            </div>
-            <p className={styles.alertMessage}>{alertMessage}</p>
-          </div>
-        </div>
-      )}
+      {/* 공통 AppAlert */}
+      <AppAlert
+        open={Boolean(alertMessage)}
+        type="warning"
+        title="알림"
+        message={alertMessage || ""}
+        onConfirm={() => setAlertMessage(null)}
+        onClose={() => setAlertMessage(null)}
+      />
     </div>
+    
   )
 }
