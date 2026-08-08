@@ -133,9 +133,9 @@ export default function AiReportModal({
                 {/* 모달 본문 */}
                 <main className={styles.body}>
                     {loading && (
-                        <div className={styles.loading}>
+                        <div className="app-modal-state">
                             <div
-                                className={styles.loadingSpinner}
+                                className="app-spinner app-spinner-large"
                                 aria-hidden="true"
                             />
 

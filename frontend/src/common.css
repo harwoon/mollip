@@ -628,6 +628,12 @@
     animation: appSpinnerRotate 0.8s linear infinite;
 }
 
+.app-spinner-large {
+    width: 42px;
+    height: 42px;
+    border-width: 4px;
+}
+
 @keyframes appSpinnerRotate {
     to {
         transform: rotate(360deg);

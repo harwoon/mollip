@@ -1,10 +1,89 @@
-/* =========================
-   오늘의 몰입도 차트
-========================= */
+.summary {
+    width: 100%;
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr) 190px;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+
+.coachVisual {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coachImage {
+    display: block;
+    width: 155px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+
+.coachMessage {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.coachHeading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    color: var(--color-primary-700);
+    font-size: var(--font-md);
+    font-weight: 800;
+}
+
+.coachHeading svg {
+    flex: 0 0 auto;
+    font-size: 20px;
+}
+
+.quoteArea {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-3);
+}
+
+.quoteIcon {
+    margin-top: -6px;
+    color: var(--color-primary-100);
+    font-size: 44px;
+}
+
+.summaryText {
+    margin: 0;
+    padding-top: 3px;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-md);
+    font-weight: 600;
+    line-height: 1.9;
+    word-break: keep-all;
+}
+
+
+.scoreArea {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .chartArea {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: 170px;
+    height: 170px;
 }
 
 .centerLabel {
@@ -12,23 +91,46 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
     text-align: center;
 }
 
-.centerLabel strong {
-    font-size: 28px;
-    font-weight: 700;
-}
-
 .immersionLabel {
-    margin-bottom: var(--space-1);
-
     color: var(--color-text-muted);
     font-size: var(--font-xs);
+    white-space: nowrap;
 }
 
 .immersionScore {
     color: var(--color-primary-600);
-    font-size: var(--font-2xl);
+    font-size: 30px;
     font-weight: 800;
+    line-height: 1.1;
+}
+
+
+@media (max-width: 1000px) {
+    .summary {
+        grid-template-columns: 135px minmax(0, 1fr) 160px;
+        gap: var(--space-4);
+    }
+
+    .coachImage {
+        width: 125px;
+    }
+
+    .chartArea {
+        width: 150px;
+        height: 150px;
+    }
+
+    .summaryText {
+        font-size: var(--font-sm);
+        line-height: 1.8;
+    }
 }

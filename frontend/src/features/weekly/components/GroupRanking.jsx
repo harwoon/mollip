@@ -5,14 +5,9 @@ import { getProfileImageUrl } from "../../../util/profileImage.js"
 import styles from "./GroupRanking.module.css"
 
 export default function GroupRanking() {
-    const [ranking, setRanking] =
-        useState([])
-
-    const [loading, setLoading] =
-        useState(true)
-
-    const [error, setError] =
-        useState("")
+    const [ranking, setRanking] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
     function formatStudyTime(rawSeconds) {
         const totalMinutes = Math.floor((Number(rawSeconds) || 0) / 60)
@@ -36,15 +31,17 @@ export default function GroupRanking() {
                 const rankingData =
                     await getWeeklyGroupRanking()
 
-
                 setRanking(rankingData)
             } catch (error) {
                 console.error(
                     "주간 랭킹 조회 실패:",
-                    error,
+                    error
                 )
 
-                setError(error.message)
+                setError(
+                    error.message ||
+                    "주간 랭킹을 불러오지 못했습니다."
+                )
             } finally {
                 setLoading(false)
             }
@@ -55,7 +52,15 @@ export default function GroupRanking() {
 
     if (loading) {
         return (
-            <p className={styles.stateMessage}>주간 랭킹을 불러오는 중...</p>
+            <section className={styles.rankingContainer}>
+                <div className={styles.loadingArea}>
+                    <div className="app-spinner app-spinner-large" />
+
+                    <p>
+                        주간 랭킹을 불러오는 중입니다.
+                    </p>
+                </div>
+            </section>
         )
     }
 

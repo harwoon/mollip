@@ -78,7 +78,11 @@ export default function GroupRanking() {
     if (loading) {
         return (
             <section className={`commonSection ${styles.stateContainer}`}>
-                주간 랭킹을 불러오는 중...
+                <div className="app-modal-state">
+                    <div className="app-spinner app-spinner-large" aria-hidden="true" />
+                    <strong>그룹 랭킹을 불러오고 있어요</strong>
+                    <p>잠시만 기다려 주세요.</p>
+                </div>
             </section>
         )
     }
