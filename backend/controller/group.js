@@ -42,9 +42,9 @@ export async function getGroupsColor(req, res) {
       },
     });
   } catch (error) {
-    console.error("그룹 목록 조회 오류: ", error);
+    console.error("그룹 정보 조회 오류: ", error);
     return res.status(500).json({
-      message: "그룹 목록 조회 중 오류가 발생했습니다.",
+      message: "그룹 정보 조회 중 오류가 발생했습니다.",
     });
   }
 }
