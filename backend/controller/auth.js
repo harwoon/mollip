@@ -531,20 +531,20 @@ export async function getSubjects(req, res) {
                 savedSubjectOrder
             )
 
-        console.log(
-            "User에 저장된 과목 순서:",
-            savedSubjectOrder.map(
-                (subjectId) => subjectId.toString()
-            )
-        )
+        // console.log(
+        //     "User에 저장된 과목 순서:",
+        //     savedSubjectOrder.map(
+        //         (subjectId) => subjectId.toString()
+        //     )
+        // )
 
-        console.log(
-            "과목 조회 응답 순서:",
-            orderedSubjects.map((subject) => ({
-                id: subject._id.toString(),
-                name: subject.subjectName
-            }))
-        )
+        // console.log(
+        //     "과목 조회 응답 순서:",
+        //     orderedSubjects.map((subject) => ({
+        //         id: subject._id.toString(),
+        //         name: subject.subjectName
+        //     }))
+        // )
 
         return res.status(200).json({
             message:
