@@ -64,7 +64,14 @@ export async function signupUser(userId, userPw, nickname, email, profileFile) {
             body: formData
         }
     )
-    const data = await response.json()
+
+    let data
+    try {
+        data = await response.json()
+    } catch {
+        // 서버 에러 등으로 JSON이 아닌 응답이 온 경우
+        throw new Error("회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.")
+    }
 
     if (!response.ok) {
         throw new Error(

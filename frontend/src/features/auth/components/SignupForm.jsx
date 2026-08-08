@@ -161,6 +161,8 @@ export default function SignupForm() {
 
             // navigate("/")
         } catch (error) {
+            console.error("회원가입 실패:", error)
+
             showAlert(
                 "회원가입 실패: " +
                 error.message
