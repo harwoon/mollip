@@ -1,11 +1,11 @@
-.groupStudySection {
+/* .groupStudySection {
     display: grid;
     grid-template-columns:
         minmax(0, 2fr)
         minmax(260px, 1fr);
     gap: 20px;
     margin: 20px 0;
-}
+} */
 
 .groupStudyPanel,
 .weeklyTotalStudyCard {
@@ -24,7 +24,7 @@
 .groupStudyContent {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 100px;
 }
 
 .groupDonutWrapper {
@@ -58,8 +58,9 @@
 
 .groupStudyLegend {
     display: flex;
-    flex: 1;
+    /* flex: 1; */
     flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
     min-width: 0;
 }
@@ -131,8 +132,7 @@
     background: #ffffff;
     border: 1px solid #dddddd;
     border-radius: 8px;
-    box-shadow: 0 4px 12px
-        rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .groupStudyTooltip p {
@@ -164,4 +164,36 @@
     .groupStudyLegend {
         width: 100%;
     }
+}
+
+
+.groupStudyPanel,
+.weeklyTotalStudyCard {
+    border-color: var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+}
+.groupStudyState {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--color-text-muted);
+}
+.groupStudyPanel h3 {
+    color: var(--color-text);
+}
+.groupStudyLegendValue,
+.groupDonutCenter span {
+    color: var(--color-text-muted);
+}
+.weeklyTotalStudyIcon {
+    background: var(--color-primary-50);
+    color: var(--color-primary-600);
+}
+.weeklyTotalStudyCard strong {
+    color: var(--color-primary-700);
 }

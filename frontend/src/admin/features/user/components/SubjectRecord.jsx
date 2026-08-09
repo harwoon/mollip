@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { getSubjectRecord } from "../api/user.js"
+import styles from "./SubjectRecord.module.css" 
+
 
 export default function SubjectRecord({ type, start, end, userId }) {
     const [data, setData] = useState([])
@@ -24,45 +26,80 @@ export default function SubjectRecord({ type, start, end, userId }) {
     }, [type, start, end, userId])
 
     if (loading) {
-        return <div style={{ padding: "20px 0", color: "#666" }}>데이터를 불러오는 중입니다...</div>
+        return (
+            <div className="app-modal-state">
+                <div className="app-spinner" aria-hidden="true" />
+                <p>과목별 공부 기록을 불러오는 중입니다.</p>
+            </div>
+        )
     }
 
     if (data.length === 0) {
-        return <div style={{ padding: "20px 0", color: "#666" }}>해당 기간의 과목별 공부 기록이 없습니다.</div>
+        return (
+            <div className="app-empty">
+                해당 기간의 과목별 공부 기록이 없습니다.
+            </div>
+        )
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px 0" }}>
-            {data.map((item, index) => {
-                const ratio = Math.round(item.ratio)
+        <section className={styles.section}>
+            <div className={styles.header}>
+                <div>
+                    <h3>과목별 공부 기록</h3>
+                    <p>선택한 기간의 과목별 학습 비중입니다.</p>
+                </div>
+            </div>
 
-                return (
-                    <div key={index} style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
-                        <div style={{
-                            width: "12px",
-                            height: "12px",
-                            backgroundColor: item.subjectColor || "#ccc", // 색상이 없을 때 기본값(회색) 처리
-                            borderRadius: "2px",
-                            marginRight: "12px"
-                        }} />
+            <div className={styles.list}>
+                {data.map((item, index) => {
+                    const ratio = Math.round(item.ratio)
 
-                        {/* 과목명 */}
-                        <span style={{ width: "120px", fontWeight: "500", color: "#333" }}>
-                            {item.subject}
-                        </span>
+                    return (
+                        <div
+                            key={`${item.subject}-${index}`}
+                            className={styles.item}
+                        >
+                            <span
+                                className={styles.colorDot}
+                                // GPT 유지 - 과목별 동적 색상은 인라인 style 유지
+                                style={{
+                                    backgroundColor:
+                                        item.subjectColor ||
+                                        "#cccccc",
+                                }}
+                            />
 
-                        {/* 비율 (%) */}
-                        <span style={{ width: "40px", textAlign: "right", marginRight: "8px", color: "#555" }}>
-                            {ratio}%
-                        </span>
+                            <span className={styles.subjectName}>
+                                {item.subject}
+                            </span>
 
-                        {/* 공부 시간 */}
-                        <span style={{ color: "#888" }}>
-                            ({item.studyTime}분)
-                        </span>
-                    </div>
-                )
-            })}
-        </div>
+                            <div className={styles.progressArea}>
+                                <div className={styles.progressTrack}>
+                                    <span
+                                        className={styles.progressBar}
+                                        // GPT 유지 - 데이터 비율에 따른 동적 width
+                                        style={{
+                                            width: `${Math.min(
+                                                Math.max(ratio, 0),
+                                                100,
+                                            )}%`,
+                                        }}
+                                    />
+                                </div>
+
+                                <span className={styles.ratio}>
+                                    {ratio}%
+                                </span>
+                            </div>
+
+                            <span className={styles.studyTime}>
+                                {item.studyTime}분
+                            </span>
+                        </div>
+                    )
+                })}
+            </div>
+        </section>
     )
 }

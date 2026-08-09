@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { HexColorPicker } from "react-colorful";
+import { createGroup, updateGroup,} from "../api/group.js"
 
-import {
-    createGroup,
-    updateGroup,
-} from "../api/group.js";
+import AppAlert from "../../../../components/common/AppAlert.jsx"
 
-import "./GroupForm.css";
+import styles from "./GroupForm.module.css"
 
 /*
  * 그룹 goals 배열에서
@@ -92,18 +90,20 @@ export default function GroupForm({
         setAttendanceDays,
     ] = useState("3");
 
-    const [showPicker, setShowPicker] =
-        useState(false);
+    const [showPicker, setShowPicker] = useState(false)
 
-    const [error, setError] =
-        useState("");
+    const [error, setError] = useState("")
+    const [alertConfig, setAlertConfig] = useState({
+        open: false,
+        type: "info",
+        title: "",
+        message: "",
+        onConfirm: null,
+    })
 
     /*
-     * 수정 모드:
-     * 기존 그룹 정보와 목표값을 입력창에 넣음
-     *
-     * 생성 모드:
-     * 기본값으로 초기화
+     * 수정 모드: 기존 그룹 정보와 목표값을 입력창에 넣음
+     * 생성 모드: 기본값으로 초기화
      */
     useEffect(() => {
         if (mode === "edit" && group) {
@@ -390,41 +390,49 @@ export default function GroupForm({
                 await updateGroup(
                     group._id,
                     groupData,
-                );
-
-                alert(
-                    "그룹이 수정되었습니다.",
-                );
+                )
+                setAlertConfig({
+                    open: true,
+                    type: "success",
+                    title: "그룹 수정 완료",
+                    message: "그룹 정보가 수정되었습니다.",
+                    onConfirm: onSuccess,
+                })
             } else {
                 await createGroup(
                     groupData,
-                );
-
-                alert(
-                    "그룹이 생성되었습니다.",
-                );
+                )
+                setAlertConfig({
+                    open: true,
+                    type: "success",
+                    title: "그룹 생성 완료",
+                    message: "새 그룹이 생성되었습니다.",
+                    onConfirm: onSuccess,
+                })
             }
 
-            await onSuccess();
         } catch (error) {
-            console.error(
-                "그룹 저장 오류:",
-                error,
-            );
+            console.error("그룹 저장 오류:", error)
 
             const message =
                 error.response?.data?.message ||
                 error.message ||
-                "그룹 저장에 실패했습니다.";
+                "그룹 저장에 실패했습니다."
 
-            setError(message);
-            alert(message);
+            setError(message)
+            setAlertConfig({
+                open: true,
+                type: "danger",
+                title: "그룹 저장 실패",
+                message,
+                onConfirm: null,
+            })
         }
     }
 
     return (
         <form
-            className="groupForm"
+            className={styles.groupForm}
             onSubmit={handleSubmit}
         >
             <h2>
@@ -433,7 +441,7 @@ export default function GroupForm({
                     : "그룹 생성하기"}
             </h2>
 
-            <div className="groupFormField">
+            <div className={styles.groupFormField}>
                 <label htmlFor="groupName">
                     그룹명
                 </label>
@@ -441,6 +449,7 @@ export default function GroupForm({
                 <input
                     id="groupName"
                     type="text"
+                    className="app-input"
                     value={groupName}
                     placeholder="그룹명을 입력하세요."
                     onChange={(event) =>
@@ -451,15 +460,15 @@ export default function GroupForm({
                 />
             </div>
 
-            <div className="groupFormField colorField">
+            <div className={`${styles.groupFormField} ${styles.colorField}`}>
                 <label>
                     그룹 대표 컬러
                 </label>
 
-                <div className="colorFieldRow">
+                <div className={styles.colorFieldRow}>
                     <button
                         type="button"
-                        className="colorSwatch"
+                        className={styles.colorSwatch}
                         style={{
                             backgroundColor: groupColor,
                         }}
@@ -470,7 +479,7 @@ export default function GroupForm({
 
                     <input
                         type="text"
-                        className="colorCodeInput"
+                        className={`app-input ${styles.colorCodeInput}`}
                         value={groupColor}
                         placeholder="#FFFFFF"
                         maxLength={7}
@@ -492,7 +501,7 @@ export default function GroupForm({
                 </div>
 
                 {showPicker && (
-                    <div className="colorPickerPopover">
+                    <div className={styles.colorPickerPopover}>
                         <HexColorPicker
                             color={groupColor}
                             onChange={setGroupColor}
@@ -501,7 +510,7 @@ export default function GroupForm({
                 )}
             </div>
 
-            <div className="groupFormField">
+            <div className={styles.groupFormField}>
                 <label htmlFor="groupTime">
                     그룹 조건 시간(h)
                 </label>
@@ -509,6 +518,7 @@ export default function GroupForm({
                 <input
                     id="groupTime"
                     type="number"
+                    className="app-input"
                     min="0"
                     max="167"
                     step="1"
@@ -519,25 +529,26 @@ export default function GroupForm({
                     }
                 />
 
-                <p className="groupFormHelp">
+                <p className={styles.groupFormHelp}>
                     사용자의 총 공부시간을 기준으로
                     그룹이 배정됩니다.
                 </p>
             </div>
 
-            <section className="groupGoalSection">
+            <section className={styles.groupGoalSection}>
                 <h3>그룹 목표 설정</h3>
 
-                <div className="groupGoalGrid">
-                    <div className="groupFormField">
+                <div className={styles.groupGoalGrid}>
+                    <div className={styles.groupFormField}>
                         <label htmlFor="minStudyTime">
                             최소 공부시간 목표
                         </label>
 
-                        <div className="numberInputRow">
+                        <div className={styles.numberInputRow}>
                             <input
                                 id="minStudyTime"
                                 type="number"
+                                className="app-input"
                                 min="0"
                                 max="168"
                                 value={minStudyTime}
@@ -551,21 +562,22 @@ export default function GroupForm({
                             <span>시간</span>
                         </div>
 
-                        <p className="groupFormHelp">
+                        <p className={styles.groupFormHelp}>
                             그룹 조건 시간보다
                             높아야 합니다.
                         </p>
                     </div>
 
-                    <div className="groupFormField">
+                    <div className={styles.groupFormField}>
                         <label htmlFor="challengeStudyTime">
                             도전 공부시간 목표
                         </label>
 
-                        <div className="numberInputRow">
+                        <div className={styles.numberInputRow}>
                             <input
                                 id="challengeStudyTime"
                                 type="number"
+                                className="app-input"
                                 min="0"
                                 max="168"
                                 value={
@@ -581,21 +593,22 @@ export default function GroupForm({
                             <span>시간</span>
                         </div>
 
-                        <p className="groupFormHelp">
+                        <p className={styles.groupFormHelp}>
                             최소 공부시간 목표보다
                             높아야 합니다.
                         </p>
                     </div>
 
-                    <div className="groupFormField">
+                    <div className={styles.groupFormField}>
                         <label htmlFor="todoCompletionRate">
                             Todo 달성률 목표
                         </label>
 
-                        <div className="numberInputRow">
+                        <div className={styles.numberInputRow}>
                             <input
                                 id="todoCompletionRate"
                                 type="number"
+                                className="app-input"
                                 min="0"
                                 max="100"
                                 value={
@@ -612,15 +625,16 @@ export default function GroupForm({
                         </div>
                     </div>
 
-                    <div className="groupFormField">
+                    <div className={styles.groupFormField}>
                         <label htmlFor="attendanceDays">
                             출석일 목표
                         </label>
 
-                        <div className="numberInputRow">
+                        <div className={styles.numberInputRow}>
                             <input
                                 id="attendanceDays"
                                 type="number"
+                                className="app-input"
                                 min="1"
                                 max="7"
                                 step="1"
@@ -641,25 +655,41 @@ export default function GroupForm({
             </section>
 
             {error && (
-                <p className="groupFormError">
+                <p className={styles.groupFormError}>
                     {error}
                 </p>
             )}
 
-            <div className="groupFormActions">
+            <div className={styles.groupFormActions}>
+                {/* 공통 버튼 */}
                 <button
                     type="button"
+                    className="app-btn-secondary"
                     onClick={onCancel}
                 >
                     취소
                 </button>
 
-                <button type="submit">
+                <button type="submit" className="app-btn-primary">
                     {mode === "edit"
                         ? "수정 완료"
                         : "그룹 생성"}
                 </button>
             </div>
+
+            {/* 그룹 생성/수정 공통 알림 */}
+            <AppAlert
+                open={alertConfig.open}
+                type={alertConfig.type}
+                title={alertConfig.title}
+                message={alertConfig.message}
+                onClose={() => setAlertConfig((prev) => ({ ...prev, open: false }))}
+                onConfirm={async () => {
+                    const action = alertConfig.onConfirm;
+                    setAlertConfig((prev) => ({ ...prev, open: false }));
+                    if (action) await action();
+                }}
+            />
         </form>
-    );
+    )
 }

@@ -1,0 +1,71 @@
+.userDetailControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.userDetailTabs {
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+    background: var(--color-primary-50);
+    border-radius: var(--radius-md);
+}
+.userDetailTabs button {
+    min-width: 54px;
+    height: 34px;
+    padding: 0 10px;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.active {
+    color: #fff;
+    background: var(--color-primary-600);
+    font-weight: 700;
+}
+.userDetailDateField {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.userDetailDateField > span {
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+.userDetailDateField :global(.app-input) {
+    width: 230px;
+}
+.userDetailContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+.userDetailFooter {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+@media (max-width: 1000px) {
+    .userDetailControls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .userDetailDateField {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .userDetailDateField :global(.app-input) {
+        width: 100%;
+    }
+}

@@ -10,7 +10,9 @@ import { AverageTime } from "../features/users/components/AverageTime.jsx"
 import WeeklyAverageAchievementCard from "../components/WeeklyAverageAchievementCard"
 import UserDetailModal from "../components/UserDetailModal.jsx"
 
-import "./AdminUsersPage.css"
+import AppAlert from "../../components/common/AppAlert.jsx"
+import styles from "./AdminUsersPage.module.css" 
+import layoutStyles from "../components/AdminLayout.module.css"
 
 
 // 정렬 기준별 설정 (백엔드로 보낼 sortBy 값 + 기본 정렬 방향)
@@ -37,6 +39,8 @@ export default function AdminUsersPage() {
     
     // 사용자 상세 모달
     const [selectedUser, setSelectedUser] = useState(null)
+    // 공통 Alert
+    const [alertMessage, setAlertMessage] = useState("")
 
     const isStatusSort = sortBy === "status"
 
@@ -152,69 +156,76 @@ export default function AdminUsersPage() {
 
             XLSX.writeFile(workbook, `회원목록_${timestamp}.xlsx`)
         } catch (err) {
-            alert("엑셀 다운로드에 실패했습니다: " + err.message)
+            setAlertMessage("엑셀 다운로드에 실패했습니다: " + err.message)
         }
     }
 
     return (
-        <div>
-            <Topbar
-                title="회원 현황"
-                description="서비스에 가입한 회원 목록을 확인할 수 있습니다."
-            >
-                <div className="usersToolbarActions">
-                    <input
-                        type="text"
-                        className="usersInputbox"
-                        placeholder="검색할 닉네임 또는 소속 그룹을 입력하세요."
-                        value={search}
-                        onChange={handleSearchChange}
-                    />
+        <main className={`app-page ${layoutStyles.adminPage} ${styles.adminUsersPage}`}>
+            <div className={`app-page__inner ${layoutStyles.adminPageInner}`}>
+                <Topbar
+                    title="회원 현황"
+                    description="서비스에 가입한 회원 목록과 학습 상태를 확인할 수 있습니다."
+                >
+                    <div className={styles.usersToolbarActions}>
+                        <input
+                            type="text"
+                            className={`app-input ${styles.usersInputbox}`}
+                            placeholder="닉네임 또는 소속 그룹 검색"
+                            value={search}
+                            onChange={handleSearchChange}
+                        />
 
-                    <select value={sortBy} onChange={handleSortByChange}>
-                        {SORT_OPTIONS.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
-
-                    {isStatusSort ? (
-                        <select value={sortOrder} onChange={handleSortOrderChange}>
-                            <option value="studying">공부중</option>
-                            <option value="resting">휴식중</option>
+                        <select className="app-select" value={sortBy} onChange={handleSortByChange}>
+                            {SORT_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
                         </select>
-                    ) : (
-                        <select value={sortOrder} onChange={handleSortOrderChange}>
-                            <option value="asc">오름차순</option>
-                            <option value="desc">내림차순</option>
+
+                        <select className="app-select" value={sortOrder} onChange={handleSortOrderChange}>
+                            {isStatusSort ? (
+                                <>
+                                    <option value="studying">공부중</option>
+                                    <option value="resting">휴식중</option>
+                                </>
+                            ) : (
+                                <>
+                                    <option value="asc">오름차순</option>
+                                    <option value="desc">내림차순</option>
+                                </>
+                            )}
                         </select>
-                    )}
 
-                    <button type="button" className="createXlsxButton" onClick={handleExportExcel}>
-                        엑셀 다운로드
-                    </button>
-                </div>
-            </Topbar>
+                        <button type="button" className="app-btn-primary" onClick={handleExportExcel}>
+                            엑셀 다운로드
+                        </button>
+                    </div>
+                </Topbar>
 
-            <div>
-                <TotalUser />
-                <AverageTime />
-                <WeeklyAverageAchievementCard />
-            </div>
+                <section className={styles.adminUserSummary}>
+                    <TotalUser />
+                    <AverageTime />
+                    <WeeklyAverageAchievementCard />
+                </section>
 
-            <div className="usersLayout">
-                <UsersTable users={users} activeUserIds={activeUserIds} onSelectUser={setSelectedUser} />
-                <Pagination page={page} totalPages={pagination.totalPages} onPageChange={setPage} />
-            </div>
+                <section className={styles.usersLayout}>
+                    <UsersTable users={users} activeUserIds={activeUserIds} onSelectUser={setSelectedUser} />
+                    <Pagination page={page} totalPages={pagination.totalPages} onPageChange={setPage} />
+                </section>
 
-            {/* 사용자 상세 모달 */}
-            {selectedUser && (
-                <UserDetailModal
-                    user={selectedUser}
-                    onClose={() => setSelectedUser(null)}
+                {selectedUser && (
+                    <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+                )}
+
+                <AppAlert
+                    open={Boolean(alertMessage)}
+                    type="danger"
+                    title="엑셀 다운로드 실패"
+                    message={alertMessage}
+                    onConfirm={() => setAlertMessage("")}
+                    onClose={() => setAlertMessage("")}
                 />
-            )}
-        </div>
+            </div>
+        </main>
     )
 }

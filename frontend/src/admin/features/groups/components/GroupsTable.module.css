@@ -1,0 +1,98 @@
+.groupsTableWrapper {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+.groupsTable {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.groupsTable th,
+.groupsTable td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: center;
+    vertical-align: middle;
+}
+.groupsTable th {
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 650;
+    background: var(--color-surface-soft);
+}
+.groupsTable td {
+    color: var(--color-text);
+    font-size: 12px;
+}
+.groupsTable tbody tr:last-child td {
+    border-bottom: 0;
+}
+.groupsTableRow {
+    cursor: pointer;
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+.groupsTableRow:hover {
+    background: var(--color-primary-50);
+}
+.selected {
+    background: var(--color-primary-50);
+    box-shadow: inset 4px 0 0 var(--color-primary-600);
+}
+.groupNameCell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+}
+.groupColorDot {
+    width: 9px;
+    height: 9px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+}
+.groupNameCell strong {
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.goalRateCell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.goalRateText {
+    width: 42px;
+    flex: 0 0 auto;
+    color: var(--color-primary-700);
+    font-size: 10px;
+    text-align: right;
+}
+.goalRateTrack {
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-primary-100);
+}
+.goalRateBar {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-primary-600);
+    transition: width 0.3s ease;
+}
+.groupsTableMessage {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}

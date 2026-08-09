@@ -2,8 +2,7 @@ import SummaryCard from "./SummaryCard.jsx"
 import { RiGroupLine, RiUserSmileLine, RiCheckboxCircleLine, RiTimeLine } from "react-icons/ri"
 import { HiOutlineFire } from "react-icons/hi"
 
-import "./SummaryRow.css"
-
+import styles from "./SummaryRow.module.css"
 
 function formatWeekDiff(
     difference,
@@ -87,7 +86,7 @@ function formatAchievementRateDiff(
 
 export default function SummaryRow({ summary }) {
     return (
-        <div className="summaryRow">
+        <div className={styles.summaryRow}>
             <SummaryCard
                 icon={<RiUserSmileLine />}
                 label="전체 사용자 수"

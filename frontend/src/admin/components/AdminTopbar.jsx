@@ -1,19 +1,19 @@
-import "./AdminTopbar.css"
+import styles from "./AdminTopbar.module.css"
 
 export default function AdminSidebar({ title, description, children}) {
 
     return (
-        <header className="adminTopbar">
-            <div className="adminTopbarText">
-                <h1>{title}</h1>
-                <p>{description}</p> 
+        <header className={styles.adminTopbar}>
+            <div className={styles.adminTopbarText}>
+                <h1 className="app-page-title">{title}</h1>
+                <p className="app-page-description">{description}</p>
             </div>
 
             {children && (
-                <div className="adminTopbarControls">
+                <div className={styles.adminTopbarControls}>
                     {children}
                 </div>
-            )}           
+            )}
         </header>
     )
 }

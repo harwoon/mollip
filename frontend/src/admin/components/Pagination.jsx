@@ -1,4 +1,4 @@
-import "./Pagination.css"
+import styles from "./Pagination.module.css" 
 
 // 페이지 번호 배열 생성 (예: [1, 2, 3, 4, "...", 22])
 function getPageNumbers(current, total) {
@@ -34,9 +34,9 @@ export default function Pagination({ page, totalPages, onPageChange }) {
     const pageNumbers = getPageNumbers(page, totalPages)
 
     return (
-        <div className="pagination">
+        <div className={styles.pagination}>
             <button
-                className="paginationArrow"
+                className={styles.paginationArrow}
                 disabled={page <= 1}
                 onClick={() => onPageChange(page - 1)}
             >
@@ -45,11 +45,11 @@ export default function Pagination({ page, totalPages, onPageChange }) {
 
             {pageNumbers.map((num, idx) =>
                 num === "..." ? (
-                    <span key={`dots-${idx}`} className="paginationDots">...</span>
+                    <span key={`dots-${idx}`} className={styles.paginationDots}>...</span>
                 ) : (
                     <button
                         key={num}
-                        className={num === page ? "paginationButton active" : "paginationButton"}
+                        className={num === page ? `${styles.paginationButton} ${styles.active}` : styles.paginationButton}
                         onClick={() => onPageChange(num)}
                     >
                         {num}
@@ -58,7 +58,7 @@ export default function Pagination({ page, totalPages, onPageChange }) {
             )}
 
             <button
-                className="paginationArrow"
+                className={styles.paginationArrow}
                 disabled={page >= totalPages}
                 onClick={() => onPageChange(page + 1)}
             >

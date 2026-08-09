@@ -1,25 +1,22 @@
 import { useNavigate } from "react-router-dom"
 import { FiLogOut } from "react-icons/fi"
+import styles from "./AdminSidebarLogout.module.css"
 
-export default function SidebarLogout() {
+export default function AdminSidebarLogout() {
     const navigate = useNavigate()
 
     const handleLogout = () => {
         localStorage.clear()
-        // setTime(0)
-        // setIsRunning(false)
-        // setSelectedSubject(null)
-
         navigate("/", { replace: true })
     }
 
     return (
         <button
             type="button"
-            className="sidebarLogoutButton"
+            className={styles.logoutButton}
             onClick={handleLogout}
         >
-            <FiLogOut className="sidebarNavigationIcon" />
+            <FiLogOut className={styles.icon} />
             로그아웃
         </button>
     )

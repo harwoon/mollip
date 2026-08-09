@@ -1,0 +1,42 @@
+.adminUsersPage {
+    overflow-y: auto;
+}
+.usersToolbarActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+.usersToolbarActions :global(.app-select) {
+    width: auto;
+    min-width: 135px;
+}
+.usersInputbox {
+    width: 300px;
+}
+.usersLayout {
+    min-width: 0;
+}
+.adminUserSummary {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+
+    margin-bottom: var(--space-5);
+}
+
+
+@media (max-width: 1000px) {
+    .usersToolbarActions {
+        justify-content: flex-start;
+    }
+    .usersInputbox {
+        width: 100%;
+    }
+    .adminUserSummary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

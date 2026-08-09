@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react"
-import { getUsersCount } from "../api/user"
+import { FiUsers, FiMoon } from "react-icons/fi"
 
-export function TotalUser() { 
-    const [counts, setCounts] = useState({ 
-        normalUserCount: 0, 
-        dormantUserCount: 0 
+import { getUsersCount } from "../api/user"
+import SummaryCard from "../../home/components/SummaryCard.jsx"
+
+export function TotalUser() {
+    const [counts, setCounts] = useState({
+        normalUserCount: 0,
+        dormantUserCount: 0,
     })
 
     useEffect(() => {
@@ -22,8 +25,19 @@ export function TotalUser() {
 
     return (
         <>
-            <span>전체 회원 {counts.normalUserCount}명</span>
-            <span>휴면 회원 {counts.dormantUserCount}명</span>
+            <SummaryCard
+                icon={<FiUsers />}
+                label="전체 회원"
+                value={counts.normalUserCount}
+                unit="명"
+            />
+
+            <SummaryCard
+                icon={<FiMoon />}
+                label="휴면 회원"
+                value={counts.dormantUserCount}
+                unit="명"
+            />
         </>
     )
 }

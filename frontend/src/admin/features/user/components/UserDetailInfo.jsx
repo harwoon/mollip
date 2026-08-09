@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { getProfileImageUrl } from "../../../../util/profileImage.js"
 import { getTotalStudyTime, getTotalStudyRecord, getTodoTrend } from "../api/user.js"
+import styles from "./UserDetailInfo.module.css" 
+
 
 export default function UserDetailInfo({ user }) {
     const [weeklyTime, setWeeklyTime] = useState(0)
@@ -57,67 +59,119 @@ export default function UserDetailInfo({ user }) {
     if (!user) return null
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+        <section className={styles.infoCard}>
+            <div className={styles.summaryRow}>
+                <div className={styles.profileArea}>
                     <img
-                        src={getProfileImageUrl(user.profileImg)}
+                        src={getProfileImageUrl(
+                            user.profileImg,
+                        )}
                         alt="프로필 이미지"
-                        style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#eee", objectFit: "cover" }}
+                        className={styles.profileImage}
                         onError={(event) => {
-                            event.currentTarget.onerror = null;
-                            event.currentTarget.src = "/images/noprofile.png";
+                            event.currentTarget.onerror =
+                                null
+
+                            event.currentTarget.src =
+                                "/images/noprofile.png"
                         }}
                     />
-                    <div>
-                        <h3 style={{ margin: "0 0 5px 0" }}>
-                            {user.nickname}
-                            <span style={{ fontSize: "0.8rem", color: user.isStudying ? "green" : "gray", marginLeft: "10px" }}>
-                                {user.isStudying ? "활동(공부중)" : "휴식중"}
+
+                    <div className={styles.profileText}>
+                        <div className={styles.nameRow}>
+                            <h3>{user.nickname}</h3>
+
+                            <span
+                                className={
+                                    user.isStudying
+                                        ? styles.statusStudying
+                                        : styles.statusResting
+                                }
+                            >
+                                {user.isStudying ? "공부중" : "휴식중"}
                             </span>
-                        </h3>
-                        <p style={{ margin: 0, fontSize: "0.9rem", color: "#666" }}>
-                            가입일: {user.createdAt ? new Date(user.createdAt).toLocaleDateString("ko-KR") : "정보 없음"}<br />
-                            소속 그룹: {user.group ? user.group.groupName : "없음"}
+                        </div>
+
+                        <p>
+                            가입일{" "}
+                            {user.createdAt
+                                ? new Date(
+                                    user.createdAt,
+                                ).toLocaleDateString(
+                                    "ko-KR",
+                                )
+                                : "정보 없음"}
+                        </p>
+
+                        <p>
+                            소속 그룹{" "}
+                            <strong>
+                                {user.group
+                                    ? user.group.groupName
+                                    : "없음"}
+                            </strong>
                         </p>
                     </div>
                 </div>
 
-                <div style={{ display: "flex", gap: "30px", textAlign: "center" }}>
-                    <div>
-                        <p style={{ margin: "0 0 5px 0", fontSize: "0.9rem", color: "#666" }}>연속 학습일</p>
-                        <strong style={{ fontSize: "1.2rem" }}>{user.currentStreak || 0}일</strong>
+                <div className={styles.metricGrid}>
+                    <div className={styles.metricItem}>
+                        <span>연속 학습일</span>
+                        <strong>
+                            {user.currentStreak || 0}
+                            <small>일</small>
+                        </strong>
                     </div>
-                    <div>
-                        <p style={{ margin: "0 0 5px 0", fontSize: "0.9rem", color: "#666" }}>이번 주 공부시간</p>
-                        <strong style={{ fontSize: "1.2rem" }}>
+
+                    <div className={styles.metricItem}>
+                        <span>이번 주 공부시간</span>
+                        <strong>
                             {formatTime(weeklyTime)}
                         </strong>
                     </div>
-                    <div>
-                        <p style={{ margin: "0 0 5px 0", fontSize: "0.9rem", color: "#666" }}>목표 달성률</p>
-                        <strong style={{ fontSize: "1.2rem" }}>{weeklyTodoRate}%</strong>
+
+                    <div className={styles.metricItem}>
+                        <span>Todo 달성률</span>
+                        <strong>
+                            {weeklyTodoRate}
+                            <small>%</small>
+                        </strong>
                     </div>
                 </div>
             </div>
 
-            <div style={{ border: "1px solid #eee", padding: "20px", borderRadius: "8px" }}>
-                <h4 style={{ margin: "0 0 15px 0" }}>기본 정보</h4>
-                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.95rem" }}>
-                    <li style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ color: "#666" }}>이메일</span>
-                        <span>{user.email || "정보 없음"}</span>
-                    </li>
-                    <li style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ color: "#666" }}>최근 공부일(마지막 공부일)</span>
-                        <span>{user.lastStudyDate ? new Date(user.lastStudyDate).toLocaleDateString("ko-KR") : "기록 없음"}</span>
-                    </li>
-                    <li style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ color: "#666" }}>전체 누적 공부시간</span>
-                        <span>{formatTime(totalTime)}</span>
-                    </li>
-                </ul>
+            <div className={styles.basicInfo}>
+                <h4>기본 정보</h4>
+
+                <dl className={styles.infoList}>
+                    <div>
+                        <dt>이메일</dt>
+                        <dd>
+                            {user.email || "정보 없음"}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>최근 공부일</dt>
+                        <dd>
+                            {user.lastStudyDate
+                                ? new Date(
+                                    user.lastStudyDate,
+                                ).toLocaleDateString(
+                                    "ko-KR",
+                                )
+                                : "기록 없음"}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>전체 누적 공부시간</dt>
+                        <dd>
+                            {formatTime(totalTime)}
+                        </dd>
+                    </div>
+                </dl>
             </div>
-        </div>
+        </section>
     )
 }

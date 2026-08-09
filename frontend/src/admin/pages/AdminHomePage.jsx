@@ -19,6 +19,10 @@ import StudyTrend from "../features/home/components/StudyTrend.jsx";
 import GroupGoalAchievement from "../features/groups/components/GroupGoalAchievement.jsx";
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js";
 
+import styles from "./AdminHomePage.module.css"
+import layoutStyles from "../components/AdminLayout.module.css" 
+
+
 export default function AdminHomePage() {
   const [activeUsers, setActiveUsers] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -31,7 +35,7 @@ export default function AdminHomePage() {
     userCountDiff: 0,
 
     studyingCount: 0,
-    studyingCountNote: "수정 필요",
+    // studyingCountNote: "수정 필요",
 
     weeklyTotalTime: 0,
     weeklyTotalTimeDiff: "",
@@ -343,33 +347,38 @@ export default function AdminHomePage() {
   }, [activeUsers.length]);
 
   return (
-    <>
-      <div>
+    <main className={`app-page ${layoutStyles.adminPage} ${styles.adminDashboardPage}`}>
+      <div className={`app-page__inner ${layoutStyles.adminPageInner} ${styles.adminDashboardInner}`}>
         <Topbar
           title="관리자 대시보드"
-          description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고, 필요한 항목을 관리하세요."
+          description="Mollip 서비스 전체 운영 현황을 한눈에 확인하고 필요한 항목을 관리하세요."
         />
+
         <SummaryRow summary={summary} />
 
-        <GroupStudyTimeChart
-          summary={groupStudySummary}
-          loading={groupStudyLoading}
-          error={groupStudyError}
-        />
+        <section className={`${styles.adminDashboardGrid} ${styles.adminDashboardGridTop}`}>
+          <GroupStudyTimeChart
+            summary={groupStudySummary}
+            loading={groupStudyLoading}
+            error={groupStudyError}
+          />
+
+          <ActiveUser activeUsers={activeUsers} />
+        </section>
+
+        <section className={`${styles.adminDashboardGrid} ${styles.adminDashboardGridBottom}`}>
+          <div className={styles.groupsAchievementPanel}>
+            {groupsError && (
+              <p className={styles.groupsAchievementError}>{groupsError}</p>
+            )}
+            <GroupGoalAchievement groups={groups} loading={groupsLoading} />
+          </div>
+
+          <RecentUser logs={logs} />
+        </section>
+
+        <StudyTrend />
       </div>
-
-      <ActiveUser activeUsers={activeUsers} />
-
-      {/* 그룹 목표 달성률 */}
-      <div className="groupsAchievementPanel">
-        {groupsError && <p className="groupsAchievementError">{groupsError}</p>}
-
-        <GroupGoalAchievement groups={groups} loading={groupsLoading} />
-      </div>
-
-      <RecentUser logs={logs} />
-
-      <StudyTrend />
-    </>
+    </main>
   );
 }

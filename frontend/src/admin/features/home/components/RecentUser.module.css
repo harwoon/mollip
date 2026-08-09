@@ -1,0 +1,76 @@
+.adminListCardHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.adminListCardHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text);
+}
+.adminListCardHeader p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.adminRecentCard {
+    padding: 22px;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+.adminRecentList {
+    list-style: none;
+    margin: 0;
+    padding: 0 4px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+.adminRecentItem {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+.adminLogBadge {
+    padding: 4px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.signup {
+    color: var(--color-success);
+    background: var(--color-success-soft);
+}
+.withdrawal {
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+}
+.adminRecentMessage {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+}
+.adminRecentItem time {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+@media (max-width: 1000px) {
+    .adminRecentItem {
+        grid-template-columns: auto 1fr;
+    }
+    .adminRecentItem time {
+        grid-column: 2;
+    }
+}

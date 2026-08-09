@@ -1,18 +1,19 @@
-import "./SummaryCard.css"
+import styles from "./SummaryCard.module.css"
 
 export default function SummaryCard({ icon, label, value, unit, diff }) {
     return (
-        <div className="summaryCard">
-            <div className="summaryCardIcon">
+        <article className={`commonSection ${styles.summaryCard}`}>
+            <div className={styles.summaryCardIcon} aria-hidden="true">
                 {icon}
             </div>
-            <div className="summaryCardContent">
-                <p className="summaryCardLabel">{label}</p>
-                <p className="summaryCardValue">
-                    {value}<span className="summaryCardUnit">{unit}</span>
+
+            <div className={styles.summaryCardContent}>
+                <p className={styles.summaryCardLabel}>{label}</p>
+                <p className={styles.summaryCardValue}>
+                    {value}<span className={styles.summaryCardUnit}>{unit}</span>
                 </p>
-                {diff && <p className="summaryCardDiff">{diff}</p>}
+                {diff && <p className={styles.summaryCardDiff}>{diff}</p>}
             </div>
-        </div>
+        </article>
     )
 }

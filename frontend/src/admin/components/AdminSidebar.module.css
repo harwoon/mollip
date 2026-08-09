@@ -1,0 +1,142 @@
+.sidebar {
+    flex: 0 0 var(--sidebar-width);
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    height: 100vh;
+    padding: 40px 20px 20px;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.sidebarTop {
+    width: 100%;
+}
+.sidebarLogo {
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.sidebarLogo img {
+    width: 85%;
+    max-width: 160px;
+    height: auto;
+}
+.sidebarUser {
+    width: 100%;
+    margin-bottom: 40px;
+}
+.sidebarNavigation {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.sidebarNavigationGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.sidebarNavigationLink {
+    width: 100%;
+    min-height: 34px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-secondary);
+    font-size: var(--font-md);
+    font-weight: 600;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+.sidebarNavigationLink:hover {
+    color: var(--color-primary-600);
+    background: var(--color-primary-50);
+}
+.sidebarNavigationLinkActive {
+    color: var(--color-surface);
+    background: var(--color-primary-400);
+}
+.sidebarNavigationLinkActive:hover {
+    color: var(--color-surface);
+    background: var(--color-primary-400);
+}
+.sidebarNavigationIcon {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-muted);
+}
+.sidebarNavigationLinkActive .sidebarNavigationIcon {
+    color: var(--color-surface);
+}
+.sidebarNavigationLink span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.adminMemberStatusSidebarButton:focus-visible {
+    outline: 2px solid var(--color-primary-300);
+    outline-offset: 2px;
+}
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: var(--radius-sm);
+}
+
+/* SidebarUserInfo는 사용자 공통 컴포넌트라 내부 클래스만 전역 타깃으로 연결 */
+.sidebarUser :global(.sidebarUserInfo) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sidebarUser :global(.sidebarUSerImgBox) {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.sidebarUser :global(.sidebarProfileImage) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.sidebarUser :global(.sidebarGreeting) {
+    min-width: 0;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-sm);
+    line-height: 1.45;
+}
+.sidebarUser :global(.sidebarGreeting strong) {
+    color: var(--color-text);
+}
+
+@media (max-width: 1000px) {
+    .sidebarNavigationLink {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}

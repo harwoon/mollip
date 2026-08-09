@@ -1,0 +1,58 @@
+.summaryCard {
+    min-height: 118px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.summaryCard:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-200);
+    box-shadow: 0 10px 26px rgba(82, 52, 135, 0.08);
+}
+
+.summaryCardIcon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    color: var(--color-primary-600);
+    background: var(--color-primary-50);
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.summaryCardContent {
+    min-width: 0;
+}
+
+.summaryCardLabel {
+    margin: 0 0 5px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.summaryCardValue {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 22px;
+    font-weight: 750;
+    line-height: 1.25;
+}
+
+.summaryCardUnit {
+    margin-left: 3px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summaryCardDiff {
+    margin: 6px 0 0;
+    color: var(--color-primary-600);
+    font-size: 11px;
+    line-height: 1.35;
+}

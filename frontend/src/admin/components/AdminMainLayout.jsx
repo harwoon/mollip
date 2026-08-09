@@ -1,12 +1,14 @@
 import { Outlet } from "react-router-dom"
 import AdminSidebar from "./AdminSidebar.jsx"
+import styles from "./AdminLayout.module.css"
 
 export default function AdminMainLayout() {
     return (
-        <div style={{ display: "flex", width: "100%", height: "100vh", overflow: "hidden" }}>
-            <AdminSidebar/>
-            <main style={{ flex: 1, backgroundColor: "#F8F8FC", overflow: "auto" }}>
-                <Outlet/>
+        <div className={`app-shell ${styles.adminShell}`}>
+            <AdminSidebar />
+
+            <main className={`app-main ${styles.adminMain}`}>
+                <Outlet />
             </main>
         </div>
     )

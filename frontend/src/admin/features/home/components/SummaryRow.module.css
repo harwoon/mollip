@@ -1,0 +1,17 @@
+.summaryRow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+@media (max-width: 1400px) {
+    .summaryRow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1000px) {
+    .summaryRow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

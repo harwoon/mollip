@@ -1,4 +1,4 @@
-import "./GroupGoalAchievement.css"
+import styles from "./GroupGoalAchievement.module.css"
 
 export default function GroupGoalAchievement({
     groups = [],
@@ -12,26 +12,26 @@ export default function GroupGoalAchievement({
 
     if (loading) {
         return (
-            <section className="groupAchievementCard">
-                <h2 className="groupAchievementTitle">그룹 목표 달성률</h2>
-                <p className="groupAchievementMessage">그룹 통계를 불러오는 중입니다.</p>
+            <section className={`commonSection ${styles.groupAchievementCard}`}>
+                <h2 className={styles.groupAchievementTitle}>그룹 목표 달성률</h2>
+                <div className={styles.groupAchievementMessage}><div className="app-spinner" aria-hidden="true" /><span>그룹 통계를 불러오는 중입니다.</span></div>
             </section>
         )
     }
 
     if (sortedGroups.length === 0) {
         return (
-            <section className="groupAchievementCard">
-                <h2 className="groupAchievementTitle">그룹 목표 달성률</h2>
-                <p className="groupAchievementMessage">조회된 그룹이 없습니다.</p>
+            <section className={`commonSection ${styles.groupAchievementCard}`}>
+                <h2 className={styles.groupAchievementTitle}>그룹 목표 달성률</h2>
+                <p className={styles.groupAchievementMessage}>조회된 그룹이 없습니다.</p>
             </section>
         )
     }
 
     return (
-        <section className="groupAchievementCard">
-            <h2 className="groupAchievementTitle">그룹 목표 달성률</h2>
-            <div className="groupAchievementList">
+        <section className={`commonSection ${styles.groupAchievementCard}`}>
+            <h2 className={styles.groupAchievementTitle}>그룹 목표 달성률</h2>
+            <div className={styles.groupAchievementList}>
                 {sortedGroups.map((group, index) => {
                     const rawRate =
                         Number(
@@ -44,9 +44,9 @@ export default function GroupGoalAchievement({
                     )
 
                     return (
-                        <div key={group._id} className="groupAchievementItem">
+                        <div key={group._id} className={styles.groupAchievementItem}>
                             <span
-                                className="groupAchievementRank"
+                                className={styles.groupAchievementRank}
                                 style={{
                                     backgroundColor:
                                         group.groupColor ||
@@ -56,12 +56,12 @@ export default function GroupGoalAchievement({
                                 {String(index + 1).padStart(2, "0")}
                             </span>
 
-                            <span className="groupAchievementName">
+                            <span className={styles.groupAchievementName}>
                                 {group.groupName}
                             </span>
 
                             <div
-                                className="groupAchievementTrack"
+                                className={styles.groupAchievementTrack}
                                 role="progressbar"
                                 aria-label={
                                     `${group.groupName} 목표 달성률`
@@ -71,14 +71,14 @@ export default function GroupGoalAchievement({
                                 aria-valuenow={rate}
                             >
                                 <div
-                                    className="groupAchievementValue"
+                                    className={styles.groupAchievementValue}
                                     style={{
                                         width: `${rate}%`
                                     }}
                                 />
                             </div>
 
-                            <span className="groupAchievementRate">
+                            <span className={styles.groupAchievementRate}>
                                 {rate}%
                             </span>
                         </div>

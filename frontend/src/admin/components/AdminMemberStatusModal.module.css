@@ -1,345 +1,96 @@
-/* 관리회원현황 모달 배경 */
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 30px;
-
-    background: rgba(0, 0, 0, 0.4);
-}
-
-/* 모달 본체 */
-.modal {
-    width: 90%;
-    max-width: 1400px;
-    max-height: 80vh;
-
-    display: flex;
-    flex-direction: column;
-
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-
-    overflow: hidden;
-}
-
-/* 모달 상단 */
-.header {
-    padding: 25px 30px;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-
-    border-bottom: 1px solid var(--color-border);
-}
-
-.header h2 {
-    margin: 0 0 5px;
-
-    color: var(--color-text);
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.header p {
-    margin: 0;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-sm);
-}
-
-/* 닫기 버튼 */
-.closeButton {
-    flex-shrink: 0;
-
-    width: 35px;
-    height: 35px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: var(--color-text-muted);
-    font-size: 18px;
-
-    background: transparent;
-    border: 0;
-    border-radius: var(--radius-sm);
-
-    cursor: pointer;
-}
-
-.closeButton:hover {
-    color: var(--color-primary-600);
-    background: var(--color-primary-50);
-}
-
-/* 모달 본문 */
-.body {
-    min-height: 0;
-    padding: 25px 30px;
-
-    overflow-y: auto;
-}
-
-/* 세 섹션 가로 배치 */
 .sections {
-    display: flex;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
 }
-
-/* 타입별 섹션 */
 .section {
-    flex: 1;
     min-width: 0;
-
-    display: flex;
-    flex-direction: column;
-
+    padding: 16px;
+    background: var(--color-surface-soft);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-
-    overflow: hidden;
-}
-
-/* 섹션 제목 */
-.sectionHeader {
-    min-height: 110px;
-    padding: 20px;
-
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-
-    background: var(--color-primary-50);
-    border-bottom: 1px solid var(--color-border);
-}
-
-.sectionHeader h3 {
-    margin: 0 0 10px;
-
-    color: var(--color-text);
-    font-size: var(--font-md);
-    font-weight: 700;
-}
-
-.sectionHeader p {
-    margin: 0;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-xs);
-    line-height: 20px;
-}
-
-/* 타입별 회원 수 */
-.count {
-    flex-shrink: 0;
-
-    padding: 5px 10px;
-
-    color: var(--color-primary-600);
-    font-size: var(--font-xs);
-    font-weight: 700;
-
-    background: var(--color-surface);
-    border-radius: 20px;
-}
-
-/* 모두 선택 */
-.selectAll {
-    min-height: 45px;
-    padding: 10px 15px;
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    color: var(--color-text-secondary);
-    font-size: var(--font-sm);
-    font-weight: 600;
-
-    border-bottom: 1px solid var(--color-border);
-
-    cursor: pointer;
-}
-
-/* 회원 목록 */
-.list {
-    min-height: 220px;
-    max-height: 300px;
-    padding: 10px;
-
-    overflow-y: auto;
-}
-
-/* 회원 한 줄 */
-.member {
-    min-height: 40px;
-    padding: 10px;
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    color: var(--color-text);
-    font-size: var(--font-sm);
-
-    border-radius: var(--radius-sm);
-
-    cursor: pointer;
-}
-
-.member:hover {
-    background: var(--color-primary-50);
-}
-
-/* 체크박스 */
-.member input,
-.selectAll input {
-    flex-shrink: 0;
-
-    width: 16px;
-    height: 16px;
-
-    accent-color: var(--color-primary-500);
-}
-
-/* 빈 목록 */
-.empty {
-    margin: 0;
-    padding: 70px 10px;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-sm);
-    text-align: center;
-}
-
-/* 섹션별 선택 인원 */
-.selectedCount {
-    padding: 12px 15px;
-
-    color: var(--color-text-muted);
-    font-size: var(--font-xs);
-
-    border-top: 1px solid var(--color-border);
-}
-
-/* 하단 발송 영역 */
-.footer {
-    padding: 20px 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-
-    border-top: 1px solid var(--color-border);
-}
-
-.footer span {
-    color: var(--color-text-secondary);
-    font-size: var(--font-sm);
-}
-
-/* 메일 발송 버튼 */
-.sendButton {
-    min-width: 180px;
-    min-height: 45px;
-    padding: 10px 20px;
-
-    color: var(--color-surface);
-    font-size: var(--font-sm);
-    font-weight: 700;
-
-    background: var(--color-primary-500);
-    border: 0;
     border-radius: var(--radius-md);
-
+}
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.sectionHeader h3 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 14px;
+}
+.sectionHeader p {
+    margin: 4px 0 0;
+    color: var(--color-text-muted);
+    font-size: 10px;
+    line-height: 1.45;
+}
+.selectAll {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 0 10px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    border-bottom: 1px solid var(--color-border);
     cursor: pointer;
 }
-
-.sendButton:hover:not(:disabled) {
-    background: var(--color-primary-600);
-}
-
-.sendButton:disabled {
-    color: var(--color-text-muted);
-    background: var(--color-border);
-
-    cursor: not-allowed;
-}
-
-/* 로딩 및 오류 */
-.message {
-    padding: 80px 20px;
-
-    color: var(--color-text-muted);
-    text-align: center;
-}
-
-.error {
-    color: #e5484d;
-}
-
-.error button {
-    margin-top: 15px;
-    padding: 10px 15px;
-
-    color: var(--color-surface);
-
-    background: var(--color-primary-500);
-    border: 0;
-    border-radius: var(--radius-sm);
-
-    cursor: pointer;
-}
-
-/* 닉네임과 마지막 접속일 세로 배치 */
-.memberInfo {
+.list {
+    margin-top: 10px;
+    max-height: 340px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 7px;
 }
-
-/* 회원 닉네임 */
-.memberNickname {
+.member {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 8px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+.member input {
+    grid-row: 1 / span 2;
+    align-self: center;
+    accent-color: var(--color-primary-600);
+}
+.memberName {
+    min-width: 0;
     color: var(--color-text);
-    font-size: var(--font-sm);
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
-/* 마지막 접속일 */
-.memberDate {
+.memberEmail {
+    min-width: 0;
     color: var(--color-text-muted);
-    font-size: var(--font-xs);
+    font-size: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-
-/* 작은 화면 */
-@media (max-width: 900px) {
-    .modal {
-        width: 95%;
-    }
-
+.footerContent {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
+@media (max-width: 1000px) {
     .sections {
-        flex-direction: column;
+        grid-template-columns: 1fr;
     }
-
-    .sectionHeader {
-        min-height: auto;
-    }
-
     .list {
-        min-height: 150px;
         max-height: 220px;
     }
 }

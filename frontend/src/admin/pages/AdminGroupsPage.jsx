@@ -3,7 +3,10 @@ import Topbar from "../components/AdminTopbar.jsx"
 import GroupsTable from "../features/groups/components/GroupsTable.jsx"
 import GroupForm from "../features/groups/components/GroupForm.jsx"
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
-import "./AdminGroupsPage.css"
+
+import styles from "./AdminGroupsPage.module.css" 
+import layoutStyles from "../components/AdminLayout.module.css"
+
 
 export default function AdminGroupsPage() {
   const [groups, setGroups] = useState([]);
@@ -178,110 +181,71 @@ export default function AdminGroupsPage() {
   }
 
   return (
-    <div className="adminGroupsPage">
-      <Topbar
-        title="그룹 현황"
-        description="생성된 모든 그룹과 이번 주 통계를 관리하고 조회할 수 있습니다."
-      >
-        <div className="groupsToolbarActions">
+    <main className={`app-page ${layoutStyles.adminPage} ${styles.adminGroupsPage}`}>
+      <div className={`app-page__inner ${layoutStyles.adminPageInner}`}>
+        <Topbar
+          title="그룹 현황"
+          description="생성된 모든 그룹과 이번 주 통계를 관리하고 조회할 수 있습니다."
+        >
+          <div className={styles.groupsToolbarActions}>
             <select
+              className="app-select"
               value={sortField}
               onChange={(event) => setSortField(event.target.value)}
             >
-              <option value="groupConditionHours">
-                그룹 조건 시간
-              </option>
-
-              <option value="groupName">
-                그룹명
-              </option>
-
-              <option value="memberCount">
-                인원
-              </option>
-
-              <option value="averageGoalAchievementRate">
-                평균 목표 달성률
-              </option>
-
-              <option value="averageStudyHours">
-                평균 공부 시간
-              </option>
-
-              <option value="averageAttendanceDays">
-                평균 접속 학습일
-              </option>
+              <option value="groupConditionHours">그룹 조건 시간</option>
+              <option value="groupName">그룹명</option>
+              <option value="memberCount">인원</option>
+              <option value="averageGoalAchievementRate">평균 목표 달성률</option>
+              <option value="averageStudyHours">평균 공부 시간</option>
+              <option value="averageAttendanceDays">평균 접속 학습일</option>
             </select>
 
             <select
+              className="app-select"
               value={sortOrder}
-              onChange={(event) =>
-                setSortOrder(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setSortOrder(event.target.value)}
             >
-              <option value="desc">
-                내림차순
-              </option>
-
-              <option value="asc">
-                오름차순
-              </option>
+              <option value="desc">내림차순</option>
+              <option value="asc">오름차순</option>
             </select>
 
             <button
               type="button"
-              className="createGroupButton"
+              className="app-btn-primary"
               onClick={handleClickCreate}
             >
               그룹 생성하기
             </button>
           </div>
-      </Topbar>
+        </Topbar>
 
-      <section className="groupsPageSection">
+        <section className={styles.groupsPageSection}>
+          {error && <p className={styles.groupsPageError}>{error}</p>}
 
-        {error && (
-          <p className="groupsPageError">
-            {error}
-          </p>
-        )}
-
-        <div
-          className={
-            mode
-              ? "groupsPageContent formOpened"
-              : "groupsPageContent"
-          }
-        >
-          <div className="groupsTablePanel">
-            <GroupsTable
-              groups={sortedGroups}
-              selectedGroupId={
-                selectedGroup?._id
-              }
-              onSelectGroup={
-                handleSelectGroup
-              }
-              loading={loading}
-            />
-          </div>
-
-          {mode && (
-            <aside className="groupFormPanel">
-              <GroupForm
-                mode={mode}
-                group={selectedGroup}
-                onSuccess={
-                  handleFormSuccess
-                }
-                onCancel={handleCancel}
+          <div className={mode ? `${styles.groupsPageContent} ${styles.formOpened}` : styles.groupsPageContent}>
+            <div className={styles.groupsTablePanel}>
+              <GroupsTable
+                groups={sortedGroups}
+                selectedGroupId={selectedGroup?._id}
+                onSelectGroup={handleSelectGroup}
+                loading={loading}
               />
-            </aside>
-          )}
-        </div>
-      </section>
-    </div>
+            </div>
+
+            {mode && (
+              <aside className={`commonSection ${styles.groupFormPanel}`}>
+                <GroupForm
+                  mode={mode}
+                  group={selectedGroup}
+                  onSuccess={handleFormSuccess}
+                  onCancel={handleCancel}
+                />
+              </aside>
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }

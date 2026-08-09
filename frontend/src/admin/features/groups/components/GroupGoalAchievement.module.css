@@ -1,0 +1,73 @@
+.groupAchievementCard {
+    width: 100%;
+    min-width: 0;
+    min-height: 320px;
+    padding: 22px;
+}
+.groupAchievementTitle {
+    margin: 0 0 18px;
+    color: var(--color-text);
+    font-size: 18px;
+    font-weight: 750;
+}
+.groupAchievementList {
+    display: flex;
+    max-height: 270px;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+.groupAchievementItem {
+    display: grid;
+    grid-template-columns: 30px 100px minmax(120px, 1fr) 44px;
+    align-items: center;
+    gap: 10px;
+}
+.groupAchievementRank {
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+}
+.groupAchievementName {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 12px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.groupAchievementTrack {
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-primary-100);
+}
+.groupAchievementValue {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-primary-600);
+    transition: width 0.3s ease;
+}
+.groupAchievementRate {
+    color: var(--color-primary-700);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+}
+.groupAchievementMessage {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+}

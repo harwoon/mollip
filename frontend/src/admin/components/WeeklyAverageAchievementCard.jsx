@@ -1,8 +1,8 @@
-// src/features/admin/components/WeeklyAverageAchievementCard.jsx
+import { FiCheckCircle } from "react-icons/fi"
+import SummaryCard from "../features/home/components/SummaryCard.jsx"
 
 import { useEffect, useMemo, useState } from "react"
 import { getAllAdminUsers } from "../api/adminUserApi"
-import "./WeeklyAverageAchievementCard.css"
 
 const DORMANT_GROUP_ID = "6a6c35fa39f4827ac141db88"
 
@@ -21,10 +21,7 @@ export default function WeeklyAverageAchievementCard() {
 
         setUsers(userList)
       } catch (error) {
-        console.error(
-          "[관리자] 평균 목표 달성률 조회 실패:",
-          error
-        )
+        console.error("[관리자] 평균 목표 달성률 조회 실패:", error)
 
         setError("목표 달성률을 불러오지 못했습니다.")
       } finally {
@@ -65,36 +62,34 @@ export default function WeeklyAverageAchievementCard() {
     )
   }, [users])
 
+  if (isLoading) {
+    return (
+      <SummaryCard
+        icon={<FiCheckCircle />}
+        label="이번 주 평균 목표 달성률"
+        value="..."
+        unit=""
+      />
+    )
+  }
+
+  if (error) {
+    return (
+      <SummaryCard
+        icon={<FiCheckCircle />}
+        label="이번 주 평균 목표 달성률"
+        value="-"
+        unit=""
+      />
+    )
+  }
+
   return (
-    <section className="weekly-achievement-card">
-      <div className="weekly-achievement-card__header">
-        <span className="weekly-achievement-card__icon">
-          ✓
-        </span>
-
-        <h3>이번 주 평균 목표 달성률</h3>
-      </div>
-
-      <div className="weekly-achievement-card__content">
-        {isLoading && (
-          <p className="weekly-achievement-card__status">
-            불러오는 중...
-          </p>
-        )}
-
-        {!isLoading && error && (
-          <p className="weekly-achievement-card__error">
-            {error}
-          </p>
-        )}
-
-        {!isLoading && !error && (
-          <strong className="weekly-achievement-card__rate">
-            {averageAchievementRate}
-            <span>%</span>
-          </strong>
-        )}
-      </div>
-    </section>
+    <SummaryCard
+      icon={<FiCheckCircle />}
+      label="이번 주 평균 목표 달성률"
+      value={averageAchievementRate}
+      unit="%"
+    />
   )
 }

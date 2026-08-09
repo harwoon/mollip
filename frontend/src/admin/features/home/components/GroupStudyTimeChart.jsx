@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import {Cell,Pie,PieChart,ResponsiveContainer,Tooltip,} from "recharts"
 
-import "./GroupStudyTimeChart.css"
+import styles from "./GroupStudyTimeChart.module.css" 
 
 function formatStudyTime(totalSeconds) {
     const seconds = Number(totalSeconds) || 0
@@ -33,14 +33,12 @@ function GroupStudyTooltip({
     const group = payload[0].payload
 
     return (
-        <div className="groupStudyTooltip">
+        <div className={styles.groupStudyTooltip}>
             <strong>{group.name}</strong>
-
             <p>
                 공부시간:{" "}
                 {formatStudyTime(group.value)}
             </p>
-
             <p>
                 공부한 사용자:{" "}
                 {group.studyUserCount}명
@@ -98,19 +96,17 @@ export default function GroupStudyTimeChart({
 
     if (loading) {
         return (
-            <section className="groupStudyPanel">
-                <p>
-                    그룹 공부시간을 불러오는
-                    중입니다.
-                </p>
+            <section className={`commonSection ${styles.groupStudyPanel} ${styles.groupStudyState}`}>
+                <div className="app-spinner" aria-hidden="true" />
+                <p>그룹 공부시간을 불러오는 중입니다.</p>
             </section>
         )
     }
 
     if (error) {
         return (
-            <section className="groupStudyPanel">
-                <p className="groupStudyError">
+            <section className={`commonSection ${styles.groupStudyPanel} ${styles.groupStudyState}`}>
+                <p className={styles.groupStudyError}>
                     {error}
                 </p>
             </section>
@@ -118,18 +114,18 @@ export default function GroupStudyTimeChart({
     }
 
     return (
-        <section className="groupStudySection">
-            <article className="groupStudyPanel">
+        <section className={styles.groupStudySection}>
+            <article className={`commonSection ${styles.groupStudyPanel}`}>
                 <h3>그룹별 전체 공부시간</h3>
 
                 {chartData.length === 0 ? (
-                    <p className="groupStudyEmpty">
+                    <p className={styles.groupStudyEmpty}>
                         이번 주 공부 기록이
                         없습니다.
                     </p>
                 ) : (
-                    <div className="groupStudyContent">
-                        <div className="groupDonutWrapper">
+                    <div className={styles.groupStudyContent}>
+                        <div className={styles.groupDonutWrapper}>
                             <ResponsiveContainer
                                 width="100%"
                                 height="100%"
@@ -146,72 +142,56 @@ export default function GroupStudyTimeChart({
                                     >
                                         {chartData.map(
                                             (group) => (
-                                                <Cell
-                                                    key={
-                                                        group.id
-                                                    }
-                                                    fill={
-                                                        group.color
-                                                    }
+                                                <Cell 
+                                                    key={group.id}
+                                                    fill={group.color}
                                                 />
                                             ),
                                         )}
                                     </Pie>
 
-                                    <Tooltip
-                                        content={
-                                            <GroupStudyTooltip />
-                                        }
-                                    />
+                                    <Tooltip content={<GroupStudyTooltip />}/>
                                 </PieChart>
                             </ResponsiveContainer>
 
-                            <div className="groupDonutCenter">
+                            <div className={styles.groupDonutCenter}>
                                 <span>전체</span>
-
                                 <strong>
-                                    {formatStudyTime(
-                                        totalStudyTime,
-                                    )}
+                                    {formatStudyTime(totalStudyTime)}
                                 </strong>
                             </div>
                         </div>
 
-                        <div className="groupStudyLegend">
+                        <div className={styles.groupStudyLegend}>
                             {chartData.map(
                                 (group) => {
                                     const percent =
                                         totalStudyTime >
                                             0
                                             ? Math.round(
-                                                (group.value /
-                                                    totalStudyTime) *
+                                                (group.value / totalStudyTime) *
                                                 100,
                                             )
                                             : 0
 
                                     return (
                                         <div
-                                            key={
-                                                group.id
-                                            }
-                                            className="groupStudyLegendItem"
+                                            key={group.id}
+                                            className={styles.groupStudyLegendItem}
                                         >
                                             <span
-                                                className="groupStudyLegendColor"
+                                                className={styles.groupStudyLegendColor}
                                                 style={{
                                                     backgroundColor:
                                                         group.color,
                                                 }}
                                             />
 
-                                            <span className="groupStudyLegendName">
-                                                {
-                                                    group.name
-                                                }
+                                            <span className={styles.groupStudyLegendName}>
+                                                {group.name}
                                             </span>
 
-                                            <span className="groupStudyLegendValue">
+                                            <span className={styles.groupStudyLegendValue}>
                                                 {formatStudyTime(
                                                     group.value,
                                                 )}{" "}
@@ -229,27 +209,6 @@ export default function GroupStudyTimeChart({
                     </div>
                 )}
             </article>
-
-            {/* <article className="weeklyTotalStudyCard">
-                <div className="weeklyTotalStudyIcon">
-                    ⏱
-                </div>
-
-                <div>
-                    <p>이번 주 총 공부시간</p>
-
-                    <strong>
-                        {formatStudyTime(
-                            totalStudyTime,
-                        )}
-                    </strong>
-
-                    <small>
-                        {summary?.startDate} ~{" "}
-                        {summary?.endDate}
-                    </small>
-                </div>
-            </article> */}
         </section>
     )
 }

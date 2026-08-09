@@ -1,0 +1,29 @@
+.adminTopbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+}
+
+.adminTopbarText {
+    min-width: 0;
+}
+
+.adminTopbarControls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+@media (max-width: 1000px) {
+    .adminTopbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .adminTopbarControls {
+        justify-content: flex-start;
+    }
+}

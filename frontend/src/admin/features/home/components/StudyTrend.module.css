@@ -1,0 +1,122 @@
+.adminTrendCard {
+    padding: 22px;
+    min-width: 0;
+}
+.adminTrendHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.adminTrendHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text);
+}
+.adminTrendHeader p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+.adminTrendControls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.adminTrendTabs {
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    border-radius: var(--radius-md);
+}
+.adminTrendTabs button {
+    min-width: 52px;
+    height: 34px;
+    padding: 0 10px;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.active {
+    color: #fff;
+    background: var(--color-primary-600);
+    font-weight: 700;
+}
+.adminTrendDateButton {
+    min-width: 210px;
+}
+.adminTrendChart {
+    width: 100%;
+    height: 300px;
+}
+.adminTrendLoading {
+    min-height: 300px;
+}
+.adminTrendSummary {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+.adminTrendSummary > div {
+    padding: 14px 16px;
+    background: var(--color-surface-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.adminTrendSummary span {
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+.adminTrendSummary strong {
+    color: var(--color-text);
+    font-size: 18px;
+}
+.positive {
+    color: var(--color-primary-700);
+}
+.negative {
+    color: var(--color-danger);
+}
+.adminTrendSummary small {
+    color: var(--color-text-muted);
+    font-size: 10px;
+}
+.adminTrendTooltip {
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+}
+.adminTrendTooltip strong {
+    font-size: 11px;
+}
+.adminTrendTooltip p {
+    margin: 4px 0 0;
+    color: var(--color-primary-700);
+    font-size: 11px;
+}
+@media (max-width: 1000px) {
+    .adminTrendHeader {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .adminTrendControls {
+        justify-content: flex-start;
+    }
+    .adminTrendSummary {
+        grid-template-columns: 1fr;
+    }
+}
