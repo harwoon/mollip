@@ -75,7 +75,7 @@
 .profileText p {
     margin: 2px 0 0;
     color: var(--color-text-muted);
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .profileText p strong {
@@ -155,7 +155,7 @@
 .infoList dd {
     margin: 0;
     color: var(--color-text-secondary);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 650;
     overflow: hidden;
     text-overflow: ellipsis;

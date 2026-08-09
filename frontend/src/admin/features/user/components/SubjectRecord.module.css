@@ -21,7 +21,7 @@
 .header p {
     margin: 4px 0 0;
     color: var(--color-text-muted);
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .list {
@@ -84,14 +84,14 @@
 .ratio {
     flex: 0 0 38px;
     color: var(--color-primary-700);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 750;
     text-align: right;
 }
 
 .studyTime {
     color: var(--color-text-muted);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     text-align: right;
     white-space: nowrap;

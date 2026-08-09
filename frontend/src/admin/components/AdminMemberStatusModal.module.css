@@ -33,7 +33,7 @@
     gap: 7px;
     padding: 8px 0 10px;
     color: var(--color-text-secondary);
-    font-size: 11px;
+    font-size: 14px;
     border-bottom: 1px solid var(--color-border);
     cursor: pointer;
 }

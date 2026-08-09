@@ -18,7 +18,7 @@
 }
 .usersTable th {
     color: var(--color-text-muted);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 650;
     background: var(--color-surface-soft);
 }
@@ -74,7 +74,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 650;
 }
 .statusStudying {

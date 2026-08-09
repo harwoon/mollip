@@ -14,13 +14,13 @@ export default function UsersTable({ users, activeUserIds, onSelectUser }) {
                     <tr>
                         <th></th>
                         <th>닉네임</th>
+                        <th>상태</th>
                         <th>이번주 총 공부시간</th>
                         <th>현재 연속 학습일</th>
                         <th>최대 연속 학습일</th>
                         <th>개인 목표 달성률</th>
                         <th>소속 그룹</th>
                         <th>그룹 목표 달성률</th>
-                        <th>상태</th>
                         <th>가입일</th>
                     </tr>
                 </thead>
@@ -44,6 +44,11 @@ export default function UsersTable({ users, activeUserIds, onSelectUser }) {
                                 </td>
                                 <td>
                                     <strong>{user.nickname}</strong>
+                                </td>
+                                <td>
+                                    <span className={isStudying ? styles.statusStudying : styles.statusResting}>
+                                        ● {isStudying ? "공부중" : "휴식중"}
+                                    </span>
                                 </td>
                                 <td>{Math.floor((user.weeklyStudyTime || 0) / 3600)}시간</td>
                                 <td>{user.currentStreak}일째</td>
@@ -74,11 +79,6 @@ export default function UsersTable({ users, activeUserIds, onSelectUser }) {
                                     ) : (
                                         "-"
                                     )}  
-                                </td>
-                                <td>
-                                    <span className={isStudying ? styles.statusStudying : styles.statusResting}>
-                                        ● {isStudying ? "공부중" : "휴식중"}
-                                    </span>
                                 </td>
                                 <td>{new Date(user.createdAt).toLocaleDateString("ko-KR")}</td>
                             </tr>

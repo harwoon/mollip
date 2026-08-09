@@ -19,11 +19,11 @@ import layoutStyles from "../components/AdminLayout.module.css"
 const SORT_OPTIONS = [
     { value: "nickname", label: "닉네임", defaultOrder: "asc" },
     { value: "weeklyStudyTime", label: "이번주 총 공부시간", defaultOrder: "desc" },
+    { value: "status", label: "상태", defaultOrder: "studying" },
     { value: "currentStreak", label: "현재 연속 학습일", defaultOrder: "desc" },
     { value: "maxStreak", label: "최대 연속 학습일", defaultOrder: "desc" },
     { value: "achievementRate", label: "개인 목표 달성률", defaultOrder: "desc" },
     { value: "groupAchievementRate", label: "그룹 목표 달성률", defaultOrder: "desc" },
-    { value: "status", label: "상태", defaultOrder: "studying" },
     { value: "createdAt", label: "가입일", defaultOrder: "desc" },
 ]
 
@@ -133,13 +133,13 @@ export default function AdminUsersPage() {
 
             const rows = data.users.map(user => ({
                 "닉네임": user.nickname,
+                "상태": user.isStudying ? "공부중" : "휴식중",
                 "이번주 총 공부시간(시간)": Math.floor((user.weeklyStudyTime || 0) / 60),
                 "현재 연속 학습일": user.currentStreak,
                 "최대 연속 학습일": user.maxStreak,
                 "개인 목표 달성률(%)": user.achievementRate,
                 "소속 그룹": user.group ? user.group.groupName : "탈퇴",
                 "그룹 목표 달성률(%)": user.groupAchievementRate ?? "-",
-                "상태": user.isStudying ? "공부중" : "휴식중",
                 "가입일": new Date(user.createdAt).toLocaleDateString("ko-KR")
             }))
 
