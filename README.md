@@ -114,6 +114,7 @@ uvicorn main:app --reload
 | `VITE_LOCAL_API_URL` | 백엔드 API 서버 주소 (로컬 개발용) |
 | `VITE_REMOTE_API_URL` | 백엔드 API 서버 주소 (원격 접속용 devtunnels 등). **비워둠** `.env.tunnel`로 덮어씀 |
 | `VITE_GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID (프론트엔드용. 백엔드 `GOOGLE_CLIENT_ID`와 동일 값 사용) |
+| `VITE_DORMANT_GROUP_ID` | 휴면 그룹 ID (프론트엔드용. 백엔드 `DORMANT_GROUP_ID`와 동일 값 사용) |
 
 **`.env.tunnel`** (`npm run dev:tunnel` 실행 시에만 추가 로드, `VITE_REMOTE_API_URL` 덮어씀)
 
