@@ -143,6 +143,25 @@
 }
 
 
+@media (min-width: 1821px) {
+    .summaryRow {
+        gap: 18px;
+    }
+
+    .summaryRow > * {
+        min-height: 150px;
+    }
+
+    .chartRow {
+        gap: 20px;
+    }
+
+    .chartRow > * {
+        min-height: 320px;
+    }
+}
+
+
 @media (max-width: 1000px) {
     .pageHeader {
         display: flex;

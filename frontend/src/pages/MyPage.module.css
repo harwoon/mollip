@@ -39,6 +39,16 @@
 }
 
 
+@media (min-width: 1821px) {
+    .page {
+        gap: 24px;
+    }
+
+    .userArea,
+    .subjectArea {
+        min-height: 680px;
+    }
+}
 
 @media (max-width: 1000px) {
     .page {
