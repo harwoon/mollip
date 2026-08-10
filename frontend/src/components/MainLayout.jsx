@@ -5,7 +5,7 @@ import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
 import GroupNoticeModal from "./GroupNoticeModal"
 
-import { consumeWeeklyGroupNotice} from "../features/auth/api/auth"
+import { consumeWeeklyGroupNotice } from "../features/auth/api/auth"
 
 
 export default function MainLayout() {
@@ -17,66 +17,96 @@ export default function MainLayout() {
     const [groupNotice, setGroupNotice] =
         useState(null)
 
-    const [isGroupNoticeOpen, setIsGroupNoticeOpen] =
-        useState(false)
+    const [
+        isGroupNoticeOpen,
+        setIsGroupNoticeOpen,
+    ] = useState(false)
 
     const groupNoticeCheckedRef =
         useRef(false)
 
+
+    async function checkGroupNotice() {
+        try {
+            const data =
+                await consumeWeeklyGroupNotice()
+
+            const notice =
+                data?.notice
+
+            if (!notice) {
+                return
+            }
+
+            setGroupNotice(notice)
+            setIsGroupNoticeOpen(true)
+
+            localStorage.setItem(
+                "groupId",
+                notice.currentGroupId,
+            )
+
+            setUserInfo((previousUser) => {
+                if (!previousUser) {
+                    return previousUser
+                }
+
+                const updatedUser = {
+                    ...previousUser,
+                    groupId:
+                        notice.currentGroupId,
+                }
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(
+                        updatedUser,
+                    ),
+                )
+
+                return updatedUser
+            })
+        } catch (error) {
+            console.error(
+                "그룹 알림 조회 실패:",
+                error,
+            )
+        }
+    }
+
+
+    // 최초 접속 시 한 번 확인
     useEffect(() => {
-        if (groupNoticeCheckedRef.current) {
+        if (
+            groupNoticeCheckedRef.current
+        ) {
             return
         }
 
-        groupNoticeCheckedRef.current = true
-
-        async function checkGroupNotice() {
-            try {
-                const data =
-                    await consumeWeeklyGroupNotice()
-
-                const notice =
-                    data?.notice
-
-                if (!notice) {
-                    return
-                }
-
-                setGroupNotice(notice)
-                setIsGroupNoticeOpen(true)
-
-                localStorage.setItem(
-                    "groupId",
-                    notice.currentGroupId,
-                )
-
-                setUserInfo((previousUser) => {
-                    if (!previousUser) {
-                        return previousUser
-                    }
-
-                    const updatedUser = {
-                        ...previousUser,
-                        groupId:
-                            notice.currentGroupId,
-                    }
-
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(updatedUser),
-                    )
-
-                    return updatedUser
-                })
-            } catch (error) {
-                console.error(
-                    "주간 그룹 알림 조회 실패:",
-                    error,
-                )
-            }
-        }
+        groupNoticeCheckedRef.current =
+            true
 
         checkGroupNotice()
+    }, [])
+
+
+    // 공부 저장 후 새 알림이 만들어졌을 때 확인
+    useEffect(() => {
+        function handleGroupNoticeCreated() {
+            checkGroupNotice()
+        }
+
+        window.addEventListener(
+            "weekly-group-notice-created",
+            handleGroupNoticeCreated,
+        )
+
+        return () => {
+            window.removeEventListener(
+                "weekly-group-notice-created",
+                handleGroupNoticeCreated,
+            )
+        }
     }, [])
     const [todoRefreshKey, setTodoRefreshKey] = useState(0)
     const [todayTodos, setTodayTodos] = useState([])
