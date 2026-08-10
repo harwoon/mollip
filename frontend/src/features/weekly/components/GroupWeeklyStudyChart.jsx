@@ -121,7 +121,7 @@ function makeChartData(data) {
 
     return (
         <section className={`commonSection ${styles.container}`}>
-            <h3 className={styles.title}>주간 총 공부량</h3>
+            <h3 className={styles.title}>주간 총 공부 시간</h3>
             <div className={styles.chartArea}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
