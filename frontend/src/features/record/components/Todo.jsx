@@ -145,16 +145,14 @@ export default function Todo({
 
     return (
         <section className={styles.todoRecord}>
-            {/* 목표 달성률 영역 */}
+            {/* Todo 달성률 영역 */}
             <div className={styles.achievementCard}>
                 <div className={styles.achievementHeader}>
                     <div className={styles.achievementHeaderIcon}>
                         <RiFlagLine size={24} />
                     </div>
 
-                    <h2 className={styles.achievementTitle}>
-                        목표 달성률
-                    </h2>
+                    <h2 className={styles.achievementTitle}>Todo 달성률</h2>
                 </div>
 
                 {/* Recharts 도넛 차트 */}
@@ -191,7 +189,7 @@ export default function Todo({
                     {/* 도넛 차트 가운데 달성률 */}
                     <div className={styles.chartCenter}>
                         <span className={styles.achievementLabel}>
-                            목표 달성률
+                            Todo 달성률
                         </span>
 
                         <strong className={styles.achievementRate}>

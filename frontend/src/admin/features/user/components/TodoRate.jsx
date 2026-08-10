@@ -112,7 +112,7 @@ export default function TodoAchievementRecord({ type, start, end, userId }) {
         <section className={styles.chartSection}>
             <div className={styles.header}>
                 <div>
-                    <h3>Todo 목표 달성률</h3>
+                    <h3>Todo 달성률</h3>
                     <p>기간별 Todo 완료 비율을 확인합니다.</p>
                 </div>
             </div>
