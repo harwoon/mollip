@@ -30,6 +30,9 @@ router.post("/logout", authController.logout)
 // http://127.0.0.1:3000/auth/me
 router.patch("/me", isAuth, authController.meUpdate)
 
+// 비밀번호 변경
+router.patch("/password", isAuth, authController.updatePassword)
+
 // 프로필 이미지 수정
 // http://127.0.0.1:3000/auth/profile-image
 router.patch(

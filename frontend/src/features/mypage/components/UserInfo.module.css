@@ -175,6 +175,41 @@
     gap: var(--space-3);
 }
 
+.accountButtons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.passwordForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.passwordForm label {
+    margin-top: var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-xs);
+    font-weight: 700;
+}
+
+.passwordForm label:first-child {
+    margin-top: 0;
+}
+
+.passwordGuide {
+    color: var(--color-text-muted);
+    font-size: 12px;
+}
+
+.passwordModalActions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+}
+
 
 @media (max-width: 1000px) {
     .userInfo {
@@ -190,5 +225,15 @@
 
     .profileButtonArea {
         margin-top: var(--space-4);
+    }
+
+    .profileButtonArea {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .accountButtons,
+    .profileEditButtons {
+        flex-wrap: wrap;
     }
 }

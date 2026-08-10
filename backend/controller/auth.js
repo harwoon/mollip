@@ -9,6 +9,7 @@ import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import AdminLog from "../models/AdminLog.js"
 import { createJwtToken } from "../util/jwt.js"
+import { validatePasswordChange } from "../util/password.js"
 import * as groupRepository from "../repository/group.js"
 import { getKstToday, getWeekRange } from "../util/date.js"
 
@@ -749,5 +750,70 @@ export async function consumeWeeklyGroupNotice(
                 message:
                     "그룹 알림을 불러오지 못했습니다.",
             })
+    }
+}
+
+// 비밀번호 변경
+export async function updatePassword(req, res) {
+    const {
+        currentPassword,
+        newPassword,
+        newPasswordConfirm,
+    } = req.body
+
+    const validationMessage = validatePasswordChange({
+        currentPassword,
+        newPassword,
+        newPasswordConfirm,
+    })
+
+    if (validationMessage) {
+        return res.status(400).json({ message: validationMessage })
+    }
+
+    try {
+        const user = await authRepository.findById(req.user._id)
+
+        if (!user) {
+            return res.status(404).json({
+                message: "사용자 정보를 찾을 수 없습니다.",
+            })
+        }
+
+        if (user.authProvider !== "local" || !user.userPw) {
+            return res.status(400).json({
+                message: "Google 계정은 비밀번호를 변경할 수 없습니다.",
+            })
+        }
+
+        const isCurrentPasswordValid = await bcrypt.compare(
+            currentPassword,
+            user.userPw,
+        )
+
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({
+                message: "현재 비밀번호가 일치하지 않습니다.",
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(
+            newPassword,
+            config.bcrypt.saltRounds,
+        )
+
+        await authRepository.updatePassword(
+            user._id,
+            hashedPassword,
+        )
+
+        return res.status(200).json({
+            message: "비밀번호가 변경되었습니다.",
+        })
+    } catch (error) {
+        console.error("비밀번호 변경 오류:", error)
+        return res.status(500).json({
+            message: "비밀번호 변경 중 오류가 발생했습니다.",
+        })
     }
 }

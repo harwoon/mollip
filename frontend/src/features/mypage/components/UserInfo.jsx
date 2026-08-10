@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom"
 import { getMyInfo } from "../../auth/api/auth"
 import { PiPencilSimpleDuotone } from "react-icons/pi"
 import { RiAccountCircle2Fill } from "react-icons/ri"
+import { FiLock } from "react-icons/fi"
 
-import { updateMyInfo, updateProfileImage, withdrawMyAccount } from "../api/mypage"
+import { updateMyInfo, updatePassword, updateProfileImage, withdrawMyAccount } from "../api/mypage"
 import AppAlert from "../../../components/common/AppAlert.jsx"
+import AppModal from "../../../components/common/AppModal.jsx"
 import styles from "./UserInfo.module.css"
 
 export default function UserInfo() {
@@ -17,18 +19,28 @@ export default function UserInfo() {
     const [user, setUser] = useState({
         nickname: "",
         email: "",
-        profileImg: ""
+        profileImg: "",
+        authProvider: "local"
     })
 
     // 수정취소, 실패 시 원래 값 되돌리기위한 정보
     const [originalUser, setOriginalUser] = useState({
         nickname: "",
         email: "",
-        profileImg: ""
+        profileImg: "",
+        authProvider: "local"
     })
 
     // 현재 수정모드인지 확인: 기본값 false
     const [isEditing, setIsEditing] = useState(false)
+
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false)
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        newPasswordConfirm: ""
+    })
 
     // 숨겨진 파일 input에 접근
     const fileInputRef = useRef(null)
@@ -87,7 +99,8 @@ export default function UserInfo() {
                 const userInfo = {
                     nickname: data.user.nickname ?? "",
                     email: data.user.email ?? "",
-                    profileImg: data.user.profileImg ?? ""
+                    profileImg: data.user.profileImg ?? "",
+                    authProvider: data.user.authProvider ?? "local"
                 }
 
                 setUser(userInfo)
@@ -205,7 +218,8 @@ export default function UserInfo() {
             const updatedUser = {
                 nickname: infoData.user.nickname ?? "",
                 email: infoData.user.email ?? "",
-                profileImg: updatedProfileImg ?? ""
+                profileImg: updatedProfileImg ?? "",
+                authProvider: user.authProvider
             }
 
             // 최신 정보로 갱신
@@ -339,6 +353,82 @@ export default function UserInfo() {
         })
     }
 
+    function closePasswordModal() {
+        if (isPasswordSubmitting) return
+
+        setIsPasswordModalOpen(false)
+        setPasswordForm({
+            currentPassword: "",
+            newPassword: "",
+            newPasswordConfirm: ""
+        })
+    }
+
+    function handlePasswordChange(event) {
+        const { name, value } = event.target
+
+        setPasswordForm((previous) => ({
+            ...previous,
+            [name]: value
+        }))
+    }
+
+    async function handlePasswordSubmit(event) {
+        event.preventDefault()
+
+        const { currentPassword, newPassword, newPasswordConfirm } = passwordForm
+
+        if (!currentPassword) {
+            showAlert({ type: "warning", title: "현재 비밀번호를 입력해주세요." })
+            return
+        }
+
+        if (newPassword.length < 8) {
+            showAlert({ type: "warning", title: "새 비밀번호는 8자 이상이어야 합니다." })
+            return
+        }
+
+        if (newPassword !== newPasswordConfirm) {
+            showAlert({ type: "warning", title: "새 비밀번호가 일치하지 않습니다." })
+            return
+        }
+
+        if (currentPassword === newPassword) {
+            showAlert({ type: "warning", title: "새 비밀번호를 다르게 설정해주세요." })
+            return
+        }
+
+        try {
+            setIsPasswordSubmitting(true)
+
+            const data = await updatePassword(
+                currentPassword,
+                newPassword,
+                newPasswordConfirm
+            )
+
+            setIsPasswordModalOpen(false)
+            setPasswordForm({
+                currentPassword: "",
+                newPassword: "",
+                newPasswordConfirm: ""
+            })
+            showAlert({
+                type: "success",
+                title: "비밀번호 변경 완료",
+                message: data.message
+            })
+        } catch (error) {
+            showAlert({
+                type: "danger",
+                title: "비밀번호 변경 실패",
+                message: error.message
+            })
+        } finally {
+            setIsPasswordSubmitting(false)
+        }
+    }
+
     return (
         <>
         <section className={`commonSection ${styles.userInfo}`}>
@@ -425,13 +515,25 @@ export default function UserInfo() {
             </div>
 
             <div className={styles.profileButtonArea}>
-                <button
-                    type="button"
-                    className="app-btn-danger-outline"
-                    onClick={handleWithdraw}
-                >
-                    회원 탈퇴하기
-                </button>
+                <div className={styles.accountButtons}>
+                    <button
+                        type="button"
+                        className="app-btn-danger-outline"
+                        onClick={handleWithdraw}
+                    >
+                        회원 탈퇴하기
+                    </button>
+
+                    {user.authProvider === "local" && (
+                        <button
+                            type="button"
+                            className="app-btn-secondary"
+                            onClick={() => setIsPasswordModalOpen(true)}
+                        >
+                            비밀번호 변경
+                        </button>
+                    )}
+                </div>
 
                 <div className={styles.profileEditButtons}>
                     {isEditing && (
@@ -454,6 +556,81 @@ export default function UserInfo() {
                 </div>
             </div>
         </section>
+
+        <AppModal
+            open={isPasswordModalOpen}
+            title="비밀번호 변경"
+            description="현재 비밀번호를 확인한 후 새 비밀번호로 변경합니다."
+            icon={<FiLock />}
+            onClose={closePasswordModal}
+            closeOnOverlay={!isPasswordSubmitting}
+            footer={(
+                <div className={styles.passwordModalActions}>
+                    <button
+                        type="button"
+                        className="app-btn-secondary"
+                        onClick={closePasswordModal}
+                        disabled={isPasswordSubmitting}
+                    >
+                        취소
+                    </button>
+                    <button
+                        type="submit"
+                        form="password-change-form"
+                        className="app-btn-primary"
+                        disabled={isPasswordSubmitting}
+                    >
+                        {isPasswordSubmitting ? "변경 중..." : "변경하기"}
+                    </button>
+                </div>
+            )}
+        >
+            <form
+                id="password-change-form"
+                className={styles.passwordForm}
+                onSubmit={handlePasswordSubmit}
+            >
+                <label htmlFor="currentPassword">현재 비밀번호</label>
+                <input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    className="app-input"
+                    value={passwordForm.currentPassword}
+                    onChange={handlePasswordChange}
+                    autoComplete="current-password"
+                    disabled={isPasswordSubmitting}
+                    autoFocus
+                />
+
+                <label htmlFor="newPassword">새 비밀번호</label>
+                <input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    className="app-input"
+                    value={passwordForm.newPassword}
+                    onChange={handlePasswordChange}
+                    autoComplete="new-password"
+                    minLength={8}
+                    disabled={isPasswordSubmitting}
+                />
+                <p className={styles.passwordGuide}>8자 이상 입력해주세요.</p>
+
+                <label htmlFor="newPasswordConfirm">새 비밀번호 확인</label>
+                <input
+                    id="newPasswordConfirm"
+                    name="newPasswordConfirm"
+                    type="password"
+                    className="app-input"
+                    value={passwordForm.newPasswordConfirm}
+                    onChange={handlePasswordChange}
+                    autoComplete="new-password"
+                    minLength={8}
+                    disabled={isPasswordSubmitting}
+                />
+            </form>
+        </AppModal>
 
         {/* 공통 AppAlert */}
         <AppAlert

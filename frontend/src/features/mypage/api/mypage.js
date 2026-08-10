@@ -87,3 +87,39 @@ export async function withdrawMyAccount(confirmationText, withdrawalReason) {
 
     return data
 }
+
+// 비밀번호 변경
+export async function updatePassword(
+    currentPassword,
+    newPassword,
+    newPasswordConfirm,
+) {
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+        throw new Error("로그인 정보가 없습니다.")
+    }
+
+    const response = await fetch(`${API_URL}/auth/password`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            currentPassword,
+            newPassword,
+            newPasswordConfirm,
+        }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "비밀번호 변경에 실패했습니다.",
+        )
+    }
+
+    return data
+}
