@@ -139,6 +139,15 @@ export async function updateProfileImage(id, profileImg) {
     );
 }
 
+// 비밀번호 변경
+export async function updatePassword(id, userPw) {
+    return User.findByIdAndUpdate(
+        id,
+        { userPw },
+        { new: true },
+    )
+}
+
 // 연속 학습 일수 갱신
 export async function updateStreak(
     userId,
