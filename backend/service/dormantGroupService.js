@@ -2,7 +2,7 @@ import * as authRepository from "../repository/auth.js"
 import * as groupRepository from "../repository/group.js"
 
 import { config } from "../config.mjs"
-import {addDays,getKstToday,} from "../util/date.js"
+import { addDays, getKstToday, getWeekRange } from "../util/date.js"
 
 const DORMANT_AFTER_DAYS = 30
 
@@ -46,13 +46,15 @@ export async function reactivateIfDormant(
     userId,
     currentGroupId,
 ) {
+    // 현재 휴면 그룹이 아니면 아무것도 안 함
     if (
         String(currentGroupId) !==
-        config.group.dormantId
+        String(config.group.dormantId)
     ) {
         return null
     }
 
+    // 복귀할 가장 낮은 일반 그룹
     const lowestGroup =
         await groupRepository
             .getLowestRegularGroup()
@@ -63,9 +65,55 @@ export async function reactivateIfDormant(
         )
     }
 
+    // 휴면 그룹 정보
+    const dormantGroup =
+        await groupRepository
+            .getGroupById(
+                config.group.dormantId,
+            )
+
+    // 현재 주 월요일
+    const today =
+        getKstToday()
+
+    const {
+        startDate: weekStart,
+    } = getWeekRange(today)
+
+    // RETURN 알림 생성
+    const weeklyGroupNotice = {
+        status: "RETURN",
+
+        previousGroupId:
+            String(
+                config.group.dormantId,
+            ),
+
+        previousGroupName:
+            dormantGroup
+                ?.groupName ?? "휴면",
+
+        currentGroupId:
+            String(
+                lowestGroup._id,
+            ),
+
+        currentGroupName:
+            lowestGroup.groupName,
+
+        weekStart,
+
+        isRead: false,
+
+        assignedAt:
+            new Date(),
+    }
+
     return authRepository
         .reactivateDormantUser(
             userId,
             lowestGroup._id,
+            lowestGroup.groupName,
+            weekStart,
         )
 }

@@ -98,20 +98,46 @@ export function TimerProvider({ children }) {
             const kstOffset = new Date().getTimezoneOffset() * 60000
             const todayString = new Date(Date.now() - kstOffset).toISOString().split("T")[0]
 
-            const response = await fetch(`${API_URL}/study/addStudy`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${userToken}`,
-                },
-                body: JSON.stringify({
-                    studyTitle: selectedSubject.subjectName,
-                    studyDate: todayString,
-                    sumStudyTime: studySeconds,
-                }),
-            })
+            const response = await fetch(
+                `${API_URL}/study/addStudy`,
+                {
+                    method: "POST",
 
-            if (!response.ok) throw new Error("서버 저장 실패")
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        Authorization:
+                            `Bearer ${userToken}`,
+                    },
+
+                    body: JSON.stringify({
+                        studyTitle:
+                            selectedSubject.subjectName,
+
+                        studyDate:
+                            todayString,
+
+                        sumStudyTime:
+                            studySeconds,
+                    }),
+                },
+            )
+
+            if (!response.ok) {
+                throw new Error(
+                    "서버 저장 실패",
+                )
+            }
+
+            // 공부 저장 성공 후
+            // 그룹 알림 다시 조회하도록 신호
+            window.dispatchEvent(
+                new Event(
+                    "weekly-group-notice-created",
+                ),
+            )
+
             return true
         } catch (error) {
             console.error("전역 타이머 저장 에러:", error)
