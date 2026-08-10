@@ -50,6 +50,11 @@ function Sidebar({
                     <SidebarUserInfo />
                 </div>
 
+                <button type="button" onClick={() => setIsReportOpen(true)} className="sidebarAI">
+                    <RiSparklingFill className="sidebarNavigationIcon" />
+                    <span>AI 학습 리포트</span>
+                </button>
+
                 <nav className="sidebarNavigation">
                     <div className="sidebarNavigationGroup">
                         <p className="sidebarNavigationTitle">DASHBOARD</p>
@@ -96,11 +101,6 @@ function Sidebar({
                 <div className="sidebarStreak">
                     <SidebarStudyStreak />
                 </div>
-
-                <button type="button" onClick={() => setIsReportOpen(true)} className="sidebarAI">
-                    <RiSparklingFill className="sidebarNavigationIcon" />
-                    <span>AI 학습 리포트</span>
-                </button>
 
                 <div className="sidebarLogout">
                     <SidebarLogout userInfo={userInfo} />
