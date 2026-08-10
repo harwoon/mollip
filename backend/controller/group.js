@@ -247,7 +247,7 @@ export async function addGroup(req, res) {
       });
     }
 
-    const existingGroupTime = await groupRepository.findByGroupTime(time);
+    const existingGroupTime = await groupRepository.findByGroupTime(time*3600);
 
     if (existingGroupTime) {
       return res.status(409).json({
@@ -366,7 +366,7 @@ export async function updateGroup(req, res) {
 
     const updateData = {};
 
-    let nextGroupTime = Number(existingGroup.groupTime);
+    let nextGroupTime = Number(existingGroup.groupTime) / 3600;// 기존 그룹 조건 시간(단위: 시간) 
 
     if (groupName !== undefined) {
       if (typeof groupName !== "string" || !groupName.trim()) {
@@ -438,7 +438,7 @@ export async function updateGroup(req, res) {
       }
 
       const duplicateTime = await groupRepository.findByGroupTimeExcludingId(
-        time,
+        time*3600,
         id,
       );
 
