@@ -190,6 +190,15 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-const User = mongoose.model("User", userSchema)
+// 그룹별 활성 사용자 조회용 인덱스
+userSchema.index({
+    groupId: 1,
+    useYn: 1,
+})
+
+const User = mongoose.model(
+    "User",
+    userSchema,
+)
 
 export default User
