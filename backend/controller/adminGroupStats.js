@@ -69,3 +69,21 @@ export async function getGroupStatistics(req, res) {
         })
     }
 }
+
+export async function getGroupMembers(req, res) {
+    try {
+        const result = await adminGroupStatisticsService
+            .getGroupMembersGoalStatus(req.params.id)
+
+        return res.status(200).json(result)
+    } catch (error) {
+        console.error("그룹 회원 조회 오류:", error)
+        const statusCode = error.statusCode || 500
+
+        return res.status(statusCode).json({
+            message: statusCode === 500
+                ? "그룹 회원 조회 중 오류가 발생했습니다."
+                : error.message,
+        })
+    }
+}

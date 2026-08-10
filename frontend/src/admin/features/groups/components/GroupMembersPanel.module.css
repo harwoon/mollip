@@ -1,0 +1,109 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.header h2 {
+    color: var(--color-text);
+    font-size: var(--font-lg);
+}
+
+.header p {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.memberList {
+    max-height: calc(100vh - 230px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    overflow-y: auto;
+}
+
+.memberItem {
+    padding: var(--space-3);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-soft);
+}
+
+.profileImage {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+}
+
+.memberContent {
+    min-width: 0;
+    flex: 1;
+}
+
+.memberSummary {
+    margin-bottom: var(--space-2);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.memberSummary strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.memberSummary span {
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    font-weight: 700;
+}
+
+.progressTrack {
+    height: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-primary-100);
+}
+
+.progressBar {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-primary-600);
+}
+
+.state {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
+.error {
+    padding: var(--space-3);
+    color: var(--color-danger);
+    background: var(--color-danger-soft);
+    border-radius: var(--radius-md);
+    font-size: var(--font-xs);
+}

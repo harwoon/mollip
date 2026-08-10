@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import Topbar from "../components/AdminTopbar.jsx"
 import GroupsTable from "../features/groups/components/GroupsTable.jsx"
 import GroupForm from "../features/groups/components/GroupForm.jsx"
+import GroupMembersPanel from "../features/groups/components/GroupMembersPanel.jsx"
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
 import { runWeeklyGroupAssignment } from "../features/groups/api/group.js"
 import AppAlert from "../../components/common/AppAlert.jsx"
@@ -95,7 +96,7 @@ export default function AdminGroupsPage() {
     const copiedGroups = [...groups];
 
     copiedGroups.sort((first, second) => {
-      let result = 0;
+      let result;
 
       /*
        * 그룹명은 문자열 정렬
@@ -131,7 +132,7 @@ export default function AdminGroupsPage() {
   /*
    * 그룹 행 클릭
    */
-  function handleSelectGroup(group) {
+  function handleEditGroup(group) {
     /*
      * 통계 API의 groupTime은 초 단위일 수 있음
      * GroupForm에는 시간 단위로 전달
@@ -160,6 +161,11 @@ export default function AdminGroupsPage() {
 
     setSelectedGroup(normalizedGroup);
     setMode("edit");
+  }
+
+  function handleViewMembers(group) {
+    setSelectedGroup(group);
+    setMode("members");
   }
 
   /*
@@ -292,19 +298,27 @@ export default function AdminGroupsPage() {
               <GroupsTable
                 groups={sortedGroups}
                 selectedGroupId={selectedGroup?._id}
-                onSelectGroup={handleSelectGroup}
+                onViewMembers={handleViewMembers}
+                onEditGroup={handleEditGroup}
                 loading={loading}
               />
             </div>
 
             {mode && (
               <aside className={`commonSection ${styles.groupFormPanel}`}>
-                <GroupForm
-                  mode={mode}
-                  group={selectedGroup}
-                  onSuccess={handleFormSuccess}
-                  onCancel={handleCancel}
-                />
+                {mode === "members" ? (
+                  <GroupMembersPanel
+                    group={selectedGroup}
+                    onClose={handleCancel}
+                  />
+                ) : (
+                  <GroupForm
+                    mode={mode}
+                    group={selectedGroup}
+                    onSuccess={handleFormSuccess}
+                    onCancel={handleCancel}
+                  />
+                )}
               </aside>
             )}
           </div>
