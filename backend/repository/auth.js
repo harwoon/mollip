@@ -125,6 +125,19 @@ export async function findById(id) {
     return User.findById(id);
 }
 
+// 휴면 해제에서는 학습/연속 기록 등 다른 필드를 건드리지 않고 groupId만 변경합니다.
+export async function reactivateDormantGroupOnly(userId, defaultGroupId) {
+    return User.findOneAndUpdate(
+        {
+            _id: userId,
+            useYn: "Y",
+            groupId: config.group.dormantId,
+        },
+        { $set: { groupId: defaultGroupId } },
+        { new: true },
+    )
+}
+
 // 회원정보 수정
 export async function update(id, nickname, email) {
     return User.findByIdAndUpdate(id, { nickname, email }, { new: true });

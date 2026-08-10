@@ -1,0 +1,22 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.codeInput {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-align: center;
+}
+
+.message {
+    padding: 10px 12px;
+    color: var(--color-primary-700);
+    font-size: var(--font-xs);
+    background: var(--color-primary-50);
+    border-radius: var(--radius-sm);
+}

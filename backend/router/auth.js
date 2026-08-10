@@ -1,6 +1,7 @@
 import express from "express"
 import * as authController from "../controller/auth.js"
 import * as googleAuthController from "../controller/googleAuth.js"
+import * as dormantAuthController from "../controller/dormantAuth.js"
 import { isAuth } from "../middleware/auth.js"
 import { uploadProfile } from "../middleware/profile_upload.js"
 
@@ -18,6 +19,8 @@ router.post("/signup", uploadProfile.single("profileImg"), authController.signup
 router.post("/login", authController.login)
 // 구글 로그인
 router.post("/google", googleAuthController.googleLogin,)
+router.post("/dormant/verify", dormantAuthController.verify)
+router.post("/dormant/resend", dormantAuthController.resend)
 
 // 로그인 유지 체크 + 회원 정보 조회
 router.get("/me", isAuth, authController.me)

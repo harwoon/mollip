@@ -2,6 +2,10 @@ import { OAuth2Client } from "google-auth-library"
 import { config } from "../config.mjs"
 import { createJwtToken } from "../util/jwt.js"
 import * as authRepository from "../repository/auth.js"
+import {
+    beginDormantVerification,
+    isDormantUser,
+} from "../service/dormantVerificationService.js"
 
 const googleClient =
     new OAuth2Client(
@@ -143,6 +147,21 @@ export async function googleLogin(
                     })
 
             isNewUser = true
+        }
+
+        if (user.useYn === "N") {
+            return res.status(403).json({ message: "탈퇴한 회원입니다." })
+        }
+
+        // Google 토큰 검증과 Mollip 회원 조회가 모두 끝난 뒤 휴면 인증을 시작합니다.
+        if (isDormantUser(user)) {
+            try {
+                const dormantResponse = await beginDormantVerification(user)
+                return res.status(403).json(dormantResponse)
+            } catch (error) {
+                console.error("휴면 계정 인증 메일 발송 실패:", error)
+                return res.status(502).json({ message: "인증 메일을 전송하지 못했습니다. 잠시 후 다시 시도해 주세요." })
+            }
         }
 
         /*

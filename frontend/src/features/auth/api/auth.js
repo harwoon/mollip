@@ -34,7 +34,7 @@ export async function loginUser(userId, userPw) {
     })
 
     const data = await response.json()
-    if (!response.ok) throw new Error(data.message)
+    if (!response.ok) throw createApiError(data)
 
     saveLoginData(data)
 
@@ -93,6 +93,35 @@ export async function checkIdUser(userId) {
     return data
 }
 
+function createApiError(data) {
+    const error = new Error(data.message || "요청 처리에 실패했습니다.")
+    Object.assign(error, data)
+    return error
+}
+
+export async function verifyDormantAccount(verificationId, code) {
+    const response = await fetch(`${API_URL}/auth/dormant/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verificationId, code }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw createApiError(data)
+    saveLoginData(data)
+    return data
+}
+
+export async function resendDormantVerification(verificationId) {
+    const response = await fetch(`${API_URL}/auth/dormant/resend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verificationId }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw createApiError(data)
+    return data
+}
+
 function saveLoginData(data) {
     localStorage.setItem(
         "token",
@@ -146,12 +175,7 @@ export async function loginGoogleUser(
     const data =
         await response.json()
 
-    if (!response.ok) {
-        throw new Error(
-            data.message ||
-                "Google 로그인에 실패했습니다.",
-        )
-    }
+    if (!response.ok) throw createApiError(data)
 
     saveLoginData(data)
 

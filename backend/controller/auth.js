@@ -12,6 +12,10 @@ import { createJwtToken } from "../util/jwt.js"
 import { validatePasswordChange } from "../util/password.js"
 import * as groupRepository from "../repository/group.js"
 import { getKstToday, getWeekRange } from "../util/date.js"
+import {
+    beginDormantVerification,
+    isDormantUser,
+} from "../service/dormantVerificationService.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -249,6 +253,17 @@ export async function login(req, res) {
     if (!isValidPw) {
         console.log("일치하지 않는 비밀번호 입력")
         return res.status(401).json({ message: "아이디 또는 비밀번호를 확인해주세요" })
+    }
+
+    // 아이디와 비밀번호 확인이 끝난 뒤에만 휴면 여부를 노출합니다.
+    if (isDormantUser(user)) {
+        try {
+            const dormantResponse = await beginDormantVerification(user)
+            return res.status(403).json(dormantResponse)
+        } catch (error) {
+            console.error("휴면 계정 인증 메일 발송 실패:", error)
+            return res.status(502).json({ message: "인증 메일을 전송하지 못했습니다. 잠시 후 다시 시도해 주세요." })
+        }
     }
 
     // 모두 일치하면 토큰발급
