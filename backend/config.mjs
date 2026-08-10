@@ -24,6 +24,10 @@ export const config = {
     db: {
         host: required("DB_HOST")
     },
+    redis: {
+        host: required("REDIS_HOST", "127.0.0.1"),
+        port: parseInt(required("REDIS_PORT", 6379))
+    },
     group: {
         dormantId: required(
             "DORMANT_GROUP_ID",
