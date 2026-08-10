@@ -13,7 +13,7 @@ router.get("/total",isAuth,statController.getTotal)
 router.get("/ratio",isAuth,statController.getRatio)
 
 
-// [주간현활-그룹통계] 그룹의 연속 공부 달성일 평균
+// [주간현활-그룹통계] 그룹의 연속 학습일 평균
 // http://127.0.0.1:3000/statistics/streak
 router.get("/streak",isAuth, statController.getStreak)
 
