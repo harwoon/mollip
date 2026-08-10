@@ -74,12 +74,17 @@
     overflow: hidden;
 }
 
+.rankingArea{
+    padding-bottom: 12px;
+}
+
 .rankingArea,
 .activeArea {
     min-width: 0;
     min-height: 0;
     display: flex;
     overflow: hidden;
+    max-height: 560px;
 }
 
 .rankingArea > *,
