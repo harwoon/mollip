@@ -325,6 +325,8 @@
     flex-direction: column;
 
     overflow: hidden;
+
+    min-height: 240px;
 }
 
 

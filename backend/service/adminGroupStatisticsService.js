@@ -12,6 +12,7 @@ import {
 import {
     calculateAverageGoalAchievementRate,
 } from "../util/groupGoal.js";
+import { buildGroupMemberGoalRows } from "../util/adminGroupMembers.js";
 
 
 /*
@@ -532,4 +533,50 @@ export async function getGroupStatistics() {
         groups:
             groupStatistics,
     };
+}
+
+export async function getGroupMembersGoalStatus(groupId) {
+    const group = await groupRepository.findGroupGoalsById(groupId)
+
+    if (!group) {
+        const error = new Error("존재하지 않는 그룹입니다.")
+        error.statusCode = 404
+        throw error
+    }
+
+    const members = await authRepository.getUsersByGroupId(groupId)
+    const memberIds = members.map((member) => member._id)
+    const {
+        startDate: weekStartDate,
+        endDate: weekEndDate,
+    } = getCurrentWeekRange()
+
+    const [studySummaries, todoSummaries] = await Promise.all([
+        studyRepository.findWeeklyStudySummariesByUsers(
+            memberIds,
+            weekStartDate,
+            weekEndDate,
+        ),
+        todoRepository.findWeeklyTodoSummariesByUsers(
+            memberIds,
+            weekStartDate,
+            weekEndDate,
+        ),
+    ])
+
+    return {
+        group: {
+            _id: group._id,
+            groupName: group.groupName,
+            groupColor: group.groupColor,
+        },
+        weekStartDate,
+        weekEndDate,
+        members: buildGroupMemberGoalRows({
+            members,
+            goals: group.goals || [],
+            studySummaries,
+            todoSummaries,
+        }),
+    }
 }

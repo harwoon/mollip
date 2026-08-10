@@ -74,6 +74,9 @@ router.get("/groups/weekly-study-time", adminGroupStatsController.getWeeklyGroup
 // http://127.0.0.1:3000/admin/groups/statistics
 router.get("/groups/statistics", adminGroupStatsController.getGroupStatistics)
 
+// 그룹별 회원 및 개인 그룹 목표 달성률 조회
+router.get("/groups/:id/members", adminGroupStatsController.getGroupMembers)
+
 // http://127.0.0.1:3000/admin/group-todo-achievement?date=2026-07-30
 router.get("/group-todo-achievement", adminGroupStatsController.getGroupTodoAchievement)
 

@@ -9,7 +9,8 @@ function formatNumber(value, maximumFractionDigits = 2) {
 export default function GroupsTable({
     groups = [],
     selectedGroupId,
-    onSelectGroup,
+    onViewMembers,
+    onEditGroup,
     loading,
 }) {
     console.log("GroupsTable이 받은 groups:", groups);
@@ -42,6 +43,7 @@ export default function GroupsTable({
                         <th>평균 목표 달성률</th>
                         <th>평균 공부 시간(h)</th>
                         <th>평균 접속 학습일</th>
+                        <th>관리</th>
                     </tr>
                 </thead>
 
@@ -84,7 +86,6 @@ export default function GroupsTable({
                                         ? `${styles.groupsTableRow} ${styles.selected}`
                                         : styles.groupsTableRow
                                 }
-                                onClick={() => onSelectGroup(group)}
                             >
                                 {/* 그룹명 */}
                                 <td>
@@ -133,6 +134,25 @@ export default function GroupsTable({
                                 {/* 평균 접속 학습일 */}
                                 <td>
                                     {formatNumber(averageAttendanceDays)}일
+                                </td>
+
+                                <td>
+                                    <div className={styles.actionButtons}>
+                                        <button
+                                            type="button"
+                                            className="app-btn-secondary app-btn-small"
+                                            onClick={() => onViewMembers(group)}
+                                        >
+                                            회원보기
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="app-btn-primary app-btn-small"
+                                            onClick={() => onEditGroup(group)}
+                                        >
+                                            수정하기
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         )
