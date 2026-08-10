@@ -175,12 +175,13 @@ export default function AdminGroupsPage() {
     try {
       setAssigning(true);
 
-      const result = await runWeeklyGroupAssignment();
+      const data = await runWeeklyGroupAssignment();
+      const { totalUserCount, updateUserCount } = data.result;
 
       setAssignResultAlert({
         type: "success",
         title: "주간 그룹 재배치 완료",
-        message: `전체 ${result.totalUserCount}명 중 ${result.updateUserCount}명의 그룹이 재배치되었습니다.`,
+        message: `전체 ${totalUserCount}명 중 ${updateUserCount}명의 그룹이 재배치되었습니다.`,
       });
 
       /*
