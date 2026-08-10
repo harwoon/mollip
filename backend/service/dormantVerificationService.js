@@ -5,10 +5,20 @@ import * as authRepository from "../repository/auth.js"
 import * as groupRepository from "../repository/group.js"
 import { createJwtToken } from "../util/jwt.js"
 import transporter from "../util/mailer.js"
+import { getDormantVerificationMailTemplate } from "../util/memberStatusMailTemplates.js"
+import path from "path"
+import { fileURLToPath } from "url"
 
 const CODE_TTL_MS = 5 * 60 * 1000
 const RESEND_COOLDOWN_MS = 30 * 1000
 const MAX_ATTEMPTS = 5
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const DORMANT_MAIL_IMAGE = {
+    filename: "state30.png",
+    path: path.resolve(__dirname, "../public/images/state30.png"),
+    cid: "mollip-dormant-verification-image",
+}
 
 // 현재 애플리케이션은 단일 Node 서버이므로 인증 정보를 메모리에 임시 저장합니다.
 // 운영 환경에서는 Redis 같은 TTL 기반 저장소 사용을 권장합니다.
@@ -26,11 +36,27 @@ function maskEmail(email) {
 }
 
 async function sendDormantVerificationMail({ email, nickname, code }) {
+    const template = getDormantVerificationMailTemplate(
+        nickname,
+        code,
+        DORMANT_MAIL_IMAGE.cid,
+    )
+
     return transporter.sendMail({
-        from: process.env.MAIL_FROM || process.env.MAIL_USER,
+        from: {
+            name: process.env.MAIL_FROM_NAME || "Mollip",
+            address: process.env.MAIL_FROM_ADDRESS || process.env.MAIL_USER,
+        },
         to: email,
-        subject: "[Mollip] 휴면 계정 인증번호 안내",
+        subject: template.subject,
         text: `안녕하세요, ${nickname}님.\n\n휴면 계정 해제를 위한 인증번호입니다.\n\n[ ${code} ]\n\n인증번호는 5분 동안 유효합니다.\n\n본인이 요청하지 않은 경우 이 메일을 무시해 주세요.`,
+        html: template.html,
+        attachments: [
+            {
+                ...DORMANT_MAIL_IMAGE,
+                contentDisposition: "inline",
+            },
+        ],
     })
 }
 
