@@ -329,7 +329,6 @@
     min-height: 240px;
 }
 
-
 .rankingScrollContainer {
     position: relative;
     flex: 1 1 auto;
@@ -564,8 +563,14 @@
 
 
 
+@media (min-width: 1821px)  {
+    .rankingScrollContainer{
+        height: 120px;
+        max-height: 120px;
+        min-height: 120px;
+        padding-bottom: 5px;
+    }
 
-@media (min-width: 1821px) {
     .topThreeItem {
         min-height: 90px;
         height:110px;

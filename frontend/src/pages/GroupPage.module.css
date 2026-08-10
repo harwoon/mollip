@@ -90,6 +90,12 @@
 }
 
 
+
+@media (min-width: 1821px) {
+    .rankingArea{
+        max-height: 550px;
+    }
+}
 @media (max-width: 1000px) {
     .groupPage {
         height: auto;
