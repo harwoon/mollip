@@ -33,7 +33,7 @@
 
 .sidebarUser {
     width: 100%;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
 }
 
 .sidebarUserInfo{
@@ -48,7 +48,9 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
-
+.sidebarGreeting{
+    width: calc(100% - 50px);
+}
 .sidebarNavigation {
     width: 100%;
 
@@ -211,48 +213,69 @@
     width: 100%;
 }
 
-.sidebarAI{
+.sidebarAI {
     width: 100%;
-    padding: 15px 20px;
+    padding: 20px 15px;
 
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 10px;
+
+    border: none;
+    border-radius: var(--radius-sm);
+
+    color: var(--color-primary-600);
+    font-weight: 600;
+    cursor: pointer;
+
+    margin-bottom: 30px;
 
     background: var(--color-primary-50);
     border: 1px solid var(--color-primary-100);
     border-radius: var(--radius-lg);
-
-    color: var(--chart-primary);
-    font-weight: 600;
-}
-.sidebarAI{
-    width: 100%;
-    padding: 15px 20px;
-
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-
-    background: var(--color-primary-50);
-    border: 1px solid var(--color-primary-100);
-    border-radius: var(--radius-lg);
-
-    color: var(--chart-primary);
-    font-weight: 600;
-
-    background: var(--chart-color-1);
-    color: #fff;
 
     transition:
-        color 0.2s ease,
-        background-color 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+.sidebarAI .sidebarNavigationIcon {
+    color: var(--color-primary-600);
+}
+
+.sidebarAI:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(155, 123, 211, 0.25);
+}
+
+.sidebarAI:active {
+    transform: translateY(0);
+}
+
+/* 반드시 .sidebarAI {} 바깥 */
+@keyframes sidebarAIGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
 .sidebarAI .sidebarNavigationIcon{
-    color: #fff;
+    color: var(--color-primary-600);
 }
-.sidebarAI:hover{
-    background: var(--chart-primary);
+.sidebarAI:hover,
+.sidebarAI:hover .sidebarNavigationIcon{
+    color: #fff;
+    background: var(--color-primary-400);
 }
 
 .sidebarStudyStreak {

@@ -1,7 +1,8 @@
 import * as groupRepository from "../repository/group.js"
 import * as studyRepository from "../repository/study.js"
 import * as authRepository from "../repository/auth.js"
-import { getWeekRange } from "../util/date.js"
+import { getWeekRange, getCurrentWeekRange } from "../util/date.js"
+import { config } from "../config.mjs"
 
 
 function getGroupNoticeStatus({
@@ -60,6 +61,11 @@ export async function assignWeeklyGroups() {
         startDate,
         endDate,
     } = getWeekRange(lastWeekDate)
+
+    // 이번 주 월요일 (알림 기준 주차)
+    const {
+        startDate: noticeWeekStart,
+    } = getCurrentWeekRange()
 
     // 지난주 사용자별 총 공부시간 조회
     const weeklyStudies =

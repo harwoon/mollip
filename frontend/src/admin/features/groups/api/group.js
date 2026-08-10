@@ -68,6 +68,21 @@ export async function createGroup(groupData) {
     return data
 }
 
+// 주간 그룹 임의 재배치 실행
+export async function runWeeklyGroupAssignment() {
+    const response = await fetch(`${API_URL}/admin/assign-weekly`, {
+        method: "POST",
+        headers: authHeaders()
+    })
+
+    const data = await response.json()
+    if(!response.ok) {
+        throw new Error(data.message || "주간 그룹 재배치에 실패했습니다.")
+    }
+
+    return data
+}
+
 // 그룹 수정
 export async function updateGroup(id, groupData) {
     const response = await fetch(`${API_URL}/admin/groups/${id}`, {

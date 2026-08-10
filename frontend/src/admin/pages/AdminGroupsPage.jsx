@@ -3,8 +3,10 @@ import Topbar from "../components/AdminTopbar.jsx"
 import GroupsTable from "../features/groups/components/GroupsTable.jsx"
 import GroupForm from "../features/groups/components/GroupForm.jsx"
 import { fetchAdminGroupStatistics } from "../features/groups/api/adminGroupStatisticsApi.js"
+import { runWeeklyGroupAssignment } from "../features/groups/api/group.js"
+import AppAlert from "../../components/common/AppAlert.jsx"
 
-import styles from "./AdminGroupsPage.module.css" 
+import styles from "./AdminGroupsPage.module.css"
 import layoutStyles from "../components/AdminLayout.module.css"
 
 
@@ -27,6 +29,15 @@ export default function AdminGroupsPage() {
     useState(true);
 
   const [error, setError] = useState("");
+
+  const [assignConfirmOpen, setAssignConfirmOpen] =
+    useState(false);
+
+  const [assigning, setAssigning] =
+    useState(false);
+
+  const [assignResultAlert, setAssignResultAlert] =
+    useState(null);
 
   /*
    * 그룹별 주간 통계 조회
@@ -152,6 +163,50 @@ export default function AdminGroupsPage() {
   }
 
   /*
+   * 주간 그룹 임의 재배치 버튼
+   */
+  function handleClickAssign() {
+    setAssignConfirmOpen(true);
+  }
+
+  async function handleConfirmAssign() {
+    setAssignConfirmOpen(false);
+
+    try {
+      setAssigning(true);
+
+      const data = await runWeeklyGroupAssignment();
+      const { totalUserCount, updateUserCount } = data.result;
+
+      setAssignResultAlert({
+        type: "success",
+        title: "주간 그룹 재배치 완료",
+        message: `전체 ${totalUserCount}명 중 ${updateUserCount}명의 그룹이 재배치되었습니다.`,
+      });
+
+      /*
+       * 재배치 후 최신 통계 다시 조회
+       */
+      await loadGroupStatistics();
+    } catch (error) {
+      console.error(
+        "주간 그룹 재배치 실패:",
+        error,
+      );
+
+      setAssignResultAlert({
+        type: "danger",
+        title: "주간 그룹 재배치 실패",
+        message:
+          error.message ||
+          "주간 그룹 재배치 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setAssigning(false);
+    }
+  }
+
+  /*
    * 그룹 생성 버튼
    */
   function handleClickCreate() {
@@ -212,6 +267,15 @@ export default function AdminGroupsPage() {
 
             <button
               type="button"
+              className="app-btn-secondary"
+              onClick={handleClickAssign}
+              disabled={assigning}
+            >
+              {assigning ? "재배치 중..." : "그룹 재배치"}
+            </button>
+
+            <button
+              type="button"
               className="app-btn-primary"
               onClick={handleClickCreate}
             >
@@ -246,6 +310,27 @@ export default function AdminGroupsPage() {
           </div>
         </section>
       </div>
+
+      <AppAlert
+        open={assignConfirmOpen}
+        type="warning"
+        title="주간 그룹을 재배치할까요?"
+        message="전체 회원의 이번 주 공부시간을 기준으로 그룹이 즉시 재배치되고, 재배치 알림 모달이 각 회원에게 노출됩니다."
+        showCancel={true}
+        confirmText="재배치"
+        onCancel={() => setAssignConfirmOpen(false)}
+        onClose={() => setAssignConfirmOpen(false)}
+        onConfirm={handleConfirmAssign}
+      />
+
+      <AppAlert
+        open={Boolean(assignResultAlert)}
+        type={assignResultAlert?.type}
+        title={assignResultAlert?.title}
+        message={assignResultAlert?.message}
+        onClose={() => setAssignResultAlert(null)}
+        onConfirm={() => setAssignResultAlert(null)}
+      />
     </main>
   );
 }
