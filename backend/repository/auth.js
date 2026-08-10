@@ -446,7 +446,10 @@ export async function withdrawUser(userId, withdrawalReason, totalStudyTime) {
     user.withdrawnAt = new Date()
     user.totalStudyTime = totalStudyTime
     user.groupId = null
-    user.googleId = null
+
+    // googleId는 unique + sparse 인덱스이므로 null을 저장하지 않고 필드를 제거
+    // null을 저장하면 일반/Google 회원 탈퇴 시 기존 null 값과 중복될 수 있음
+    user.googleId = undefined
 
     // 연속 학습 정보 초기화
     user.currentStreak = 0
