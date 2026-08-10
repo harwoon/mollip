@@ -7,7 +7,6 @@ import { getWeeklyReport } from "../features/ai/api/ai.js"
 import AiSummary from "../features/ai/components/AiSummary.jsx"
 import AiLastWeek from "../features/ai/components/AiLastWeek.jsx"
 import AiThisWeek from "../features/ai/components/AiThisWeek.jsx"
-import AiNextWeek from "../features/ai/components/AiNextWeek.jsx"
 
 import styles from "./AiReportModal.module.css"
 

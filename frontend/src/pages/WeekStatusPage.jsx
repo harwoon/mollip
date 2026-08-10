@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import WeeklyStudyTimeChart from "../features/weekly/components/WeeklyStudyTimeChart.jsx";
 import SubjectStudyTimeChart from "../features/weekly/components/SubjectStudyTimeChart.jsx";

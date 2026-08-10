@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getLongestRecord } from "../api/study.js";
 import dayjs from "dayjs";
 

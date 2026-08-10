@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { getSubjectRecord } from '../api/study.js'
 import dayjs from 'dayjs'
 import {

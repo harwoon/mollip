@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from './SubjectList.module.css'
 
 export default function SubjectList({

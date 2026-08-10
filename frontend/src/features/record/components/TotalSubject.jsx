@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react"
-import { getSubjectRecord, getSubjectStudySummary } from "../api/study.js"
+import { useState, useEffect, useMemo } from "react"
+import { getSubjectStudySummary } from "../api/study.js"
 import dayjs from "dayjs"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import {getLower, getWeekStudyTime} from "../api/group"
 
 import { FiTrendingDown } from "react-icons/fi"

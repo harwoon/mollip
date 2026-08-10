@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Calendar from 'react-calendar'
 import dayjs from 'dayjs'
 import styles from './HomeCalendar.module.css'

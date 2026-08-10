@@ -10,7 +10,6 @@ import {
     YAxis,
 } from "recharts";
 import { getWeeklyTodoRecords } from "../api/weekly.js";
-import { getWeeklyTodoCompare } from "../api/weekly.js";
 
 import styles from "./GoalAchievementChart.module.css";
 import { getChartTheme } from "../../../../util/chartTheme.js"
