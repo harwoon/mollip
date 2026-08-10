@@ -11,14 +11,22 @@ export function startWeeklyGroupJob() {
                 const result =
                     await assignWeeklyGroups()
 
-                console.log("[주간 그룹 배정] 완료", {
-                    startOfWeek: result.startOfWeek,
-                    endOfWeek: result.endOfWeek,
-                    totalUserCount:
-                        result.totalUserCount,
-                    updatedUserCount:
-                        result.updatedUserCount,
-                })
+                console.log(
+                    "[주간 그룹 배정] 완료",
+                    {
+                        startDate:
+                            result.startDate,
+
+                        endDate:
+                            result.endDate,
+
+                        totalUserCount:
+                            result.totalUserCount,
+
+                        updateUserCount:
+                            result.updateUserCount,
+                    },
+                )
             } catch (error) {
                 console.error(
                     "[주간 그룹 배정] 실패",

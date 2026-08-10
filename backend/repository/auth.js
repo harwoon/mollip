@@ -176,20 +176,48 @@ export async function getAllUsers() {
 export async function reactivateDormantUser(
     userId,
     groupId,
+    groupName,
+    weekStart,
 ) {
     return User.updateOne(
         {
             _id: userId,
             role: "user",
             useYn: "Y",
-
-            // 실제로 휴면 그룹일 때만 변경
             groupId:
                 config.group.dormantId,
         },
         {
             $set: {
-                groupId: String(groupId),
+                groupId:
+                    String(groupId),
+
+                weeklyGroupNotice: {
+                    status:
+                        "RETURN",
+
+                    weekStart,
+
+                    previousGroupId:
+                        String(
+                            config.group.dormantId,
+                        ),
+
+                    previousGroupName:
+                        "휴면",
+
+                    currentGroupId:
+                        String(groupId),
+
+                    currentGroupName:
+                        groupName,
+
+                    isRead:
+                        false,
+
+                    assignedAt:
+                        new Date(),
+                },
             },
         },
     )
@@ -219,22 +247,15 @@ export async function updateUserGroups(
             updateOne: {
                 filter: {
                     _id: update.userId,
-
-                    // 같은 주 알림 중복 생성 방지
-                    "weeklyGroupNotice.weekStart": {
-                        $ne:
-                            update
-                                .weeklyGroupNotice
-                                .weekStart,
-                    },
                 },
+
                 update: {
                     $set: {
                         groupId:
                             update.groupId,
+
                         weeklyGroupNotice:
-                            update
-                                .weeklyGroupNotice,
+                            update.weeklyGroupNotice,
                     },
                 },
             },
