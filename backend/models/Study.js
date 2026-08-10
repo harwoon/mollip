@@ -29,11 +29,20 @@ const studySchema = new mongoose.Schema(
             required: true,
         }
     },
-    { 
+    {
         timestamps: true
     }
 )
 
-const Study = mongoose.model("Study", studySchema)
+// 랭킹 / 기간별 공부시간 조회용 인덱스
+studySchema.index({
+    user: 1,
+    studyDate: 1,
+})
+
+const Study = mongoose.model(
+    "Study",
+    studySchema,
+)
 
 export default Study

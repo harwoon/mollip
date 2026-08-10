@@ -693,8 +693,8 @@ export async function withdraw(req, res) {
         const newLog = await AdminLog.create({
             type: "WITHDRAW",
 
-            // ObjectId가 아닌 로그인 아이디를 저장
-            userId: withdrawnUser.userId,
+            // 탈퇴 처리 전에 보관한 로그인 아이디를 저장
+            userId: withdrawnUser.withdrawnUserId,
 
             message: `${withdrawnUser.nickname}님이 서비스를 탈퇴했습니다.`
         })
