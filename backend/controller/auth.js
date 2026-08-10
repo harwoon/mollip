@@ -9,13 +9,8 @@ import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import AdminLog from "../models/AdminLog.js"
 import { createJwtToken } from "../util/jwt.js"
-import * as groupRepository
-    from "../repository/group.js"
-
-import {
-    getKstToday,
-    getWeekRange,
-} from "../util/date.js"
+import * as groupRepository from "../repository/group.js"
+import { getKstToday, getWeekRange } from "../util/date.js"
 
 // 파일 읽기를 위한 내장 모듈 임포트
 import fs from "fs"
@@ -643,33 +638,6 @@ export async function updateSubjectOrder(req, res) {
     }
 }
 
-// // 사용자 탈퇴- 사용안함
-// export async function deleteAll(req, res) {
-//     try {
-//         const userId = req.user._id
-
-//         await studyRepository.deleteMany(userId)
-//         await subjectRepository.deleteMany(userId)
-//         await todoRepository.deleteMany(userId)
-
-//         await authRepository.deleteUserById(userId)
-
-//         const newLog = await AdminLog.create({
-//             type: 'WITHDRAW',
-//             userId: userId,
-//             message: `${nickname}님이 서비스를 탈퇴했습니다.`
-//         })
-
-//         req.app.get('io').to('admin_room').emit('newAdminLog', newLog)
-
-//         return res.status(200).json({ message: "모든 정보가 삭제되었습니다." })
-//     } catch (error) {
-//         console.error("회원탈퇴 에러:", error)
-//         return res.status(500).json({ message: "회원탈퇴 처리 중 오류가 발생했습니다." })
-//     }
-// }
-
-
 // 회원 탈퇴
 export async function withdraw(req, res) {
     const userId = req.user._id
@@ -728,10 +696,6 @@ export async function withdraw(req, res) {
             userId: withdrawnUser.userId,
 
             message: `${withdrawnUser.nickname}님이 서비스를 탈퇴했습니다.`
-
-            // type: 'WITHDRAW',
-            // userId: userId,
-            // message: `${req.user.nickname}님이 서비스를 탈퇴했습니다.`
         })
 
         // Socket.io가 설정되어 있을 때만 관리자에게 알림
