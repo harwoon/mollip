@@ -92,50 +92,72 @@ function calculateComparison(
 
 
 export async function getWeeklyGroupRanking(userId) {
-    // 로그인 사용자의 그룹을 찾음
+    // 1. 로그인 사용자 그룹 조회
     const loginUser =
         await authRepository.getUserGroup(userId)
 
-    // 같은 그룹의 사용자 목록
+    if (!loginUser?.groupId) {
+        return []
+    }
+
+    // 2. 같은 그룹 사용자 한 번에 조회
     const groupUsers =
         await authRepository.getUsersByGroupId(
             loginUser.groupId,
         )
 
+    if (groupUsers.length === 0) {
+        return []
+    }
+
     const { startDate, endDate } =
         getWeekRange(new Date())
 
-    const ranking = []
+    // 3. 그룹 사용자 ID
+    const userIds =
+        groupUsers.map((user) => user._id)
 
-    for (const user of groupUsers) {
-        // 반드시 현재 그룹원의 ID 사용
-        const studies =
-            await studyRepository.getWeeklyByUserIdAndDate(
-                user._id,
+    // 4. 그룹원 전체 공부시간 한 번에 집계
+    const weeklySummaries =
+        await studyRepository
+            .findWeeklyStudySummariesByUsers(
+                userIds,
                 startDate,
                 endDate,
             )
 
-        const { totalStudyTime } =
-            await calculateStudyStatistics(
-                studies,
-                user._id,
-            )
+    // 5. 사용자별 공부시간 Map
+    const studyTimeMap = new Map(
+        weeklySummaries.map((summary) => [
+            String(summary.userId),
+            Number(summary.weeklyStudySeconds) || 0,
+        ]),
+    )
 
-        ranking.push({
+    // 6. 랭킹 데이터 생성
+    const ranking =
+        groupUsers.map((user) => ({
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
-            streak: user.currentStreak,
-            totalStudyTime,
-        })
-    }
+            streak:
+                Number(user.currentStreak) || 0,
 
-    return ranking.sort(
+            totalStudyTime:
+                studyTimeMap.get(
+                    String(user._id),
+                ) || 0,
+        }))
+
+    // 7. 공부시간 → 스트릭 순으로 정렬
+    ranking.sort(
         (a, b) =>
-            b.totalStudyTime - a.totalStudyTime ||
-            b.streak - a.streak
+            b.totalStudyTime -
+                a.totalStudyTime ||
+            b.streak - a.streak,
     )
+
+    return ranking
 }
 
 // 주간 개인 및  그룹 Todo 달성률 비교
