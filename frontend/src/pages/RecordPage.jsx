@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TotalStudy from "../features/record/components/TotalStudy.jsx";
 import TabSelector from "../features/record/components/TabSelector.jsx";
 import DateSelector from "../features/record/components/DateSelector.jsx";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import styles from "./Timer.module.css"
 import { socket } from "../../../../util/socket"
 import AppAlert from "../../../components/common/AppAlert.jsx"

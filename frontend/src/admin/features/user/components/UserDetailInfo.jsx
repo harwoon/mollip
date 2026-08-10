@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { getProfileImageUrl } from "../../../../util/profileImage.js"
 import { getTotalStudyTime, getTotalStudyRecord, getTodoTrend } from "../api/user.js"
 import styles from "./UserDetailInfo.module.css" 

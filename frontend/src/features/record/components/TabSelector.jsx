@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./TabSelector.module.css";
 
 export default function TabSelector({ currentType, onChangeType }) {

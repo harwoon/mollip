@@ -1,4 +1,4 @@
-import React, { memo } from "react"
+import { memo } from "react"
 import { useLocation } from "react-router-dom" // 현재 주소 확인용 불러오기
 import { useTimer } from "../context/TimerContext"
 

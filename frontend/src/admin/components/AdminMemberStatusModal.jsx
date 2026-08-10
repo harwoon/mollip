@@ -4,7 +4,7 @@ import {getMemberStatus, sendMemberStatusMail} from "../api/adminUserApi.js"
 import AppModal from "../../components/common/AppModal.jsx"
 import AppAlert from "../../components/common/AppAlert.jsx"
 import styles from "./AdminMemberStatusModal.module.css"
-import { FiMail, FiX } from "react-icons/fi"
+import { FiMail } from "react-icons/fi"
 
 // 회원 목록 초기값
 const INITIAL_MEMBERS = {
