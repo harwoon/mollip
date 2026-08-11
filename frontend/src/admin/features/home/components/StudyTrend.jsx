@@ -123,7 +123,7 @@ export default function StudyTrend() {
                         return {
                             date: dateStr,
                             displayDate: `${mm}.${dd}`, // 예: 07.27
-                            hours: foundData ? Math.round(foundData.totalMinutes / 60) : 0,
+                            hours: foundData ? Math.round(foundData.totalMinutes / 3600) : 0,
                             totalMinutes: foundData ? foundData.totalMinutes : 0,
                         };
                     });
@@ -143,7 +143,7 @@ export default function StudyTrend() {
                         return {
                             date: item.date,
                             displayDate: display,
-                            hours: Math.round(item.totalMinutes / 60),
+                            hours: Math.round(item.totalMinutes / 3600),
                             totalMinutes: item.totalMinutes,
                         };
                     });
@@ -273,17 +273,17 @@ export default function StudyTrend() {
                 <div className={styles.adminTrendSummary}>
                     <div>
                         <span>선택 기간 총 공부시간</span>
-                        <strong>{Math.round(summary.currentPeriod.totalMinutes / 60).toLocaleString()}시간</strong>
+                        <strong>{Math.round(summary.currentPeriod.totalMinutes / 3600).toLocaleString()}시간</strong>
                     </div>
                     <div>
                         <span>이전 기간 총 공부시간</span>
-                        <strong>{Math.round(summary.previousPeriod.totalMinutes / 60).toLocaleString()}시간</strong>
+                        <strong>{Math.round(summary.previousPeriod.totalMinutes / 3600).toLocaleString()}시간</strong>
                     </div>
                     <div>
                         <span>이전 기간 대비</span>
                         <strong className={summary.comparison.differenceMinutes >= 0 ? styles.positive : styles.negative}>
                             {summary.comparison.differenceMinutes > 0 ? "+" : ""}
-                            {Math.round(summary.comparison.differenceMinutes / 60).toLocaleString()}시간
+                            {Math.round(summary.comparison.differenceMinutes / 3600).toLocaleString()}시간
                         </strong>
                         <small>{summary.comparison.displayRate}</small>
                     </div>

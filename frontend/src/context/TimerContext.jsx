@@ -1,7 +1,16 @@
 import { API_URL } from "../config/apiUrl.js"
 import { createContext, useCallback, useContext, useState, useEffect, useRef } from "react"
+import { socket } from "../../util/socket.js"
 
 const TimerContext = createContext()
+
+function getStoredUser() {
+    try {
+        return JSON.parse(localStorage.getItem("user"))
+    } catch {
+        return null
+    }
+}
 
 export function TimerProvider({ children }) {
     const [selectedSubject, setSelectedSubject] = useState(() => {
@@ -24,8 +33,24 @@ export function TimerProvider({ children }) {
         return saved ? new Date(saved) : null
     })
 
+    const [timerStatus, setTimerStatus] = useState(() => {
+        const savedRunning = localStorage.getItem("mollip_isRunning")
+        if (savedRunning && JSON.parse(savedRunning)) return "RUNNING"
+        return Number(localStorage.getItem("mollip_time")) > 0
+            ? "STOPPED"
+            : "IDLE"
+    })
+
+    const [isSaving, setIsSaving] = useState(false)
+
     const expectedTimeRef = useRef(Number(localStorage.getItem("mollip_time")) || 0)
     const prevSubjectRef = useRef(selectedSubject?._id)
+    const timeRef = useRef(time)
+    const savingRef = useRef(false)
+
+    useEffect(() => {
+        timeRef.current = time
+    }, [time])
     // 로컬스토리지 동기화
     useEffect(() => {
         if (selectedSubject) {
@@ -60,6 +85,9 @@ export function TimerProvider({ children }) {
             setTime(0)
             setIsRunning(false)
             setActualStartTime(null)
+            setTimerStatus("IDLE")
+            setIsSaving(false)
+            savingRef.current = false
             expectedTimeRef.current = 0
 
             localStorage.removeItem("mollip_time")
@@ -145,11 +173,98 @@ export function TimerProvider({ children }) {
         }
     }, [selectedSubject])
 
+    const startTimer = useCallback(() => {
+        if (!selectedSubject || isRunning || savingRef.current) {
+            return false
+        }
+
+        expectedTimeRef.current = timeRef.current
+        setActualStartTime(new Date())
+        setIsRunning(true)
+        setTimerStatus("RUNNING")
+
+        const storedUser = getStoredUser()
+        if (storedUser?.groupId && storedUser?._id) {
+            socket.emit("startStudy", {
+                groupId: storedUser.groupId,
+                userId: storedUser._id,
+                userName: storedUser.nickname,
+                profileImg: storedUser.profileImg,
+                subjectName: selectedSubject.subjectName
+            })
+        }
+
+        window.dispatchEvent(new Event("mollip-open-floating-timer"))
+        window.dispatchEvent(new Event("mollip-timer-restarted"))
+        return true
+    }, [isRunning, selectedSubject])
+
+    const stopTimer = useCallback(async (reason = "manual") => {
+        if (!selectedSubject || !isRunning || savingRef.current) {
+            return false
+        }
+
+        savingRef.current = true
+        setIsSaving(true)
+        setTimerStatus("SAVING")
+
+        const stoppedAt = new Date()
+        const frozenTime = timeRef.current
+        const startMs = actualStartTime
+            ? new Date(actualStartTime).getTime()
+            : null
+        const studySeconds = startMs
+            ? Math.max(0, Math.floor((stoppedAt.getTime() - startMs) / 1000))
+            : 0
+
+        setIsRunning(false)
+        expectedTimeRef.current = frozenTime
+
+        const storedUser = getStoredUser()
+        if (storedUser?.groupId && storedUser?._id) {
+            socket.emit("stopStudy", {
+                groupId: storedUser.groupId,
+                userId: storedUser._id
+            })
+        }
+
+        const saved = studySeconds === 0 || await handleGlobalSave(studySeconds)
+
+        if (saved) {
+            setActualStartTime(null)
+            setTime(frozenTime)
+            setTimerStatus("STOPPED")
+            window.dispatchEvent(new Event("mollip-study-record-saved"))
+        } else {
+            expectedTimeRef.current = frozenTime
+            setActualStartTime(new Date())
+            setIsRunning(true)
+            setTimerStatus("RUNNING")
+
+            if (storedUser?.groupId && storedUser?._id) {
+                socket.emit("startStudy", {
+                    groupId: storedUser.groupId,
+                    userId: storedUser._id,
+                    userName: storedUser.nickname,
+                    profileImg: storedUser.profileImg,
+                    subjectName: selectedSubject.subjectName
+                })
+            }
+        }
+
+        savingRef.current = false
+        setIsSaving(false)
+
+        window.dispatchEvent(new CustomEvent("mollip-timer-stopped", {
+            detail: { reason, saved }
+        }))
+
+        return saved
+    }, [actualStartTime, handleGlobalSave, isRunning, selectedSubject])
+
     const onStopAndSaveForLogout = async () => {
         if (isRunning) {
-            const studySecondsToSave = Math.floor(time / 100)
-            setIsRunning(false)
-            await handleGlobalSave(studySecondsToSave)
+            await stopTimer("logout")
         }
     }
 
@@ -159,6 +274,10 @@ export function TimerProvider({ children }) {
             time, setTime,
             isRunning, setIsRunning,
             actualStartTime, setActualStartTime,
+            timerStatus,
+            isSaving,
+            startTimer,
+            stopTimer,
             handleGlobalSave,
             onStopAndSaveForLogout
         }}>
