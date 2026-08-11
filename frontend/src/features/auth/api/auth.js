@@ -25,16 +25,22 @@ export async function getMyInfo() {
 }
 
 // 로그인
-export async function loginUser(userId, userPw) {
+export async function loginUser(userId, userPw, replaceExistingSession = false) {
 
     const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, userPw }),
+        body: JSON.stringify({ userId, userPw, replaceExistingSession }),
     })
 
     const data = await response.json()
-    if (!response.ok) throw createApiError(data)
+    if (!response.ok) {
+        const error = createApiError(data)
+        if (error.code === "ACTIVE_SESSION_EXISTS") {
+            error.confirmLogin = () => loginUser(userId, userPw, true)
+        }
+        throw error
+    }
 
     saveLoginData(data)
 
@@ -99,6 +105,21 @@ function createApiError(data) {
     return error
 }
 
+export async function logoutUser() {
+    const token = localStorage.getItem("token")
+    if (!token) return
+
+    const response = await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+    })
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.message || "로그아웃 처리에 실패했습니다.")
+    }
+}
+
 export async function verifyDormantAccount(verificationId, code) {
     const response = await fetch(`${API_URL}/auth/dormant/verify`, {
         method: "POST",
@@ -155,6 +176,7 @@ function saveLoginData(data) {
 // 구글 로그인 함수
 export async function loginGoogleUser(
     credential,
+    replaceExistingSession = false,
 ) {
     const response = await fetch(
         `${API_URL}/auth/google`,
@@ -168,6 +190,7 @@ export async function loginGoogleUser(
 
             body: JSON.stringify({
                 credential,
+                replaceExistingSession,
             }),
         },
     )
@@ -175,7 +198,13 @@ export async function loginGoogleUser(
     const data =
         await response.json()
 
-    if (!response.ok) throw createApiError(data)
+    if (!response.ok) {
+        const error = createApiError(data)
+        if (error.code === "ACTIVE_SESSION_EXISTS") {
+            error.confirmLogin = () => loginGoogleUser(credential, true)
+        }
+        throw error
+    }
 
     saveLoginData(data)
 

@@ -27,7 +27,7 @@ router.get("/me", isAuth, authController.me)
 
 // 로그아웃
 // http://127.0.0.1:3000/auth/logout
-router.post("/logout", authController.logout)
+router.post("/logout", isAuth, authController.logout)
 
 // 회원 정보 수정
 // http://127.0.0.1:3000/auth/me

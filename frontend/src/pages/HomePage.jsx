@@ -81,12 +81,11 @@ export default function HomePage() {
     selectedSubject,
     setSelectedSubject,
     time,
-    setTime,
     isRunning,
-    setIsRunning,
-    actualStartTime,
-    setActualStartTime,
-    handleGlobalSave
+    timerStatus,
+    isSaving,
+    startTimer,
+    stopTimer
   } = useTimer()
 
   const [subjects, setSubjects] =
@@ -263,81 +262,18 @@ export default function HomePage() {
     }
   }, [])
 
-  // 타이머 기록 저장
-  const handleSaveRecord = async (studySeconds) => {
-    if (!selectedSubject) {
-      return false
-    }
-
-    const newRecord = {
-      _id: `temp_${Date.now()}`,
-      studyTitle: selectedSubject.subjectName,
-      sumStudyTime: studySeconds,
-    }
-
-    // 서버 응답 전에 화면에 우선 반영
-    setDailyRecords((prev) => [
-      ...prev,
-      newRecord,
-    ])
-
-    const isSuccess = await handleGlobalSave(studySeconds)
-
-    if (!isSuccess) {
-      // 저장 실패 시 임시 기록 제거
-      setDailyRecords((prev) =>
-        prev.filter(
-          (record) =>
-            record._id !==
-            newRecord._id
-        )
-      )
-
-      setAlertMessage(
-        "공부 기록 저장에 실패했습니다."
-      )
-    }
-
-    return isSuccess
-  }
-
   // 타이머 실행 중에는 과목 변경 차단
   const handleSubjectChange = (subject) => {
-    if (isRunning) {
+    if (isRunning || isSaving) {
       setAlertMessage(
-        "과목을 변경하려면 STOP 버튼을 눌러주세요."
+        isSaving
+          ? "공부 기록 저장이 끝난 후 과목을 변경해주세요."
+          : "과목을 변경하려면 STOP 버튼을 눌러주세요."
       )
       return
     }
 
     setSelectedSubject(subject)
-  }
-
-  // 타이머 상단 상태 문구
-  const getStudyMessage = () => {
-    if (selectedSubject) {
-      const subjectName =
-        selectedSubject.subjectName ||
-        selectedSubject
-
-      return `${subjectName}이 선택되었습니다. 공부를 시작하세요!`
-    }
-
-    if (!userInfo) {
-      return "사용자 정보 불러오는 중..."
-    }
-
-    const streak =
-      userInfo.currentStreak || 0
-
-    const userName =
-      userInfo.nickname || "회원"
-
-    if (streak === 0) {
-      return `${userName}님, 공부를 시작하세요!`
-    }
-
-    return `${streak}일째 공부중, 이어나가세요!`
   }
 
   return (
@@ -376,9 +312,6 @@ export default function HomePage() {
                   selectedSubject={
                     selectedSubject
                   }
-                  onSaveTime={
-                    handleSaveRecord
-                  }
                   userInfo={
                     userInfo
                   }
@@ -386,24 +319,13 @@ export default function HomePage() {
                     dailyRecords
                   }
                   time={time}
-                  setTime={
-                    setTime
-                  }
                   isRunning={
                     isRunning
                   }
-                  setIsRunning={
-                    setIsRunning
-                  }
-                  actualStartTime={
-                    actualStartTime
-                  }
-                  setActualStartTime={
-                    setActualStartTime
-                  }
-                  studyMessage={
-                    getStudyMessage()
-                  }
+                  timerStatus={timerStatus}
+                  isSaving={isSaving}
+                  startTimer={startTimer}
+                  stopTimer={stopTimer}
                 />
               </section>
 

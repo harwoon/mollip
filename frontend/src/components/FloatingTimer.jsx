@@ -4,11 +4,10 @@ import { FiAlertTriangle, FiClock, FiPause, FiPlay, FiSquare, FiX } from "react-
 import { useNavigate } from "react-router-dom"
 
 import { useTimer } from "../context/TimerContext"
-import { socket } from "../../util/socket"
 import AppAlert from "./common/AppAlert.jsx"
 import styles from "./FloatingTimer.module.css"
 
-const HIDDEN_WARNING_DELAY_MS = 5 * 60 * 1000
+const HIDDEN_WARNING_DELAY_MS = 1 * 60 * 1000
 const WARNING_GRACE_MS = 60 * 1000
 
 function formatTime(currentTime = 0) {
@@ -27,25 +26,15 @@ function copyDocumentStyles(targetDocument) {
         })
 }
 
-function getStoredUser() {
-    try {
-        return JSON.parse(localStorage.getItem("user"))
-    } catch {
-        return null
-    }
-}
-
 export default function FloatingTimer() {
     const navigate = useNavigate()
     const {
         selectedSubject,
         time,
-        setTime,
         isRunning,
-        setIsRunning,
-        actualStartTime,
-        setActualStartTime,
-        handleGlobalSave
+        isSaving,
+        startTimer,
+        stopTimer: stopSharedTimer
     } = useTimer()
 
     const [pipWindow, setPipWindow] = useState(null)
@@ -57,7 +46,6 @@ export default function FloatingTimer() {
     const pipWindowRef = useRef(null)
     const lastActivityAtRef = useRef(null)
     const warningDeadlineRef = useRef(null)
-    const savingRef = useRef(false)
     const pausedByInactivityRef = useRef(false)
     const manualStopPendingRef = useRef(false)
     const timeRef = useRef(time)
@@ -147,51 +135,8 @@ export default function FloatingTimer() {
         }
     }, [resetFocusState])
 
-    const saveCurrentSession = useCallback(async ({
-        keepWindowOpen,
-        resetTime = true
-    }) => {
-        if (savingRef.current) return false
-        savingRef.current = true
-
-        const startMs = actualStartTime
-            ? new Date(actualStartTime).getTime()
-            : null
-        const studySeconds = startMs
-            ? Math.max(0, Math.floor((Date.now() - startMs) / 1000))
-            : 0
-
-        const storedUser = getStoredUser()
-        if (storedUser?.groupId && storedUser?._id) {
-            socket.emit("stopStudy", {
-                groupId: storedUser.groupId,
-                userId: storedUser._id
-            })
-        }
-
-        const saved = studySeconds === 0 || await handleGlobalSave(studySeconds)
-
-        if (saved) {
-            if (resetTime) {
-                setTime(0)
-            }
-            setActualStartTime(null)
-            window.dispatchEvent(new Event("mollip-study-record-saved"))
-        } else {
-            setSaveFailed(true)
-        }
-
-        savingRef.current = false
-
-        if (saved && !keepWindowOpen) {
-            closeFloatingWindow()
-        }
-
-        return saved
-    }, [actualStartTime, closeFloatingWindow, handleGlobalSave, setActualStartTime, setTime])
-
     const pauseForInactivity = useCallback(async () => {
-        if (!isRunning || savingRef.current) return
+        if (!isRunning || isSaving) return
 
         pausedByInactivityRef.current = true
         lastActivityAtRef.current = Date.now()
@@ -199,12 +144,14 @@ export default function FloatingTimer() {
         setPausedTime(timeRef.current)
         setSaveFailed(false)
         setFocusStatus("PAUSED")
-        await saveCurrentSession({
-            keepWindowOpen: true,
-            resetTime: true
-        })
-        setIsRunning(false)
-    }, [isRunning, saveCurrentSession, setIsRunning])
+        const saved = await stopSharedTimer("inactivity")
+
+        if (!saved) {
+            pausedByInactivityRef.current = false
+            setSaveFailed(true)
+            setFocusStatus("RUNNING")
+        }
+    }, [isRunning, isSaving, stopSharedTimer])
 
     useEffect(() => {
         if (!isRunning) return undefined
@@ -290,47 +237,23 @@ export default function FloatingTimer() {
     }
 
     function resumeTimer() {
+        if (isSaving) return
         resetFocusState()
-        setActualStartTime(new Date())
-        setIsRunning(true)
-
-        const storedUser = getStoredUser()
-        if (storedUser?.groupId && storedUser?._id) {
-            socket.emit("startStudy", {
-                groupId: storedUser.groupId,
-                userId: storedUser._id,
-                userName: storedUser.nickname,
-                profileImg: storedUser.profileImg,
-                subjectName: selectedSubject.subjectName
-            })
-        }
+        startTimer()
     }
 
-    async function stopTimer() {
+    async function handleFloatingStop() {
         pausedByInactivityRef.current = false
         manualStopPendingRef.current = true
-        setIsRunning(false)
-        const saved = await saveCurrentSession({
-            keepWindowOpen: false,
-            resetTime: false
-        })
+        const stoppedAt = timeRef.current
+        const saved = await stopSharedTimer("floating")
         manualStopPendingRef.current = false
 
-        if (!saved) {
+        if (saved) {
+            setPausedTime(stoppedAt)
+            setFocusStatus("STOPPED")
+        } else {
             setFocusStatus("RUNNING")
-            setActualStartTime(new Date())
-            setIsRunning(true)
-
-            const storedUser = getStoredUser()
-            if (storedUser?.groupId && storedUser?._id) {
-                socket.emit("startStudy", {
-                    groupId: storedUser.groupId,
-                    userId: storedUser._id,
-                    userName: storedUser.nickname,
-                    profileImg: storedUser.profileImg,
-                    subjectName: selectedSubject.subjectName
-                })
-            }
         }
     }
 
@@ -345,6 +268,7 @@ export default function FloatingTimer() {
 
     const isWarning = focusStatus === "WARNING"
     const isPaused = focusStatus === "PAUSED"
+    const isStopped = focusStatus === "STOPPED"
 
     const pageWarning = (
         <AppAlert
@@ -366,19 +290,19 @@ export default function FloatingTimer() {
     }
 
     const floatingTimerPortal = createPortal(
-        <main className={`${styles.floatingTimer} ${isWarning ? styles.warning : ""} ${isPaused ? styles.paused : ""}`}>
+        <main className={`${styles.floatingTimer} ${isWarning ? styles.warning : ""} ${isPaused || isStopped ? styles.paused : ""}`}>
             <header className={styles.header}>
                 <div className={styles.status}>
-                    {isWarning ? <FiAlertTriangle /> : isPaused ? <FiPause /> : <FiClock />}
-                    <span>{isWarning ? "집중 확인" : isPaused ? "자동 일시정지" : "집중 중"}</span>
+                    {isWarning ? <FiAlertTriangle /> : isPaused || isStopped ? <FiPause /> : <FiClock />}
+                    <span>{isWarning ? "집중 확인" : isPaused ? "자동 일시정지" : isStopped ? "타이머 정지" : "집중 중"}</span>
                 </div>
                 <button type="button" className={styles.closeButton} onClick={closeFloatingWindow} aria-label="플로팅 타이머 닫기">
                     <FiX />
                 </button>
             </header>
 
-            <p className={styles.subject}>{selectedSubject.subjectName} 공부 중</p>
-            <strong className={styles.time}>{formatTime(isPaused ? pausedTime : time)}</strong>
+            <p className={styles.subject}>{selectedSubject.subjectName} {isStopped ? "공부 정지" : "공부 중"}</p>
+            <strong className={styles.time}>{formatTime(isPaused || isStopped ? pausedTime : time)}</strong>
 
             {isWarning && (
                 <div className={styles.warningMessage} role="alert">
@@ -391,21 +315,23 @@ export default function FloatingTimer() {
                 </div>
             )}
 
-            {isPaused && (
+            {(isPaused || isStopped) && (
                 <div className={styles.warningMessage} role="status">
-                    <strong>활동이 없어 타이머가 멈췄습니다.</strong>
-                    <span>{saveFailed ? "공부 기록 저장에 실패했습니다." : "공부 시간은 자동 저장되었습니다."}</span>
+                    <strong>{isStopped ? "타이머를 멈췄습니다." : "활동이 없어 타이머가 멈췄습니다."}</strong>
+                    <span>{saveFailed ? "공부 기록 저장에 실패했습니다." : "공부 시간은 저장되었습니다."}</span>
                     <div className={styles.actionButtons}>
                         <button type="button" className={styles.homeButton} onClick={goToHome}>Mollip 홈</button>
-                        <button type="button" onClick={resumeTimer}><FiPlay /> 다시 시작</button>
+                        <button type="button" onClick={resumeTimer} disabled={isSaving}>
+                            <FiPlay /> {isSaving ? "저장 중..." : "이어서 진행하기"}
+                        </button>
                     </div>
                 </div>
             )}
 
-            {!isWarning && !isPaused && (
+            {!isWarning && !isPaused && !isStopped && (
                 <div className={styles.actionButtons}>
                     <button type="button" className={styles.homeButton} onClick={goToHome}>Mollip 홈</button>
-                    <button type="button" className={styles.stopButton} onClick={stopTimer}>
+                    <button type="button" className={styles.stopButton} onClick={handleFloatingStop} disabled={isSaving}>
                         <FiSquare /> 타이머 멈추기
                     </button>
                 </div>
