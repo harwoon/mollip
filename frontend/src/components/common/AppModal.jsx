@@ -1,5 +1,11 @@
+import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import { FiX } from "react-icons/fi"
+
+import {
+    getModalFocusableElements,
+    resolveModalKeyAction
+} from "./modalKeyboard.js"
 
 export default function AppModal({
     open = false,
@@ -18,6 +24,61 @@ export default function AppModal({
     showClose = true,
     closeOnOverlay = true
 }) {
+    const modalRef = useRef(null)
+    const previousFocusRef = useRef(null)
+
+    useEffect(() => {
+        if (!open) {
+            return undefined
+        }
+
+        previousFocusRef.current = document.activeElement
+
+        const focusFrame = window.requestAnimationFrame(() => {
+            const focusableElements = getModalFocusableElements(
+                modalRef.current
+            )
+
+            ;(focusableElements[0] || modalRef.current)?.focus()
+        })
+
+        const handleKeyDown = (event) => {
+            const action = resolveModalKeyAction({
+                key: event.key,
+                shiftKey: event.shiftKey,
+                activeElement: document.activeElement,
+                focusableElements: getModalFocusableElements(
+                    modalRef.current
+                ),
+                fallbackElement: modalRef.current
+            })
+
+            if (action.type === "close") {
+                event.preventDefault()
+                onClose?.()
+                return
+            }
+
+            if (action.type === "focus" && action.target) {
+                event.preventDefault()
+                action.target.focus()
+            }
+        }
+
+        document.addEventListener("keydown", handleKeyDown)
+
+        return () => {
+            window.cancelAnimationFrame(focusFrame)
+            document.removeEventListener("keydown", handleKeyDown)
+
+            const previousFocus = previousFocusRef.current
+
+            if (previousFocus?.isConnected) {
+                previousFocus.focus()
+            }
+        }
+    }, [open, onClose])
+
     if (!open) {
         return null
     }
@@ -39,10 +100,12 @@ export default function AppModal({
             onMouseDown={handleOverlayMouseDown}
         >
             <section
+                ref={modalRef}
                 className={`app-modal ${modalTypeClassName}`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="app-modal-title"
+                tabIndex={-1}
                 onMouseDown={(event) => event.stopPropagation()}
             >
                 <header className="app-modal-header">
