@@ -1,0 +1,43 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # 브라우저(사용자 PC)에서 호출할 주소 -> 도커 내부 서비스명이 아니라
+        # backend가 호스트에 노출한 포트(localhost:3000)를 가리켜야 함
+        VITE_LOCAL_API_URL: ${VITE_LOCAL_API_URL}
+        VITE_REMOTE_API_URL: ${VITE_REMOTE_API_URL}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+        VITE_DORMANT_GROUP_ID: ${VITE_DORMANT_GROUP_ID}
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      # 컨테이너 네트워크 안에서는 서비스명으로 접속 (localhost 아님)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AI_SERVER_URL: http://ai:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - ai
+
+  ai:
+    build:
+      context: ./ai
+    env_file:
+      - ./ai/.env
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:7-alpine
+    # backend만 내부 네트워크로 접속하면 되므로 호스트 포트 노출 안 함
