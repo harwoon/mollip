@@ -131,6 +131,12 @@
     transform: translateY(-1px);
 }
 
+.timerBtn:disabled {
+    cursor: wait;
+    opacity: 0.65;
+    transform: none;
+}
+
 
 /* 대기 상태 */
 .timerIdle .timerBtn {

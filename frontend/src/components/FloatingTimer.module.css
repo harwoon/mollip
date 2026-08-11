@@ -142,3 +142,8 @@
 .paused .warningMessage button {
     background: #a34e58;
 }
+
+.floatingTimer button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
