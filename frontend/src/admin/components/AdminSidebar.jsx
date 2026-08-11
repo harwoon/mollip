@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import {FiBarChart2, FiBookOpen, FiHome, FiMail} from "react-icons/fi"
 
 import styles from "./AdminSidebar.module.css" 
@@ -10,6 +10,9 @@ import AdminMemberStatusModal from "./AdminMemberStatusModal.jsx"
 
 
 export default function AdminSidebar() {
+    const { pathname } = useLocation()
+    const isUsersPage = pathname === "/admin/users" || pathname.startsWith("/admin/users/")
+
     // 관리회원현황 모달 열림 여부
     const [
         isMemberStatusOpen,
@@ -48,19 +51,21 @@ export default function AdminSidebar() {
                                 <span>회원 현황</span>
                             </NavLink>
 
+                            {isUsersPage && (
+                                <button
+                                    type="button"
+                                    className={`${styles.sidebarNavigationLink} ${styles.adminMemberStatusSidebarButton}`}
+                                    onClick={() => setIsMemberStatusOpen(true)}
+                                >
+                                    <FiMail className={styles.sidebarNavigationIcon} />
+                                    <span>관리회원현황</span>
+                                </button>
+                            )}
+
                             <NavLink to="/admin/groups" className={getNavClassName}>
                                 <FiBarChart2 className={styles.sidebarNavigationIcon} />
                                 <span>그룹 현황</span>
                             </NavLink>
-
-                            <button
-                                type="button"
-                                className={`${styles.sidebarNavigationLink} ${styles.adminMemberStatusSidebarButton}`}
-                                onClick={() => setIsMemberStatusOpen(true)}
-                            >
-                                <FiMail className={styles.sidebarNavigationIcon} />
-                                <span>관리회원현황</span>
-                            </button>
                         </div>
                     </nav>
                 </div>
@@ -68,7 +73,7 @@ export default function AdminSidebar() {
                 <AdminSidebarLogout />
             </aside>
 
-            {isMemberStatusOpen && (
+            {isUsersPage && isMemberStatusOpen && (
                 <AdminMemberStatusModal
                     onClose={() => setIsMemberStatusOpen(false)}
                 />
