@@ -74,17 +74,12 @@
     overflow: hidden;
 }
 
-.rankingArea{
-    padding-bottom: 12px;
-}
-
 .rankingArea,
 .activeArea {
     min-width: 0;
     min-height: 0;
     display: flex;
     overflow: hidden;
-    max-height: 560px;
 }
 
 .rankingArea > *,
@@ -96,9 +91,26 @@
 
 
 
-@media (min-width: 1821px) {
-    .rankingArea{
-        max-height: 550px;
+/* 세로 공간이 짧은 노트북에서도 하단 목록 영역을 확보한다. */
+@media (min-width: 1001px) and (max-height: 900px) {
+    .groupPage {
+        gap: 14px;
+    }
+
+    .topRow {
+        flex-basis: clamp(230px, 35vh, 300px);
+        min-height: 230px;
+        gap: 14px;
+    }
+
+    .compareArea,
+    .bottomRow {
+        gap: 14px;
+    }
+
+    .rankingArea,
+    .activeArea {
+        max-height: none;
     }
 }
 @media (max-width: 1000px) {
