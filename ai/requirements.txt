@@ -1,0 +1,10 @@
+# 웹 프레임워크 (main.py의 FastAPI 앱)
+fastapi==0.141.1
+# FastAPI를 실제로 구동하는 ASGI 서버 (uvicorn main:app)
+uvicorn==0.52.1
+# GPT 호출용 OpenAI SDK
+openai==2.52.0
+# 요청/응답 데이터 검증 (SessionRecord, DailyRecord 등 모델)
+pydantic==2.13.4
+# .env 파일에서 OPENAI_API_KEY 로드
+python-dotenv==1.2.2
