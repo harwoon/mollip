@@ -1,5 +1,5 @@
 import { API_URL } from "../../../config/apiUrl.js"
-import { formatDate } from "../../../../../backend/util/date"
+import { formatDate } from "../../../../util/date"
 
 // 총 공부시간 가져오기
 export async function getStudyRecord(type, date) {
