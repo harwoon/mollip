@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar"
 import { TimerProvider } from "../context/TimerContext"
 import { addTodo, deleteTodo, getTodoList } from "../features/home/api/todo"
 import GroupNoticeModal from "./GroupNoticeModal"
+import FloatingTimer from "./FloatingTimer"
 
 import { consumeWeeklyGroupNotice } from "../features/auth/api/auth"
 
@@ -164,6 +165,7 @@ export default function MainLayout() {
                     onRemoveTodo={handleRemoveAiTodo}
                 />
                 <main className="app-main">
+                    <FloatingTimer />
                     <Outlet context={{
                         todoRefreshKey,
                         handleTodoListChanged
@@ -180,4 +182,4 @@ export default function MainLayout() {
             </div>
         </TimerProvider>
     )
-} 
+}

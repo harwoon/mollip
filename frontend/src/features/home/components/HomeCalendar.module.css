@@ -32,9 +32,48 @@
 
 .customCalendar :global(.react-calendar) {
     width: 100% !important;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     border: none !important;
     background: transparent !important;
     font-family: inherit;
+}
+
+.customCalendar :global(.react-calendar__viewContainer) {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+}
+
+.customCalendar :global(.react-calendar__viewContainer) > div {
+    height: 100%;
+    min-height: 0;
+}
+
+.customCalendar :global(.react-calendar__month-view) {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* react-calendar가 월 보기 내부에 생성하는 두 겹의 래퍼까지 높이를 전달한다. */
+.customCalendar :global(.react-calendar__month-view) > div {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: stretch !important;
+}
+
+.customCalendar :global(.react-calendar__month-view) > div > div {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .customCalendar :global(.react-calendar__navigation) {
@@ -74,6 +113,9 @@
 
 /* Flexbox를 이용한 완벽한 7등분 날짜 정렬 */
 .customCalendar :global(.react-calendar__month-view__days) {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
     display: flex !important;
     flex-wrap: wrap !important;
 }
@@ -81,8 +123,11 @@
 .customCalendar :global(.react-calendar__tile) {
     position: relative !important; 
     flex: 0 0 14.2857% !important;
+    width: 14.2857% !important;
     max-width: 14.2857% !important;
-    height: 56px !important;
+    /* 낮은 노트북에서도 숫자가 사라지지 않는 최소 높이를 보장한다. */
+    height: clamp(36px, 5.5vh, 56px) !important;
+    min-height: 36px;
     background: var(--color-surface-soft) !important;
     border-radius: var(--radius-sm) !important;
     padding: 4px !important;
@@ -94,6 +139,22 @@
     cursor: pointer;
     border: 1px solid var(--color-surface);
     margin-bottom: 4px;
+}
+
+@media (min-width: 1001px) and (max-height: 820px) {
+    .customCalendar :global(.react-calendar__navigation) {
+        height: 32px;
+        margin-bottom: 4px;
+    }
+
+    .customCalendar :global(.react-calendar__month-view__weekdays) {
+        padding-bottom: 4px;
+    }
+
+    .customTileNumber {
+        margin-bottom: 1px;
+        font-size: 12px;
+    }
 }
 
 .customCalendar :global(.react-calendar__tile):hover {

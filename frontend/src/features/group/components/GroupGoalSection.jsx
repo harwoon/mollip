@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { FiInfo } from "react-icons/fi"
 import { RiTargetFill } from "react-icons/ri"
 
 import {
@@ -6,6 +7,7 @@ import {
 } from "../api/groupGoalApi.js"
 
 import GroupGoalItem from "./GroupGoalItem.jsx"
+import GroupGoalProgressInfoModal from "./GroupGoalProgressInfoModal.jsx"
 import OverallAchievement from "./OverallAchievement.jsx"
 
 import styles from "./GroupGoalSection.module.css"
@@ -15,6 +17,7 @@ export default function GroupGoalSection() {
     const [goalData, setGoalData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
 
     useEffect(() => {
         let isMounted = true
@@ -122,6 +125,19 @@ export default function GroupGoalSection() {
                         </span>
                     </div>
                 </div>
+
+                {goals.length > 0 && (
+                    <button
+                        type="button"
+                        className={styles.infoButton}
+                        style={{ "--group-color": groupColor }}
+                        onClick={() => setIsInfoModalOpen(true)}
+                        aria-label="전체 달성률 계산 안내 열기"
+                        title="전체 달성률 계산 안내"
+                    >
+                        <FiInfo aria-hidden="true" />
+                    </button>
+                )}
             </header>
 
             <div className={styles.content}>
@@ -150,6 +166,14 @@ export default function GroupGoalSection() {
                     />
                 </div>
             </div>
+
+            <GroupGoalProgressInfoModal
+                open={isInfoModalOpen}
+                goals={goals}
+                overallAchievementRate={overallAchievementRate}
+                color={groupColor}
+                onClose={() => setIsInfoModalOpen(false)}
+            />
         </div>
     )
 }
