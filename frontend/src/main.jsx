@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google"
 
 import "./index.css"
 import App from "./App.jsx"
+import { installAuthSessionMonitor } from "./features/auth/authSessionMonitor.js"
 
 const googleClientId =
     import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -12,6 +13,8 @@ if (!googleClientId) {
         "VITE_GOOGLE_CLIENT_ID가 없습니다.",
     )
 }
+
+installAuthSessionMonitor()
 
 createRoot(
     document.getElementById("root"),
