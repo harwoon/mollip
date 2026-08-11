@@ -21,6 +21,14 @@ function SidebarTimer() {
             <strong className="sidebarTimerTime">
                 {formatMiniTime(time)}
             </strong>
+
+            <button
+                type="button"
+                className="sidebarTimerFloatingButton"
+                onClick={() => window.dispatchEvent(new Event("mollip-open-floating-timer"))}
+            >
+                플로팅 타이머 열기
+            </button>
         </div>
     )
 }

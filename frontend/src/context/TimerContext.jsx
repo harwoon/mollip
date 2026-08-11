@@ -1,5 +1,5 @@
 import { API_URL } from "../config/apiUrl.js"
-import { createContext, useContext, useState, useEffect, useRef } from "react"
+import { createContext, useCallback, useContext, useState, useEffect, useRef } from "react"
 
 const TimerContext = createContext()
 
@@ -89,7 +89,7 @@ export function TimerProvider({ children }) {
     }, [isRunning, actualStartTime])
 
     // 전역 공부 시간 저장 함수
-    const handleGlobalSave = async (studySeconds) => {
+    const handleGlobalSave = useCallback(async (studySeconds) => {
         if (!selectedSubject) return false
         const userToken = localStorage.getItem("token")
         if (!userToken) return false
@@ -143,7 +143,7 @@ export function TimerProvider({ children }) {
             console.error("전역 타이머 저장 에러:", error)
             return false
         }
-    }
+    }, [selectedSubject])
 
     const onStopAndSaveForLogout = async () => {
         if (isRunning) {

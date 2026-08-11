@@ -23,6 +23,24 @@ export default function Timer({
   
   const [alertMessage, setAlertMessage] = useState(null)
 
+  useEffect(() => {
+    const handleUnsupportedFloatingTimer = () => {
+      setAlertMessage("이 브라우저는 플로팅 타이머를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용해주세요.")
+    }
+
+    window.addEventListener(
+      "mollip-floating-timer-unsupported",
+      handleUnsupportedFloatingTimer
+    )
+
+    return () => {
+      window.removeEventListener(
+        "mollip-floating-timer-unsupported",
+        handleUnsupportedFloatingTimer
+      )
+    }
+  }, [])
+
   const groupId = userInfo?.groupId
   const userId = userInfo?._id
   const userName = userInfo?.nickname
@@ -143,6 +161,8 @@ export default function Timer({
       return
     }
 
+    window.dispatchEvent(new Event("mollip-open-floating-timer"))
+    window.dispatchEvent(new Event("mollip-timer-restarted"))
     setIsRunning(true)
     setTimerStatus("RUNNING")
     setActualStartTime(new Date())
@@ -213,6 +233,15 @@ export default function Timer({
         <button type="button" className={`${styles.timerBtn} ${styles.stopButton}`} onClick={handleStop}>
           Stop
         </button>
+        {isRunning && (
+          <button
+            type="button"
+            className={styles.timerBtn}
+            onClick={() => window.dispatchEvent(new Event("mollip-open-floating-timer"))}
+          >
+            Floating
+          </button>
+        )}
       </div>
 
       <div className={styles.totalTimeArea}>

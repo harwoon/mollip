@@ -95,6 +95,9 @@ export default function HomePage() {
   const [dailyRecords, setDailyRecords] =
     useState([])
 
+  const [studyRefreshKey, setStudyRefreshKey] =
+    useState(0)
+
   const [userInfo, setUserInfo] =
     useState(null)
 
@@ -240,7 +243,25 @@ export default function HomePage() {
     }
 
     fetchData()
-  }, [userToken])
+  }, [userToken, studyRefreshKey])
+
+  useEffect(() => {
+    const handleStudyRecordSaved = () => {
+      setStudyRefreshKey((previousKey) => previousKey + 1)
+    }
+
+    window.addEventListener(
+      "mollip-study-record-saved",
+      handleStudyRecordSaved
+    )
+
+    return () => {
+      window.removeEventListener(
+        "mollip-study-record-saved",
+        handleStudyRecordSaved
+      )
+    }
+  }, [])
 
   // 타이머 기록 저장
   const handleSaveRecord = async (studySeconds) => {
