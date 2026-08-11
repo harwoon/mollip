@@ -26,6 +26,12 @@ export default function AppModal({
 }) {
     const modalRef = useRef(null)
     const previousFocusRef = useRef(null)
+    const onCloseRef = useRef(onClose)
+
+    useEffect(() => {
+        onCloseRef.current = onClose
+    }, [onClose])
+
 
     useEffect(() => {
         if (!open) {
@@ -39,7 +45,7 @@ export default function AppModal({
                 modalRef.current
             )
 
-            ;(focusableElements[0] || modalRef.current)?.focus()
+                ; (focusableElements[0] || modalRef.current)?.focus()
         })
 
         const handleKeyDown = (event) => {
@@ -71,13 +77,16 @@ export default function AppModal({
             window.cancelAnimationFrame(focusFrame)
             document.removeEventListener("keydown", handleKeyDown)
 
-            const previousFocus = previousFocusRef.current
+            const previousFocus =
+                previousFocusRef.current
 
-            if (previousFocus?.isConnected) {
+            if (
+                previousFocus?.isConnected
+            ) {
                 previousFocus.focus()
             }
         }
-    }, [open, onClose])
+    }, [open])
 
     if (!open) {
         return null

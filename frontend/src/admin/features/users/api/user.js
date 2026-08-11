@@ -109,21 +109,50 @@ export async function getUsersCount() {
 // 이번주 공부한 회원, 이번주 평균 공부시간
 // http://127.0.0.1:3000/admin/weekly-average-study-time
 export async function getUsersAverage() {
-    const token = localStorage.getItem('token')
-
-    const response = await fetch(`${API_URL}/admin/weekly-average-study-time`, {
-        method: "GET",
-        headers: authHeaders()
-    })
+    const response = await fetch(
+        `${API_URL}/admin/weekly-average-study-time`,
+        {
+            method: "GET",
+            headers: authHeaders()
+        }
+    )
 
     const data = await response.json()
 
     if (!response.ok) {
-        throw new Error(data.message || "이번주 공부 데이터를 불러오지 못했습니다.")
+        throw new Error(
+            data.message ||
+            "이번주 공부 데이터를 불러오지 못했습니다."
+        )
     }
 
-    const { studyUserCount, averageWeeklyStudyTime } = data
+    const {
+        studyUserCount,
+        averageWeeklyStudyTime
+    } = data
 
+    const hours =
+        Math.floor(averageWeeklyStudyTime / 60)
 
-    return { studyUserCount, averageWeeklyStudyTime }
+    const minutes =
+        Math.round(averageWeeklyStudyTime % 60)
+
+    let formattedAverageTime
+
+    if (hours > 0 && minutes > 0) {
+        formattedAverageTime =
+            `${hours}시간 ${minutes}분`
+    } else if (hours > 0) {
+        formattedAverageTime =
+            `${hours}시간`
+    } else {
+        formattedAverageTime =
+            `${minutes}분`
+    }
+
+    return {
+        studyUserCount,
+        averageWeeklyStudyTime:
+            formattedAverageTime
+    }
 }

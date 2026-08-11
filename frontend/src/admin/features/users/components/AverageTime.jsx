@@ -36,7 +36,7 @@ export function AverageTime() {
                 icon={<FiClock />}
                 label="이번 주 평균 공부시간"
                 value={time}
-                unit="분"
+                unit=""
             />
         </>
     )
