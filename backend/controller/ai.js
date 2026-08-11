@@ -4,6 +4,7 @@ import Study from "../models/Study.js"
 import Todo from "../models/Todo.js"
 import AiReport from "../models/AiReport.js"
 import { formatDate } from "../util/date.js"
+import { config } from "../config.mjs"
 
 export async function getWeeklyAiReport(req, res) {
     const userId = req.user._id
@@ -134,8 +135,7 @@ export async function getWeeklyAiReport(req, res) {
             currentStreak: userInfo.currentStreak || 0
         }
 
-        // fastAPI 포트는 8000
-        const fastApiResponse = await fetch("http://127.0.0.1:8000/ai/weekly-report", {
+        const fastApiResponse = await fetch(`${config.ai.serverUrl}/ai/weekly-report`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

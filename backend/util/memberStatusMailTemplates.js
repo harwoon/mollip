@@ -239,6 +239,35 @@ function createMailLayout({
 }
 
 
+// 휴면 로그인 이메일 인증 메일도 관리자 회원 상태 메일과 같은 레이아웃을 사용합니다.
+export function getDormantVerificationMailTemplate(nickname, code, imageCid) {
+    const frontendUrl = process.env.FRONTEND_URL
+
+    return {
+        subject: "[Mollip] 휴면 계정 인증번호 안내",
+        html: createMailLayout({
+            title: "휴면 계정 해제를 위한 인증번호입니다.",
+            nickname,
+            imageCid,
+            imageAlt: "Mollip 휴면 계정 인증 안내",
+            message: `
+                <p style="margin: 0 0 18px; text-align: center;">
+                    아래 인증번호를 Mollip 로그인 화면에 입력해 주세요.
+                </p>
+                <div style="margin: 0 auto 18px; padding: 20px 18px; color: #7657c8; background: #f7f4ff; border: 1px solid #e5ddfa; border-radius: 14px; font-size: 30px; font-weight: 800; line-height: 1; letter-spacing: 9px; text-align: center;">
+                    ${code}
+                </div>
+                <p style="margin: 0; color: #77717f; font-size: 13px; text-align: center;">
+                    인증번호는 5분 동안 유효합니다.<br />
+                    본인이 요청하지 않은 경우 이 메일을 무시해 주세요.
+                </p>
+            `,
+            buttonText: "Mollip 인증 화면으로 돌아가기",
+            buttonUrl: `${frontendUrl}/login`,
+        }),
+    }
+}
+
 // 회원 상태별 메일 양식 반환
 export function getMemberStatusMailTemplate(
     type,

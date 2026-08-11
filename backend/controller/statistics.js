@@ -106,7 +106,7 @@ export async function getRatio(req, res) {
 }
 
 
-// 그룹 연속 공부 달성일
+// 그룹 연속 학습일
 export async function getStreak(req, res) {
     const groupId = req.user.groupId
     const userStreak = req.user.currentStreak
@@ -118,8 +118,8 @@ export async function getStreak(req, res) {
         return res.status(200).json({ userStreak, groupStreak })
 
     } catch (error) {
-        console.error("그룹 연속 공부 달성일 조회 실패:", error)
-        return res.status(500).json({ message: "서버 오류로 그룹 연속 공부 달성일을 불러오지 못했습니다." })
+        console.error("그룹 연속 학습일 조회 실패:", error)
+        return res.status(500).json({ message: "서버 오류로 그룹 연속 학습일을 불러오지 못했습니다." })
     }
 }
 

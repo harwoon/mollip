@@ -4,7 +4,7 @@ import SummaryCard from "../features/home/components/SummaryCard.jsx"
 import { useEffect, useMemo, useState } from "react"
 import { getAllAdminUsers } from "../api/adminUserApi"
 
-const DORMANT_GROUP_ID = "6a6c35fa39f4827ac141db88"
+const DORMANT_GROUP_ID = import.meta.env.VITE_DORMANT_GROUP_ID
 
 export default function WeeklyAverageAchievementCard() {
   const [users, setUsers] = useState([])

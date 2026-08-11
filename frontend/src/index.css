@@ -376,6 +376,32 @@ a {
 
 
 /* 공통 반응형 */
+@media (min-width: 1821px) {
+    :root {
+        --page-padding-top: 25px;
+        --page-padding-right: 40px;
+        --page-padding-bottom: 30px;
+        --page-padding-left: 40px;
+
+        --home-top-height:330px;
+
+        --space-4: 10px
+    }
+
+    html,
+    body,
+    #root {
+        width: 100%;
+        min-height: 100%;
+    }
+
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}
+
+
 @media (max-width: 1000px) {
     :root {
         --sidebar-width: 210px;

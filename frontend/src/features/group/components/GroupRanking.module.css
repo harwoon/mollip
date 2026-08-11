@@ -325,8 +325,9 @@
     flex-direction: column;
 
     overflow: hidden;
-}
 
+    min-height: 240px;
+}
 
 .rankingScrollContainer {
     position: relative;
@@ -561,6 +562,26 @@
 }
 
 
+
+@media (min-width: 1821px)  {
+    .rankingScrollContainer{
+        height: 120px;
+        max-height: 120px;
+        min-height: 120px;
+        padding-bottom: 5px;
+    }
+
+    .topThreeItem {
+        min-height: 90px;
+        height:110px;
+        padding: 10px;
+    }
+    .firstPlace {
+        min-height: 125px;
+        height: 125px;
+        padding-top: 13px;
+    }
+}
 
 @media (max-width: 1000px) {
     .rankingCard {

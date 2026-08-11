@@ -73,3 +73,13 @@
 .subjectItem {
   flex: 0 0 auto;
 }
+
+
+
+@media (min-width: 1821px) {
+  .subjectItem {
+    padding: 10px 20px;
+    max-height: 58px;
+    min-height: 58px;
+  }
+}

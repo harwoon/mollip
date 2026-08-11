@@ -85,6 +85,7 @@
     overflow: hidden;
 }
 
+
 @media (max-width: 1000px) {
     .page {
         height: auto;

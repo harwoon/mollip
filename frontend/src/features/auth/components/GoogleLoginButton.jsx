@@ -65,10 +65,7 @@ export default function GoogleLoginButton({
                     error,
                 )
 
-                onError(
-                    error.message ||
-                    "Google 로그인에 실패했습니다.",
-                )
+                onError(error)
             }
         }
 

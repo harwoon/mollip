@@ -683,6 +683,44 @@
 
 
 /* 공통 모달 1000px */
+@media (min-width: 1821px) {
+    .app-main {
+        min-width: 0;
+        min-height: 0;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .app-page {
+        width: 100%;
+        min-height: 100vh;
+        height: auto;
+
+        padding:
+            var(--page-padding-top)
+            var(--page-padding-right)
+            var(--page-padding-bottom)
+            var(--page-padding-left);
+
+        overflow: visible;
+    }
+
+    .app-page__inner {
+        width: 100%;
+        max-width: 1670px;
+        height: auto;
+        min-height: 100%;
+
+        margin: 0 auto;
+    }
+
+    .commonSection {
+        border-radius: 15px;
+    }
+}
+
+
 @media (max-width: 1000px) {
     .app-modal-overlay,
     .app-alert-overlay {

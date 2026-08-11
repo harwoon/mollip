@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import GoogleLoginButton from "./GoogleLoginButton"
 import { loginUser } from "../api/auth"
+import DormantVerificationModal from "./DormantVerificationModal"
 
 import { PiX } from "react-icons/pi"
 
@@ -12,6 +13,7 @@ export default function LoginForm() {
     const [userPw, setUserPw] = useState("")
 
     const [alertMessage, setAlertMessage] = useState("")
+    const [dormantVerification, setDormantVerification] = useState(null)
 
     const navigate = useNavigate()
     const moveAfterLogin = (
@@ -29,6 +31,15 @@ export default function LoginForm() {
         }
 
         navigate("/home")
+    }
+
+    const handleLoginError = (error) => {
+        if (error?.code === "DORMANT_ACCOUNT") {
+            setAlertMessage("")
+            setDormantVerification(error)
+            return
+        }
+        setAlertMessage(error?.message || "로그인에 실패했습니다.")
     }
 
     const handleSubmit = async (event) => {
@@ -66,10 +77,7 @@ export default function LoginForm() {
 
             navigate("/home")
         } catch (error) {
-            setAlertMessage(
-                error.message ||
-                "아이디 또는 비밀번호를 확인해주세요."
-            )
+            handleLoginError(error)
         }
     }
 
@@ -141,7 +149,7 @@ export default function LoginForm() {
                             moveAfterLogin
                         }
                         onError={
-                            setAlertMessage
+                            handleLoginError
                         }
                     />
                 </div>
@@ -209,6 +217,12 @@ export default function LoginForm() {
                     </section>
                 </div>
             )}
+            <DormantVerificationModal
+                key={dormantVerification?.verificationId || "closed"}
+                verification={dormantVerification}
+                onClose={() => setDormantVerification(null)}
+                onVerified={moveAfterLogin}
+            />
         </>
     )
 }
