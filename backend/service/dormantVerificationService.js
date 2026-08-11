@@ -135,10 +135,18 @@ export async function verifyDormantCode(verificationId, submittedCode) {
         return { status: 500, message: "복귀할 기본 그룹을 찾을 수 없습니다." }
     }
 
-    const updatedUser = await authRepository.reactivateDormantGroupOnly(
-        user._id,
-        defaultGroup._id,
-    )
+    const {
+        startDate: currentWeekStart,
+    } = getWeekRange(getKstToday())
+
+    const updatedUser =
+        await authRepository
+            .reactivateDormantGroupOnly(
+                user._id,
+                defaultGroup._id,
+                defaultGroup.groupName,
+                currentWeekStart,
+            )
     if (!updatedUser) {
         dormantVerificationStore.delete(verificationId)
         return { status: 409, message: "이미 휴면 상태가 해제된 계정입니다." }

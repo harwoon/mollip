@@ -126,15 +126,57 @@ export async function findById(id) {
 }
 
 // 휴면 해제에서는 학습/연속 기록 등 다른 필드를 건드리지 않고 groupId만 변경합니다.
-export async function reactivateDormantGroupOnly(userId, defaultGroupId) {
+export async function reactivateDormantGroupOnly(
+    userId,
+    defaultGroupId,
+    defaultGroupName,
+    weekStart,
+) {
     return User.findOneAndUpdate(
         {
             _id: userId,
             useYn: "Y",
-            groupId: config.group.dormantId,
+            groupId:
+                config.group.dormantId,
         },
-        { $set: { groupId: defaultGroupId } },
-        { new: true },
+        {
+            $set: {
+                groupId:
+                    defaultGroupId,
+
+                weeklyGroupNotice: {
+                    status: "RETURN",
+
+                    weekStart,
+
+                    previousGroupId:
+                        String(
+                            config.group
+                                .dormantId,
+                        ),
+
+                    previousGroupName:
+                        "휴면",
+
+                    currentGroupId:
+                        String(
+                            defaultGroupId,
+                        ),
+
+                    currentGroupName:
+                        defaultGroupName,
+
+                    isRead: false,
+
+                    assignedAt:
+                        new Date(),
+                },
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        },
     )
 }
 
