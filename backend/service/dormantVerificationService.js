@@ -3,7 +3,7 @@ import crypto from "crypto"
 import { config } from "../config.mjs"
 import * as authRepository from "../repository/auth.js"
 import * as groupRepository from "../repository/group.js"
-import { createJwtToken } from "../util/jwt.js"
+import { createLoginSession } from "./loginSessionService.js"
 import transporter from "../util/mailer.js"
 import { getDormantVerificationMailTemplate } from "../util/memberStatusMailTemplates.js"
 import path from "path"
@@ -156,7 +156,7 @@ export async function verifyDormantCode(verificationId, submittedCode) {
     }
 
     dormantVerificationStore.delete(verificationId)
-    const token = createJwtToken(updatedUser._id.toString())
+    const token = await createLoginSession(updatedUser._id.toString())
     const userObject = updatedUser.toObject()
     const { userPw: _, ...safeUser } = userObject
 

@@ -4,15 +4,24 @@ import { FiLogOut } from "react-icons/fi"
 
 import AppAlert from "../../components/common/AppAlert.jsx"
 import styles from "./AdminSidebarLogout.module.css"
+import { logoutUser } from "../../features/auth/api/auth.js"
 
 export default function AdminSidebarLogout() {
     const navigate = useNavigate()
     const [logoutAlertOpen, setLogoutAlertOpen] = useState(false)
 
-    const handleLogoutConfirm = () => {
+    const handleLogoutConfirm = async () => {
         setLogoutAlertOpen(false)
 
+        try {
+            await logoutUser()
+        } catch (error) {
+            console.error("서버 로그아웃 실패:", error)
+        }
+
         localStorage.removeItem("token")
+        localStorage.removeItem("role")
+        localStorage.removeItem("user")
         localStorage.removeItem("userInfo")
         localStorage.removeItem("userId")
         localStorage.removeItem("groupId")

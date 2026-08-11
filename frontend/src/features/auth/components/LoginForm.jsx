@@ -2,7 +2,9 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import GoogleLoginButton from "./GoogleLoginButton"
 import { loginUser } from "../api/auth"
+import { consumeAuthNotice } from "../authSessionMonitor.js"
 import DormantVerificationModal from "./DormantVerificationModal"
+import AppAlert from "../../../components/common/AppAlert.jsx"
 
 import { PiX } from "react-icons/pi"
 
@@ -12,8 +14,10 @@ export default function LoginForm() {
     const [userId, setUserId] = useState("")
     const [userPw, setUserPw] = useState("")
 
-    const [alertMessage, setAlertMessage] = useState("")
+    const [alertMessage, setAlertMessage] = useState(() => consumeAuthNotice())
     const [dormantVerification, setDormantVerification] = useState(null)
+    const [loginConflict, setLoginConflict] = useState(null)
+    const [isReplacingSession, setIsReplacingSession] = useState(false)
 
     const navigate = useNavigate()
     const moveAfterLogin = (
@@ -34,12 +38,33 @@ export default function LoginForm() {
     }
 
     const handleLoginError = (error) => {
+        if (error?.code === "ACTIVE_SESSION_EXISTS") {
+            setAlertMessage("")
+            setLoginConflict(error)
+            return
+        }
         if (error?.code === "DORMANT_ACCOUNT") {
             setAlertMessage("")
             setDormantVerification(error)
             return
         }
         setAlertMessage(error?.message || "로그인에 실패했습니다.")
+    }
+
+    const confirmSessionReplacement = async () => {
+        if (!loginConflict?.confirmLogin || isReplacingSession) return
+
+        setIsReplacingSession(true)
+        try {
+            const result = await loginConflict.confirmLogin()
+            setLoginConflict(null)
+            moveAfterLogin(result)
+        } catch (error) {
+            setLoginConflict(null)
+            handleLoginError(error)
+        } finally {
+            setIsReplacingSession(false)
+        }
     }
 
     const handleSubmit = async (event) => {
@@ -222,6 +247,19 @@ export default function LoginForm() {
                 verification={dormantVerification}
                 onClose={() => setDormantVerification(null)}
                 onVerified={moveAfterLogin}
+            />
+            <AppAlert
+                open={Boolean(loginConflict)}
+                type="warning"
+                title="다른 기기에서 로그인 중"
+                message={`다른 기기에 ${loginConflict?.accountId || "해당 계정"}가 로그인중입니다. 해당 연결을 끊고 로그인하시겠습니까?`}
+                showCancel
+                showClose
+                confirmText={isReplacingSession ? "연결 중..." : "연결 끊고 로그인"}
+                cancelText="취소"
+                onConfirm={confirmSessionReplacement}
+                onCancel={() => setLoginConflict(null)}
+                onClose={() => setLoginConflict(null)}
             />
         </>
     )

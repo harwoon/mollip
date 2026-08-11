@@ -1,6 +1,9 @@
 import { OAuth2Client } from "google-auth-library"
 import { config } from "../config.mjs"
-import { createJwtToken } from "../util/jwt.js"
+import {
+    createLoginSession,
+    hasActiveLoginSession,
+} from "../service/loginSessionService.js"
 import * as authRepository from "../repository/auth.js"
 import {
     beginDormantVerification,
@@ -16,7 +19,7 @@ export async function googleLogin(
     req,
     res,
 ) {
-    const { credential } = req.body
+    const { credential, replaceExistingSession = false } = req.body
 
     if (!credential) {
         return res.status(400).json({
@@ -164,11 +167,19 @@ export async function googleLogin(
             }
         }
 
+        if (!replaceExistingSession && await hasActiveLoginSession(user._id)) {
+            return res.status(409).json({
+                code: "ACTIVE_SESSION_EXISTS",
+                accountId: user.userId,
+                message: `다른 기기에 ${user.userId}가 로그인중입니다.`,
+            })
+        }
+
         /*
          * 5. Mollip JWT 발급
          */
         const token =
-            createJwtToken(
+            await createLoginSession(
                 user._id.toString(),
             )
 

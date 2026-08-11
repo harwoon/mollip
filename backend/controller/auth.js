@@ -9,6 +9,11 @@ import * as studyRepository from "../repository/study.js"
 import * as todoRepository from "../repository/todo.js"
 import AdminLog from "../models/AdminLog.js"
 import { createJwtToken } from "../util/jwt.js"
+import {
+    createLoginSession,
+    deleteLoginSession,
+    hasActiveLoginSession,
+} from "../service/loginSessionService.js"
 import { validatePasswordChange } from "../util/password.js"
 import * as groupRepository from "../repository/group.js"
 import { getKstToday, getWeekRange } from "../util/date.js"
@@ -221,7 +226,7 @@ export async function signup(req, res) {
 
 // 로그인
 export async function login(req, res) {
-    const { userId, userPw } = req.body
+    const { userId, userPw, replaceExistingSession = false } = req.body
 
     // ID 확인
     const user = await authRepository.findByUserid(userId)
@@ -266,8 +271,16 @@ export async function login(req, res) {
         }
     }
 
+    if (!replaceExistingSession && await hasActiveLoginSession(user._id)) {
+        return res.status(409).json({
+            code: "ACTIVE_SESSION_EXISTS",
+            accountId: user.userId,
+            message: `다른 기기에 ${user.userId}가 로그인중입니다.`,
+        })
+    }
+
     // 모두 일치하면 토큰발급
-    const token = await createJwtToken(user._id.toString())
+    const token = await createLoginSession(user._id.toString())
 
     const userObj = user.toObject()
     const { userPw: _, ...safeUser } = userObj // 비밀번호 보안처리
@@ -287,6 +300,7 @@ export async function me(req, res) {
 
 // 로그아웃
 export async function logout(req, res) {
+    await deleteLoginSession(req.user._id.toString(), req.sessionId)
     console.log("로그아웃 성공")
     res.status(200).json({ message: "로그아웃되었습니다." })
 }

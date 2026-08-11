@@ -6,10 +6,12 @@ import {
 
 export function createJwtToken(
     userId,
+    sessionId,
 ) {
     return jwt.sign(
         {
             id: userId,
+            ...(sessionId ? { sessionId } : {}),
         },
 
         config.jwt.secretKey,

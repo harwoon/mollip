@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { FiLogOut } from "react-icons/fi"
 import { socket } from "../../util/socket"
 import { googleLogout } from "@react-oauth/google"
+import { logoutUser } from "../features/auth/api/auth.js"
 
 import AppAlert from "./common/AppAlert.jsx"
 
@@ -29,12 +30,18 @@ export default function SidebarLogout({ userInfo, isRunning, onStopAndSave }) {
         }))
     }
 
-    const completeLogout = () => {
+    const completeLogout = async () => {
         if (userInfo && userInfo.groupId && userInfo._id) {
             socket.emit("stopStudy", {
                 groupId: userInfo.groupId,
                 userId: userInfo._id
             })
+        }
+
+        try {
+            await logoutUser()
+        } catch (error) {
+            console.error("서버 로그아웃 실패:", error)
         }
 
         googleLogout()
