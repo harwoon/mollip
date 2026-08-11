@@ -100,7 +100,7 @@ export default function GroupTodoAchievementChart({ selectedDate }) {
 
     return (
         <section className={`commonSection ${styles.container}`}>
-            <h3 className={styles.title}>TODO 달성률</h3>
+            <h3 className={styles.title}>목표 달성률</h3>
 
             {chartData.length > 0 ? (
                 <div className={styles.chartArea}>

@@ -4,8 +4,7 @@ import Group from "../models/Group.js"
 import AdminLog from "../models/AdminLog.js"
 import { config } from "../config.mjs"
 
-const dormantGroupId =
-    config.group.dormantId
+const DORMANT_GROUP_ID = config.group.dormantId
 
 // 전체 사용자 수 조회 (role: 'user'인 사용자)
 // 전체 사용자 수 조회
@@ -13,12 +12,7 @@ export async function countAllUsers() {
     // 현재 시점으로부터 정확히 7일 전
     const oneWeekAgo = new Date()
 
-    oneWeekAgo.setDate(
-        oneWeekAgo.getDate() - 7,
-    )
-
-    const dormantGroupId =
-        "6a6c35fa39f4827ac141db88"
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
     const [
         totalUserCount,
@@ -42,7 +36,7 @@ export async function countAllUsers() {
         User.countDocuments({
             role: "user",
             useYn: "Y",
-            groupId: dormantGroupId,
+            groupId: DORMANT_GROUP_ID,
         }),
 
         // 7일 전 당시 존재했던 사용자 수

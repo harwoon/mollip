@@ -25,7 +25,7 @@ function CustomTooltip({ active, payload }) {
     return (
         <div className={styles.tooltip}>
             <p className={styles.tooltipTitle}>{name}요일</p>
-            <p className={styles.tooltipRate}>TODO 달성률 {achievementRate}%</p>
+            <p className={styles.tooltipRate}>Todo 달성률 {achievementRate}%</p>
             <p className={styles.tooltipCount}>
                 전체 {totalCount}개 중 {completedCount}개 완료
             </p>
@@ -85,7 +85,7 @@ function makeWeeklyChartData(records) {
 
     return (
         <section className={`commonSection ${styles.container}`}>
-            <h3 className={styles.title}>TODO 달성률</h3>
+            <h3 className={styles.title}>Todo 달성률</h3>
 
             {chartData.length > 0 ? (
                 <div className={styles.chartArea}>

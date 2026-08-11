@@ -58,11 +58,11 @@ export async function getWeeklyTodoRecords(date) {
   )
 }
 
-// 개인 및 그룹 연속 공부 달성일 가져오기
+// 개인 및 그룹 연속 학습일 가져오기
 export async function getGroupStreak() {
   return getRequest(
     "/statistics/streak",
-    "연속 공부 달성일을 불러오지 못했습니다.",
+    "연속 학습일을 불러오지 못했습니다.",
   )
 }
 

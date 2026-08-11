@@ -53,7 +53,7 @@ export default function GroupStreakChart() {
             },
             ])
         } catch (error) {
-            console.error("연속 공부 달성 일수 조회 실패:", error)
+            console.error("연속 학습일 조회 실패:", error)
             setChartData([])
         } finally {
             setLoading(false)
@@ -71,7 +71,7 @@ export default function GroupStreakChart() {
 
     return (
         <section className={`commonSection ${styles.container}`}>
-            <h3 className={styles.title}>연속 공부 달성 일수</h3>
+            <h3 className={styles.title}>연속 학습일</h3>
 
             <div className={styles.legend}>
                 {chartData.map((item) => (
