@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi"
+import { FiX, FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import { RiSparklingFill } from "react-icons/ri"
 import Calendar from "react-calendar"
 import dayjs from "dayjs"
@@ -52,7 +52,7 @@ export default function AiReportModal({
     const [selectedDate, setSelectedDate] = useState(() => new Date())
 
     // 날짜 선택 달력 팝업 표시 여부
-    const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+    const [isOpen, setIsCalendarOpen] = useState(false)
 
     // 선택한 날짜에 생성된 리포트 목록 (오래된 순)
     const [reports, setReports] = useState([])
@@ -119,12 +119,24 @@ export default function AiReportModal({
 
 
     // 날짜 선택 변경
-    function handleDateChange(date) {
+    function handleDateClick(date) {
         if (!date) return
 
         setGenerateError("")
         setSelectedDate(date)
         setIsCalendarOpen(false)
+    }
+
+    // 하루 전 날짜로 이동
+    function handlePrevDate() {
+        setGenerateError("")
+        setSelectedDate((date) => dayjs(date).subtract(1, "day").toDate())
+    }
+
+    // 하루 다음 날짜로 이동 (오늘 이후로는 이동 불가)
+    function handleNextDate() {
+        setGenerateError("")
+        setSelectedDate((date) => dayjs(date).add(1, "day").toDate())
     }
 
 
@@ -255,26 +267,51 @@ export default function AiReportModal({
                         <span className={styles.dateBarLabel}>조회 날짜</span>
 
                         <div className={styles.dateSelector}>
-                            <button
-                                type="button"
-                                className={styles.dateButton}
-                                onClick={() => setIsCalendarOpen((open) => !open)}
-                            >
-                                🗓 {dateStr}
-                            </button>
+                            <div className={styles.selectorBox}>
+                                <FiCalendar
+                                    className={styles.calendarIcon}
+                                    aria-hidden="true"
+                                />
 
-                            {isCalendarOpen && (
+                                <button
+                                    type="button"
+                                    className={styles.dateButton}
+                                    onClick={() => setIsCalendarOpen((open) => !open)}
+                                >
+                                    {dateStr}
+                                </button>
+
+                                <div className={styles.arrowButtons}>
+                                    <button
+                                        type="button"
+                                        onClick={handlePrevDate}
+                                        aria-label="이전 날짜"
+                                    >
+                                        <FiChevronLeft />
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleNextDate}
+                                        disabled={isToday}
+                                        aria-label="다음 날짜"
+                                    >
+                                        <FiChevronRight />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {isOpen && (
                                 <div className={styles.calendarPopup}>
                                     <Calendar
                                         className="app-calendar"
-                                        calendarType="iso8601"
+                                        onChange={handleDateClick}
                                         value={selectedDate}
-                                        maxDate={new Date()}
-                                        onChange={handleDateChange}
                                         formatDay={(locale, date) => dayjs(date).format("D")}
                                         next2Label={null}
                                         prev2Label={null}
-                                    />
+                                        maxDate={new Date()}
+                                        />
                                 </div>
                             )}
                         </div>

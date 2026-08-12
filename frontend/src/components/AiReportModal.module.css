@@ -543,28 +543,66 @@
     position: relative;
 }
 
-.dateButton {
-    min-height: 36px;
-    padding: 0 var(--space-3);
+.selectorBox {
+    min-height: 42px;
+    padding: 0 var(--space-2) 0 var(--space-3);
 
-    color: var(--color-text);
-    font-size: var(--font-sm);
-    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
 
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-
-    cursor: pointer;
-
-    transition:
-        background-color 0.15s ease,
-        border-color 0.15s ease;
+    border-radius: var(--radius-md);
 }
 
-.dateButton:hover {
+.calendarIcon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+
+    color: var(--color-primary-600);
+}
+
+.dateButton {
+    padding: 0 var(--space-2);
+
+    color: var(--color-text);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.arrowButtons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.arrowButtons button {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text-muted);
+    font-size: var(--font-md);
+
+    border-radius: var(--radius-sm);
+}
+
+.arrowButtons button:hover:not(:disabled) {
+    color: var(--color-primary-700);
     background: var(--color-primary-50);
-    border-color: var(--color-primary-200);
+}
+
+.arrowButtons button:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 .calendarPopup {
@@ -587,6 +625,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
+    height: 90px;
 
     padding: var(--space-4) var(--space-5);
     margin-bottom: var(--space-4);
