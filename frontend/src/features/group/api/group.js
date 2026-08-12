@@ -112,5 +112,5 @@ export async function getWeekStudyTime() {
     // 백엔드에서 주간 총 공부시간을 숫자(분)로 반환
     // return Number(data) || 0 260803 승아수정(아래걸로 변경)
 
-    return Number(data.totalTime) || 0
+    return Number(data) || 0
 }
