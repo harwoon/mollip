@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { formatDate, getMonday } from "../../../../../util/date";
 import DatePicker from "react-datepicker";
 import { ko } from "date-fns/locale";
+import { FiCalendar } from "react-icons/fi";
 import {
     LineChart,
     Line,
@@ -224,6 +225,7 @@ export default function StudyTrend() {
                         maxDate={getSunday(new Date())}
                         customInput={
                             <button type="button" className={`app-btn-secondary ${styles.adminTrendDateButton}`}>
+                                <FiCalendar className={styles.adminTrendDateIcon} aria-hidden="true" />
                                 {startDate ? formatDate(startDate) : ""}
                                 {" ~ "}
                                 {endDate ? formatDate(endDate) : ""}

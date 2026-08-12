@@ -59,7 +59,7 @@
     font-size: 14px;
 }
 .userDetailDateField :global(.app-input) {
-    width: 230px;
+    width: 240px;
 }
 .userDetailContent {
     display: flex;
