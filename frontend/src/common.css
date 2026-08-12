@@ -347,6 +347,18 @@
     text-decoration: none;
 }
 
+/* 오늘 날짜 표시 - 선택 여부와 무관하게 항상 적용되는 라이브러리 기본 노란색을 서비스 톤으로 교체 */
+.app-calendar .react-calendar__tile--now {
+    background: var(--color-primary-500);
+    color: var(--color-primary-50);
+}
+
+.app-calendar .react-calendar__tile--now:enabled:hover,
+.app-calendar .react-calendar__tile--now:enabled:focus {
+    background: var(--color-primary-400);
+    color: var(--color-primary-50);
+}
+
 /* ========================= 7. MODAL - ACTION / LARGE ========================= */
 .app-modal-overlay {
     position: fixed;
