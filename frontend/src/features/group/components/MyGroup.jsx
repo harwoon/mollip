@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getMyGroup, getHigher, getWeekStudyTime } from "../api/group"
+import { getMyGroup, getHigher, getWeekStudyTime, getPrevWeekStudyTime } from "../api/group"
 
 import { FiUser } from "react-icons/fi"
 import styles from "./MyGroup.module.css"
@@ -8,24 +8,28 @@ export default function MyGroup() {
     const [groupName, setGroupName] = useState("")
     const [groupTime, setGroupTime] = useState(0)
     const [weekStudyTime, setWeekStudyTime] = useState(0)
+    const [compareSeconds, setCompareSeconds] = useState(0)
     const [remainTime, setRemainTime] = useState(0)
     const [progress, setProgress] = useState(0)
 
     useEffect(() => {
         const fetchGroupData = async () => {
             try {
-                const [myGroup, higherGroup, weeklySecondsData] = await Promise.all([
+                const [myGroup, higherGroup, weeklySecondsData, prevWeeklySecondsData] = await Promise.all([
                     getMyGroup(),
                     getHigher(),
-                    getWeekStudyTime()
+                    getWeekStudyTime(),
+                    getPrevWeekStudyTime()
                 ])
-                
+
                 const myWeeklySeconds = Number(weeklySecondsData) || 0
                 const myGroupSeconds = Number(myGroup.groupTime) || 0
+                const prevWeeklySeconds = Number(prevWeeklySecondsData) || 0
 
                 setGroupName(myGroup.groupName)
                 setGroupTime(myGroupSeconds)
                 setWeekStudyTime(myWeeklySeconds)
+                setCompareSeconds(myWeeklySeconds - prevWeeklySeconds)
 
                 // 최고 그룹이면 상위 그룹이 없음
                 if (!higherGroup) {
@@ -102,8 +106,16 @@ export default function MyGroup() {
                 </strong>
 
                 <div className={styles.compareBadge}>
-                    지난주보다 3시간
-                    <span aria-hidden="true">▲</span>
+                    {compareSeconds === 0 ? (
+                        "지난주와 동일해요"
+                    ) : (
+                        <>
+                            지난주보다 {formatStudyTime(Math.abs(compareSeconds))}
+                            <span aria-hidden="true">
+                                {compareSeconds > 0 ? "▲" : "▼"}
+                            </span>
+                        </>
+                    )}
                 </div>
             </div>
 
