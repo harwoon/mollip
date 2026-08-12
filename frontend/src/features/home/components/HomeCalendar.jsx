@@ -195,6 +195,8 @@ export default function HomeCalendar() {
         formatDay={(locale, date) => dayjs(date).format("D")}
         next2Label={null}
         prev2Label={null}
+        minDetail="month"
+        maxDetail="month"
         showNeighboringMonth={false}
         onActiveStartDateChange={({ activeStartDate }) => {
           setActiveMonth(activeStartDate)

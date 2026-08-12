@@ -115,6 +115,13 @@
     border-color: var(--color-primary-200) !important;
 }
 
+.calendar :global(.react-calendar__navigation button:disabled) {
+    background: none;
+    color: var(--color-text);
+    cursor: default;
+    font-weight: 600;
+}
+
 .tooltip {
     position: absolute;
     inset: 0;
