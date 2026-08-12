@@ -191,7 +191,7 @@ export default function HomeCalendar() {
         className={`app-calendar ${styles.customCalendar}`}
         onChange={setSelectedDate}
         value={selectedDate}
-        calendarType="iso8601"
+        calendarType="gregory"
         formatDay={(locale, date) => dayjs(date).format("D")}
         next2Label={null}
         prev2Label={null}

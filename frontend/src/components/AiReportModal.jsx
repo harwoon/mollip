@@ -308,6 +308,7 @@ export default function AiReportModal({
                                         onChange={handleDateClick}
                                         value={selectedDate}
                                         formatDay={(locale, date) => dayjs(date).format("D")}
+                                        calendarType="gregory"
                                         next2Label={null}
                                         prev2Label={null}
                                         maxDate={new Date()}

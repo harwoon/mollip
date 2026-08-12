@@ -199,6 +199,11 @@
     color: #dc3545 !important;
 }
 
+/* 토요일(일요일 시작 기준 7번째 열)만 파란 글씨 */
+.customCalendar :global(.react-calendar__month-view__days__day--weekend):nth-child(7n) .customTileNumber {
+    color: #0d6efd !important;
+}
+
 /* 이전달/다음달 날짜 연하게 */
 .customCalendar :global(.react-calendar__month-view__days__day--neighboringMonth) .customTileNumber {
     color: #ccc !important;
