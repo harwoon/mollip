@@ -224,7 +224,7 @@ export default function StudyTrend() {
                         maxDate={getSunday(new Date())}
                         customInput={
                             <button type="button" className={`app-btn-secondary ${styles.adminTrendDateButton}`}>
-                                🗓 {startDate ? formatDate(startDate) : ""}
+                                {startDate ? formatDate(startDate) : ""}
                                 {" ~ "}
                                 {endDate ? formatDate(endDate) : ""}
                             </button>

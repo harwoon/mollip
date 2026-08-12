@@ -124,6 +124,7 @@ export default function DateSelector({ selectedDate, onChangeDate, type }) {
                         calendarType="gregory"
                         next2Label={null}
                         prev2Label={null}
+                        maxDate={new Date()}
                     />
                 </div>
             )}
