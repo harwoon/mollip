@@ -96,7 +96,7 @@ export default function AiThisWeek({
         <>
         <section>
             <div className="aiReportHeader">
-                <h3>이번주 Todo 추천</h3>
+                <h3>오늘 Todo 추천</h3>
             </div>
 
             {recommendations.length === 0 ? (
