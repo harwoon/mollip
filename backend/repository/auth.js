@@ -88,10 +88,16 @@ export async function createGoogleUser(
 
 // id 중복확인 및 단일 사용자 조회
 export async function findByUserid(userId) {
+    const trimmedUserId =
+        String(userId ?? "").trim()
+
     return User.findOne({
-        userId,
+        userId: trimmedUserId,
         useYn: "Y",
-    });
+    }).collation({
+        locale: "en",
+        strength: 2,
+    })
 }
 
 
