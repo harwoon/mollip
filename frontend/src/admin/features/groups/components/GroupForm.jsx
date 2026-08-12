@@ -342,7 +342,7 @@ export default function GroupForm({
         }
 
         /*
-         * 출석일 검사
+         * 학습일 검사
          */
         if (
             !Number.isInteger(attendance) ||
@@ -350,7 +350,7 @@ export default function GroupForm({
             attendance > 7
         ) {
             setError(
-                "출석일 목표는 1일 이상 7일 이하의 정수여야 합니다.",
+                "학습일 목표는 1일 이상 7일 이하의 정수여야 합니다.",
             );
 
             return;
@@ -627,7 +627,7 @@ export default function GroupForm({
 
                     <div className={styles.groupFormField}>
                         <label htmlFor="attendanceDays">
-                            출석일 목표
+                            학습일 목표
                         </label>
 
                         <div className={styles.numberInputRow}>

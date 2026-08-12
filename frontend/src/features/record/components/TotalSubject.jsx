@@ -42,14 +42,14 @@ function getComparisonText(type, comparison) {
     return (
       `${currentSubject}을 가장 많이 공부했고, ` +
       `${previousPeriod}의 ${previousSubject}보다 ` +
-      `${difference}% 높게 공부했어요 ▲`
+      `${difference}% 많이 공부했어요`
     )
   }
 
   return (
     `${currentSubject}을 가장 많이 공부했고, ` +
     `${previousPeriod}의 ${previousSubject}보다 ` +
-    `${difference}% 낮게 공부했어요 ▼`
+    `${difference}% 적게 공부했어요`
   )
 }
 

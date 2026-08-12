@@ -88,6 +88,35 @@
     white-space: nowrap;
 }
 
+.chartArea :global(.recharts-tooltip-wrapper) {
+    z-index: 20;
+}
+
+.tooltip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+
+    transform: translateY(-32px);
+}
+
+.tooltip strong {
+    color: var(--color-primary-600);
+    font-size: var(--font-sm);
+}
+
+.tooltip span {
+    color: var(--color-text-muted);
+    font-size: var(--font-xs);
+}
+
 .emptyState {
     position: absolute;
     top: 50%;

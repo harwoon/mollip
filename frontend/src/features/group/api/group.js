@@ -109,8 +109,42 @@ export async function getWeekStudyTime() {
         )
     }
 
-    // 백엔드에서 주간 총 공부시간을 숫자(분)로 반환
-    // return Number(data) || 0 260803 승아수정(아래걸로 변경)
+    // 백엔드에서 주간 총 공부시간을 숫자(초)로 반환
+    return Number(data) || 0
+}
 
-    return Number(data.totalTime) || 0
+// 사용자 지난주 총 공부시간
+export async function getPrevWeekStudyTime() {
+    const token = localStorage.getItem("token")
+
+    const today = new Date()
+    const prevWeekDate = new Date(today)
+    prevWeekDate.setDate(today.getDate() - 7)
+
+    const year = prevWeekDate.getFullYear()
+    const month = String(prevWeekDate.getMonth() + 1).padStart(2, "0")
+    const date = String(prevWeekDate.getDate()).padStart(2, "0")
+
+    const prevWeekString = `${year}-${month}-${date}`
+
+    const response = await fetch(
+        `${API_URL}/statistics/total?type=weekly&date=${prevWeekString}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "지난주 공부시간을 불러오지 못했습니다."
+        )
+    }
+
+    return Number(data) || 0
 }
