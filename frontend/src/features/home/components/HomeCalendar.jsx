@@ -265,6 +265,7 @@ export default function HomeCalendar() {
         <ScheduleModal
           selectedDate={selectedDate}
           schedules={schedulesByDate[dayjs(selectedDate).format("YYYY-MM-DD")] || []}
+          allSchedules={schedules}
           selectedSchedule={selectedSchedule}
           onSelectSchedule={setSelectedSchedule}
           onSave={handleSaveSchedule}

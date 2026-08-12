@@ -44,7 +44,7 @@ const scheduleSchema = new mongoose.Schema(
         },
         color: {
             type: String,
-            default: "#be282f",
+            default: "#b19cd9",
         },
     },
     {

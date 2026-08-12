@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import dayjs from "dayjs"
 
 import AppModal from "../../../components/common/AppModal.jsx"
@@ -14,6 +14,45 @@ const PASTEL_COLORS = [
     { name: "연피치", value: "#ffdac1" },
     { name: "연그레이", value: "#e2e2e2" },
 ]
+
+const MAX_SCHEDULES_PER_DAY = PASTEL_COLORS.length
+
+function getOverlappingSchedules(
+    schedules,
+    startDate,
+    endDate,
+    excludedScheduleId,
+) {
+    if (!startDate || !endDate) return []
+
+    return schedules.filter((schedule) => (
+        schedule._id !== excludedScheduleId &&
+        schedule.startDate <= endDate &&
+        schedule.endDate >= startDate
+    ))
+}
+
+function findFullScheduleDate(schedules, startDate, endDate) {
+    if (!startDate || !endDate || startDate > endDate) return null
+
+    let currentDate = dayjs(startDate)
+    const lastDate = dayjs(endDate)
+
+    while (!currentDate.isAfter(lastDate, "day")) {
+        const dateKey = currentDate.format("YYYY-MM-DD")
+        const scheduleCount = schedules.filter((schedule) => (
+            schedule.startDate <= dateKey && schedule.endDate >= dateKey
+        )).length
+
+        if (scheduleCount >= MAX_SCHEDULES_PER_DAY) {
+            return dateKey
+        }
+
+        currentDate = currentDate.add(1, "day")
+    }
+
+    return null
+}
 
 function parseTimeString(timeStr) {
     if (!timeStr) return { ampm: "오전", hour: "09", minute: "00" }
@@ -53,6 +92,7 @@ function formatTimeString(ampm, hour, minute) {
 export default function ScheduleModal({
     selectedDate,
     schedules = [],
+    allSchedules = [],
     selectedSchedule,
     onSelectSchedule,
     onSave,
@@ -115,6 +155,23 @@ export default function ScheduleModal({
     })
 
     const memoRef = useRef(null)
+
+    const overlappingSchedules = useMemo(() => (
+        getOverlappingSchedules(
+            allSchedules,
+            form.startDate,
+            form.endDate,
+            selectedSchedule?._id,
+        )
+    ), [allSchedules, form.endDate, form.startDate, selectedSchedule?._id])
+
+    const fullScheduleDate = useMemo(() => (
+        findFullScheduleDate(
+            overlappingSchedules,
+            form.startDate,
+            form.endDate,
+        )
+    ), [form.endDate, form.startDate, overlappingSchedules])
 
     // 모달이 열릴 때 선택된 날짜를 기본값으로 세팅
     useEffect(() => {
@@ -215,6 +272,24 @@ export default function ScheduleModal({
             return
         }
 
+        if (fullScheduleDate) {
+            showAlert({
+                type: "warning",
+                title: "일정을 더 추가할 수 없습니다.",
+                message: `${dayjs(fullScheduleDate).format("YYYY년 M월 D일")}에는 이미 일정이 7개 등록되어 있습니다.`,
+            })
+            return
+        }
+
+        if (!form.color) {
+            showAlert({
+                type: "warning",
+                title: "일정 색상을 확인해주세요.",
+                message: "일정 색상을 선택해주세요.",
+            })
+            return
+        }
+
         const currentStartTime = formatTimeString(
             startObj.ampm,
             startObj.hour,
@@ -270,6 +345,23 @@ function handleDelete() {
 
 function handleNewSchedule() {
     const defaultDate = dayjs(selectedDate).format("YYYY-MM-DD")
+
+    const schedulesOnSelectedDate = getOverlappingSchedules(
+        allSchedules,
+        defaultDate,
+        defaultDate,
+        null,
+    )
+
+    if (schedulesOnSelectedDate.length >= MAX_SCHEDULES_PER_DAY) {
+        showAlert({
+            type: "warning",
+            title: "일정을 더 추가할 수 없습니다.",
+            message: "하루에 등록할 수 있는 일정은 최대 7개입니다.",
+        })
+        return
+    }
+
     onSelectSchedule(null)
     setForm({
         title: "",
@@ -535,7 +627,6 @@ return (
                             {PASTEL_COLORS.map((item) => {
                                 const isSelected =
                                     form.color === item.value
-
                                 return (
                                     <button
                                         key={item.value}
