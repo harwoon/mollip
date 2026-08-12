@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import { RiSparklingFill } from "react-icons/ri"
-import DatePicker from "react-datepicker"
-import { ko } from "date-fns/locale"
-import "react-datepicker/dist/react-datepicker.css"
+import Calendar from "react-calendar"
+import dayjs from "dayjs"
+import "react-calendar/dist/Calendar.css"
 
 import { getAiReportStatus, generateAiReport } from "../features/ai/api/ai.js"
 
+import AppAlert from "./common/AppAlert.jsx"
 import AiSummary from "../features/ai/components/AiSummary.jsx"
 import AiLastWeek from "../features/ai/components/AiLastWeek.jsx"
 import AiThisWeek from "../features/ai/components/AiThisWeek.jsx"
@@ -50,6 +51,9 @@ export default function AiReportModal({
     // 조회 중인 날짜 (기본값: 오늘)
     const [selectedDate, setSelectedDate] = useState(() => new Date())
 
+    // 날짜 선택 달력 팝업 표시 여부
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+
     // 선택한 날짜에 생성된 리포트 목록 (오래된 순)
     const [reports, setReports] = useState([])
 
@@ -76,6 +80,10 @@ export default function AiReportModal({
 
     // 리포트 생성 실패 메시지
     const [generateError, setGenerateError] = useState("")
+
+    // 아직 3시간이 안 쌓여 생성 실패했을 때 보여줄 안내 알림
+    const [notReadyAlertOpen, setNotReadyAlertOpen] = useState(false)
+    const [notReadyMessage, setNotReadyMessage] = useState("")
 
     const dateStr = toDateStr(selectedDate)
 
@@ -116,6 +124,7 @@ export default function AiReportModal({
 
         setGenerateError("")
         setSelectedDate(date)
+        setIsCalendarOpen(false)
     }
 
 
@@ -133,6 +142,15 @@ export default function AiReportModal({
             setCurrentIndex(data.reports.length - 1)
             setReady(data.ready)
             setNotice(data.message || "")
+
+            // 아직 3시간이 쌓이지 않아 생성되지 않았으면 안내 알림 표시
+            if (!data.ready) {
+                setNotReadyMessage(
+                    data.message ||
+                    "공부 시간이 3시간 채워야 리포트를 생성할 수 있습니다."
+                )
+                setNotReadyAlertOpen(true)
+            }
 
         } catch (err) {
             setGenerateError(
@@ -236,19 +254,30 @@ export default function AiReportModal({
                     <div className={styles.dateBar}>
                         <span className={styles.dateBarLabel}>조회 날짜</span>
 
-                        <DatePicker
-                            selected={selectedDate}
-                            onChange={handleDateChange}
-                            locale={ko}
-                            dateFormat="yyyy.MM.dd"
-                            maxDate={new Date()}
-                            popperProps={{ strategy: "fixed" }}
-                            customInput={
-                                <button type="button" className={styles.dateButton}>
-                                    🗓 {dateStr}
-                                </button>
-                            }
-                        />
+                        <div className={styles.dateSelector}>
+                            <button
+                                type="button"
+                                className={styles.dateButton}
+                                onClick={() => setIsCalendarOpen((open) => !open)}
+                            >
+                                🗓 {dateStr}
+                            </button>
+
+                            {isCalendarOpen && (
+                                <div className={styles.calendarPopup}>
+                                    <Calendar
+                                        className="app-calendar"
+                                        calendarType="iso8601"
+                                        value={selectedDate}
+                                        maxDate={new Date()}
+                                        onChange={handleDateChange}
+                                        formatDay={(locale, date) => dayjs(date).format("D")}
+                                        next2Label={null}
+                                        prev2Label={null}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
 
@@ -385,6 +414,16 @@ export default function AiReportModal({
                     )}
                 </main>
             </div>
+
+            {/* 아직 3시간이 안 쌓여 리포트를 생성할 수 없을 때 안내 알림 */}
+            <AppAlert
+                open={notReadyAlertOpen}
+                type="warning"
+                title="아직 리포트를 생성할 수 없어요"
+                message={notReadyMessage}
+                onConfirm={() => setNotReadyAlertOpen(false)}
+                onClose={() => setNotReadyAlertOpen(false)}
+            />
         </div>
     )
 }
