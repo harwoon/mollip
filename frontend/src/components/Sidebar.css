@@ -338,7 +338,7 @@
 
 .sidebarLogout {
     width: 100%;
-    opacity: .5;
+    /* opacity: .5; */
 }
 
 .sidebarLogoutButton {
