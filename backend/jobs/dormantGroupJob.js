@@ -4,7 +4,7 @@ import {assignDormantGroups} from "../service/dormantGroupService.js"
 export function startDormantGroupJob() {
     cron.schedule(
         // 매일 자정
-        "0 0 * * *",
+        "5 0 * * *",
 
         async () => {
             try {

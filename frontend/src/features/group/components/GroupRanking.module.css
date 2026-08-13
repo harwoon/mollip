@@ -136,6 +136,17 @@
     line-height: 1.45;
 }
 
+.scrollHint {
+    flex: 0 0 auto;
+
+    color: var(--color-primary-600);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
 
 /* ========================= TOP 3 ========================= */
 .topThreeSection {
@@ -338,6 +349,8 @@
 
     overflow-y: auto;
     overflow-x: hidden;
+
+    scrollbar-gutter: stable;
 
     padding-right: 5px;
 

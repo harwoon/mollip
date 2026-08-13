@@ -221,6 +221,10 @@ export default function GroupRanking() {
                                 내 순위는 보라색으로 표시돼요.
                             </p>
                         </div>
+
+                        <span className={styles.scrollHint}>
+                            스크롤하여 {ranking.length}명 전체 보기
+                        </span>
                     </div>
 
                     <div

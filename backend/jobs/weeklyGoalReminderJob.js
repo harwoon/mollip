@@ -14,7 +14,7 @@ export function startWeeklyGoalReminderJob() {
          * 월: 모든 월
          * 요일: 목요일 4
          */
-        "0 0 * * 4",
+        "15 0 * * 4",
 
         async () => {
             const startedAt =
