@@ -26,6 +26,8 @@ services:
       AI_SERVER_URL: http://ai:8000
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend/public/uploads:/app/public/uploads
     depends_on:
       - redis
       - ai
