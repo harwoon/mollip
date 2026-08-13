@@ -27,6 +27,27 @@ export async function createSchedule(
     return Schedule.create(scheduleData)
 }
 
+export async function findOverlappingSchedules(
+    userId,
+    startDate,
+    endDate,
+    excludedScheduleId = null,
+) {
+    const query = {
+        user: userId,
+        startDate: { $lte: endDate },
+        endDate: { $gte: startDate },
+    }
+
+    if (excludedScheduleId) {
+        query._id = { $ne: excludedScheduleId }
+    }
+
+    return Schedule.find(query)
+        .select("startDate endDate")
+        .lean()
+}
+
 export async function updateSchedule(
     userId,
     scheduleId,

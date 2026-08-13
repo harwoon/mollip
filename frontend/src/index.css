@@ -37,6 +37,9 @@
     --color-danger-soft: #fdebec;
     --color-focus: rgba(118, 83, 184, 0.16);
 
+    --color-blue: #2e86de;
+    --color-red: #dc3545;
+
     /* ========================= 고정값 ========================= */
     --sidebar-width: 250px;
 

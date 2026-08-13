@@ -164,7 +164,14 @@ export default function HitCalendar({
 
         const studyMinutes = Math.floor(studySeconds / 60)
 
-        return getHeatClass(studyMinutes)
+        const classNames = [getHeatClass(studyMinutes)]
+
+        // 오늘 이후 날짜는 별도 표시 (주말 숫자 색상 적용에서 제외하기 위함)
+        if (dayjs(date).isAfter(dayjs(), "day")) {
+            classNames.push("futureDate")
+        }
+
+        return classNames
     }
 
     // 날짜 칸에 마우스를 올렸을 때 총 공부시간 표시

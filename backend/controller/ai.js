@@ -3,59 +3,170 @@ import Subject from "../models/Subject.js"
 import Study from "../models/Study.js"
 import Todo from "../models/Todo.js"
 import AiReport from "../models/AiReport.js"
-import { formatDate } from "../util/date.js"
+import { getKstToday } from "../util/date.js"
 import { config } from "../config.mjs"
 
-export async function getWeeklyAiReport(req, res) {
+// 리포트 생성에 필요한 최소 누적 학습 시간 (3시간)
+const REQUIRED_SEGMENT_SECONDS = 3 * 60 * 60
+
+// 오늘 리포트 생성 조건(직전 리포트 이후 누적 공부시간)을 계산
+async function getReportEligibility(userId) {
+    const todayStr = getKstToday()
+
+    // 오늘 생성된 모든 리포트 (오래된 순 = 뒤로가기/앞으로가기 탐색 순서)
+    const todayReports = await AiReport.find({
+        user: userId,
+        reportDate: todayStr
+    }).sort({ createdAt: 1 })
+
+    const lastReport = todayReports.length > 0
+        ? todayReports[todayReports.length - 1]
+        : null
+
+    // 이번 구간의 시작 시점: 오늘 마지막 리포트 생성 시각 (없으면 오늘 자정)
+    const segmentStartAt = lastReport
+        ? lastReport.createdAt
+        : new Date(`${todayStr}T00:00:00+09:00`)
+
+    // 구간 시작 시점 이후에 쌓인 오늘의 공부 기록
+    const segmentStudies = await Study.find({
+        user: userId,
+        studyDate: todayStr,
+        createdAt: { $gt: segmentStartAt }
+    }).sort({ createdAt: 1 })
+
+    const segmentStudySeconds = segmentStudies.reduce(
+        (sum, record) => sum + (record.sumStudyTime || 0),
+        0
+    )
+
+    return {
+        todayStr,
+        todayReports,
+        lastReport,
+        segmentStudies,
+        segmentStudySeconds,
+        ready: segmentStudySeconds >= REQUIRED_SEGMENT_SECONDS,
+        remainingSeconds: Math.max(0, REQUIRED_SEGMENT_SECONDS - segmentStudySeconds)
+    }
+}
+
+// 아직 조건을 채우지 못했을 때 보여줄 안내 메시지
+function buildNotReadyMessage(lastReport, remainingSeconds) {
+    const remainingMinutes = Math.max(1, Math.ceil(remainingSeconds / 60))
+
+    return lastReport
+        ? `다음 리포트까지 공부 시간이 ${remainingMinutes}분 더 필요합니다.`
+        : `오늘의 리포트를 받으려면 공부 시간이 ${remainingMinutes}분 더 필요합니다.`
+}
+
+// 프론트에 넘길 형태로 리포트 목록 가공 (뒤로가기/앞으로가기 탐색용)
+function serializeReports(reports) {
+    return reports.map(report => ({
+        reportData: report.reportData,
+        createdAt: report.createdAt,
+        segmentStudySeconds: report.segmentStudySeconds
+    }))
+}
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+// 리포트 상태 조회 (생성하지 않고 현재 상태만 확인)
+// date 쿼리로 지난 날짜를 지정하면 해당 날짜에 생성된 리포트 목록만 조회한다
+// (리포트 생성은 오늘 날짜에서만 가능하므로 지난 날짜는 ready가 항상 false)
+export async function getAiReportStatus(req, res) {
     const userId = req.user._id
 
     try {
-        const today = new Date()
+        const todayStr = getKstToday()
 
-        const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay()
+        const requestedDate =
+            typeof req.query.date === "string" && DATE_PATTERN.test(req.query.date)
+                ? req.query.date
+                : todayStr
 
-        // 저번주 월요일
-        const lastWeekStart = new Date(today)
-        lastWeekStart.setDate(today.getDate() - dayOfWeek - 6)
+        // 미래 날짜는 오늘로 보정
+        const dateStr = requestedDate > todayStr ? todayStr : requestedDate
 
-        // 저번주 일요일
-        const lastWeekEnd = new Date(today)
-        lastWeekEnd.setDate(today.getDate() - dayOfWeek)
+        if (dateStr === todayStr) {
+            const { todayReports, lastReport, ready, remainingSeconds } = await getReportEligibility(userId)
 
-        // 문자열 변환 ("2026-07-27" ~ "2026-08-02")
-        const startDateStr = formatDate(lastWeekStart)
-        const endDateStr = formatDate(lastWeekEnd)
-
-        const existingReport = await AiReport.findOne({
-            user: userId,
-            startDate: startDateStr,
-            endDate: endDateStr
-        })
-
-        if (existingReport) {
             return res.status(200).json({
-                message: "저장된 AI 코칭 리포트를 불러왔습니다.",
-                report: existingReport.reportData
+                message: ready
+                    ? "새 리포트를 생성할 수 있습니다."
+                    : buildNotReadyMessage(lastReport, remainingSeconds),
+                reports: serializeReports(todayReports),
+                ready,
+                date: todayStr,
+                isToday: true
             })
         }
 
-        // DB 데이터 동시 조회 (문자열 형태의 날짜로 쿼리)
-        const [userInfo, activeSubjects, weeklyStudies, weeklyTodos] = await Promise.all([
+        // 지난 날짜: 저장된 리포트만 조회 (생성 조건 계산 불필요)
+        const pastReports = await AiReport.find({
+            user: userId,
+            reportDate: dateStr
+        }).sort({ createdAt: 1 })
+
+        return res.status(200).json({
+            message: "",
+            reports: serializeReports(pastReports),
+            ready: false,
+            date: dateStr,
+            isToday: false
+        })
+
+    } catch (error) {
+        console.error("AI 리포트 상태 조회 중 에러:", error)
+        return res.status(500).json({ message: "AI 리포트 상태를 불러올 수 없습니다." })
+    }
+}
+
+// "새 리포트 생성하기" 버튼 클릭 시 호출: 직전 리포트 이후 3시간이 쌓였는지 확인하고 생성
+export async function generateAiReport(req, res) {
+    const userId = req.user._id
+
+    try {
+        const {
+            todayStr,
+            todayReports,
+            lastReport,
+            segmentStudies,
+            segmentStudySeconds,
+            ready,
+            remainingSeconds
+        } = await getReportEligibility(userId)
+
+        // 아직 3시간이 쌓이지 않았으면 생성하지 않고 안내 메시지만 반환
+        if (!ready) {
+            return res.status(200).json({
+                message: buildNotReadyMessage(lastReport, remainingSeconds),
+                reports: serializeReports(todayReports),
+                ready: false
+            })
+        }
+
+        // 오늘 하루 전체 공부 기록 (누적 총 공부시간 계산용)
+        const todayStudies = await Study.find({ user: userId, studyDate: todayStr })
+        const todayTotalSeconds = todayStudies.reduce(
+            (sum, record) => sum + (record.sumStudyTime || 0),
+            0
+        )
+
+        const [userInfo, activeSubjects, todayTodos] = await Promise.all([
             User.findById(userId),
             Subject.find({ user: userId, useYn: "Y" }),
-            Study.find({ user: userId, studyDate: { $gte: startDateStr, $lte: endDateStr } }),
-            Todo.find({ user: userId, todoDate: { $gte: startDateStr, $lte: endDateStr } })
+            Todo.find({ user: userId, todoDate: todayStr })
         ])
 
-        // - 사용 중인 과목 이름만 추출
         const topSubjects = activeSubjects.map(sub => sub.subjectName)
 
-        // - 투두리스트 달성률 및 실패한 항목 계산
+        // 오늘 Todo 달성률 및 미달성 항목 계산
         let totalTodos = 0
         let completedTodos = 0
         const missedTodos = []
 
-        weeklyTodos.forEach(dailyDoc => {
+        todayTodos.forEach(dailyDoc => {
             if (dailyDoc.todo && Array.isArray(dailyDoc.todo)) {
                 dailyDoc.todo.forEach(item => {
                     totalTodos += 1
@@ -70,72 +181,43 @@ export async function getWeeklyAiReport(req, res) {
 
         const achievementRate = totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0
 
-        const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"]
-        const dailyRecordsMap = {}
+        // 이번 구간의 공부 세션 목록 (AI에게 전달할 형태로 변환)
+        const segmentSessions = segmentStudies.map(record => {
+            const sessionHours = Number(((record.sumStudyTime || 0) / 3600).toFixed(2))
 
-        // 공백 요일을 파악
-        let loopDate = new Date(lastWeekStart)
-        while (loopDate <= lastWeekEnd) {
-            const dStr = formatDate(loopDate)
-            dailyRecordsMap[dStr] = {
-                day: dayNames[loopDate.getDay()],
-                dailyTotalHours: 0,
-                sessions: []
-            }
-            loopDate.setDate(loopDate.getDate() + 1)
-        }
-
-        let totalStudySeconds = 0 // 주간 총 공부시간 계산용
-
-        // 실제 DB에서 가져온 공부 기록을 해당하는 날짜 넣기
-        weeklyStudies.forEach(record => {
-            const dStr = record.studyDate // 예: "2026-08-01"
-
-            if (dailyRecordsMap[dStr]) {
-                totalStudySeconds += (record.sumStudyTime || 0)
-
-                const sessionHours = Number(((record.sumStudyTime || 0) / 3600).toFixed(2))
-
-                let kstStartTime = "시간 모름"
-                if (record.createdAt) {
-                    kstStartTime = new Date(record.createdAt).toLocaleString("ko-KR", {
-                        timeZone: "Asia/Seoul",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false
-                    })
-                }
-
-                dailyRecordsMap[dStr].dailyTotalHours += sessionHours
-                dailyRecordsMap[dStr].sessions.push({
-                    subjectName: record.studyTitle,
-                    startTime: kstStartTime,
-                    hours: sessionHours
+            let kstStartTime = "시간 모름"
+            if (record.createdAt) {
+                kstStartTime = new Date(record.createdAt).toLocaleString("ko-KR", {
+                    timeZone: "Asia/Seoul",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false
                 })
             }
+
+            return {
+                subjectName: record.studyTitle,
+                startTime: kstStartTime,
+                hours: sessionHours
+            }
         })
 
-        Object.values(dailyRecordsMap).forEach(dayRecord => {
-            dayRecord.dailyTotalHours = Number(dayRecord.dailyTotalHours.toFixed(2))
-        })
-
-        const dailyRecords = Object.values(dailyRecordsMap)
-
-        // 주간 총 공부 시간 계산
-        const totalStudyHours = Math.floor(totalStudySeconds / 3600)
+        const segmentStudyHours = Number((segmentStudySeconds / 3600).toFixed(2))
+        const todayTotalHours = Number((todayTotalSeconds / 3600).toFixed(2))
 
         // FastAPI로 보낼 최종 통계 데이터 조립
         const userStats = {
             userName: userInfo.nickname,
-            totalStudyHours: totalStudyHours,
-            achievementRate: achievementRate,
-            topSubjects: topSubjects,
-            missedTodos: missedTodos,
-            dailyRecords: dailyRecords,
+            segmentStudyHours,
+            segmentSessions,
+            todayTotalHours,
+            achievementRate,
+            topSubjects,
+            missedTodos,
             currentStreak: userInfo.currentStreak || 0
         }
 
-        const fastApiResponse = await fetch(`${config.ai.serverUrl}/ai/weekly-report`, {
+        const fastApiResponse = await fetch(`${config.ai.serverUrl}/ai/daily-report`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -149,16 +231,17 @@ export async function getWeeklyAiReport(req, res) {
 
         const fastApiData = await fastApiResponse.json()
 
-        await AiReport.create({
+        const newReport = await AiReport.create({
             user: userId,
-            startDate: startDateStr,
-            endDate: endDateStr,
+            reportDate: todayStr,
+            segmentStudySeconds,
             reportData: fastApiData.report
         })
 
         return res.status(200).json({
             message: "AI 코칭 리포트 생성 성공",
-            report: fastApiData.report
+            reports: serializeReports([...todayReports, newReport]),
+            ready: true
         })
 
     } catch (error) {

@@ -69,7 +69,7 @@ export default function AiSummary({ diagnosis }) {
                     </ResponsiveContainer>
 
                     <div className={styles.centerLabel}>
-                        <span className={styles.immersionLabel}>이번 주 몰입도</span>
+                        <span className={styles.immersionLabel}>오늘의 몰입도</span>
                         <strong className={styles.immersionScore}>
                             {diagnosis.immersionScore}%
                         </strong>

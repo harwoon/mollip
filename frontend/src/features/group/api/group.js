@@ -1,4 +1,14 @@
 import { API_URL } from "../../../config/apiUrl.js"
+import { requestAllGroups } from "./groupRequest.js"
+
+
+export function getAllGroups() {
+    return requestAllGroups({
+        apiUrl: API_URL,
+        token: localStorage.getItem("token"),
+        fetcher: fetch
+    })
+}
 
 // 내 그룹 가져오기
 export async function getMyGroup() {

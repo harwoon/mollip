@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { ko } from "date-fns/locale";
 import dayjs from "dayjs";
 import * as XLSX from "xlsx";
 
@@ -211,6 +212,7 @@ export default function UserDetailModal({ user, onClose }) {
                             startDate={startDate}
                             endDate={endDate}
                             onChange={handleDateChange}
+                            locale={ko}
                             dateFormat="yyyy-MM-dd"
                             placeholderText="기간을 선택하세요"
                             isClearable

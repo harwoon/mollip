@@ -191,11 +191,17 @@ export default function HomeCalendar() {
         className={`app-calendar ${styles.customCalendar}`}
         onChange={setSelectedDate}
         value={selectedDate}
-        calendarType="iso8601"
+        calendarType="gregory"
         formatDay={(locale, date) => dayjs(date).format("D")}
         next2Label={null}
         prev2Label={null}
+        minDetail="month"
+        maxDetail="month"
         showNeighboringMonth={false}
+        tileClassName={({ date, view }) => {
+          if (view !== "month") return null
+          return dayjs(date).day() === 6 ? "saturdayTile" : null
+        }}
         onActiveStartDateChange={({ activeStartDate }) => {
           setActiveMonth(activeStartDate)
         }}
@@ -265,6 +271,7 @@ export default function HomeCalendar() {
         <ScheduleModal
           selectedDate={selectedDate}
           schedules={schedulesByDate[dayjs(selectedDate).format("YYYY-MM-DD")] || []}
+          allSchedules={schedules}
           selectedSchedule={selectedSchedule}
           onSelectSchedule={setSelectedSchedule}
           onSave={handleSaveSchedule}

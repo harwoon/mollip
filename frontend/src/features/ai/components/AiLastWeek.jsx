@@ -8,12 +8,12 @@ export default function AiLastWeek({ patterns = [] }) {
     return (
         <section>
             <div className="aiReportHeader">
-                <h3>지난주 학습 패턴</h3>
+                <h3>오늘 학습 패턴</h3>
             </div>
 
             {patterns.length === 0 ? (
                 <p className="aiReportError">
-                    분석할 지난주 학습 데이터가 없습니다.
+                    분석할 오늘 학습 데이터가 없습니다.
                 </p>
             ) : (
                 <ul>

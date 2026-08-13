@@ -197,7 +197,7 @@ export default function ActiveUsersList({ groupId, userId }) {
         <div className={styles.titleArea}>
           <FiUsers aria-hidden="true" />
 
-          <h2 className={styles.title}>접속자</h2>
+          <h2 className={styles.title}>공부중인 그룹원</h2>
         </div>
 
         <span className={styles.userCount}>{activeUsers.length}명 공부 중</span>
