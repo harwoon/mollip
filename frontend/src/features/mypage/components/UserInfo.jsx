@@ -226,6 +226,17 @@ export default function UserInfo() {
             setUser(updatedUser)
             setOriginalUser(updatedUser)
 
+            // localStorage의 user 정보도 함께 갱신 (다른 필드는 유지)
+            const storedUser = JSON.parse(localStorage.getItem("user") || "null")
+            if (storedUser) {
+                localStorage.setItem("user", JSON.stringify({
+                    ...storedUser,
+                    nickname: updatedUser.nickname,
+                    email: updatedUser.email,
+                    profileImg: updatedUser.profileImg
+                }))
+            }
+
             // 이미지 선택 상태 초기화
             setSelectedImageFile(null)
 

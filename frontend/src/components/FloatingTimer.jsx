@@ -8,7 +8,7 @@ import AppAlert from "./common/AppAlert.jsx"
 import styles from "./FloatingTimer.module.css"
 
 // 공부중인지 확인하는 시간 조정
-const HIDDEN_WARNING_DELAY_MS = 3 * 60 * 1000
+const HIDDEN_WARNING_DELAY_MS = 60 * 60 * 1000
 const WARNING_GRACE_MS = 60 * 1000
 
 function formatTime(currentTime = 0) {
