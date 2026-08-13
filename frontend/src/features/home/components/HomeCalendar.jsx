@@ -198,6 +198,10 @@ export default function HomeCalendar() {
         minDetail="month"
         maxDetail="month"
         showNeighboringMonth={false}
+        tileClassName={({ date, view }) => {
+          if (view !== "month") return null
+          return dayjs(date).day() === 6 ? "saturdayTile" : null
+        }}
         onActiveStartDateChange={({ activeStartDate }) => {
           setActiveMonth(activeStartDate)
         }}
