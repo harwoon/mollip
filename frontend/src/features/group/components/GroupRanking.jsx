@@ -223,7 +223,7 @@ export default function GroupRanking() {
                         </div>
 
                         <span className={styles.scrollHint}>
-                            스크롤하여 {ranking.length}명 전체 보기
+                            
                         </span>
                     </div>
 
