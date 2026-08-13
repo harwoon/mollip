@@ -6,10 +6,11 @@ import SidebarStudyStreak from "./SidebarStudyStreak"
 import SidebarLogout from "./SidebarLogout"
 import AiReportModal from "./AiReportModal.jsx"
 import SidebarTimer from "./SidebarTimer.jsx"
+import GroupListModal from "./GroupListModal.jsx"
 
 import AppAlert from "./common/AppAlert.jsx"
 import "./Sidebar.css"
-import { FiBarChart2, FiBookOpen, FiHome, FiSettings, FiUsers } from "react-icons/fi"
+import { FiBarChart2, FiBookOpen, FiHome, FiInfo, FiSettings, FiUsers } from "react-icons/fi"
 import { RiSparklingFill } from "react-icons/ri"
 
 const DEFAULT_GROUP_ID = "6a671438ab632542fc161df7"
@@ -22,6 +23,7 @@ function Sidebar({
 }) {
     const [isReportOpen, setIsReportOpen] = useState(false)
     const [isGroupAlertOpen, setIsGroupAlertOpen] = useState(false)
+    const [isGroupListOpen, setIsGroupListOpen] = useState(false)
     
     const getNavClassName = ({ isActive }) => {
         return isActive 
@@ -78,10 +80,20 @@ function Sidebar({
                     <div className="sidebarNavigationGroup">
                         <p className="sidebarNavigationTitle">COMMUNICATION</p>
 
-                        <NavLink to="/group" className={getNavClassName} onClick={handleGroupClick}>
-                            <FiUsers className="sidebarNavigationIcon" />
-                            <span>그룹</span>
-                        </NavLink>
+                        <div className="sidebarGroupNavigationRow">
+                            <NavLink to="/group" className={getNavClassName} onClick={handleGroupClick}>
+                                <FiUsers className="sidebarNavigationIcon" />
+                                <span>그룹</span>
+                            </NavLink>
+                            <button
+                                type="button"
+                                className="sidebarGroupInfoButton"
+                                aria-label="그룹 목록 보기"
+                                onClick={() => setIsGroupListOpen(true)}
+                            >
+                                <FiInfo aria-hidden="true" />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="sidebarNavigationGroup">
@@ -129,6 +141,12 @@ function Sidebar({
             onConfirm={() => setIsGroupAlertOpen(false)}
             onClose={() => setIsGroupAlertOpen(false)}
         />
+        {isGroupListOpen && (
+            <GroupListModal
+                open
+                onClose={() => setIsGroupListOpen(false)}
+            />
+        )}
         </>
     )
 }
