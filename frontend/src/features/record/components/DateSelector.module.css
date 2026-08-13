@@ -76,5 +76,5 @@
 
 /* 토요일(7번째 열) 숫자만 파란색 - maxDate로 막힌 오늘 이후 날짜는 :enabled로 제외 */
 .calendarPopup :global(.react-calendar__month-view__days__day--weekend):nth-child(7n):enabled {
-    color: #2e86de;
+    color: var(--color-blue);
 }

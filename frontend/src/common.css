@@ -406,11 +406,11 @@
 
 /* 일요일 빨간색, 토요일 파란색 - 선택 불가능한 날짜와 지난달/다음달 날짜는 제외 */
 .react-datepicker__week .react-datepicker__day:nth-child(7n+1):not([aria-disabled="true"]):not(.react-datepicker__day--outside-month):not(.react-datepicker__day--selected):not(.react-datepicker__day--in-range):not(.react-datepicker__day--in-selecting-range):not(.react-datepicker__day--keyboard-selected) {
-    color: #dc3545;
+    color: var(--color-red);
 }
 
 .react-datepicker__week .react-datepicker__day:nth-child(7n):not([aria-disabled="true"]):not(.react-datepicker__day--outside-month):not(.react-datepicker__day--selected):not(.react-datepicker__day--in-range):not(.react-datepicker__day--in-selecting-range):not(.react-datepicker__day--keyboard-selected) {
-    color: #2e86de;
+    color: var(--color-blue);
 }
 
 .react-datepicker .react-datepicker__day--selected,

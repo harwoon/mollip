@@ -18,7 +18,7 @@
 
 /* 에러 메시지 */
 .scheduleError {
-    color: #dc3545;
+    color: var(--color-red);
     font-size: 12px;
     margin-bottom: 8px;
 }
@@ -187,13 +187,13 @@
 
 /* 주말(토+일) 빨간 글씨 */
 .customCalendar :global(.react-calendar__month-view__days__day--weekend) .customTileNumber {
-    color: #dc3545 !important;
+    color: var(--color-red) !important;
 }
 
 /* 토요일만 파란 글씨 - 날짜 기준으로 붙인 saturdayTile 클래스 사용
    (showNeighboringMonth=false라 nth-child로는 열 위치를 신뢰할 수 없음) */
 .customCalendar :global(.saturdayTile) .customTileNumber {
-    color: #2e86de !important;
+    color: var(--color-blue) !important;
 }
 
 /* 이전달/다음달 날짜 연하게 */
