@@ -1,6 +1,8 @@
 # KDT_세미프로젝트_Mollip (몰입)
 
-![Mollip](./frontend//public/images/logo.png)
+<p align="center">
+  <img src="./frontend/public/images/logo.png" width="300" />
+</p>
 
 과목별 공부 시간을 기록하고, 스터디 그룹에 소속되어 서로의 공부 현황을 확인하며 함께 몰입할 수 있는 웹 기반 공부 관리 서비스입니다.
 
