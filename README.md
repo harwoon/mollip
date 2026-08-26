@@ -214,4 +214,4 @@ docker compose up --build
 
 | 길준영 | 김동권 | 배성욱 | 오승아 | 이서진(팀장) | 한혜원 |
 | --- | --- | --- | --- | --- | --- |
-| [@Junyoung](https://github.com/wnsdud2953) | [@Donggwon](https://github.com/dkkim9212) | [@SungUk](https://github.com/BaeSungUk) | [@Seongah](https://github.com/sdesign416) | [@Seojin](https://github.com/leeseojin-dev) | [@Harwoon](https://github.com/harwoon) |
+| [@Junyoung](https://github.com/wnsdud2953) | [@Dongkwon](https://github.com/dkkim9212) | [@SungUk](https://github.com/BaeSungUk) | [@Seongah](https://github.com/sdesign416) | [@Seojin](https://github.com/leeseojin-dev) | [@Harwoon](https://github.com/harwoon) |
